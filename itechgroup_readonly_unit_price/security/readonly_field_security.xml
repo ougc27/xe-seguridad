@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_allow_readonly_field" model="ir.module.category">
+        <field name="name">Allow readonly fields</field>
+        <field name="sequence">70</field>
+        <field name="visible" eval="0" />
+    </record>
+    <record id="group_sale_order_line_readonly" model="res.groups">
+        <field name="name">Force readonly price unit in sale order line</field>
+        <field name="category_id" ref="itechgroup_readonly_unit_price.module_category_allow_readonly_field"/>
+    </record>
+    <record id="group_purchase_order_line_readonly" model="res.groups">
+        <field name="name">Force readonly price unit in purchase order line</field>
+        <field name="category_id" ref="itechgroup_readonly_unit_price.module_category_allow_readonly_field"/>
+    </record>
+    <record id="group_invoice_line_readonly" model="res.groups">
+        <field name="name">Force readonly price unit in invoice line</field>
+        <field name="category_id" ref="itechgroup_readonly_unit_price.module_category_allow_readonly_field"/>
+    </record>
+</odoo>
