@@ -1,0 +1,36 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* itechgroup_readonly_unit_price
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-01-01 20:26+0000\n"
+"PO-Revision-Date: 2022-01-01 20:26+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: itechgroup_readonly_unit_price
+#: model:ir.module.category,name:itechgroup_readonly_unit_price.module_category_allow_readonly_field
+msgid "Allow readonly field"
+msgstr "Autoriser les champs en lecture seule"
+
+#. module: itechgroup_readonly_unit_price
+#: model:res.groups,name:itechgroup_readonly_unit_price.group_invoice_line_readonly
+msgid "Force readonly price unit in invoice line"
+msgstr "Forcer l'unité de prix en lecture seule dans la ligne de facture"
+
+#. module: itechgroup_readonly_unit_price
+#: model:res.groups,name:itechgroup_readonly_unit_price.group_purchase_order_line_readonly
+msgid "Force readonly price unit in purchase order line"
+msgstr "Forcer l'unité de prix en lecture seule dans la ligne de commande fournisseur"
+
+#. module: itechgroup_readonly_unit_price
+#: model:res.groups,name:itechgroup_readonly_unit_price.group_sale_order_line_readonly
+msgid "Force readonly price unit in sale order line"
+msgstr "Forcer l'unité de prix en lecture seule dans la ligne de commande client"
