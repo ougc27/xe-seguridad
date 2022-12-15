@@ -7,9 +7,9 @@ class SalesOrder(models.Model):
     _inherit = 'sale.order'
 
     delivery_status = fields.Selection(selection=[
-        ('nothing', 'Nothing to Deliver'), ('to_deliver', 'To Deliver'),
-        ('partial', 'Partially Delivered'), ('delivered', 'Delivered'),
-        ('processing', 'Processing')
+        ('nothing', 'Nada que entregar'), ('to_deliver', 'Para entregar'),
+        ('partial', 'Entrega parcial'), ('delivered', 'Entregado'),
+        ('processing', 'Procesando')
     ], string='Delivery Status', compute='_compute_delivery_status', store=True,
         readonly=True, copy=False, default='nothing')
 
