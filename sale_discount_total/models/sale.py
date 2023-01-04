@@ -96,3 +96,8 @@ class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
     discount = fields.Float(string='Discount (%)', digits=(16, 20), default=0.0)
+
+class ProductPricelistItem(models.Model):
+    _inherit = "product.pricelist.item"
+    
+    price_discount = fields.Float('Price Discount', default=0, digits=(16, 4), help="You can apply a mark-up by setting a negative discount.")
