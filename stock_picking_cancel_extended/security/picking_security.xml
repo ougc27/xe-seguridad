@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+        
+    <data>
+        <record id="group_picking_cancel" model="res.groups">
+            <field name="name">Picking / Button Cancel</field>
+        </record>
+    </data>
+        
+</odoo>
