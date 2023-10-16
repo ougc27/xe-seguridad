@@ -1,4 +1,4 @@
-[submodule "morwi/addons-morwi"]
-	path = morwi/addons-morwi
+[submodule "morwi2/addons-morwi2"]
+	path = morwi2/addons-morwi2
 	url = git@github.com:ougc27/addons-morwi.git
 	branch = 16.0
