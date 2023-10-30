@@ -160,7 +160,7 @@ class AccountInvoice(models.Model):
                     line.discount = discount
                     line._onchange_price_subtotal()
 
-            inv._compute_tax_totals_json()
+            inv._compute_tax_totals()
     #
 
     def button_dummy(self):
