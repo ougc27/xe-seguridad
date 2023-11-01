@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 #############################################################################
 #
 #    Cybrosys Technologies Pvt. Ltd.
@@ -40,16 +40,16 @@ Module to manage discount on total amount in Sale.
                 'account', 'delivery'
                 ],
     'data': [
+        'views/res_config_view.xml',
         'views/sale_view.xml',
         'views/account_invoice_view.xml',
         'views/invoice_report.xml',
         'views/sale_order_report.xml',
-        'views/res_config_view.xml',
-
     ],
     'images': ['static/description/banner.png'],
     'license': 'AGPL-3',
     'application': True,
+    'images': ['static/description/banner.png'],
     'installable': True,
     'auto_install': False,
 }
