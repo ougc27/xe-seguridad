@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 #############################################################################
 #
 #    Cybrosys Technologies Pvt. Ltd.
@@ -20,8 +21,9 @@
 #
 #############################################################################
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 import odoo.addons.decimal_precision as dp
+from odoo.exceptions import ValidationError
 
 
 class SaleOrder(models.Model):
@@ -37,7 +39,8 @@ class SaleOrder(models.Model):
             for line in order.order_line:
                 amount_untaxed += line.price_subtotal
                 amount_tax += line.price_tax
-                amount_discount += (line.product_uom_qty * line.price_unit * line.discount) / 100
+                amount_discount += (
+                                           line.product_uom_qty * line.price_unit * line.discount) / 100
             order.update({
                 'amount_untaxed': amount_untaxed,
                 'amount_tax': amount_tax,
@@ -45,24 +48,33 @@ class SaleOrder(models.Model):
                 'amount_total': amount_untaxed + amount_tax,
             })
 
-    discount_type = fields.Selection([('percent', 'Percentage'), ('amount', 'Amount')], string='Discount type',
-                                     readonly=True,
-                                     states={'draft': [('readonly', False)], 'sent': [('readonly', False)]},
-                                     default='percent')
-    discount_rate = fields.Float('Discount Rate', digits=dp.get_precision('Account'),
-                                 readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]})
-    amount_untaxed = fields.Monetary(string='Untaxed Amount', store=True, readonly=True, compute='_amount_all',
+    discount_type = fields.Selection(
+        [('percent', 'Percentage'), ('amount', 'Amount')],
+        string='Discount type',
+        readonly=True,
+        states={'draft': [('readonly', False)], 'sent': [('readonly', False)]},
+        default='percent')
+    discount_rate = fields.Float('Discount Rate',
+                                 digits=dp.get_precision('Account'),
+                                 readonly=True,
+                                 states={'draft': [('readonly', False)],
+                                         'sent': [('readonly', False)]})
+    amount_untaxed = fields.Monetary(string='Untaxed Amount', store=True,
+                                     readonly=True, compute='_amount_all',
                                      track_visibility='always')
-    amount_tax = fields.Monetary(string='Taxes', store=True, readonly=True, compute='_amount_all',
+    amount_tax = fields.Monetary(string='Taxes', store=True, readonly=True,
+                                 compute='_amount_all',
                                  track_visibility='always')
-    amount_total = fields.Monetary(string='Total', store=True, readonly=True, compute='_amount_all',
+    amount_total = fields.Monetary(string='Total', store=True, readonly=True,
+                                   compute='_amount_all',
                                    track_visibility='always')
-    amount_discount = fields.Monetary(string='Discount', store=True, readonly=True, compute='_amount_all',
-                                      digits=dp.get_precision('Account'), track_visibility='always')
+    amount_discount = fields.Monetary(string='Discount', store=True,
+                                      readonly=True, compute='_amount_all',
+                                      digits=dp.get_precision('Account'),
+                                      track_visibility='always')
 
-    @api.onchange('discount_type', 'discount_rate')
+    @api.onchange('discount_type', 'discount_rate', 'order_line')
     def supply_rate(self):
-
         for order in self:
             if order.discount_type == 'percent':
                 for line in order.order_line:
@@ -77,12 +89,16 @@ class SaleOrder(models.Model):
                     discount = order.discount_rate
                 for line in order.order_line:
                     line.discount = discount
+                    # print(line.discount)
+                    new_sub_price = (line.price_unit * (discount / 100))
+                    line.total_discount = line.price_unit - new_sub_price
 
     def _prepare_invoice(self, ):
         invoice_vals = super(SaleOrder, self)._prepare_invoice()
         invoice_vals.update({
             'discount_type': self.discount_type,
             'discount_rate': self.discount_rate,
+            'amount_discount': self.amount_discount,
         })
         return invoice_vals
 
@@ -91,13 +107,28 @@ class SaleOrder(models.Model):
         self.supply_rate()
         return True
 
+    # def write(self, vals):
+    #     print(self)
+    #     print(self.order_line)
+    #     for line in self.order_line:
+    #         line.write({
+    #             'price_subtotal': line.total_discount
+    #         })
+    #     return super(SaleOrder, self).write(vals)
+    # @api.onchange('discount_type', 'discount_rate')
+    # def warning_msg(self):
+    #     # settings_discount = self.env['ir.config_parameter'].get_param('group_discount_per_so_line')
+    #     local_fields = self.env['sale.order.line'].fields_get()
+    #     print(local_fields)
+    #     # settings_discount = order.discount
+    #     # print(settings_discount)
+    #     # if not settings_discount:
+    #     #     raise ValidationError(_("You have enable discount from configuration setting"))
+
 
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
     discount = fields.Float(string='Discount (%)', digits=(16, 20), default=0.0)
-
-class ProductPricelistItem(models.Model):
-    _inherit = "product.pricelist.item"
-    
-    price_discount = fields.Float('Price Discount', default=0, digits=(16, 4), help="You can apply a mark-up by setting a negative discount.")
+    total_discount = fields.Float(string="Total Discount", default=0.0,
+                                  store=True)

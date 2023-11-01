@@ -19,7 +19,7 @@
 #    If not, see <http://www.gnu.org/licenses/>.
 #
 #############################################################################
+
+from . import discount_approval
 from . import sale
 from . import account_invoice
-from . import discount_approval
-
