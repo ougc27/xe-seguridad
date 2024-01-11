@@ -29,7 +29,6 @@ class AccountReport(models.Model):
 		if record_id is None:
 			raise UserError(_("'Open Journal Items' caret option is only available form report lines targetting accounts."))
 
-
 		action_vals = self.env['ir.actions.actions']._for_xml_id('account.action_account_moves_all')
 		action_vals['domain'] = """[
 			('display_type', 'not in', ('line_section', 'line_note')),
