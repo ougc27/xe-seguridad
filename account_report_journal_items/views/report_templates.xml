@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit the line_caret_options template -->
+    <template id="line_template_xe" inherit_id="account_reports.line_template">
+        <!-- <xpath <a role="menuitem" -->
+        <xpath expr="//a[@role='menuitem']" position="before">
+            <a t-att-href="'#menu_id=223%26action=220%26active_id='+line['id']+'%26model=account.move.line%26view_type=list'" tabindex="-1" class="dropdown-item js_account_reports_add_footnote">Journal Items</a>
+        </xpath>
+    </template>
+
+</odoo>
