@@ -12,7 +12,4 @@
     "depends": [
         "account_reports",
     ],
-    'data': [
-        "views/report_templates.xml",
-    ],
 }
