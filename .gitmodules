@@ -2,3 +2,8 @@
 	path = morwi/addons-morwi
 	url = https://github.com/ougc27/addons-morwi.git
 	branch = 17.0
+
+[submodule "ougc27/addons-morwi"]
+	path = ougc27/addons-morwi
+	url = git@github.com:ougc27/addons-morwi.git
+	branch = 17.0
