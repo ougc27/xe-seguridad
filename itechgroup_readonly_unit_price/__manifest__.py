@@ -14,7 +14,7 @@
         | This module will save you significant time, it lessens human exertion | This module is compatible with one of them or all modules
     """,
     "category": "Extra Tools",
-    "version": "16.0.0.1",
+    "version": "17.0.0.0",
     "sequence": 3,
     "author": "Itechgroup",
     "depends": ['base'],

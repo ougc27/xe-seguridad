@@ -7,10 +7,10 @@
             <field name="inherit_id" ref="stock.view_picking_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='action_cancel']" position="replace">
-                    <button name="action_cancel" states="assigned,confirmed,done,partially_available,draft,waiting" string="Cancel" type="object"  groups="stock_picking_cancel_extended.group_picking_cancel"/>
+                    <button name="action_cancel" invisible="state in ['assigned','confirmed','done','partially_available','draft','waiting']" string="Cancel" type="object"  groups="stock_picking_cancel_extended.group_picking_cancel"/>
                 </xpath>
                 <xpath expr="//button[@name='action_cancel']" position="after">
-                    <button name="action_set_draft" states="cancel" string="Set To Draft" type="object" />
+                    <button name="action_set_draft" invisible="state in 'cancel'" string="Set To Draft" type="object" />
                 </xpath>
             </field>
         </record>

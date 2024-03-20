@@ -22,19 +22,16 @@
 from odoo import fields, models
 
 
-class DiscountSaleReport(models.Model):
-    """This class inherits 'sale.report' and adds field discount"""
-    _inherit = 'sale.report'
+class AccountInvoiceReport(models.Model):
+    """This class inherits the model 'account.invoice.report'"""
+    _inherit = 'account.invoice.report'
 
     discount = fields.Float('Discount', readonly=True,
-                            help="Specify the discount amount.")
+                            help="Specify the discount.")
 
     def _select(self):
-        """It extends the behavior of a method in the class by adding a
-         new column, discount, to the SQL query. This new column represents
-         the total discount for sales transactions, calculated based on
-         various factors and values related to the sale. """
-        res = super(DiscountSaleReport, self)._select()
-        select_str = res + """,sum(l.product_uom_qty / u.factor * u2.factor * cr.rate * l.price_unit * l.discount / 100.0)
-         as discount"""
+        """This allows the report to include the discount information in its
+         SQL query when fetching data from the database. """
+        res = super(AccountInvoiceReport, self)._select()
+        select_str = res + """, line.discount AS discount """
         return select_str
