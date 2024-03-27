@@ -6,7 +6,7 @@ from odoo import models, fields, api, _
 class SalesOrder(models.Model):
     _inherit = 'sale.order'
 
-    delivery_status = fields.Selection(selection=[
+    delivery_status = fields.Selection(selection_add=[
         ('nothing', 'Nada que entregar'), ('to_deliver', 'Para entregar'),
         ('partial', 'Entrega parcial'), ('delivered', 'Entregado'),
         ('processing', 'Procesando')
