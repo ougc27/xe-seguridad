@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ?? 2015-2016 Akretion (http://www.akretion.com)
 # @author Alexis de Lattre <alexis.delattre@akretion.com>
 # ?? 2016 ForgeFlow S.L.

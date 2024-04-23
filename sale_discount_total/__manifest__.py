@@ -1,10 +1,10 @@
-
+# -*- coding: utf-8 -*-
 #############################################################################
 #
 #    Cybrosys Technologies Pvt. Ltd.
 #
-#    Copyright (C) 2021-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
-#    Author: Faslu Rahman(odoo@cybrosys.com)
+#    Copyright (C) 2024-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
+#    Author: Jumana Haseen(odoo@cybrosys.com)
 #
 #    You can modify it under the terms of the GNU AFFERO
 #    GENERAL PUBLIC LICENSE (AGPL v3), Version 3.
@@ -19,37 +19,34 @@
 #    If not, see <http://www.gnu.org/licenses/>.
 #
 #############################################################################
-
 {
     'name': 'Sale Discount on Total Amount',
-    'version': '16.0.1.1.0',
+    'version': '1.0',
     'category': 'Sales Management',
-    'live_test_url': 'https://www.youtube.com/watch?v=CigmHe9iC4s&feature=youtu.be',
-    'summary': "Discount on Total in Sale and Invoice With Discount Limit and Approval",
+    'summary': "Discount on Total in Sale and Invoice With Discount Limit "
+               "and Approval",
+    'description': "This module is designed to manage discounts on the total "
+                   "amount in sales. It will include features to apply "
+                   "discounts either as a specific amount or a percentage. "
+                   "This module will enhance the functionality of Odoo's sales "
+                   "module, allowing users to easily manage and apply discounts"
+                   " to sales orders based on their requirements.",
     'author': 'Cybrosys Techno Solutions',
     'company': 'Cybrosys Techno Solutions',
-    'website': 'http://www.cybrosys.com',
-    'description': """
-
-Sale Discount for Total Amount
-=======================
-Module to manage discount on total amount in Sale.
-        as an specific amount or percentage
-""",
-    'depends': ['sale',
-                'account', 'delivery'
-                ],
+    'maintainer': 'Cybrosys Techno Solutions',
+    'website': "https://www.cybrosys.com",
+    'live_test_url': 'https://www.youtube.com/watch?v=CigmHe9iC4s&feature=youtu.be',
+    'depends': ['sale_management', 'account'],
     'data': [
-        'views/res_config_view.xml',
-        'views/sale_view.xml',
-        'views/account_invoice_view.xml',
-        'views/invoice_report.xml',
-        'views/sale_order_report.xml',
+        'views/res_config_settings_views.xml',
+        'views/sale_order_views.xml',
+        'views/account_move_views.xml',
+        'views/account_move_templates.xml',
+        'views/sale_order_templates.xml',
     ],
     'images': ['static/description/banner.png'],
     'license': 'AGPL-3',
-    'application': True,
-    'images': ['static/description/banner.png'],
     'installable': True,
     'auto_install': False,
+    'application': False,
 }

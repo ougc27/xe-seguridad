@@ -22,19 +22,17 @@
 from odoo import fields, models
 
 
-class DiscountSaleReport(models.Model):
-    """This class inherits 'sale.report' and adds field discount"""
-    _inherit = 'sale.report'
+class ResCompany(models.Model):
+    """This class inherits 'res.company' and adds so_double_validation,
+    so_double_validation_limit to add validation limits"""
+    _inherit = 'res.company'
 
-    discount = fields.Float('Discount', readonly=True,
-                            help="Specify the discount amount.")
-
-    def _select(self):
-        """It extends the behavior of a method in the class by adding a
-         new column, discount, to the SQL query. This new column represents
-         the total discount for sales transactions, calculated based on
-         various factors and values related to the sale. """
-        res = super(DiscountSaleReport, self)._select()
-        select_str = res + """,sum(l.product_uom_qty / u.factor * u2.factor * cr.rate * l.price_unit * l.discount / 100.0)
-         as discount"""
-        return select_str
+    so_double_validation = fields.Selection([
+        ('one_step', 'Confirm sale orders in one step'),
+        ('two_step', 'Get 2 levels of approvals to confirm a sale order')
+    ], string="Levels of Approvals", default='one_step',
+        help="Provide a double validation mechanism for sales discount.")
+    so_double_validation_limit = fields.Float(
+        string="Percentage of Discount that requires double validation'",
+        help="Minimum discount percentage for which a double validation is "
+             "required.")

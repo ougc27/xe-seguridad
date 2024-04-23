@@ -5,7 +5,7 @@
 {
     "name": "Journal Items for Profit and Loss Report",
     'category': 'Hidden',
-    'version': '16.0.1.0.1',
+    'version': '1.0',
     'license': 'LGPL-3',
     'description': "Journal Items for Profit and Loss Report",
     'summary': "Journal Items for Profit and Loss Report",

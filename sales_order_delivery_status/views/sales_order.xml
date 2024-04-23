@@ -6,8 +6,7 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <field name="effective_date" position="after">
-                <field name="delivery_status"
-                       attrs="{'invisible': [('state', '!=', 'sale')]}"/>
+                <field name="delivery_status" invisible="state not in 'sale'"/>
             </field>
         </field>
     </record>
