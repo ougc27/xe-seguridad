@@ -1,0 +1,33 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="authorization_scope_tree_view">
+            <field name="name">authorization.scope.tree</field>
+            <field name="model">authorization.scope</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="scope" groups="odoo_connect_spreadsheet.group_connect_spreadsheet_admin"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="authorization_scope_form_view">
+            <field name="name">authorization.scope.form</field>
+            <field name="model">authorization.scope</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="scope" groups="odoo_connect_spreadsheet.group_connect_spreadsheet_admin"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="authorization_scope_action_window">
+            <field name="name">Authorization Scope</field>
+            <field name="res_model">authorization.scope</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>
