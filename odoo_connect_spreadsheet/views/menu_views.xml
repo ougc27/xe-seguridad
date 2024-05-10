@@ -1,0 +1,30 @@
+<odoo>
+    <data>
+        <menuitem id="odoo_connect_spreadsheet.menu_root"
+                  name="Connect Spreadsheet"
+                  sequence="10"
+                  web_icon="odoo_connect_spreadsheet,static/description/icon.png"
+                  groups="group_connect_spreadsheet_user"/>
+
+        <menuitem id="odoo_connect_spreadsheet.connect"
+                  name="Connect" parent="odoo_connect_spreadsheet.menu_root"
+                  sequence="10"
+                  action="connect_spreadsheet_action_window"
+                  groups="group_connect_spreadsheet_user"/>
+
+        <menuitem id="odoo_connect_spreadsheet.configuration"
+                  name="Configuration" parent="odoo_connect_spreadsheet.menu_root"
+                  sequence="20"
+                  groups="group_connect_spreadsheet_admin"/>
+
+        <menuitem id="odoo_connect_spreadsheet.scope"
+                  name="Scope" parent="odoo_connect_spreadsheet.configuration"
+                  sequence="10"
+                  action="authorization_scope_action_window"/>
+
+        <menuitem id="odoo_connect_spreadsheet.credential"
+                  name="Credential" parent="odoo_connect_spreadsheet.configuration"
+                  sequence="20"
+                  action="connect_spreadsheet_credential_action_window"/>
+    </data>
+</odoo>

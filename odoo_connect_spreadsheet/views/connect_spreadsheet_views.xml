@@ -1,0 +1,139 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="connect_spreadsheet_tree_view">
+            <field name="name">connect.spreadsheet.tree</field>
+            <field name="model">connect.spreadsheet</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="credential_id" optional="hide"/>
+                    <field name="pure_sql" optional="hide"/>
+                    <field name="model_id"/>
+                    <field name="existing_or_new" optional="hide"/>
+                    <field name="update_type" optional="hide"/>
+                    <field name="operation_type" optional="hide"/>
+                    <field name="spreadsheet_id" optional="hide"/>
+                    <field name="spreadsheet_title"/>
+                    <field name="state" widget="badge" decoration-success="state=='active'"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="connect_spreadsheet_form_view">
+            <field name="name">connect.spreadsheet.form</field>
+            <field name="model">connect.spreadsheet</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="state" widget="statusbar" clickable="1"/>
+                        <button string="Run" name="run" type="object" class="btn btn-primary"
+                                invisible="state == 'active'"/>
+                        <button string="Set to draft" name="reset_to_draft" type="object" invisible="state == 'draft'"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="credential_id" readonly="state == 'active'" options="{'no_open': True}"/>
+                            <field name="pure_sql" readonly="state == 'active'" widget="boolean_toggle"/>
+                            <field name="model_id" readonly="state == 'active'"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <field name="model_name" invisible="1"/>
+                            <field name="existing_or_new" readonly="state == 'active'"/>
+                            <field name="update_type" readonly="state == 'active'"/>
+                            <field name="spreadsheet_id"
+                                   readonly="state == 'active' or existing_or_new == 'create_new'"/>
+                            <field name="spreadsheet_title"
+                                   readonly="state == 'active' or existing_or_new == 'existing'"/>
+                            <field name="spreadsheet_url" readonly="1" widget="url"/>
+                        </group>
+                        <notebook>
+                            <page string="Main">
+                                <group>
+                                    <field name="operation_type"/>
+                                </group>
+                                <group col="2" invisible="operation_type == 'update'">
+                                    <group>
+                                        <field name="insert_data_option"/>
+                                    </group>
+                                    <group>
+                                        <field name="major_dimension"/>
+                                    </group>
+                                </group>
+                                <field name="show_sync_spreadsheet_button" invisible="1"/>
+                                <button string="Manual Sync" name="sync_spreadsheet" type="object"
+                                        class="btn btn-primary" invisible="show_sync_spreadsheet_button != True"/>
+                                <group col="2" string="Spreadsheet">
+                                    <group>
+                                        <field name="sheet_name"/>
+                                        <field name="range_name"/>
+                                    </group>
+                                    <group>
+                                        <field name="clear_sheet" widget="boolean_toggle"/>
+                                        <field name="show_header" widget="boolean_toggle"/>
+                                    </group>
+                                </group>
+                                <hr/>
+                                <group invisible="pure_sql == True">
+                                    <field name="enable_domain_filter" widget="boolean_toggle"/>
+                                </group>
+                                <group invisible="enable_domain_filter == False">
+                                    <field name="domain" widget="domain" options="{'model': 'model_name'}"/>
+                                </group>
+                                <group col="3" invisible="enable_domain_filter == False">
+                                    <group>
+                                        <field name="order_with"/>
+                                    </group>
+                                    <group>
+                                        <field name="order_type" required="pure_sql == False"/>
+                                    </group>
+                                    <group>
+                                        <field name="limit"/>
+                                    </group>
+                                </group>
+                                <field name="spreadsheet_field_ids" invisible="pure_sql == True">
+                                    <tree editable="bottom">
+                                        <field name="model_id" column_invisible="1"/>
+                                        <field name="field_id"/>
+                                        <field name="model_relation" column_invisible="1"/>
+                                        <field name="set_display_field_readonly" column_invisible="1"/>
+                                        <field name="display_field" readonly="set_display_field_readonly != False" force_save="1"/>
+                                    </tree>
+                                </field>
+                                <group invisible="pure_sql == False">
+                                    <field name="search_query"/>
+                                </group>
+                                <button name="test_query" string="Test Query" type="object" class="btn btn-primary" invisible="pure_sql == False"/>
+                                <field name="preview_query_result" widget="html" invisible="preview_query_result == False"/>
+                            </page>
+                            <page string="Grant Access">
+                                <button string="Update Spreadsheet Permission" name="update_spreadsheet_permission"
+                                        type="object" class="btn btn-primary"
+                                        invisible="state == 'draft'"/>
+                                <field name="partner_ids">
+                                    <tree editable="bottom">
+                                        <field name="display_name"/>
+                                        <field name="email"/>
+                                        <field name="grant_type"/>
+                                        <field name="grant_role"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Advanced" invisible="pure_sql == True">
+                                <group>
+                                    <field name="timezone"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="connect_spreadsheet_action_window">
+            <field name="name">Connect Spreadsheet</field>
+            <field name="res_model">connect.spreadsheet</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>
