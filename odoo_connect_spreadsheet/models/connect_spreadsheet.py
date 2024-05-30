@@ -3,7 +3,6 @@ import json
 import ast
 import datetime
 
-
 from odoo.addons.odoo_connect_spreadsheet.models import _helpers
 import logging
 from odoo import models, fields, api, _
@@ -49,8 +48,10 @@ class ConnectSpreadsheet(models.Model):
     spreadsheet_title = fields.Char('Spreadsheet Title')
     sheet_name = fields.Char('Sheet Name', default='Sheet1', required=True)
     range_name = fields.Char('Range Name', required=True, default='A1')
-    clear_sheet = fields.Boolean('Clear Sheet?', default=False,
-                                 help='Mark as True to clear all data inside the Sheet Name.')
+    clear_sheet = fields.Boolean('Clear Sheet before update?', default=False,
+                                 help='Mark as True to clear all data before update.')
+    clear_range = fields.Char('Clear Range', help='Clear the sheet on the defined range.\n'
+                                                  'Example: A1:Z1000')
     partner_ids = fields.Many2many('res.partner', string='Grant sheet access')
     show_sync_spreadsheet_button = fields.Boolean('Show the Update Spreadsheet button?', default=False)
     show_header = fields.Boolean('Show header?', default=True,
@@ -138,7 +139,6 @@ class ConnectSpreadsheet(models.Model):
             _helpers.add_sheet(self.spreadsheet_service(), self.spreadsheet_id, self.sheet_name)
 
         if self.clear_sheet is True:
-            # todo | clear all sheet (make sheet be blank), or clear in specify range
             """
             If any changes detect on range_name field, clear all data inside the sheet, and refill/update it 
             with bellow update data code. Ths logic is related with _onchange_range_name method.
@@ -146,7 +146,7 @@ class ConnectSpreadsheet(models.Model):
             Set the sheet and the range of cells to clear, for this purpose, clear all cells.
             """
             _helpers.clear_spreadsheet_data(self.spreadsheet_service(), self.spreadsheet_id,
-                                            self.sheet_name + '!A1:Z1000' if self.sheet_name else "A1:Z1000")
+                                            self.sheet_name + '!' + self.clear_range if self.sheet_name else self.clear_range)
             self.clear_sheet = False
 
         values = []

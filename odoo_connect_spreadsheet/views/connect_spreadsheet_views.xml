@@ -66,7 +66,12 @@
                                         <field name="range_name"/>
                                     </group>
                                     <group>
-                                        <field name="clear_sheet" widget="boolean_toggle"/>
+                                        <field name="clear_sheet" class="oe_inline" widget="boolean_toggle"/>
+                                        <field name="clear_range" class="oe_inline" invisible="clear_sheet != True"
+                                               placeholder="Example: A1:Z1000"/>
+                                    </group>
+
+                                    <group>
                                         <field name="show_header" widget="boolean_toggle"/>
                                     </group>
                                 </group>
@@ -94,14 +99,17 @@
                                         <field name="field_id"/>
                                         <field name="model_relation" column_invisible="1"/>
                                         <field name="set_display_field_readonly" column_invisible="1"/>
-                                        <field name="display_field" readonly="set_display_field_readonly != False" force_save="1"/>
+                                        <field name="display_field" readonly="set_display_field_readonly != False"
+                                               force_save="1"/>
                                     </tree>
                                 </field>
                                 <group invisible="pure_sql == False">
                                     <field name="search_query"/>
                                 </group>
-                                <button name="test_query" string="Test Query" type="object" class="btn btn-primary" invisible="pure_sql == False"/>
-                                <field name="preview_query_result" widget="html" invisible="preview_query_result == False"/>
+                                <button name="test_query" string="Test Query" type="object" class="btn btn-primary"
+                                        invisible="pure_sql == False"/>
+                                <field name="preview_query_result" widget="html"
+                                       invisible="preview_query_result == False"/>
                             </page>
                             <page string="Grant Access">
                                 <button string="Update Spreadsheet Permission" name="update_spreadsheet_permission"
