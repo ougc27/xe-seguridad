@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_partner_form_profiles_l10n_cl_inherit" model="ir.ui.view">
+    <record id="view_partner_form_border_zone_inherit" model="ir.ui.view">
         <field name="priority">99</field>
-        <field name="name">view.partner.form.profiles.l10n.cl.inherit</field>
-        <field name="inherit_id" ref="galileo_contacts.view_partner_form_profiles_page"/>
+        <field name="name">view.partner.form.border.zone.inherit</field>
+        <field name="inherit_id" ref="account.view_partner_property_form"/>
         <field name="model">res.partner</field>
         <field name="arch" type="xml">
             <xpath expr="//group[@name='accounting_entries']" position="after">
