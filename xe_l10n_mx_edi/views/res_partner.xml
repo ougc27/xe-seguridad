@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_profiles_l10n_cl_inherit" model="ir.ui.view">
+        <field name="priority">99</field>
+        <field name="name">view.partner.form.profiles.l10n.cl.inherit</field>
+        <field name="inherit_id" ref="galileo_contacts.view_partner_form_profiles_page"/>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='accounting_entries']" position="after">
+                <group string="Border Zone Taxpayer" name="border_zone_iva">
+                    <field name="is_border_zone_iva"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
