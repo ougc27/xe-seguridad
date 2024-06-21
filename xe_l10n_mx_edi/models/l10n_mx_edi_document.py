@@ -19,6 +19,10 @@ class L10nMxEdiDocument(models.Model):
 
         supplier = root_company.partner_id.commercial_partner_id.with_user(self.env.user)
         zip = supplier.zip
+        print("self")
+        print(self)
+        print("self.move_id")
+        print(self.move_id)
         invoice_origin = self.move_id.invoice_origin
         if invoice_origin:
             order_name = invoice_origin.split(", ")[0]
