@@ -11,11 +11,30 @@ class L10nMxEdiDocument(models.Model):
         zip value if partner has is_border_zone_iva field true'.
         :param cfdi_values: The current CFDI values.
         """
-        super()._add_certificate_cfdi_values(cfdi_values)
+        root_company = cfdi_values['root_company']
+        certificate = root_company.l10n_mx_edi_certificate_ids._get_valid_certificate()
+        if not certificate:
+            cfdi_values['errors'] = [_("No valid certificate found")]
+            return
+
+        supplier = root_company.partner_id.commercial_partner_id.with_user(self.env.user)
+        zip = supplier.zip
         invoice_origin = self.move_id.invoice_origin
         if invoice_origin:
             order_name = invoice_origin.split(", ")[0]
             partner_id = self.env['sale.order'].search([('name', '=', order_name)]).partner_id
             if partner_id.is_border_zone_iva:
-                if 'emisor' in cfdi_values:
-                    cfdi_values['emisor']['domicilio_fiscal_receptor'] = partner_id.zip
+                zip = partner_id.zip
+
+        cfdi_values.update({
+            'certificate': certificate,
+            'no_certificado': certificate.serial_number,
+            'certificado': certificate._get_data()[0].decode('utf-8'),
+            'emisor': {
+                'supplier': supplier,
+                'rfc': supplier.vat,
+                'nombre': self._cfdi_sanitize_to_legal_name(root_company.name),
+                'regimen_fiscal': root_company.l10n_mx_edi_fiscal_regime,
+                'domicilio_fiscal_receptor': zip,
+            },
+        })
