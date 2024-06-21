@@ -19,22 +19,12 @@ class L10nMxEdiDocument(models.Model):
 
         supplier = root_company.partner_id.commercial_partner_id.with_user(self.env.user)
         zip = supplier.zip
-        print("self")
-        print(self)
-        print("self.move_id")
-        print(self.move_id)
         invoice_origin = self.move_id.invoice_origin
         if invoice_origin:
             order_name = invoice_origin.split(", ")[0]
-            print("Order name .......")
-            print(order_name)
             partner_id = self.env['sale.order'].search([('name', '=', order_name)]).partner_id
-            print("partner id ......")
-            print(partner_id)
             if partner_id.is_border_zone_iva:
                 zip = partner_id.zip
-        print("zip......")
-        print(zip)
 
         cfdi_values.update({
             'certificate': certificate,
