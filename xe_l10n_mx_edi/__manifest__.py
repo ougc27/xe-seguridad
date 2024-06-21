@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI XE Brands",
-    "version": "17.0.0.0.2",
+    "version": "17.0.0.0.3",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
