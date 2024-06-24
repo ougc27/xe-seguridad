@@ -11,6 +11,8 @@ class L10nMxEdiDocument(models.Model):
         zip value if partner has is_border_zone_iva field true'.
         :param cfdi_values: The current CFDI values.
         """
+        import pdb;
+        pdb.set_trace()
         root_company = cfdi_values['root_company']
         certificate = root_company.l10n_mx_edi_certificate_ids._get_valid_certificate()
         if not certificate:

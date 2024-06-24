@@ -11,6 +11,8 @@ class AccountMove(models.Model):
 
     def _l10n_mx_edi_add_invoice_cfdi_values(self, cfdi_values, percentage_paid=None, global_invoice=False):
         # EXTENDS 'l10n_mx_edi'
+        import pdb;
+        pdb.set_trace()
         self.ensure_one()
 
         if self.journal_id.l10n_mx_address_issued_id:
@@ -52,13 +54,13 @@ class AccountMove(models.Model):
             # Supplier.
             supplier_values = cfdi_values['emisor']
             supplier = supplier_values['supplier']
-            zip = supplier.zip
-            invoice_origin = self.invoice_origin
-            if invoice_origin:
-                order_name = invoice_origin.split(", ")[0]
-                partner_id = self.env['sale.order'].search([('name', '=', order_name)]).partner_id
-                if partner_id.is_border_zone_iva:
-                    zip = partner_id.zip
+            #zip = supplier.zip
+            #invoice_origin = self.invoice_origin
+            #if invoice_origin:
+                #order_name = invoice_origin.split(", ")[0]
+                #partner_id = self.env['sale.order'].search([('name', '=', order_name)]).partner_id
+                #if partner_id.is_border_zone_iva:
+                    #zip = partner_id.zip
 
             ext_trade_values['emisor'] = {
                 'curp': supplier.l10n_mx_edi_curp,
@@ -70,7 +72,7 @@ class AccountMove(models.Model):
                 'municipio': supplier.city_id.l10n_mx_edi_code,
                 'estado': supplier.state_id.code,
                 'pais': supplier.country_id.l10n_mx_edi_code,
-                'codigo_postal': zip,
+                'codigo_postal': supplier.zip,
             }
 
             # Shipping.
@@ -171,3 +173,27 @@ class AccountMove(models.Model):
             for line_vals in cfdi_values['conceptos_list']:
                 line_vals['informacion_aduanera_list'] = line_vals['line']['record']._l10n_mx_edi_get_custom_numbers()
 
+
+    # -------------------------------------------------------------------------
+    # CFDI Generation: Payments
+    # -------------------------------------------------------------------------
+
+    def _l10n_mx_edi_add_payment_cfdi_values(self, cfdi_values, pay_results):
+        """ Prepare the values to render the payment cfdi.
+
+        :param cfdi_values: Prepared cfdi_values.
+        :param pay_results: The amounts to consider for each invoice.
+                            See '_l10n_mx_edi_cfdi_payment_get_reconciled_invoice_values'.
+        :return: The dictionary to render the xml.
+        """
+        import pdb;
+        pdb.set_trace()
+        super().get_delivery_date(cfdi_values, pay_results)
+        zip = cfdi_values['issued_address'].zip
+        invoice_origin = self.invoice_origin
+        if invoice_origin:
+            order_name = invoice_origin.split(", ")[0]
+            partner_id = self.env['sale.order'].search([('name', '=', order_name)]).partner_id
+            if partner_id.is_border_zone_iva:
+                zip = partner_id.zip
+        cfdi_values['lugar_expedicion'] = zip
