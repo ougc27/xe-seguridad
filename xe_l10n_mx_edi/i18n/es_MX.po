@@ -1,0 +1,48 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* xe_l10n_mx_edi
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-06-24 21:48+0000\n"
+"PO-Revision-Date: 2024-06-24 21:48+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: xe_l10n_mx_edi
+#: model_terms:ir.ui.view,arch_db:xe_l10n_mx_edi.view_partner_form_border_zone_inherit
+msgid "Border Zone Taxpayer"
+msgstr "Contribuyente de Zona Fronteriza"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model,name:xe_l10n_mx_edi.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_partner__is_border_zone_iva
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_users__is_border_zone_iva
+msgid "Indicates if the contact is eligible for the reduced 8% VAT rate."
+msgstr "Indica si el contacto es elegible para la tasa reducida de IVA del 8%."
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_partner__is_border_zone_iva
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_users__is_border_zone_iva
+msgid "Is Border Zone Iva"
+msgstr "Es Zona Fronteriza IVA"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model,name:xe_l10n_mx_edi.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento contable"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model,name:xe_l10n_mx_edi.model_l10n_mx_edi_document
+msgid "Mexican documents that needs to transit outside of Odoo"
+msgstr "Documentos mexicanos que se deben procesar fuera de Odoo"
