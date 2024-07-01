@@ -119,6 +119,7 @@ class L10nMxEdiDocument(models.Model):
             customer = customer.parent_id
         if customer.is_border_zone_iva:
             tz = customer._l10n_mx_edi_get_cfdi_timezone()
+            date_fmt = '%Y-%m-%dT%H:%M:%S'
             cfdi_values["fecha"] = datetime.now(tz).astimezone(tz).strftime(date_fmt)
         if cfdi_values.get('errors'):
             on_failure("\n".join(cfdi_values['errors']))
