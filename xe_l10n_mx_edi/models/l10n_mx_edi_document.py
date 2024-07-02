@@ -2,6 +2,33 @@ from odoo import models, api
 from datetime import datetime
 from lxml import etree
 
+USAGE_SELECTION = [
+    ('G01', 'Acquisition of merchandise'),
+    ('G02', 'Returns, discounts or bonuses'),
+    ('G03', 'General expenses'),
+    ('I01', 'Constructions'),
+    ('I02', 'Office furniture and equipment investment'),
+    ('I03', 'Transportation equipment'),
+    ('I04', 'Computer equipment and accessories'),
+    ('I05', 'Dices, dies, molds, matrices and tooling'),
+    ('I06', 'Telephone communications'),
+    ('I07', 'Satellite communications'),
+    ('I08', 'Other machinery and equipment'),
+    ('D01', 'Medical, dental and hospital expenses.'),
+    ('D02', 'Medical expenses for disability'),
+    ('D03', 'Funeral expenses'),
+    ('D04', 'Donations'),
+    ('D05', 'Real interest effectively paid for mortgage loans (room house)'),
+    ('D06', 'Voluntary contributions to SAR'),
+    ('D07', 'Medical insurance premiums'),
+    ('D08', 'Mandatory School Transportation Expenses'),
+    ('D09', 'Deposits in savings accounts, premiums based on pension plans.'),
+    ('D10', 'Payments for educational services (Colegiatura)'),
+    ('S01', "Without fiscal effects"),
+    ('CP01', 'Payments'),
+    ('CN01', 'Payroll')
+]
+
 
 class L10nMxEdiDocument(models.Model):
 
@@ -119,8 +146,9 @@ class L10nMxEdiDocument(models.Model):
             customer = customer.parent_id
         if customer.is_border_zone_iva:
             tz = customer._l10n_mx_edi_get_cfdi_timezone()
-            date_fmt = '%Y-%m-%dT%H:%M:%S'
-            cfdi_values["fecha"] = datetime.now(tz).astimezone(tz).strftime(date_fmt)
+            if datetime.fromisoformat(cfdi_values['fecha']).date() == datetime.now(tz).date():
+                date_fmt = '%Y-%m-%dT%H:%M:%S'
+                cfdi_values["fecha"] = datetime.now(tz).astimezone(tz).strftime(date_fmt)
         if cfdi_values.get('errors'):
             on_failure("\n".join(cfdi_values['errors']))
             return
