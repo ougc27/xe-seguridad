@@ -15,7 +15,7 @@
     # Add js css and css files next
     
     'assets': {
-        'web.assets_frontend': [
+        'web.assets_common': [
             'aguillon_customs/static/src/css/*.css',
             'aguillon_customs/static/src/js/*.js',
             'aguillon_customs/static/src/scss/*.scss',
