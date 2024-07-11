@@ -3,7 +3,7 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html).
 
 {
-    "name": "XE JS and CSS files for Website",
+    "name": "XE Theme",
     'category': 'Hidden',
     'version': '1.0',
     'license': 'LGPL-3',
@@ -12,13 +12,11 @@
     "depends": [
         "web",
     ],
-    # Add js css and css files next
-    
     'assets': {
         'web.assets_common': [
-            'aguillon_customs/static/src/css/*.css',
-            'aguillon_customs/static/src/js/*.js',
-            'aguillon_customs/static/src/scss/*.scss',
+            'xe_theme/static/src/css/*.css',
+            'xe_theme/static/src/js/*.js',
+            'xe_theme/static/src/scss/*.scss',
         ],
     },
 }
