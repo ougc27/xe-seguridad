@@ -15,7 +15,7 @@
     'assets': {
         'web.assets_frontend': [
             'xe_theme/static/src/css/*.css',
-            'xe_theme/static/src/js/*.js',
+            #'xe_theme/static/src/js/*.js',
             'xe_theme/static/src/scss/*.scss',
         ],
     },
