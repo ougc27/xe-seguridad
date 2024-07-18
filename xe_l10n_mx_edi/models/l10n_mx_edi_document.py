@@ -147,8 +147,6 @@ class TrialBalanceCustomHandler(models.AbstractModel):
 
         report_date = fields.Date.to_date(sat_options['date']['date_from'])
 
-        raise Exception(report_date)
-
         return {
             'vat': self.env.company.vat or '',
             'month': str(report_date.month).zfill(2),
