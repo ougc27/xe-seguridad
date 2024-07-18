@@ -9,6 +9,7 @@ class TrialBalanceCustomHandler(models.AbstractModel):
     _inherit = 'account.trial.balance.report.handler'
 
     def _l10n_mx_get_sat_values(self, options):
+
         report = self.env['account.report'].browse(options['report_id'])
         sat_options = self._l10n_mx_get_sat_options(options)
         report_lines = report._get_lines(sat_options)
