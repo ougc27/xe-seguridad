@@ -1,4 +1,5 @@
 from odoo import models, api
+from collections import defaultdict
 
 class L10nMxEdiDocument(models.Model):
 
