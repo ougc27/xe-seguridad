@@ -102,7 +102,6 @@ class TrialBalanceCustomHandler(models.AbstractModel):
         file_name = f"{sat_values['vat']}{sat_values['year']}{sat_values['month']}BN"
         sat_report = etree.fromstring(self.env['ir.qweb']._render('l10n_mx_reports.cfdibalance', sat_values))
 
-        raise Exception(sat_report)
         self.env['ir.attachment'].l10n_mx_reports_validate_xml_from_attachment(sat_report, 'xsd_mx_cfdibalance_1_3.xsd')
 
         return {
