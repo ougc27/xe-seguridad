@@ -1,5 +1,8 @@
 from odoo import models, api, fields
+from odoo.exceptions import UserError, RedirectWarning
+
 from collections import defaultdict
+from lxml import etree
 
 class L10nMxEdiDocument(models.Model):
 
