@@ -99,7 +99,11 @@ class L10nMxEdiDocument(models.Model):
         customer_values['issued_address'] = issued_address
         zip = issued_address.zip
         if cfdi_values.get('document_name', None):
-            invoice_origin = self.env['account.move'].search([('name', '=', cfdi_values['document_name'])]).invoice_origin
+            invoice_origin = self.env['account.move'].search([
+                ('name', '=', cfdi_values['document_name']),
+                ('company_id', '=', cfdi_values['company'].id)
+            ]).invoice_origin
+
             if invoice_origin:
                 order_name = invoice_origin.split(", ")[0]
                 partner_id = self.env['sale.order'].search([('name', '=', order_name)]).partner_id
