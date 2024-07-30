@@ -24,8 +24,8 @@ class SaleOrder(models.Model):
         # could be caused for some generic products ("Miscellaneous").
         for line in self.order_line:
             # Do not add a contact as a client
-            partner = line.partner_id if not line.partner_id.parent_id else line.partner_id.parent_id
-            already_client = (partner | line.partner_id) & line.product_id.client_ids.mapped('name')
+            partner = line.order_id.partner_id if not line.order_id.partner_id.parent_id else line.order_id.partner_id.parent_id
+            already_client = (partner | line.order_id.partner_id) & line.product_id.client_ids.mapped('name')
             if line.product_id and not already_client and len(line.product_id.client_ids) <= 10:
                 # Convert the price in the right currency.
                 currency = partner.property_purchase_currency_id or line.env.company.currency_id

@@ -6,56 +6,20 @@
             <field name="name">product.clientinfo.tree.view</field>
             <field name="model">product.clientinfo</field>
             <field name="arch" type="xml">
-                <tree string="Vendor Information" multi_edit="1">
+                <tree string="Vendor Information" multi_edit="1" editable="bottom">
                     <field name="sequence" widget="handle"/>
-                    <field name="name" readonly="1"/>
-                    <field name="product_id" readonly="1" optional="hide"
-                        invisible="context.get('product_template_invisible_variant', False)"
-                        groups="product.group_product_variant"
-                        domain="[('product_tmpl_id', '=?', context.get('default_product_tmpl_id', False))]"
-                        options="{'no_quick_create': True, 'no_create_edit' : True}"/>
-                    <field name="product_tmpl_id" string="Product" readonly="1"
-                        invisible="context.get('visible_product_tmpl_id', True)"/>
+                    <field name="name" readonly="0"/>
                     <field name="product_name" optional="hide"/>
                     <field name="product_code" optional="hide"/>
-                    <field name="currency_id" groups="base.group_multi_currency"/>
                     <field name="date_start" optional="hide"/>
                     <field name="date_end" optional="hide"/>
-                    <field name="company_id" readonly="1"/>
-                    <field name="min_qty"/>
+                    <field name="company_id" optional="hide"/>
+                    <field name="min_qty" optional="show"/>
                     <field name="product_uom" groups="uom.group_uom"/>
                     <field name="price" string="Price"/>
-                    <field name="delay" optional="hide"/>
+                    <field name="currency_id" groups="base.group_multi_currency"/>
+                    <field name="delay" optional="show"/>
                 </tree>
-            </field>
-        </record>
-
-        <record id="product_clientinfo_tree_view2" model="ir.ui.view">
-            <field name="name">product.clientinfo.tree.view2</field>
-            <field name="model">product.clientinfo</field>
-            <field name="inherit_id" ref="xe_customs.product_clientinfo_tree_view"/>
-            <field name="mode">primary</field>
-            <field name="priority" eval="1000"/>
-            <field name="arch" type="xml">
-                <xpath expr="//tree" position="attributes">
-                    <attribute name="editable">bottom</attribute>
-                </xpath>
-                <xpath expr="//field[@name='company_id']" position="attributes">
-                    <attribute name="readonly">0</attribute>
-                    <attribute name="optional">hide</attribute>
-                </xpath>
-                <xpath expr="//field[@name='min_qty']" position="attributes">
-                    <attribute name="optional">show</attribute>
-                </xpath>
-                <xpath expr="//field[@name='name']" position="attributes">
-                    <attribute name="readonly">0</attribute>
-                </xpath>
-                <xpath expr="//field[@name='product_id']" position="attributes">
-                    <attribute name="readonly">0</attribute>
-                </xpath>
-                <xpath expr="//field[@name='delay']" position="attributes">
-                    <attribute name="optional">show</attribute>
-                </xpath>
             </field>
         </record>
 
@@ -65,8 +29,8 @@
             <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
                 <group name="sale" position="before">
-                    <field name="client_ids" context="{'default_product_tmpl_id':context.get('product_tmpl_id',active_id), 'product_template_invisible_variant': True, 'tree_view_ref':'xe_customs.product_clientinfo_tree_view2'}" nolabel="1" invisible="product_variant_count &gt; 1" readonly="product_variant_count &gt; 1"/>
-                    <field name="variant_client_ids" context="{'default_product_tmpl_id': context.get('product_tmpl_id', active_id), 'tree_view_ref':'xe_customs.product_clientinfo_tree_view2'}" nolabel="1" invisible="product_variant_count &lt;= 1" readonly="product_variant_count &lt;= 1"/>
+                    <field name="client_ids" context="{'default_product_tmpl_id':context.get('product_tmpl_id',active_id), 'product_template_invisible_variant': True, 'tree_view_ref':'xe_customs.product_clientinfo_tree_view'}" nolabel="1" invisible="product_variant_count &gt; 1" readonly="product_variant_count &gt; 1"/>
+                    <field name="variant_client_ids" context="{'default_product_tmpl_id': context.get('product_tmpl_id', active_id), 'tree_view_ref':'xe_customs.product_clientinfo_tree_view'}" nolabel="1" invisible="product_variant_count &lt;= 1" readonly="product_variant_count &lt;= 1"/>
                 </group>
             </field>
         </record>
