@@ -1,4 +1,34 @@
 from odoo import models, api
+from datetime import datetime
+from lxml import etree
+
+USAGE_SELECTION = [
+    ('G01', 'Acquisition of merchandise'),
+    ('G02', 'Returns, discounts or bonuses'),
+    ('G03', 'General expenses'),
+    ('I01', 'Constructions'),
+    ('I02', 'Office furniture and equipment investment'),
+    ('I03', 'Transportation equipment'),
+    ('I04', 'Computer equipment and accessories'),
+    ('I05', 'Dices, dies, molds, matrices and tooling'),
+    ('I06', 'Telephone communications'),
+    ('I07', 'Satellite communications'),
+    ('I08', 'Other machinery and equipment'),
+    ('D01', 'Medical, dental and hospital expenses.'),
+    ('D02', 'Medical expenses for disability'),
+    ('D03', 'Funeral expenses'),
+    ('D04', 'Donations'),
+    ('D05', 'Real interest effectively paid for mortgage loans (room house)'),
+    ('D06', 'Voluntary contributions to SAR'),
+    ('D07', 'Medical insurance premiums'),
+    ('D08', 'Mandatory School Transportation Expenses'),
+    ('D09', 'Deposits in savings accounts, premiums based on pension plans.'),
+    ('D10', 'Payments for educational services (Colegiatura)'),
+    ('S01', "Without fiscal effects"),
+    ('CP01', 'Payments'),
+    ('CN01', 'Payroll')
+]
+
 
 class L10nMxEdiDocument(models.Model):
 
@@ -85,3 +115,81 @@ class L10nMxEdiDocument(models.Model):
             cfdi_values['receptor']['domicilio_fiscal_receptor'] = zip
         if cfdi_values.get('emisor', None):
             cfdi_values['emisor']['domicilio_fiscal_receptor'] = zip
+
+    @api.model
+    def _send_api(self, company, qweb_template, cfdi_filename, on_populate, on_failure, on_success):
+        """ Common way to send a document.
+
+        :param company:         The company.
+        :param qweb_template:   The template name to render the cfdi.
+        :param cfdi_filename:   The filename of the document.
+        :param on_failure:      The method to call in case of failure.
+        :param on_success:      The method to call in case of success.
+        """
+        # == Check the config ==
+        cfdi_values = self.env['l10n_mx_edi.document']._get_company_cfdi_values(company)
+        if cfdi_values.get('errors'):
+            on_failure("\n".join(cfdi_values['errors']))
+            return
+
+        root_company = cfdi_values['root_company']
+
+        self.env['l10n_mx_edi.document']._add_certificate_cfdi_values(cfdi_values)
+        if cfdi_values.get('errors'):
+            on_failure("\n".join(cfdi_values['errors']))
+            return
+
+        # == CFDI values ==
+        populate_return = on_populate(cfdi_values)
+        customer = cfdi_values['receptor']['customer']
+        if customer.parent_id:
+            customer = customer.parent_id
+        if customer.is_border_zone_iva:
+            tz = customer._l10n_mx_edi_get_cfdi_timezone()
+            if datetime.fromisoformat(cfdi_values['fecha']).date() == datetime.now(tz).date():
+                date_fmt = '%Y-%m-%dT%H:%M:%S'
+                cfdi_values["fecha"] = datetime.now(tz).astimezone(tz).strftime(date_fmt)
+        if cfdi_values.get('errors'):
+            on_failure("\n".join(cfdi_values['errors']))
+            return
+
+        # == Generate the CFDI ==
+        certificate = cfdi_values['certificate']
+        self._clean_cfdi_values(cfdi_values)
+        cfdi = self.env['ir.qweb']._render(qweb_template, cfdi_values)
+
+        if 'cartaporte_30' in qweb_template:
+            # Since we are inheriting version 2.0 of the Carta Porte template,
+            # we need to update both the namespace prefix and its URI to version 3.0.
+            cfdi = str(cfdi) \
+                .replace('cartaporte20', 'cartaporte30') \
+                .replace('CartaPorte20', 'CartaPorte30')
+
+        cfdi_infos = self.env['l10n_mx_edi.document']._decode_cfdi_attachment(cfdi)
+        cfdi_cadena_crypted = certificate._get_encrypted_cadena(cfdi_infos['cadena'])
+        cfdi_infos['cfdi_node'].attrib['Sello'] = cfdi_cadena_crypted
+        cfdi_str = etree.tostring(cfdi_infos['cfdi_node'], pretty_print=True, xml_declaration=True, encoding='UTF-8')
+
+        # == Check credentials ==
+        pac_name = root_company.l10n_mx_edi_pac
+        credentials = getattr(self.env['l10n_mx_edi.document'], f'_get_{pac_name}_credentials')(root_company)
+        if credentials.get('errors'):
+            on_failure(
+                "\n".join(credentials['errors']),
+                cfdi_filename=cfdi_filename,
+                cfdi_str=cfdi_str,
+            )
+            return
+
+        # == Check PAC ==
+        sign_results = getattr(self.env['l10n_mx_edi.document'], f'_{pac_name}_sign')(credentials, cfdi_str)
+        if sign_results.get('errors'):
+            on_failure(
+                "\n".join(sign_results['errors']),
+                cfdi_filename=cfdi_filename,
+                cfdi_str=cfdi_str,
+            )
+            return
+
+        # == Success ==
+        on_success(cfdi_values, cfdi_filename, sign_results['cfdi_str'], populate_return=populate_return)
