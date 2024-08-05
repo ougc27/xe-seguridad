@@ -7,17 +7,6 @@ from odoo import api, fields, models
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    def _prepare_client_info(self, partner, line, price, currency):
-        # Prepare clientinfo data when adding a product
-        return {
-            'name': partner.id,
-            'sequence': max(line.product_id.client_ids.mapped('sequence')) + 1 if line.product_id.client_ids else 1,
-            'min_qty': 0.0,
-            'price': price,
-            'currency_id': currency.id,
-            'delay': 0,
-        }
-
     def _add_client_to_product(self):
         # Add the partner in the client list of the product if the client is not registered for
         # this product. We limit to 10 the number of clients for a product to avoid the mess that
@@ -64,6 +53,17 @@ class SaleOrder(models.Model):
 
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
+
+    def _prepare_client_info(self, partner, line, price, currency):
+        # Prepare clientinfo data when adding a product
+        return {
+            'name': partner.id,
+            'sequence': max(line.product_id.client_ids.mapped('sequence')) + 1 if line.product_id.client_ids else 1,
+            'min_qty': 0.0,
+            'price': price,
+            'currency_id': currency.id,
+            'delay': 0,
+        }
 
     @api.onchange('product_id', 'product_uom_qty')
     def onchange_product_id(self):
