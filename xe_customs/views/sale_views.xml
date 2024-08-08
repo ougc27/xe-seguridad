@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_order_form_inherit" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Down Payments" name="down_payments">
+                    <field name="down_payment_ids" nolabel="1">
+                        <tree string="Down Payments" editable="bottom">
+                            <field name="order_line_id" force_save="1" column_invisible="1"/>
+                            <field name="invoice_id" domain="[('move_type', '=', 'out_invoice')]"/>
+                            <field name="l10n_mx_edi_cfdi_uuid"/>
+                            <field name="amount" sum="Total"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

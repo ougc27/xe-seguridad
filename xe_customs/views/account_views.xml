@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_move_form_inherit" model="ir.ui.view">
+        <field name="name">account.move.form.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Sales" name="sales">
+                    <field name="source_orders" nolabel="1">
+                        <tree string="Sales">
+                            <field name="name"/>
+                            <field name="down_payment_context"/>
+                        </tree>
+                    </field>
+                    <group colspan="8"/>
+                    <group colspan="4">
+                        <field name="amount_total"/>
+                        <field name="reconciled_amount"/>
+                        <field name="reconcile_balance"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

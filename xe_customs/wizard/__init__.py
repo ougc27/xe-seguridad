@@ -2,5 +2,4 @@
 # © 2024 Morwi Encoders Consulting SA DE CV
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html).
 
-from . import models
-from . import wizard
+from . import sale_make_invoice_advance
