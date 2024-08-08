@@ -9,7 +9,9 @@
     "author": "XE Customs",
     'sequence': 1,
     "depends": [
-        'sale_management',
+        'purchase',
+        'sale',
+        'account',
     ],
     "category": "Accounting",
     "summary": "XE Customs",
@@ -18,7 +20,9 @@
         'security/ir.model.access.csv',
 
         # Views
+        'views/account_views.xml',
         'views/product_views.xml',
+        'views/sale_views.xml',
     ],
     "demo": [],
     'installable': True,
