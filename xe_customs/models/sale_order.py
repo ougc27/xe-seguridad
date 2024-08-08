@@ -229,3 +229,4 @@ class SaleDownPayment(models.Model):
 
         del context
         return so_values
+  
