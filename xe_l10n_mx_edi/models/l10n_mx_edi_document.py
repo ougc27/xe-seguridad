@@ -45,6 +45,7 @@ class L10nMxEdiDocument(models.Model):
         """
         customer = customer or self.env['res.partner']
         invoice_customer = customer if customer.type == 'invoice' else customer.commercial_partner_id
+        invoice_name = invoice_customer.fiscal_name
         is_foreign_customer = invoice_customer.country_id.code not in ('MX', False)
         has_missing_vat = not invoice_customer.vat
         has_missing_country = not invoice_customer.country_id
@@ -78,14 +79,14 @@ class L10nMxEdiDocument(models.Model):
             else:
                 customer_values.update({
                     'rfc': 'XEXX010101000' if is_foreign_customer else 'XAXX010101000',
-                    'nombre': self._cfdi_sanitize_to_legal_name(invoice_customer.name),
+                    'nombre': self._cfdi_sanitize_to_legal_name(invoice_name),
                     'uso_cfdi': 'S01',
                 })
         else:
             customer_values = {
                 'to_public': False,
                 'rfc': invoice_customer.vat.strip(),
-                'nombre': self._cfdi_sanitize_to_legal_name(invoice_customer.name),
+                'nombre': self._cfdi_sanitize_to_legal_name(invoice_name),
                 'domicilio_fiscal_receptor': invoice_customer.zip,
                 'regimen_fiscal_receptor': invoice_customer.l10n_mx_edi_fiscal_regime or '616',
                 'uso_cfdi': usage if usage != 'P01' else 'S01',
