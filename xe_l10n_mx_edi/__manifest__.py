@@ -7,7 +7,7 @@
     "author": "XE Brands",
     'sequence': 1,
     "depends": [
-        'l10n_mx_edi_extended',
+        'l10n_mx_edi',
         'sale'
     ],
     "category": "Accounting",
