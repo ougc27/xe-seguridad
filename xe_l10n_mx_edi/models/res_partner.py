@@ -13,8 +13,3 @@ class ResPartner(models.Model):
         string="Usage",
         help="The code that corresponds to the use that will be made of the receipt by the recipient.",
     )
-
-    fiscal_name = fields.Char(
-        help="The fiscal name of the customer with which the invoice will be issued to the SAT."
-    )
-    

@@ -13,7 +13,7 @@
             </xpath>
         </field>
     </record>
-    <record id="xe_view_partner_form" model="ir.ui.view">
+    <!--<record id="xe_view_partner_form" model="ir.ui.view">
         <field name="name">xe.res.partner.form</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="l10n_mx_edi_extended.l10n_mx_edi_inh_res_partner_form"/>
@@ -22,5 +22,5 @@
                 <field name="fiscal_name"/>
             </xpath>
         </field>
-    </record>
+    </record>-->
 </odoo>
