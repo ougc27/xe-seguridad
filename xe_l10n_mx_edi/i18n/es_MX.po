@@ -259,19 +259,3 @@ msgstr "Aportaciones voluntarias al SAR"
 #: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__s01
 msgid "Without fiscal effects"
 msgstr "Sin efectos fiscales"
-
-#. module: xe_l10n_mx_edi
-#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_partner__fiscal_name
-#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_users__fiscal_name
-msgid "Fiscal Name"
-msgstr "Nombre fiscal"
-
-#. module: xe_l10n_mx_edi
-#: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_partner__fiscal_name
-#: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_users__fiscal_name
-msgid ""
-"The fiscal name of the customer with which the invoice will be issued to the"
-" SAT."
-msgstr ""
-"El nombre fiscal del cliente con el que se emitirá la factura al"
-" SAT."
