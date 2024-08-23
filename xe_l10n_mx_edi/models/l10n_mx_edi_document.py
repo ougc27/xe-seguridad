@@ -45,7 +45,7 @@ class L10nMxEdiDocument(models.Model):
         """
         customer = customer or self.env['res.partner']
         invoice_customer = customer if customer.type == 'invoice' else customer.commercial_partner_id
-        invoice_name = invoice_customer.fiscal_name
+        invoice_name = invoice_customer.fiscal_name or invoice_customer.name
         is_foreign_customer = invoice_customer.country_id.code not in ('MX', False)
         has_missing_vat = not invoice_customer.vat
         has_missing_country = not invoice_customer.country_id
