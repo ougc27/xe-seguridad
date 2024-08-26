@@ -1,7 +1,6 @@
 from odoo import models, fields
 from .l10n_mx_edi_document import USAGE_SELECTION
 
-
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
