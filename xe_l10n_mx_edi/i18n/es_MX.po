@@ -1,0 +1,261 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* xe_l10n_mx_edi
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-07-02 04:15+0000\n"
+"PO-Revision-Date: 2024-07-02 04:15+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__g01
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__g01
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__g01
+msgid "Acquisition of merchandise"
+msgstr "Adquisición de mercancías"
+
+#. module: xe_l10n_mx_edi
+#: model_terms:ir.ui.view,arch_db:xe_l10n_mx_edi.view_partner_form_border_zone_inherit
+msgid "Border Zone Taxpayer"
+msgstr ""
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__i04
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__i04
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__i04
+msgid "Computer equipment and accessories"
+msgstr "Equipo de cómputo y accesorios"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__i01
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__i01
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__i01
+msgid "Constructions"
+msgstr "Construcciones"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model,name:xe_l10n_mx_edi.model_res_partner
+msgid "Contact"
+msgstr ""
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__d09
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__d09
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__d09
+msgid "Deposits in savings accounts, premiums based on pension plans."
+msgstr ""
+"Depósitos en cuentas para el ahorro, primas que tengan como base planes de "
+"pensiones."
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__i05
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__i05
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__i05
+msgid "Dices, dies, molds, matrices and tooling"
+msgstr "Dados, troqueles, moldes, matrices y herramental"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__d04
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__d04
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__d04
+msgid "Donations"
+msgstr "Donativos"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__d03
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__d03
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__d03
+msgid "Funeral expenses"
+msgstr "Gastos funerarios"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__g03
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__g03
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__g03
+msgid "General expenses"
+msgstr "Gastos en general"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_partner__is_border_zone_iva
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_users__is_border_zone_iva
+msgid "Indicates if the contact is eligible for the reduced 8% VAT rate."
+msgstr ""
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_partner__is_border_zone_iva
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_users__is_border_zone_iva
+msgid "Is Border Zone Iva"
+msgstr ""
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model,name:xe_l10n_mx_edi.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento contable"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__d08
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__d08
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__d08
+msgid "Mandatory School Transportation Expenses"
+msgstr "Gastos de transportación escolar obligatoria"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__d02
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__d02
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__d02
+msgid "Medical expenses for disability"
+msgstr "Gastos médicos por incapacidad o discapacidad"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__d07
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__d07
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__d07
+msgid "Medical insurance premiums"
+msgstr "Primas por seguros de gastos médicos"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__d01
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__d01
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__d01
+msgid "Medical, dental and hospital expenses."
+msgstr "Honorarios médicos, dentales y gastos hospitalarios."
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model,name:xe_l10n_mx_edi.model_l10n_mx_edi_document
+msgid "Mexican documents that needs to transit outside of Odoo"
+msgstr "Documentos mexicanos que se deben procesar fuera de Odoo"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__i02
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__i02
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__i02
+msgid "Office furniture and equipment investment"
+msgstr "Mobilario y equipo de oficina por inversiones"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__i08
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__i08
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__i08
+msgid "Other machinery and equipment"
+msgstr "Otra maquinaria y equipo"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__cp01
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__cp01
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__cp01
+msgid "Payments"
+msgstr "Pagos"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__d10
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__d10
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__d10
+msgid "Payments for educational services (Colegiatura)"
+msgstr "Pagos por servicios educativos (colegiaturas)"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__cn01
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__cn01
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__cn01
+msgid "Payroll"
+msgstr "Nómina"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__d05
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__d05
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__d05
+msgid "Real interest effectively paid for mortgage loans (room house)"
+msgstr ""
+"Intereses reales efectivamente pagados por créditos hipotecarios (casa "
+"habitación)"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__g02
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__g02
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__g02
+msgid "Returns, discounts or bonuses"
+msgstr "Devoluciones, descuentos o bonificaciones"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model,name:xe_l10n_mx_edi.model_sale_order
+msgid "Sales Order"
+msgstr "Orden de venta"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model,name:xe_l10n_mx_edi.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Línea de la orden de venta"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__i07
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__i07
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__i07
+msgid "Satellite communications"
+msgstr "Comunicaciones satelitales"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__i06
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__i06
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__i06
+msgid "Telephone communications"
+msgstr "Comunicaciones telefónicas"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_partner__l10n_mx_edi_usage
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_users__l10n_mx_edi_usage
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_sale_order__l10n_mx_edi_usage
+msgid ""
+"The code that corresponds to the use that will be made of the receipt by the"
+" recipient."
+msgstr ""
+"El código que corresponde al uso que el destinatario le dará a la factura."
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__i03
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__i03
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__i03
+msgid "Transportation equipment"
+msgstr "Equipo de transporte"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_account_bank_statement_line__l10n_mx_edi_usage
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_account_move__l10n_mx_edi_usage
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_account_payment__l10n_mx_edi_usage
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_partner__l10n_mx_edi_usage
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_users__l10n_mx_edi_usage
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_sale_order__l10n_mx_edi_usage
+msgid "Usage"
+msgstr "Uso"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_account_bank_statement_line__l10n_mx_edi_usage
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_account_move__l10n_mx_edi_usage
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_account_payment__l10n_mx_edi_usage
+msgid ""
+"Used in CFDI to express the key to the usage that will gives the receiver to this invoice. This value is defined by the customer.\n"
+"Note: It is not cause for cancellation if the key set is not the usage that will give the receiver of the document."
+msgstr ""
+"Se utiliza en el CFDI para indicar la clave de uso que el receptor proporcionará a esta factura. El cliente define este valor.\n"
+"Nota: no será motivo de cancelación si la clave establecida no tiene el mismo uso que le dará el receptor del documento."
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__d06
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__d06
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__d06
+msgid "Voluntary contributions to SAR"
+msgstr "Aportaciones voluntarias al SAR"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__s01
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__res_partner__l10n_mx_edi_usage__s01
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__s01
+msgid "Without fiscal effects"
+msgstr "Sin efectos fiscales"
