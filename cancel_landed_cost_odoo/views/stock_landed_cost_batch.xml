@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_stock_landed_costs_batch_form_inherited" model="ir.ui.view">
+        <field name="name">stock.landed.costs.batch.form.inherited</field>
+        <field name="model">stock.landed.costs.batch</field>
+        <field name="inherit_id" ref="stock_landed_cost_batch.view_stock_landed_cost_batch_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='button_cancel']" position="after">
+                <button name="button_cancel_validated" string="Cancel"
+                        type="object"
+                        class="oe_highlight"
+                        groups="cancel_landed_cost_odoo.cancel_landed_cost_odoo_group_cancel_user"
+                        invisible="(state != 'done')"/>            
+            </xpath>
+        </field>
+    </record>
+</odoo>
