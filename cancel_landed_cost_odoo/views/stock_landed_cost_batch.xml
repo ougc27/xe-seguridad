@@ -12,6 +12,9 @@
                         groups="cancel_landed_cost_odoo.cancel_landed_cost_odoo_group_cancel_user"
                         invisible="(state != 'done')"/>            
             </xpath>
+            <xpath expr="//button[@name='button_validate']" position="replace">
+                <button name="button_validate" confirm="Recuerda darle antes a calcular costos en destino" string="Validate" invisible="state not in 'draft'" class="oe_highlight" type="object"/>
+            </xpath>  
         </field>
     </record>
 </odoo>
