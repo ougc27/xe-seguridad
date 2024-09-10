@@ -43,30 +43,34 @@ class AccountMove(models.Model):
             order.down_payment_context = value
 
     def action_post(self):
-        # Cambiar prorateo por una sola linea de anticipo
         for invoice in self:
             res = super(AccountMove, self).action_post()
             lines = []
-            down_payment = sum(invoice.line_ids.filtered(lambda x: x.is_downpayment).mapped('price_subtotal'))
-            tax_ids = invoice.line_ids.tax_ids.ids
-            if down_payment < 0:
-                origin = False
-                if invoice.l10n_mx_edi_cfdi_uuid:
-                    origin = '07|' + invoice.l10n_mx_edi_cfdi_uuid
-                credit_note = self.env['account.move'].create({
-                    'move_type': 'out_refund',
-                    'partner_id': invoice.partner_id.id,
-                    'journal_id': invoice.journal_id.id,
-                    'date': fields.Date.today(),
-                    'ref': _('Down Payments of: %s', invoice.name),
-                    'l10n_mx_edi_cfdi_uuid': origin,
-                    'line_ids': [(0, 0, {
-                        'product_id': invoice.company_id.sale_down_payment_product_id.id,
-                        'name': _("Down Payment"),
-                        'quantity': 1,
-                        'price_unit': down_payment * - 1,
-                        'tax_ids': [(6, 0, tax_ids)]
-                    })]
-                })
-                credit_note.action_post()
+            # down_payment = sum(invoice.line_ids.filtered(lambda x: x.is_downpayment).mapped('price_subtotal'))
+            
+            # Get Down payments from Sales Orders Instead of Invoice Lines
+            if len(invoice.line_ids.filtered(lambda x: x.is_downpayment)) == 0:
+                down_payment = sum(invoice.source_orders.order_line.filtered(lambda x: x.is_downpayment).mapped('price_unit'))
+
+                tax_ids = invoice.line_ids.tax_ids.ids
+                if down_payment > 0:
+                    origin = False
+                    if invoice.l10n_mx_edi_cfdi_uuid:
+                        origin = '07|' + invoice.l10n_mx_edi_cfdi_uuid
+                    credit_note = self.env['account.move'].create({
+                        'move_type': 'out_refund',
+                        'partner_id': invoice.partner_id.id,
+                        'journal_id': invoice.journal_id.id,
+                        'date': fields.Date.today(),
+                        'ref': _('Down Payments of: %s', invoice.name),
+                        'l10n_mx_edi_cfdi_uuid': origin,
+                        'line_ids': [(0, 0, {
+                            'product_id': invoice.company_id.sale_down_payment_product_id.id,
+                            'name': _("Down Payment"),
+                            'quantity': 1,
+                            'price_unit': down_payment,
+                            'tax_ids': [(6, 0, tax_ids)]
+                        })]
+                    })
+                    credit_note.action_post()
         return res
