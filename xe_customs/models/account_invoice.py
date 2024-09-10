@@ -47,6 +47,7 @@ class AccountMove(models.Model):
             res = super(AccountMove, self).action_post()
             lines = []
             # down_payment = sum(invoice.line_ids.filtered(lambda x: x.is_downpayment).mapped('price_subtotal'))
+            # if down_payment < 0:
             
             # Get Down payments from Sales Orders Instead of Invoice Lines
             if len(invoice.line_ids.filtered(lambda x: x.is_downpayment)) == 0:
