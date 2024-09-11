@@ -16,11 +16,11 @@ class StockPicking(models.Model):
         ('delivered', 'Entregado'),
         ('sent', 'Enviado')], default='to_deliver', group_expand='_group_expand_states')
 
-    kanban_status = fields.Selection([
+    kanban_task_status = fields.Selection([
         ('to_scheduled', 'ENT POR PROGRAMAR'),
         ('scheduled', 'ENT PROGRAMADA'),
         ('confirmed', 'ENT CONFIRMADA'),
-        ('exception', 'ENT EXCEPCIÓN')], default='to_deliver', group_expand='_group_expand_status')
+        ('exception', 'ENT EXCEPCIÓN')], default='to_scheduled', group_expand='_group_expand_status')
 
     @api.depends('x_studio_canal_de_distribucin', 'location_id', 'move_ids')
     def _compute_shipping_assignment(self):
@@ -47,5 +47,5 @@ class StockPicking(models.Model):
     def _group_expand_states(self, states, domain, order):
         return [key for key, val in self._fields['kanban_state'].selection]
 
-    def _group_expand_states(self, states, domain, order):
-        return [key for key, val in self._fields['kanban_status'].selection]
+    def _group_expand_status(self, states, domain, order):
+        return [key for key, val in self._fields['kanban_task_status'].selection]
