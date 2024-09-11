@@ -25,7 +25,7 @@ msgstr "Adquisición de mercancías"
 #. module: xe_l10n_mx_edi
 #: model_terms:ir.ui.view,arch_db:xe_l10n_mx_edi.view_partner_form_border_zone_inherit
 msgid "Border Zone Taxpayer"
-msgstr ""
+msgstr "Contribuyente de Zona Fronteriza"
 
 #. module: xe_l10n_mx_edi
 #: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__i04
@@ -44,7 +44,7 @@ msgstr "Construcciones"
 #. module: xe_l10n_mx_edi
 #: model:ir.model,name:xe_l10n_mx_edi.model_res_partner
 msgid "Contact"
-msgstr ""
+msgstr "Contacto"
 
 #. module: xe_l10n_mx_edi
 #: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_move__l10n_mx_edi_usage__d09
@@ -87,13 +87,13 @@ msgstr "Gastos en general"
 #: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_partner__is_border_zone_iva
 #: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_users__is_border_zone_iva
 msgid "Indicates if the contact is eligible for the reduced 8% VAT rate."
-msgstr ""
+msgstr "Indica si el contacto es elegible para la tasa reducida de IVA del 8%."
 
 #. module: xe_l10n_mx_edi
 #: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_partner__is_border_zone_iva
 #: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_users__is_border_zone_iva
 msgid "Is Border Zone Iva"
-msgstr ""
+msgstr "Es Zona Fronteriza Iva"
 
 #. module: xe_l10n_mx_edi
 #: model:ir.model,name:xe_l10n_mx_edi.model_account_move
@@ -259,3 +259,19 @@ msgstr "Aportaciones voluntarias al SAR"
 #: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__sale_order__l10n_mx_edi_usage__s01
 msgid "Without fiscal effects"
 msgstr "Sin efectos fiscales"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_partner__fiscal_name
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_users__fiscal_name
+msgid "Fiscal Name"
+msgstr "Nombre fiscal"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_partner__fiscal_name
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_users__fiscal_name
+msgid ""
+"The fiscal name of the customer with which the invoice will be issued to the"
+" SAT."
+msgstr ""
+"El nombre fiscal del cliente con el que se emitirá la factura al"
+" SAT."
