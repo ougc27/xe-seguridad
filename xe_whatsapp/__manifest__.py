@@ -13,7 +13,7 @@
     "summary": "MX-EDI XE Brands",
     "demo": [],
     'data': [
-        'views/whatsapp_team_member.xml',
+        'views/whatsapp_team_members.xml',
         'views/whatsapp_menus.xml',
         'security/ir_rules.xml',
         'security/ir.model.access.csv',
