@@ -137,7 +137,7 @@ class L10nMxEdiDocument(models.Model):
             on_failure("\n".join(cfdi_values['errors']))
             return
 
-        root_company = cfdi_values['root_company']
+        root_company = cfdi_values.get('root_company')
 
         self.env['l10n_mx_edi.document']._add_certificate_cfdi_values(cfdi_values)
         if cfdi_values.get('errors'):
