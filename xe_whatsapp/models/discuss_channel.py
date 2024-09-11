@@ -53,7 +53,6 @@ class DiscussChannel(models.Model):
                 ]).user_id.partner_id.ids
                 for channel_member_id in member_ids:
                     if not channel_member_id in rec.channel_partner_ids.ids:
-                        _logger.info("entre en el if")
                         self.env['discuss.channel.member'].sudo().create([{
                             'partner_id': channel_member_id,
                             'channel_id': rec.id,
