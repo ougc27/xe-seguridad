@@ -205,7 +205,6 @@ class SaleDownPayment(models.Model):
         for payment in self:
             payment.order_line_id.invoice_lines.write({
                 'sale_line_ids': False,
-                # 'price_unit': 0,
                 'name': _('Unlinked Down Payment'),
             })
             payment.order_line_id.write({
