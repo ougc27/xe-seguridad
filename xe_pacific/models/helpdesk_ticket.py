@@ -1,8 +1,6 @@
-import logging
 from collections import defaultdict
 from odoo import models, api, fields, Command
 
-_logger = logging.getLogger(__name__)
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
@@ -23,7 +21,6 @@ class SaleOrder(models.Model):
     def write(self, vals):
         res = super().write(vals)
         for rec in self:
-            _logger.info("entre en el write")
             if rec.is_exception and rec.state == 'sale':
                 rec.mark_tasks_as_exception()
         return res
