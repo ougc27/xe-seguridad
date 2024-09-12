@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <menuitem name="WhatsApp Team Members"
+        id="whatsapp_account_menu"
+        parent="whatsapp.whatsapp_configuration_menu"
+        action="whatsapp_team_members_action"/>
+</odoo>

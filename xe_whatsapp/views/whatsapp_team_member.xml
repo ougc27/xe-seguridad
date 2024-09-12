@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="whatsapp_team_members_view_form" model="ir.ui.view">
+        <field name="name">whatsapp.team.members.view.form</field>
+        <field name="model">whatsapp.team.members</field>
+        <field name="arch" type="xml">
+            <form string="WhatsApp Team Members">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="team"/>
+                            <field name="wa_account_id"/>
+                            <field name="assignment_count"/>
+                            <field name="is_assigned"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="whatsapp_team_members_view_tree" model="ir.ui.view">
+        <field name="name">whatsapp.team.members.view.tree</field>
+        <field name="model">whatsapp.team.members</field>
+        <field name="arch" type="xml">
+            <tree string="WhatsApp Team Members" editable="bottom">
+                <field name="user_id"/>
+                <field name="team"/>
+                <field name="wa_account_id"/>
+                <field name="assignment_count"/>
+                <field name="is_assigned"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="whatsapp_team_members_action" model="ir.actions.act_window">
+        <field name="name">WhatsApp Team Members</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">whatsapp.team.members</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                Asign person to chat aleatory
+            </p>
+        </field>
+    </record>
+</odoo>
