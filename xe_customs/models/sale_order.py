@@ -200,6 +200,7 @@ class SaleDownPayment(models.Model):
                     })
                     payment.order_line_id = down_payment
                     invoice_down_payment.sale_line_ids += down_payment
+                    payment.invoice_id._get_source_orders()
 
     def unlink(self):
         for payment in self:
