@@ -22,7 +22,7 @@ class AccountMove(models.Model):
     )
     reconcile_balance = fields.Monetary(
         string="Reconcile Balance",
-        compute='_get_source_orders',
+        default=lambda self: self.amount_total,
         copy=False
     )
     
