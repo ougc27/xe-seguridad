@@ -7,9 +7,11 @@ from odoo import api, models, fields, _
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
+    #, compute="_compute_shipping_assignment"
+
     shipping_assignment = fields.Selection([
         ('logistics', 'Logística'),
-        ('shipments', 'Embarques')], store=True, compute="_compute_shipping_assignment")
+        ('shipments', 'Embarques')], store=True)
 
     kanban_state = fields.Selection([
         ('to_deliver', 'Por entregar'),
@@ -22,7 +24,11 @@ class StockPicking(models.Model):
         ('confirmed', 'ENT CONFIRMADA'),
         ('exception', 'ENT EXCEPCIÓN')], default='to_scheduled', group_expand='_group_expand_status')
 
-    @api.depends('x_studio_canal_de_distribucin', 'location_id', 'move_ids')
+    #TOFIX:
+
+    #meter el campo x_studio_canal_de_distribucin aca
+
+    """@api.depends('x_studio_canal_de_distribucin', 'location_id', 'move_ids')
     def _compute_shipping_assignment(self):
         for rec in self:
             if rec.company_id.id == 4:
@@ -42,7 +48,7 @@ class StockPicking(models.Model):
                             continue
                 rec.shipping_assignment= 'logistics'
                 continue
-            rec.shipping_assignment = False
+            rec.shipping_assignment = False"""
 
     def _group_expand_states(self, states, domain, order):
         return [key for key, val in self._fields['kanban_state'].selection]
