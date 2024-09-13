@@ -23,6 +23,9 @@
                     </field>
                 </page>
             </xpath>
+            <xpath expr="//field[@name='product_template_id']" position="after">
+                <field name="client_barcode" readonly="1"/>
+            </xpath>
         </field>
     </record>
 

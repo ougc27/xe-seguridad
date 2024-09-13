@@ -8,7 +8,8 @@
     'sequence': 1,
     "depends": [
         'l10n_mx_edi_extended',
-        'sale'
+        'sale',
+        'xe_customs'
     ],
     "category": "Accounting",
     "summary": "MX-EDI XE Brands",

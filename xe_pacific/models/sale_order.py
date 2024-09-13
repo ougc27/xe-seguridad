@@ -37,7 +37,12 @@ class SaleOrder(models.Model):
                             [('name', '=', 'E.- INSTALACIONES CONSTRUCTORAS')]).id
                         line.task_id.write({
                             'project_id': project_id,
-                            'sale_line_id': line.id
+                            'sale_line_id': line.id,
+                            'partner_id': line.partner_id.id,
+                        })
+                    else:
+                        line.task_id.write({
+                            'partner_id': line.partner_id.id,
                         })
             #if rec.is_exception:
                 """for line in rec.order_line:

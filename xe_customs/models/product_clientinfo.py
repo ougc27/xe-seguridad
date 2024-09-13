@@ -19,6 +19,9 @@ class ProductClientInfo(models.Model):
     product_code = fields.Char(
         'Client Product Code',
         help="This client's product code will be used when printing a request for quotation. Keep empty to use the internal one.")
+    product_barcode = fields.Char(
+        'Client Product Barcode',
+        help="This client's product code will be used for  adding the barcode of the client in quotation and invoice.")
     sequence = fields.Integer(
         'Sequence', default=1, help="Assigns the priority to the list of product client.")
     product_uom = fields.Many2one(
