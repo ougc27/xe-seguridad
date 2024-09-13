@@ -9,6 +9,7 @@
                 <tree string="Vendor Information" multi_edit="1" editable="bottom">
                     <field name="sequence" widget="handle"/>
                     <field name="name" readonly="0"/>
+                    <field name="product_barcode"/>
                     <field name="product_name" optional="hide"/>
                     <field name="product_code" optional="hide"/>
                     <field name="date_start" optional="hide"/>
