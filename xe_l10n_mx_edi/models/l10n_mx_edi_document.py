@@ -137,7 +137,7 @@ class L10nMxEdiDocument(models.Model):
             on_failure("\n".join(cfdi_values['errors']))
             return
 
-        root_company = cfdi_values['root_company']
+        root_company = cfdi_values.get('root_company')
 
         self.env['l10n_mx_edi.document']._add_certificate_cfdi_values(cfdi_values)
         if cfdi_values.get('errors'):
@@ -157,6 +157,18 @@ class L10nMxEdiDocument(models.Model):
         if cfdi_values.get('errors'):
             on_failure("\n".join(cfdi_values['errors']))
             return
+
+        #TO BE ADDED
+
+        #payment_reference = cfdi_values['conceptos_list'][0]['line']['record'].move_id.payment_reference
+        
+        #for concepto_list in cfdi_values['conceptos_list']:
+            #description = concepto_list['description']
+            #no_identificacion = concepto_list['no_identificacion']
+            #client_barcode = concepto_list['line']['record'].client_barcode
+            #if not 'INV/' in payment_reference:
+                #concepto_list['description'] = description + ', OC: ' + payment_reference
+            #concepto_list['no_identificacion'] = client_barcode or no_identificacion
 
         # == Generate the CFDI ==
         certificate = cfdi_values['certificate']
