@@ -164,8 +164,9 @@ class L10nMxEdiDocument(models.Model):
             description = concepto_list['description']
             no_identificacion = concepto_list['no_identificacion']
             client_barcode = concepto_list['line']['record'].client_barcode
-            if not 'INV/' in payment_reference:
-                concepto_list['description'] = description + ', OC: ' + payment_reference
+            if payment_reference:
+                if not 'INV/' in payment_reference:
+                    concepto_list['description'] = description + ', OC: ' + payment_reference
             concepto_list['no_identificacion'] = client_barcode or no_identificacion
 
         # == Generate the CFDI ==
