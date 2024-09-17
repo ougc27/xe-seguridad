@@ -10,6 +10,7 @@
                     <group>
                         <group>
                             <field name="purchase_order_reference"/>
+                            <field name="vendor_number_addenda"/>
                         </group>
                     </group>
                 </page>
