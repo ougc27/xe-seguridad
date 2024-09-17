@@ -70,7 +70,7 @@ class SaleOrder(models.Model):
             order._add_client_to_product()
             return res
 
-
+          
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
