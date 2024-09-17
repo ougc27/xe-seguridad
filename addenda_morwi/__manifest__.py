@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "addenda_morwi",
-
-    'summary': "Short (1 phrase/line) summary of the module's purpose",
-
+    'name': "Addenda Morwi Base",
     'description': """
-Long description of module's purpose
+        The module's goal is to add fields, functions, and utilities for building addenda.
     """,
-    'author': "My Company",
-    'website': "https://www.yourcompany.com",
-    'category': 'Uncategorized',
+    'author': 'Morwi Encoders Consulting',
+    'website': 'https://www.morwi.mx',
+    'category': 'Accounting',
+    'license': 'LGPL-3',
     'version': '0.1',
     'depends': ['base', 'l10n_mx_edi'],
     'data': [
         'views/account_move_view.xml',
     ],
 }
-
