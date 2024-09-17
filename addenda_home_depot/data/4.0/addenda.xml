@@ -30,7 +30,7 @@
                         <t t-set="discount" t-value="0"/>
                         <t t-set="count" t-value="0"/>
                         <t t-foreach="record.invoice_line_ids" t-as="line">
-                            <t t-set="discount" t-value="discount + line.discount_amount"/>
+                            <t t-set="discount" t-value="discount + line.discount_amount_addenda"/>
                             <t t-set="count" t-value="count + 1"/>
                             <lineItem type="SimpleInvoiceLineItemType" t-att-number="count">
                                 <tradeItemIdentification>
