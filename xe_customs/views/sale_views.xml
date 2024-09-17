@@ -14,7 +14,7 @@
                             <field name="invoice_id" domain="[
                                 ('move_type', '=', 'out_invoice'),
                                 ('partner_id', '=', parent.partner_id),
-                                ('reconcile_balance', '>', 0),
+                                ('has_down_payment', '=', True),
                                 ('state', '!=', 'cancel')
                             ]"/>
                             <field name="l10n_mx_edi_cfdi_uuid"/>
@@ -22,9 +22,6 @@
                         </tree>
                     </field>
                 </page>
-            </xpath>
-            <xpath expr="//field[@name='product_template_id']" position="after">
-                <field name="client_barcode" readonly="1"/>
             </xpath>
         </field>
     </record>
