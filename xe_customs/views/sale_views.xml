@@ -14,7 +14,7 @@
                             <field name="invoice_id" domain="[
                                 ('move_type', '=', 'out_invoice'),
                                 ('partner_id', '=', parent.partner_id),
-                                ('reconcile_balance', '>', 0),
+                                ('has_down_payment', '=', True),
                                 ('state', '!=', 'cancel')
                             ]"/>
                             <field name="l10n_mx_edi_cfdi_uuid"/>
