@@ -9,7 +9,7 @@
     'category': 'Accounting',
     'license': 'LGPL-3',
     'version': '0.1',
-    'depends': ['base', 'l10n_mx_edi', 'sale'],
+    'depends': ['base', 'l10n_mx_edi'],
     'data': [
         'data/addenda_amazon.xml',
     ],

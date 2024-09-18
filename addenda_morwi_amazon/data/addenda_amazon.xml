@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- <PO>409059</PO> -->
-    <!-- <VendorNumber>57614</VendorNumber> -->
     <data noupdate="0">
         <template id="l10n_mx_edi_addenda_amazon" name="Amazon addenda">
             <t t-set="sale_model" t-value="'sale_line_ids' in record.invoice_line_ids._fields"/>
             <t t-set="sale_id" t-value="record.mapped('invoice_line_ids.sale_line_ids.order_id') if sale_model else False"/>
             <amazon:ElementosAmazon xmlns:amazon="http://www.amazon.com.mx/AmazonAddenda" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.amazon.com.mx/AmazonAddenda http://repository.edicomnet.com/schemas/mx/cfd/addenda/AmazonAddenda.xsd">
-                <amazon:TextoLibre><t t-esc="record.payment_reference"/></amazon:TextoLibre>
+                <amazon:TextoLibre><t t-esc="record.purchase_order_reference"/></amazon:TextoLibre>
                 <t t-set="elements" t-value="record.invoice_line_ids"/>
                 <t t-set="counter" t-value="0"/>
                 <t t-foreach="elements" t-as="e">
                     <t t-set="counter" t-value="counter + 1"/>
-                    <amazon:LosAtributos t-att-identificacionUnica="counter" nombreDelAtributo="AmazonPO" t-att-valorDelAtributo="record.purchase_order_reference"/>
+                    <amazon:LosAtributos t-att-identificacionUnica="counter" t-att-nombreDelAtributo="record.get_amazon_po_fixed()" t-att-valorDelAtributo="record.purchase_order_reference"/>
                 </t>
             </amazon:ElementosAmazon>
         </template>
