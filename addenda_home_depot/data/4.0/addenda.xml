@@ -3,14 +3,13 @@
     <data noupdate="0">
         <template id="l10n_mx_edi_addenda_home_depot" name="Addenda Home Depot">
             <Addenda>
-                <VersionSAI>1</VersionSAI>
                 <requestForPayment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" documentStructureVersion="AMC7.1" documentStatus="ORIGINAL" type="SimpleInvoiceType" contentVersion="1.3.1" t-att-DeliveryDate="record.invoice_date">
                     <requestForPaymentIdentification>
                         <entityType>INVOICE</entityType>
                         <uniqueCreatorIdentification t-raw="record.name"></uniqueCreatorIdentification>
                     </requestForPaymentIdentification>
                     <orderIdentification>
-                        <referenceIdentification type="ON" t-raw="record.purchase_order_reference"></referenceIdentification>
+                        <referenceIdentification type="ON" t-raw="record.payment_reference"></referenceIdentification>
                     </orderIdentification>
                     <AdditionalInformation>
                         <referenceIdentification type="AAE">MDC MTY</referenceIdentification>
@@ -24,7 +23,7 @@
                     </seller>
                     <currency currencyISOCode="MXN">
                         <currencyFunction>BILLING_CURRENCY</currencyFunction>
-                        <rateOfChange t-raw="list(record.currency_id._get_rates(record.company_id, record.invoice_date).keys())[0]"></rateOfChange>
+                        <rateOfChange t-raw="list(record.currency_id._get_rates(record.company_id, record.invoice_date).values())[0]"></rateOfChange>
                     </currency>
                     <SECCIONDETALLE>
                         <t t-set="discount" t-value="0"/>
@@ -54,8 +53,8 @@
                                 <tradeItemTaxInformation>
                                     <taxTypeDescription>VAT</taxTypeDescription>
                                     <tradeItemTaxAmount>
-                                        <taxPercentage t-raw="line.tax_ids[0].amount"></taxPercentage>
-                                        <taxAmount t-raw="line.price_total - line.price_subtotal"></taxAmount>
+                                        <taxPercentage t-raw="line.tax_ids[0].amount if line.tax_ids else ''"></taxPercentage>
+                                        <taxAmount t-raw="round(line.price_total - line.price_subtotal, 2)"></taxAmount>
                                     </tradeItemTaxAmount>
                                 </tradeItemTaxInformation>
                                 <totalLineAmount>
