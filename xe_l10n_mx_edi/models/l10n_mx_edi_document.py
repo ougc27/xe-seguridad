@@ -45,6 +45,7 @@ class L10nMxEdiDocument(models.Model):
         """
         customer = customer or self.env['res.partner']
         invoice_customer = customer if customer.type == 'invoice' else customer.commercial_partner_id
+        invoice_name = invoice_customer.fiscal_name or invoice_customer.name
         is_foreign_customer = invoice_customer.country_id.code not in ('MX', False)
         has_missing_vat = not invoice_customer.vat
         has_missing_country = not invoice_customer.country_id
@@ -78,14 +79,14 @@ class L10nMxEdiDocument(models.Model):
             else:
                 customer_values.update({
                     'rfc': 'XEXX010101000' if is_foreign_customer else 'XAXX010101000',
-                    'nombre': self._cfdi_sanitize_to_legal_name(invoice_customer.name),
+                    'nombre': self._cfdi_sanitize_to_legal_name(invoice_name),
                     'uso_cfdi': 'S01',
                 })
         else:
             customer_values = {
                 'to_public': False,
                 'rfc': invoice_customer.vat.strip(),
-                'nombre': self._cfdi_sanitize_to_legal_name(invoice_customer.name),
+                'nombre': self._cfdi_sanitize_to_legal_name(invoice_name),
                 'domicilio_fiscal_receptor': invoice_customer.zip,
                 'regimen_fiscal_receptor': invoice_customer.l10n_mx_edi_fiscal_regime or '616',
                 'uso_cfdi': usage if usage != 'P01' else 'S01',
@@ -99,7 +100,11 @@ class L10nMxEdiDocument(models.Model):
         customer_values['issued_address'] = issued_address
         zip = issued_address.zip
         if cfdi_values.get('document_name', None):
-            invoice_origin = self.env['account.move'].search([('name', '=', cfdi_values['document_name'])]).invoice_origin
+            invoice_origin = self.env['account.move'].search([
+                ('name', '=', cfdi_values['document_name']),
+                ('company_id', '=', cfdi_values['company'].id)
+            ]).invoice_origin
+
             if invoice_origin:
                 order_name = invoice_origin.split(", ")[0]
                 partner_id = self.env['sale.order'].search([('name', '=', order_name)]).partner_id
@@ -132,7 +137,7 @@ class L10nMxEdiDocument(models.Model):
             on_failure("\n".join(cfdi_values['errors']))
             return
 
-        root_company = cfdi_values['root_company']
+        root_company = cfdi_values.get('root_company')
 
         self.env['l10n_mx_edi.document']._add_certificate_cfdi_values(cfdi_values)
         if cfdi_values.get('errors'):
@@ -152,6 +157,16 @@ class L10nMxEdiDocument(models.Model):
         if cfdi_values.get('errors'):
             on_failure("\n".join(cfdi_values['errors']))
             return
+
+        payment_reference = cfdi_values['conceptos_list'][0]['line']['record'].move_id.payment_reference
+        
+        for concepto_list in cfdi_values['conceptos_list']:
+            description = concepto_list['description']
+            no_identificacion = concepto_list['no_identificacion']
+            client_barcode = concepto_list['line']['record'].client_barcode
+            if not 'INV/' in payment_reference:
+                concepto_list['description'] = description + ', OC: ' + payment_reference
+            concepto_list['no_identificacion'] = client_barcode or no_identificacion
 
         # == Generate the CFDI ==
         certificate = cfdi_values['certificate']
@@ -193,39 +208,3 @@ class L10nMxEdiDocument(models.Model):
 
         # == Success ==
         on_success(cfdi_values, cfdi_filename, sign_results['cfdi_str'], populate_return=populate_return)
-        
-    def _add_certificate_cfdi_values(self, cfdi_values):
-        """ Replace the company zip value to the partner
-        zip value if partner has is_border_zone_iva field true'.
-        :param cfdi_values: The current CFDI values.
-        """
-        import pdb;
-        pdb.set_trace()
-        root_company = cfdi_values['root_company']
-        certificate = root_company.l10n_mx_edi_certificate_ids._get_valid_certificate()
-        if not certificate:
-            cfdi_values['errors'] = [_("No valid certificate found")]
-            return
-
-        supplier = root_company.partner_id.commercial_partner_id.with_user(self.env.user)
-        zip = supplier.zip
-        invoice_origin = self.move_id.invoice_origin
-        if invoice_origin:
-            order_name = invoice_origin.split(", ")[0]
-            partner_id = self.env['sale.order'].search([('name', '=', order_name)]).partner_id
-            if partner_id.is_border_zone_iva:
-                zip = partner_id.zip
-
-        cfdi_values.update({
-            'certificate': certificate,
-            'no_certificado': certificate.serial_number,
-            'certificado': certificate._get_data()[0].decode('utf-8'),
-            'emisor': {
-                'supplier': supplier,
-                'rfc': supplier.vat,
-                'nombre': self._cfdi_sanitize_to_legal_name(root_company.name),
-                'regimen_fiscal': root_company.l10n_mx_edi_fiscal_regime,
-                'domicilio_fiscal_receptor': zip,
-            },
-        })
-

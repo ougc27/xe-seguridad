@@ -1,6 +1,7 @@
 from odoo import models, fields
 from .l10n_mx_edi_document import USAGE_SELECTION
 
+
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
@@ -12,3 +13,7 @@ class ResPartner(models.Model):
         string="Usage",
         help="The code that corresponds to the use that will be made of the receipt by the recipient.",
     )
+
+    fiscal_name = fields.Char(
+        help="The fiscal name of the customer with which the invoice will be issued to the SAT.")
+    
