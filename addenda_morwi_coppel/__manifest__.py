@@ -10,7 +10,7 @@
 ########################################################################
 
 {
-    'name': 'Morwi | Addendas Home Depot',
+    'name': 'Morwi | Addenda Morwi Home Depot',
     'author': 'Morwi ©',
     "license" : "LGPL-3",
     'category': 'Account',
@@ -34,6 +34,7 @@ Also a template is added for render the addenda.
     ],
     'data': [
         'data/4.0/addenda.xml',
+        'views/account_move_view.xml',
     ],
     'demo': [],
     'qweb': [],
