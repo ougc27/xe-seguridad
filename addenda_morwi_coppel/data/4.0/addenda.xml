@@ -111,7 +111,7 @@
                         <Amount t-raw="record.amount_total"></Amount>
                     </payableAmount>
                     <cadenaOriginal>
-                        <Cadena t-raw="record._l10n_mx_edi_get_extra_payment_report_values()['cadena']"></Cadena>
+                        <Cadena t-raw="record._l10n_mx_edi_get_extra_invoice_report_values()"></Cadena>
                     </cadenaOriginal>
                 </requestForPayment>
             </Addenda>
