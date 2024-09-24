@@ -10,18 +10,18 @@
 ########################################################################
 
 {
-    'name': 'Morwi | Addenda Morwi Home Depot',
+    'name': 'Morwi | Addenda Morwi Coppel',
     'author': 'Morwi ©',
     "license" : "LGPL-3",
     'category': 'Account',
     'sequence': 50,
-    'summary': "Addenda Home Depot",
+    'summary': "Addenda Coppel",
     'website': 'https://www.morwi.com',
     'version': '1.0',
     'description': """
-Addendas Home Depot
+Addendas Coppel
 ===============================================================
-This module adds the Home Depot addendum in signed invoices, the following 
+This module adds the Coppel addendum in signed invoices, the following 
 features are adds:
 - inheritance of the account.move model, required fields are added.
 - inheritance of the res.company model, required fields are added.
