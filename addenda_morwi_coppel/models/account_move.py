@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import models, api, fields
 
+from lxml import etree
+
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -104,3 +106,25 @@ class AccountMove(models.Model):
         ('DXALM', 'Descuento por resguardar la mercancía'),
         ('XECEN', 'Descuento por entregar en una sola bodega'),
     ], string='Discount Type')
+
+
+class AccountMoveSend(models.TransientModel):
+    _inherit = 'account.move.send'
+
+    @api.model
+    def _process_send_and_print(self, moves, wizard=None, allow_fallback_pdf=False, **kwargs):
+        # extends account to create the pdf attachment
+        # in the matching inter-company move
+
+        # l10n_mx_edi_cfdi_attachment_id
+        for move in moves:
+            for doc in move.l10n_mx_edi_invoice_document_ids:
+                cfdi_node = etree.fromstring(doc.attachment_id.raw)
+                for node in cfdi_node.xpath("//*[local-name()='Cadena']"):
+                    if node.text == '{}':
+                        node.text = move._l10n_mx_edi_get_extra_invoice_report_values()['cadena']
+            
+                doc.attachment_id.raw = etree.tostring(cfdi_node, pretty_print=True, xml_declaration=True, encoding='UTF-8')
+
+        res = super()._process_send_and_print(moves, wizard=wizard, allow_fallback_pdf=allow_fallback_pdf, **kwargs)
+        return res
