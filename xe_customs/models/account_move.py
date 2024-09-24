@@ -22,8 +22,11 @@ class AccountMove(models.Model):
     )
     reconcile_balance = fields.Monetary(
         string="Reconcile Balance",
-        default=lambda self: self.amount_total,
         copy=False
+    )
+    has_down_payment = fields.Boolean(
+        string="Has Down Payment",
+        copy=False,
     )
     
     def _get_source_orders(self):
@@ -34,10 +37,5 @@ class AccountMove(models.Model):
                 if move.id in order_line.invoice_lines.move_id.ids:
                     order_line.order_id.down_payment_context += order_line.price_unit * (1 + (order_line.tax_id[0].amount / 100))
             move.reconciled_amount = sum(move.source_orders.mapped('down_payment_context'))
-            move.reconcile_balance = move.amount_total - move.reconciled_amount 
-
-    def _get_down_payment_context(self):
-            # Relate the down payment's l10n_mx_edi_cfdi_uuid to the invoice's l10n_mx_edi_cfdi_origin with code 07| and uuid comma separated
-        for order in self:
-            value = 0
-            order.down_payment_context = value
+            move.reconcile_balance = sum(move.line_ids.filtered(lambda x: x.product_id.id == x.company_id.sale_down_payment_product_id.id).mapped('price_total')) - move.reconciled_amount - sum(move.source_orders.mapped('down_payment_context'))
+            move.has_down_payment = move.reconcile_balance > 0

@@ -49,6 +49,8 @@ class ProductProduct(models.Model):
                 res |= client
         return res and res.sorted('price')[:1]
 
+
+
     @api.model
     def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
         domain = domain or []

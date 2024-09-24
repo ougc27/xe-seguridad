@@ -70,7 +70,7 @@ class SaleOrder(models.Model):
             order._add_client_to_product()
             return res
 
-          
+
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
@@ -108,7 +108,7 @@ class SaleOrderLine(models.Model):
             'delay': 0,
         }
 
-    @api.onchange('product_id', 'product_uom_qty', 'order_id.partner_id')
+    @api.onchange('product_id', 'product_uom_qty')
     def onchange_product_id(self):
         for line in self:
             if not line.product_id:
@@ -120,7 +120,6 @@ class SaleOrderLine(models.Model):
                 date=line.order_id.date_order and line.order_id.date_order.date(),
                 uom_id=line.product_uom)
             if client:
-                line.client_barcode = client.product_barcode
                 line.price_unit = client.price
                 name = ""
                 if client.product_code:
@@ -135,6 +134,7 @@ class SaleOrderLine(models.Model):
             else:
                 line.price_unit = line.product_id.lst_price
                 line.name = line.product_id.name
+
 
 class SaleDownPayment(models.Model):
     _name = "sale.down.payment"
