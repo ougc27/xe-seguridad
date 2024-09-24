@@ -1,5 +1,3 @@
-import logging
-
 from datetime import datetime, timedelta
 from odoo import fields, models, api, Command
 from odoo.addons.whatsapp.tools import phone_validation as wa_phone_validation
@@ -9,8 +7,6 @@ from odoo.addons.whatsapp.tools.whatsapp_exception import WhatsAppError
 from odoo.addons.whatsapp.tools.whatsapp_api import WhatsAppApi
 import markupsafe
 from markupsafe import Markup
-
-_logger = logging.getLogger(__name__)
 
 
 class WhatsappMessage(models.Model):
@@ -44,7 +40,7 @@ class WhatsappMessage(models.Model):
                 rec.send_automated_respond()
                 continue
 
-            channel = self.env['discuss.channel'].browse(rec.mail_message_id.res_id)
+            channel = self.env['discuss.channel'].search([('whatsapp_number', '=', rec.mobile_number_formatted)])
             if rec.body == '<p>Ventas</p>':
                 team = 'sales_team'
                 channel.write({
