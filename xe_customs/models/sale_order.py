@@ -5,8 +5,8 @@
 from odoo import api, fields, models
 
 
-class SaleOrderLine(models.Model):
-    _inherit = "sale.order.line"
+class SaleOrder(models.Model):
+    _inherit = "sale.order"
 
     margin = fields.Monetary("Margin", compute='_compute_margin', store=True, groups="account.group_account_manager")
 
