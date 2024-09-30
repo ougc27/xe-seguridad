@@ -29,9 +29,7 @@ class WhatsappTeamMember(models.Model):
 
     is_assigned = fields.Boolean(string="Has assigned equipment", default=False)
 
-    def assign_person_to_chat_aleatory(self, wa_account_id, sales_team):
-        _logger.info("assign_person_to_chat_aleatory")
-        
+    def assign_person_to_chat_aleatory(self, wa_account_id, sales_team):        
         records = self.env['whatsapp.team.members'].search([
             ('team', '=', sales_team),
             ('is_assigned', '=', False)
