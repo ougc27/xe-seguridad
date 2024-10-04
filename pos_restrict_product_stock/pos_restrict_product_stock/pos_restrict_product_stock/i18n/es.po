@@ -1,0 +1,178 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pos_restrict_product_stock
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-09-23 16:27+0000\n"
+"PO-Revision-Date: 2024-09-23 16:27+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__pos_config__stock_type__both
+msgid "Both"
+msgstr "Ambos"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#, python-format
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#, python-format
+msgid "Click order, if you still want to add this product."
+msgstr "Haga clic en ordenar, si aún desea agregar este producto."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_res_config_settings
+msgid "Config Settings"
+msgstr "Ajustes de configuración"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PayOrder.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PayOrder.js:0
+#, python-format
+msgid "Deny Order"
+msgstr ""
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__is_display_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__is_display_stock
+msgid "Display Stock in POS"
+msgstr "Mostrar Stock en POS"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
+msgid ""
+"Display the quantity of the product based on\n"
+"                                the\n"
+"                                stock type."
+msgstr ""
+"Mostrar la cantidad del producto según\n"
+"                                el\n"
+"                                tipo de stock."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_res_config_settings__is_restrict_product
+msgid "Enable if you want restrict of stock product from POS"
+msgstr "Habilítelo si desea restringir el producto en stock desde POS"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_config__is_restrict_product
+msgid "Enable if you want restrict of stock product from pos"
+msgstr "Habilítelo si desea restringir el producto en stock desde pos."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_config__is_display_stock
+msgid "Enable if you want to show quantity of products"
+msgstr "Habilítelo si desea mostrar la cantidad de productos."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_res_config_settings__is_display_stock
+msgid "Enable if you want to show the quantity of products."
+msgstr "Habilítelo si desea mostrar la cantidad de productos."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_config__stock_type
+msgid "In which quantity type you have to restrict and display"
+msgstr "¿En qué tipo de cantidad debe restringir y mostrar?"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_res_config_settings__stock_type
+msgid "In which quantity type youhave to restrict and display in POS"
+msgstr "¿En qué tipo de cantidad tienes que restringir y mostrar en POS?"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#, python-format
+msgid "Order"
+msgstr "Orden"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_pos_config
+msgid "Point of Sale Configuration"
+msgstr "Configuración del punto de venta"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_pos_session
+msgid "Point of Sale Session"
+msgstr "Sesión del punto de venta"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#, python-format
+msgid "Product Out of Stock"
+msgstr "Producto agotado"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_product_product
+msgid "Product Variant"
+msgstr "Variante de producto"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__pos_config__stock_type__qty_on_hand
+msgid "Qty on Hand"
+msgstr "Cantidad a la mano"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__is_restrict_product
+msgid "Restrict Product Out of Stock in POS"
+msgstr "Restringir producto agotado en POS"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__is_restrict_product
+msgid "Restrict Product Out-of Stock in POS"
+msgstr "Restringir producto agotado en POS"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
+msgid ""
+"Restrict the ordering of out of stock\n"
+"                                    products based on the display quantity."
+msgstr ""
+"Restringir el pedido de productos agotados\n"
+"                                    productos basados ​​en la cantidad de visualización."
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
+msgid "Stock Configuration"
+msgstr "Configuración de existencias"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__stock_type
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__stock_type
+msgid "Stock Type"
+msgstr "Tipo de Stock"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__pos_config__stock_type__virtual_qty
+msgid "Virtual Qty"
+msgstr "Cantidad Virtual"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PayOrder.js:0
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PayOrder.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#, python-format
+msgid "Zero Quantity Not allowed"
+msgstr "Cero cantidad en stock no esta permitido"
