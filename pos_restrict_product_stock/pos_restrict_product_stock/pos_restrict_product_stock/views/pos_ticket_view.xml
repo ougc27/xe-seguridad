@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<odoo>
+    <template id="ticket_validation_screen" inherit_id="point_of_sale.ticket_validation_screen">
+        <xpath expr="//t[@t-if='user_is_connected']" position="after">
+            <t t-if="is_date_expired">
+                <br/><span class="text-danger">No se puede facturar la órden despues de 5 días</span><br/>
+            </t>
+        </xpath>
+
+    </template>
+</odoo>
