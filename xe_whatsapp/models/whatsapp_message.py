@@ -37,10 +37,21 @@ class WhatsappMessage(models.Model):
             ], order='create_date desc', limit=2)
             
             if len(last_messages) == 1 and rec.state == 'received':
-                rec.send_automated_respond()
+                #rec.send_automated_respond()
+                channel = self.env['discuss.channel'].search(
+                    [('whatsapp_number', '=', rec.mobile_number_formatted)])
+                team = 'sales_team'
+                channel.write({
+                    'assigned_to': team,
+                    'first_respond_message': datetime.now()
+                })
+                partners = self.env['whatsapp.team.members'].assign_person_to_chat_aleatory(
+                    rec.wa_account_id, team)
+                if partners:
+                    self.change_channel_members(channel, partners)
                 continue
-
-            channel = self.env['discuss.channel'].search([('whatsapp_number', '=', rec.mobile_number_formatted)])
+            
+            """channel = self.env['discuss.channel'].search([('whatsapp_number', '=', rec.mobile_number_formatted)])
             if rec.body == '<p>Ventas</p>':
                 team = 'sales_team'
                 channel.write({
@@ -61,7 +72,7 @@ class WhatsappMessage(models.Model):
                 partners = self.env['whatsapp.team.members'].assign_person_to_chat_aleatory(
                                             rec.wa_account_id, team)
                 if partners:
-                    self.change_channel_members(channel, partners)
+                    self.change_channel_members(channel, partners)"""
             if len(last_messages) > 1:
                 last_message = last_messages[1]
             last_message = last_messages[0]
