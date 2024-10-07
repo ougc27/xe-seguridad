@@ -35,10 +35,11 @@ class ProductProduct(models.Model):
             pricelists = config.pricelist_id
         price_per_pricelist_id = pricelists._price_get(self, quantity) if pricelists else False
         pricelist_list = [{'name': pl.name, 'price': price_per_pricelist_id[pl.id]} for pl in pricelists]
-        
-        # Warehouses
 
+        # Warehouses
         warehouses = config.warehouse_id + config.picking_type_id.warehouse_id
+        if config.warehouse_id == config.picking_type_id.warehouse_id:
+            warehouses = config.warehouse_id
         
         warehouse_list = [
             {'name': w.name,
@@ -72,6 +73,7 @@ class ProductProduct(models.Model):
             'suppliers': supplier_list,
             'variants': variant_list
         }
+
 
     @api.model
     def get_product_quantity(self, picking_id, product_id):

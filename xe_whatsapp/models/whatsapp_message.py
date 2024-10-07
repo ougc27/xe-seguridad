@@ -35,11 +35,12 @@ class WhatsappMessage(models.Model):
             last_messages = self.env['whatsapp.message'].search([
                 ('mobile_number', '=', rec.mobile_number)
             ], order='create_date desc', limit=2)
+
+            channel = self.env['discuss.channel'].search(
+                [('whatsapp_number', '=', rec.mobile_number_formatted)])
             
             if len(last_messages) == 1 and rec.state == 'received':
                 #rec.send_automated_respond()
-                channel = self.env['discuss.channel'].search(
-                    [('whatsapp_number', '=', rec.mobile_number_formatted)])
                 team = 'sales_team'
                 channel.write({
                     'assigned_to': team,
