@@ -26,6 +26,10 @@ class PosConfig(models.Model):
             fields for restricting out-of stock"""
     _inherit = 'pos.config'
 
+    def _default_warehouse_id(self):
+        return self.env['stock.warehouse'].search(
+            self.env['stock.warehouse']._check_company_domain(self.env.company), limit=1).id
+
     is_display_stock = fields.Boolean(string="Display Stock in POS",
                                       help="Enable if you want to show "
                                            "quantity of products")
@@ -38,3 +42,7 @@ class PosConfig(models.Model):
                                   default='qty_on_hand', string="Stock Type",
                                   help="In which quantity type you"
                                        " have to restrict and display")
+    general_warehouse_id = fields.Many2one(
+        'stock.warehouse', default=_default_warehouse_id, ondelete='restrict')
+
+    delivery_partner_id = fields.Many2one('res.partner', ondelete='restrict')
