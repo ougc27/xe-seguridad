@@ -39,3 +39,9 @@ class ResConfigSettings(models.TransientModel):
                                   string="Stock Type", readonly=False,
                                   help="In which quantity type you"
                                        "have to restrict and display in POS")
+
+    pos_general_warehouse_id = fields.Many2one(
+        related='pos_config_id.general_warehouse_id')
+
+    pos_delivery_partner_id = fields.Many2one(related='pos_config_id.delivery_partner_id')
+
