@@ -4,7 +4,7 @@
 
 from odoo import api, fields, models, _
 
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, AccessError
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
