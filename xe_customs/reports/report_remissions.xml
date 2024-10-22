@@ -33,8 +33,8 @@
                 <!-- <img t-att-src="'/xe_customs/static/img/format1-2.jpg'" class="background" style="position:absolute; width:100%; z-index:-1; top:0; left:0;"/> -->
 
                 <!-- Numbers -->
-                <div style="position:absolute; top:75px; left:900px; width:300px;" class="text-center">
-                    <h4><span t-out="doc.x_studio_folio_rem"/></h4>
+                <div style="position:absolute; top:120px; left:900px; width:300px;" class="text-center">
+                    <span t-out="doc.x_studio_folio_rem"/><br/>
                     <span t-out="doc.date_done" t-options='{"widget": "date","format": "dd-MM-yyyy"}'/>
                 </div>
 
@@ -128,8 +128,8 @@
                 <!-- <img t-att-src="'/xe_customs/static/img/format1-2.jpg'" class="background" style="position:absolute; width:100%; z-index:-1; top:0; left:0;"/> -->
 
                 <!-- Numbers -->
-                <div style="position:absolute; top:75px; left:900px; width:300px;" class="text-center">
-                    <h4><span t-out="doc.x_studio_folio_rem"/></h4>
+                <div style="position:absolute; top:120px; left:900px; width:300px;" class="text-center">
+                    <span t-out="doc.x_studio_folio_rem"/><br/>
                     <span t-out="doc.date_done" t-options='{"widget": "date","format": "dd-MM-yyyy"}'/>
                 </div>
 
@@ -247,8 +247,8 @@
                 <!-- <img t-att-src="'/xe_customs/static/img/format3.jpg'" class="background" style="position:absolute; width:100%; z-index:-1; top:0; left:0;"/> -->
 
                 <!-- Numbers -->
-                <div style="position:absolute; top:75px; left:900px; width:300px;" class="text-center">
-                    <h4><span t-out="doc.x_studio_folio_rem"/></h4>
+                <div style="position:absolute; top:120px; left:900px; width:300px;" class="text-center">
+                    <span t-out="doc.x_studio_folio_rem"/><br/>
                     <span t-out="doc.date_done" t-options='{"widget": "date","format": "dd-MM-yyyy"}'/>
                 </div>
 

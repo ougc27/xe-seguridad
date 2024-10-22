@@ -236,6 +236,7 @@ class SaleDownPayment(models.Model):
                 'price_unit': 0,
                 'name': _('Deleted Down Payment'),
             })
+            payment.invoice_id._get_source_orders()
         return super(SaleDownPayment, self).unlink()
 
     def _prepare_down_payment_section_values(self, order):

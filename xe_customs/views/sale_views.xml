@@ -21,7 +21,7 @@
                                 ('state', '!=', 'cancel')
                             ]"/>
                             <field name="l10n_mx_edi_cfdi_uuid"/>
-                            <field name="amount" sum="Total"/>
+                            <field name="amount" sum="Total" readonly="1" force_save="1"/>
                         </tree>
                     </field>
                 </page>
