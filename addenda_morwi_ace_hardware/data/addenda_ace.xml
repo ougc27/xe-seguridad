@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- <PO>409059</PO> -->
+    <!-- <VendorNumber>57614</VendorNumber> -->
+    <data noupdate="0">
+        <template id="l10n_mx_edi_addenda_ace_hardware" name="Ace Hardware">
+            <t t-set="sale_model" t-value="'sale_line_ids' in record.invoice_line_ids._fields"/>
+            <t t-set="sale_id" t-value="record.mapped('invoice_line_ids.sale_line_ids.order_id') if sale_model else False"/>
+            <Addenda_T_ACE>
+                <PO><t t-esc="record.purchase_order_reference"/></PO>
+                <VendorNumber><t t-esc="record.vendor_number_addenda"/></VendorNumber>
+                <t t-set="elements" t-value="record.invoice_line_ids"/>
+                <t t-set="counter" t-value="0"/>
+                <LineItems>
+                    <t t-foreach="elements" t-as="i">
+                        <t t-set="counter" t-value="counter + 1"/>
+                        <LineItem>
+                            <LineNumber><t t-esc="counter"/></LineNumber>
+                            <VendorSKU><t t-esc="i._get_addenda_sku_vendor()"/></VendorSKU>
+                            <ACESKU><t t-esc="i.product_id.default_code"/></ACESKU>
+                            <SATClaveProducto><t t-esc="i.product_id.unspsc_code_id.code"/></SATClaveProducto>
+                            <SATClaveUnidad><t t-esc="i.product_uom_id.unspsc_code_id.code"/></SATClaveUnidad>
+                            <Descrip><t t-esc="i.name"/></Descrip>
+                            <Cantidad><t t-esc="i.quantity"/></Cantidad>
+                            <UnitPrice><t t-esc="i.price_unit"/></UnitPrice>
+                            <Importe><t t-esc="i.price_subtotal"/></Importe>
+                            <Descuento><t t-esc="i.discount_amount_addenda"/></Descuento>
+                        </LineItem>
+                    </t>
+                </LineItems>
+            </Addenda_T_ACE>    
+        </template>
+        <record id="l10n_mx_edi_addenda_ace_hardware" model="ir.ui.view">
+            <field name="l10n_mx_edi_addenda_flag">True</field>
+        </record>
+    </data>
+</odoo>
