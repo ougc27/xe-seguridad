@@ -1,0 +1,444 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pos_restrict_product_stock
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-09-23 16:27+0000\n"
+"PO-Revision-Date: 2024-09-23 16:27+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__pos_config__stock_type__both
+msgid "Both"
+msgstr "Ambos"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#, python-format
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#, python-format
+msgid "Click order, if you still want to add this product."
+msgstr "Haga clic en ordenar, si aún desea agregar este producto."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_res_config_settings
+msgid "Config Settings"
+msgstr "Ajustes de configuración"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PayOrder.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PayOrder.js:0
+#, python-format
+msgid "Deny Order"
+msgstr "Denegar Orden"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__is_display_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__is_display_stock
+msgid "Display Stock in POS"
+msgstr "Mostrar Stock en POS"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
+msgid ""
+"Display the quantity of the product based on\n"
+"                                the\n"
+"                                stock type."
+msgstr ""
+"Mostrar la cantidad del producto según\n"
+"                                el\n"
+"                                tipo de stock."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_res_config_settings__is_restrict_product
+msgid "Enable if you want restrict of stock product from POS"
+msgstr "Habilítelo si desea restringir el producto en stock desde POS"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_config__is_restrict_product
+msgid "Enable if you want restrict of stock product from pos"
+msgstr "Habilítelo si desea restringir el producto en stock desde pos."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_config__is_display_stock
+msgid "Enable if you want to show quantity of products"
+msgstr "Habilítelo si desea mostrar la cantidad de productos."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_res_config_settings__is_display_stock
+msgid "Enable if you want to show the quantity of products."
+msgstr "Habilítelo si desea mostrar la cantidad de productos."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_config__stock_type
+msgid "In which quantity type you have to restrict and display"
+msgstr "¿En qué tipo de cantidad debe restringir y mostrar?"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_res_config_settings__stock_type
+msgid "In which quantity type youhave to restrict and display in POS"
+msgstr "¿En qué tipo de cantidad tienes que restringir y mostrar en POS?"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#, python-format
+msgid "Order"
+msgstr "Orden"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_pos_config
+msgid "Point of Sale Configuration"
+msgstr "Configuración del punto de venta"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_pos_session
+msgid "Point of Sale Session"
+msgstr "Sesión del punto de venta"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#, python-format
+msgid "Product Out of Stock"
+msgstr "Producto agotado"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_product_product
+msgid "Product Variant"
+msgstr "Variante de producto"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__pos_config__stock_type__qty_on_hand
+msgid "Qty on Hand"
+msgstr "Cantidad a la mano"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__is_restrict_product
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__is_restrict_product
+msgid "Restrict Product Out of Stock in POS"
+msgstr "Restringir producto agotado en POS"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__is_restrict_product
+msgid "Restrict Product Out-of Stock in POS"
+msgstr "Restringir producto agotado en POS"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
+msgid ""
+"Restrict the ordering of out of stock\n"
+"                                    products based on the display quantity."
+msgstr ""
+"Restringir el pedido de productos agotados\n"
+"                                    productos basados ​​en la cantidad de visualización."
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
+msgid "Stock Configuration"
+msgstr "Configuración de existencias"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__stock_type
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__stock_type
+msgid "Stock Type"
+msgstr "Tipo de Stock"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__pos_config__stock_type__virtual_qty
+msgid "Virtual Qty"
+msgstr "Cantidad Virtual"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PayOrder.js:0
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PayOrder.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#, python-format
+msgid "Zero Quantity Not allowed"
+msgstr "Cero cantidad en stock no esta permitido"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "? Clicking \"Confirm\" will validate the payment."
+msgstr "? Si hace clic en \"confirmar\" validará el pago."
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
+msgid "Aditional Configuration"
+msgstr "Configuración adicional"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Are you sure that the customer wants to  pay"
+msgstr "¿Está seguro de que el cliente quiere pagar?"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Cannot return change without a cash payment method"
+msgstr ""
+"No se puede devolver cambio si no se trata de un método de pago en efectivo"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/ActionPad.xml:0
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/ActionPad.xml:0
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/ActionPad.xml:0
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/PaymentScreen.xml:0
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/PaymentScreen.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/ActionPad.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/ActionPad.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/ActionPad.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentScreen.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentScreen.xml:0
+#, python-format
+msgid "Customer"
+msgstr "Cliente"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid "Customer Invoice"
+msgstr "Factura del cliente"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__delivery_partner_id
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__pos_delivery_partner_id
+msgid "Delivery Partner"
+msgstr "Contacto para entregas"
+
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Empty Order"
+msgstr "Vaciar orden"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__general_warehouse_id
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__pos_general_warehouse_id
+msgid "General Warehouse"
+msgstr "Almacén General"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Incorrect address for shipping"
+msgstr "Dirección de envío incorrecta"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Incorrect rounding"
+msgstr "Redondeo incorrecto"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/PaymentScreen.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentScreen.xml:0
+#, python-format
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/controllers/main.py:0
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/controllers/main.py:0
+#, python-format
+msgid "No sale order found."
+msgstr "No se encontró ninguna orden de venta."
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
+msgid ""
+"Partner assigned to the stock move when shipping later option is selected."
+msgstr "Contacto asignado al movimiento de stock cuando se selecciona la opción de envío posterior."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Please Confirm Large Amount"
+msgstr "Confirme el importe grande"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/controllers/main.py:0
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/controllers/main.py:0
+#, python-format
+msgid "Please fill all the required fields."
+msgstr "Complete todos los campos requeridos."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid "Please provide a partner for the sale."
+msgstr "Seleccione un contacto para la venta."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Please select the Customer"
+msgstr "Seleccione al cliente"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_pos_config
+msgid "Point of Sale Configuration"
+msgstr "Configuración del punto de venta"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_pos_order
+msgid "Point of Sale Orders"
+msgstr "Órdenes del Punto de venta"
+
+#. module: point_of_sale
+#: model:ir.model,name:point_of_sale.model_pos_session
+#: model_terms:ir.ui.view,arch_db:point_of_sale.view_pos_session_form
+#: model_terms:ir.ui.view,arch_db:point_of_sale.view_pos_session_search
+#: model_terms:ir.ui.view,arch_db:point_of_sale.view_pos_session_tree
+msgid "Point of Sale Session"
+msgstr "Sesión del punto de venta"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_product_product
+msgid "Product Variant"
+msgstr "Variante del producto"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Select a payment method to validate the order."
+msgstr "Seleccione un método de pago para validar la orden."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/controllers/main.py:0
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/controllers/main.py:0
+#, python-format
+msgid "The %s must be filled in your details."
+msgstr "Debe completar %s en sus detalles."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/controllers/main.py:0
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/controllers/main.py:0
+#, python-format
+msgid "The Ticket Number should be at least 14 characters long."
+msgstr "El número de ticket debe tener al menos 14 caracteres. "
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "The selected customer needs an address."
+msgstr "El cliente seleccionado necesita una dirección."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid ""
+"There is no cash payment method available in this point of sale to handle the change.\n"
+"\n"
+" Please pay the exact amount or add a cash payment method in the point of sale configuration"
+msgstr ""
+"No hay ningún método de pago en efectivo disponible en este PdV para manejar el cambio.\n"
+"\n"
+"Pague el importe exacto o agregue un método de pago en efectivo en la configuración del Punto de venta"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid ""
+"There must be at least one product in your order before it can be validated "
+"and invoiced."
+msgstr ""
+"Debe haber al menos un producto en su orden antes de poder validar y "
+"facturarla."
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
+msgid "Warehouse from which it is supplied."
+msgstr "Almacén desde donde se abastece."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "You have to round your payments lines. is not rounded."
+msgstr "Debe redondear sus líneas de pago. No está redondeado."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid ""
+"You need to select the customer before you can invoice or ship an order."
+msgstr ""
+"Debe seleccionar el cliente antes de poder facturar o enviar una orden."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "for an order of"
+msgstr "una orden de"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#, python-format
+msgid "is out of stock."
+msgstr "está agotado."

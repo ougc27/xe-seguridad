@@ -38,7 +38,7 @@ class DiscussChannel(models.Model):
         records = super().create(vals)
         for rec in records:
             if rec.channel_type == 'whatsapp':
-                rec['name'] = rec.whatsapp_number + ' ' + rec.whatsapp_partner_id.name
+                rec['name'] = rec.whatsapp_partner_id.name + ' ' + rec.whatsapp_number
         return records
 
     def write(self, vals):
