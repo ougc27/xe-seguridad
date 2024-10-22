@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Marginless paper format -->
+    <record id="report_paperformat_marginless" model="report.paperformat">
+        <field name="name">Marginless Paper</field>
+        <field name="default" eval="True"/>
+        <field name="format">Letter</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">0</field>
+        <field name="margin_bottom">0</field>
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Report format 1 -->
+    <template id="report_remission_format1">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="so" t-value="request.env['sale.order'].search([('name', '=', doc.origin)], limit=1)"/>
+                <style>
+                    table, th, td {
+                        border: 1px solid black;
+                        border-collapse: collapse;
+                        padding: 10px;
+                    }
+                    div {
+                        font-size: 16px;
+                    }
+                </style>
+                <!-- <img t-att-src="'/xe_customs/static/img/format1-2.jpg'" class="background" style="position:absolute; width:100%; z-index:-1; top:0; left:0;"/> -->
+
+                <!-- Numbers -->
+                <div style="position:absolute; top:75px; left:900px; width:300px;" class="text-center">
+                    <h4><span t-out="doc.x_studio_folio_rem"/></h4>
+                    <span t-out="doc.date_done" t-options='{"widget": "date","format": "dd-MM-yyyy"}'/>
+                </div>
+
+                <!-- Addresses -->
+                <div style="position:absolute; top:215px; left:75px; width:500px;">
+                    <strong><span t-out="so.partner_id.name"/></strong><br/>
+                    <span t-out="so.partner_id.contact_address_complete"/>
+                </div>
+                <div style="position:absolute; top:215px; left:625px; width:550px;">
+                    <strong><span t-out="doc.partner_id.name"/></strong><br/>
+                    <span t-out="doc.partner_id.contact_address_complete"/>
+                </div>
+
+                <!-- Sales Order -->
+                <div style="position:absolute; top:500px; left:75px; width:87%;">
+                    <table width="100%">
+                        <tr>
+                            <td><span t-out="so.x_studio_pedido_fisico"/></td>
+                            <td><strong>Saldo Pendiente:</strong> <span t-out="so.x_saldo_pendiente"/></td>
+                            <td><strong>No. de Pedido:</strong> <span t-out="so.name"/></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Products -->
+                <div style="position:absolute; top:600px; left:75px; width:87%;">
+                    <table width="100%">
+                        <tr>
+                            <th>Cantidad</th>
+                            <th>Unidad</th>
+                            <th>Clave</th>
+                            <th>Producto</th>
+                            <th>P. U.</th>
+                            <th>Total</th>
+                        </tr>
+                        <tr t-foreach="so.order_line" t-as="line">
+                            <t t-if="line.display_type == False and line.product_uom_qty > 0.0">
+                                <td><span t-out="line.product_uom_qty"/></td>
+                                <td><span t-out="line.product_uom.name"/></td>
+                                <td><span t-out="line.product_id.default_code"/></td>
+                                <td><span t-out="line.product_id.name"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(line.price_total / line.product_uom_qty)"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(line.price_total)"/></td>
+                            </t>
+                        </tr>
+                        <tr>
+                            <td colspan="4"/>
+                            <td><strong>Total:</strong></td>
+                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so.amount_total)"/></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Users -->
+                <div style="position:absolute; top:1325px; left:600px; width:300px;" class="text-center">
+                    <span t-out="doc.supervisor_id.name"/>
+                </div>
+                <div style="position:absolute; top:1325px; left:875px; width:300px;" class="text-center">
+                    <span t-out="doc.installer_id.name"/>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <record id="report_remission1" model="ir.actions.report">
+        <field name="name">Remission 1</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">xe_customs.report_remission_format1</field>
+        <field name="report_file">xe_customs.report_remission_format1</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="report_paperformat_marginless"/>
+    </record>
+
+    <!-- Report format 2 -->
+    <template id="report_remission_format2">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="so" t-value="request.env['sale.order'].search([('name', '=', doc.origin)], limit=1)"/>
+                <style>
+                    table, th, td {
+                        border: 1px solid black;
+                        border-collapse: collapse;
+                        padding: 10px;
+                    }
+                    div {
+                        font-size: 16px;
+                    }
+                </style>
+                <!-- <img t-att-src="'/xe_customs/static/img/format1-2.jpg'" class="background" style="position:absolute; width:100%; z-index:-1; top:0; left:0;"/> -->
+
+                <!-- Numbers -->
+                <div style="position:absolute; top:75px; left:900px; width:300px;" class="text-center">
+                    <h4><span t-out="doc.x_studio_folio_rem"/></h4>
+                    <span t-out="doc.date_done" t-options='{"widget": "date","format": "dd-MM-yyyy"}'/>
+                </div>
+
+                <!-- Addresses -->
+                <div style="position:absolute; top:215px; left:75px; width:500px;">
+                    <strong><span t-out="so.partner_id.name"/></strong><br/>
+                    <span t-out="so.partner_id.contact_address_complete"/>
+                </div>
+                <div style="position:absolute; top:215px; left:625px; width:550px;">
+                    <strong><span t-out="doc.partner_id.name"/></strong><br/>
+                    <span t-out="doc.partner_id.contact_address_complete"/>
+                </div>
+
+                <!-- Sales Order -->
+                <div style="position:absolute; top:500px; left:75px; width:87%;">
+                    <table width="100%">
+                        <tr>
+                            <td><span t-out="so.x_studio_pedido_fisico"/></td>
+                            <td><strong>Saldo Pendiente:</strong> <span t-out="so.x_saldo_pendiente"/></td>
+                            <td><strong>No. de Pedido:</strong> <span t-out="so.name"/></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Products -->
+                <div style="position:absolute; top:600px; left:75px; width:87%;">
+                    <table width="100%">
+                        <tr>
+                            <th>Cantidad</th>
+                            <th>Unidad</th>
+                            <th>Clave</th>
+                            <th>Producto</th>
+                            <th>P. U.</th>
+                            <th>Total</th>
+                        </tr>
+                        <tr t-foreach="so.order_line" t-as="line">
+                            <t t-if="line.display_type == False and line.product_uom_qty > 0.0">
+                                <td><span t-out="line.product_uom_qty"/></td>
+                                <td><span t-out="line.product_uom.name"/></td>
+                                <td><span t-out="line.product_id.default_code"/></td>
+                                <td><span t-out="line.product_id.name"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(line.price_total / line.product_uom_qty)"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(line.price_total)"/></td>
+                            </t>
+                        </tr>
+                        <tr>
+                            <td colspan="4"/>
+                            <td><strong>Total:</strong></td>
+                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so.amount_total)"/></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Boxes -->
+                <div style="position:absolute; top:1100px; left:75px; width:43%;">
+                    <table width="100%">
+                        <tr>
+                            <th colspan="2" style="text-align:center; vertical-align:bottom;">Revisión de Salida</th>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center; vertical-align:bottom; height:100px;">Vigilancia</td>
+                            <td style="text-align:center; vertical-align:bottom; height:100px;">Almacén</td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="position:absolute; top:1100px; left:600px; width:43%;">
+                    <table width="100%">
+                        <tr>
+                            <th colspan="2" style="text-align:center; vertical-align:bottom;">Revisión de Entrada de Material Devuelto</th>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center; vertical-align:bottom; height:100px;">Vigilancia</td>
+                            <td style="text-align:center; vertical-align:bottom; height:100px;">Almacén</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Users -->
+                <div style="position:absolute; top:1325px; left:600px; width:300px;" class="text-center">
+                    <span t-out="doc.supervisor_id.name"/>
+                </div>
+                <div style="position:absolute; top:1325px; left:875px; width:300px;" class="text-center">
+                    <span t-out="doc.installer_id.name"/>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <record id="report_remission2" model="ir.actions.report">
+        <field name="name">Remission 2</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">xe_customs.report_remission_format2</field>
+        <field name="report_file">xe_customs.report_remission_format2</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="report_paperformat_marginless"/>
+    </record>
+
+    <!-- Report format 3 -->
+    <template id="report_remission_format3">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="so" t-value="request.env['sale.order'].search([('name', '=', doc.origin)], limit=1)"/>
+                <style>
+                    table, th, td {
+                        border: 1px solid black;
+                        border-collapse: collapse;
+                        padding: 10px;
+                    }
+                    div {
+                        font-size: 16px;
+                    }
+                </style>
+                <!-- <img t-att-src="'/xe_customs/static/img/format3.jpg'" class="background" style="position:absolute; width:100%; z-index:-1; top:0; left:0;"/> -->
+
+                <!-- Numbers -->
+                <div style="position:absolute; top:75px; left:900px; width:300px;" class="text-center">
+                    <h4><span t-out="doc.x_studio_folio_rem"/></h4>
+                    <span t-out="doc.date_done" t-options='{"widget": "date","format": "dd-MM-yyyy"}'/>
+                </div>
+
+                <!-- Addresses -->
+                <div style="position:absolute; top:215px; left:75px; width:500px;">
+                    <strong><span t-out="so.partner_id.name"/></strong><br/>
+                    <span t-out="so.partner_id.contact_address_complete"/>
+                </div>
+                <div style="position:absolute; top:215px; left:625px; width:550px;">
+                    <strong><span t-out="doc.partner_id.name"/></strong><br/>
+                    <span t-out="doc.partner_id.contact_address_complete"/>
+                </div>
+
+                <!-- Sales Order -->
+                <div style="position:absolute; top:500px; left:75px; width:87%;">
+                    <table width="100%">
+                        <tr>
+                            <td><span t-out="so.x_studio_pedido_fisico"/></td>
+                            <td><strong>Saldo Pendiente:</strong> <span t-out="so.x_saldo_pendiente"/></td>
+                            <td><strong>No. de Pedido:</strong> <span t-out="so.name"/></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Products -->
+                <div style="position:absolute; top:600px; left:75px; width:87%;">
+                    <table width="100%">
+                        <tr>
+                            <th>Cantidad</th>
+                            <th>Unidad</th>
+                            <th>Clave</th>
+                            <th>Producto</th>
+                            <th>P. U.</th>
+                            <th>Total</th>
+                        </tr>
+                        <tr t-foreach="so.order_line" t-as="line">
+                            <t t-if="line.display_type == False and line.product_uom_qty > 0.0">
+                                <td><span t-out="line.product_uom_qty"/></td>
+                                <td><span t-out="line.product_uom.name"/></td>
+                                <td><span t-out="line.product_id.default_code"/></td>
+                                <td><span t-out="line.product_id.name"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(line.price_total / line.product_uom_qty)"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(line.price_total)"/></td>
+                            </t>
+                        </tr>
+                        <tr>
+                            <td colspan="4"/>
+                            <td><strong>Total:</strong></td>
+                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so.amount_total)"/></td>
+                        </tr>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <record id="report_remission3" model="ir.actions.report">
+        <field name="name">Remission 3</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">xe_customs.report_remission_format3</field>
+        <field name="report_file">xe_customs.report_remission_format3</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="report_paperformat_marginless"/>
+    </record>
+    
+</odoo>
