@@ -37,5 +37,5 @@ class AccountMove(models.Model):
                 if move.id in order_line.invoice_lines.move_id.ids:
                     order_line.order_id.down_payment_context += order_line.price_unit * (1 + (order_line.tax_id[0].amount / 100))
             move.reconciled_amount = sum(move.source_orders.mapped('down_payment_context'))
-            move.reconcile_balance = sum(move.line_ids.filtered(lambda x: x.product_id.id == x.company_id.sale_down_payment_product_id.id).mapped('price_total')) - move.reconciled_amount - sum(move.source_orders.mapped('down_payment_context'))
+            move.reconcile_balance = sum(move.line_ids.filtered(lambda x: x.product_id.id == x.company_id.sale_down_payment_product_id.id).mapped('price_total')) - move.reconciled_amount
             move.has_down_payment = move.reconcile_balance > 0
