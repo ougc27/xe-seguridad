@@ -70,20 +70,23 @@
                             <th>P. U.</th>
                             <th>Total</th>
                         </tr>
-                        <tr t-foreach="so.order_line" t-as="line">
-                            <t t-if="line.display_type == False and line.product_uom_qty > 0.0">
-                                <td><span t-out="line.product_uom_qty"/></td>
-                                <td><span t-out="line.product_uom.name"/></td>
-                                <td><span t-out="line.product_id.default_code"/></td>
-                                <td><span t-out="line.product_id.name"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(line.price_total / line.product_uom_qty)"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(line.price_total)"/></td>
+                        <t t-set="so_total" t-value="0.0"/>
+                        <tr t-foreach="doc.move_ids_without_package" t-as="line">
+                            <t t-if="line.quantity > 0">
+                                <t t-set="so_line" t-value="so.order_line.filtered(lambda x: x.product_id.id == line.product_id.id)" />
+                                <td><span t-out="line.quantity"/></td>
+                                <td><span t-out="so_line.product_uom.name"/></td>
+                                <td><span t-out="so_line.product_id.default_code"/></td>
+                                <td><span t-out="so_line.product_id.name"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_total / line.quantity)"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_total)"/></td>
+                                <t t-set="so_total" t-value="so_total + so_line.price_total"/>
                             </t>
                         </tr>
                         <tr>
                             <td colspan="4"/>
                             <td><strong>Total:</strong></td>
-                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so.amount_total)"/></td>
+                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_total)"/></td>
                         </tr>
                     </table>
                 </div>
@@ -165,20 +168,23 @@
                             <th>P. U.</th>
                             <th>Total</th>
                         </tr>
-                        <tr t-foreach="so.order_line" t-as="line">
-                            <t t-if="line.display_type == False and line.product_uom_qty > 0.0">
-                                <td><span t-out="line.product_uom_qty"/></td>
-                                <td><span t-out="line.product_uom.name"/></td>
-                                <td><span t-out="line.product_id.default_code"/></td>
-                                <td><span t-out="line.product_id.name"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(line.price_total / line.product_uom_qty)"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(line.price_total)"/></td>
+                        <t t-set="so_total" t-value="0.0"/>
+                        <tr t-foreach="doc.move_ids_without_package" t-as="line">
+                            <t t-if="line.quantity > 0">
+                                <t t-set="so_line" t-value="so.order_line.filtered(lambda x: x.product_id.id == line.product_id.id)" />
+                                <td><span t-out="line.quantity"/></td>
+                                <td><span t-out="so_line.product_uom.name"/></td>
+                                <td><span t-out="so_line.product_id.default_code"/></td>
+                                <td><span t-out="so_line.product_id.name"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_total / line.quantity)"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_total)"/></td>
+                                <t t-set="so_total" t-value="so_total + so_line.price_total"/>
                             </t>
                         </tr>
                         <tr>
                             <td colspan="4"/>
                             <td><strong>Total:</strong></td>
-                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so.amount_total)"/></td>
+                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_total)"/></td>
                         </tr>
                     </table>
                 </div>
@@ -284,20 +290,23 @@
                             <th>P. U.</th>
                             <th>Total</th>
                         </tr>
-                        <tr t-foreach="so.order_line" t-as="line">
-                            <t t-if="line.display_type == False and line.product_uom_qty > 0.0">
-                                <td><span t-out="line.product_uom_qty"/></td>
-                                <td><span t-out="line.product_uom.name"/></td>
-                                <td><span t-out="line.product_id.default_code"/></td>
-                                <td><span t-out="line.product_id.name"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(line.price_total / line.product_uom_qty)"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(line.price_total)"/></td>
+                        <t t-set="so_total" t-value="0.0"/>
+                        <tr t-foreach="doc.move_ids_without_package" t-as="line">
+                            <t t-if="line.quantity > 0">
+                                <t t-set="so_line" t-value="so.order_line.filtered(lambda x: x.product_id.id == line.product_id.id)" />
+                                <td><span t-out="line.quantity"/></td>
+                                <td><span t-out="so_line.product_uom.name"/></td>
+                                <td><span t-out="so_line.product_id.default_code"/></td>
+                                <td><span t-out="so_line.product_id.name"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_total / line.quantity)"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_total)"/></td>
+                                <t t-set="so_total" t-value="so_total + so_line.price_total"/>
                             </t>
                         </tr>
                         <tr>
                             <td colspan="4"/>
                             <td><strong>Total:</strong></td>
-                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so.amount_total)"/></td>
+                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_total)"/></td>
                         </tr>
                     </table>
                 </div>
