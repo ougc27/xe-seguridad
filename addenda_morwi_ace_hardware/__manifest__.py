@@ -9,7 +9,7 @@
     'category': 'Accounting',
     'license': 'LGPL-3',
     'version': '0.1',
-    'depends': ['base', 'l10n_mx_edi', 'addenda_morwi'],
+    'depends': ['sale', 'l10n_mx_edi', 'addenda_morwi'],
     'data': [
         'data/addenda_ace.xml',
     ],

@@ -16,8 +16,8 @@
                         <t t-set="counter" t-value="counter + 1"/>
                         <LineItem>
                             <LineNumber><t t-esc="counter"/></LineNumber>
-                            <VendorSKU><t t-esc="i._get_addenda_sku_vendor()"/></VendorSKU>
-                            <ACESKU><t t-esc="i.product_id.default_code"/></ACESKU>
+                            <VendorSKU><t t-esc="i.product_id.default_code"/></VendorSKU>
+                            <ACESKU><t t-esc="i._get_addenda_sku_vendor()"/></ACESKU>
                             <SATClaveProducto><t t-esc="i.product_id.unspsc_code_id.code"/></SATClaveProducto>
                             <SATClaveUnidad><t t-esc="i.product_uom_id.unspsc_code_id.code"/></SATClaveUnidad>
                             <Descrip><t t-esc="i.name"/></Descrip>
