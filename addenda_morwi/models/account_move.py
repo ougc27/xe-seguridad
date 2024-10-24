@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import fields, models, api
 
 
 class AccountMove(models.Model):
@@ -7,16 +7,20 @@ class AccountMove(models.Model):
     purchase_order_reference = fields.Char(copy=False)
     vendor_number_addenda = fields.Char(copy=False)
     
-    def action_post(self):
-        res = super(AccountMove, self).action_post()
-        if not self.partner_id.l10n_mx_edi_addenda and self.move_type != 'out_invoice':
-            return res
-        product_tmpl_ids = self.invoice_line_ids.mapped("product_id.product_tmpl_id.id")
-        domain = [('product_tmpl_id','=', product_tmpl_ids),('product_code','!=', False),('partner_id.ref','!=', False)]
-        prod_suppl_id = self.env['product.supplierinfo'].search(domain, limit=1)
-        if prod_suppl_id:
-            self.vendor_number_addenda = prod_suppl_id.partner_id.ref
-        return res
+    @api.onchange('partner_id')
+    def _onchange_partner_addenda(self):
+        if self.partner_id and self.partner_id.l10n_mx_edi_addenda and self.move_type == 'out_invoice':
+            self.vendor_number_addenda = self._get_vendor_number_addenda()
+    
+    def _get_vendor_number_addenda(self):
+        vendor_number_addenda = False
+        if self.partner_id.l10n_mx_edi_addenda and self.move_type == 'out_invoice':
+            product_tmpl_ids = self.invoice_line_ids.mapped("product_id.product_tmpl_id.id")
+            domain = [('product_tmpl_id','=', product_tmpl_ids),('product_code','!=', False),('partner_id.ref','!=', False)]
+            prod_suppl_id = self.env['product.supplierinfo'].search(domain, limit=1)
+            if prod_suppl_id:
+                vendor_number_addenda = prod_suppl_id.partner_id.ref
+        return vendor_number_addenda
 
 
 class AccountMoveLine(models.Model):
