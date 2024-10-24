@@ -9,3 +9,45 @@ class StockPicking(models.Model):
 
     supervisor_id = fields.Many2one('res.users', 'Supervisor', help="Define the supervisor of the picking.")
     installer_id = fields.Many2one('res.users', 'Installer', help="Define the installer of the picking.")
+    state = fields.Selection(selection_add=[('transit', 'Transit'), ('done',)])
+
+    def action_transit(self):
+        self.ensure_one()
+        moves = []
+        for move in self.move_ids_without_package:
+            if move.quantity < move.product_uom_qty:
+                moves.append(move)
+        if len(moves) > 0:
+            backorder = self.env['stock.picking'].create({})
+            for move in moves:
+                backorder.move_ids_without_package.create({
+                    'name': move.name,
+                    'product_id': move.product_id.id,
+                    'product_uom_qty': move.product_uom_qty - move.quantity,
+                    'product_uom': move.product_uom.id,
+                    'picking_id': backorder.id,
+                    'location_id': move.location_id.id,
+                    'location_dest_id': move.location_dest_id.id,
+                })
+                move.write({
+                    'product_uom_qty': move.quantity,
+                })
+            backorder.write({
+                'partner_id': self.partner_id.id,
+                'picking_type_id': self.picking_type_id.id,
+                'location_id': self.location_id.id,
+                'location_dest_id': self.location_dest_id.id,
+                'origin': self.name,
+                'supervisor_id': self.supervisor_id.id,
+                'installer_id': self.installer_id.id,
+                'scheduled_date': self.scheduled_date,
+                'user_id': self.user_id.id,
+                'group_id': self.group_id.id,
+            })
+            backorder.action_assign()
+        self.write({'state': 'transit'})
+
+    def action_cancel_transit(self):
+        self.ensure_one()
+        self.write({'state': 'confirmed'})
+        self.move_ids._do_unreserve()
