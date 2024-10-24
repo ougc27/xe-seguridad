@@ -19,10 +19,14 @@
         # Security
         'security/ir.model.access.csv',
 
+        # Reports
+        'reports/report_remissions.xml',
+
         # Views
         'views/account_views.xml',
         'views/product_views.xml',
         'views/sale_views.xml',
+        'views/stock_picking.xml',
     ],
     "demo": [],
     'installable': True,
