@@ -86,7 +86,7 @@
                         <tr>
                             <td colspan="4"/>
                             <td><strong>Total:</strong></td>
-                            <td style="text-align: right;">$<span t-out="so_total"/></td>
+                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_total)"/></td>
                         </tr>
                     </table>
                 </div>
@@ -184,7 +184,7 @@
                         <tr>
                             <td colspan="4"/>
                             <td><strong>Total:</strong></td>
-                            <td style="text-align: right;">$<span t-out="so_total"/></td>
+                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_total)"/></td>
                         </tr>
                     </table>
                 </div>
@@ -306,7 +306,7 @@
                         <tr>
                             <td colspan="4"/>
                             <td><strong>Total:</strong></td>
-                            <td style="text-align: right;">$<span t-out="so_total"/></td>
+                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_total)"/></td>
                         </tr>
                     </table>
                 </div>
