@@ -52,7 +52,7 @@
                 <div style="position:absolute; top:500px; left:75px; width:87%;">
                     <table width="100%">
                         <tr>
-                            <td><span t-out="so.x_studio_pedido_fisico"/></td>
+                            <td><strong>Pedido Físico:</strong> <span t-out="so.x_studio_pedido_fisico"/></td>
                             <td><strong>Saldo Pendiente:</strong> <span t-out="so.x_saldo_pendiente"/></td>
                             <td><strong>No. de Pedido:</strong> <span t-out="so.name"/></td>
                         </tr>
@@ -78,9 +78,9 @@
                                 <td><span t-out="so_line.product_uom.name"/></td>
                                 <td><span t-out="so_line.product_id.default_code"/></td>
                                 <td><span t-out="so_line.product_id.name"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_total / line.quantity)"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_total)"/></td>
-                                <t t-set="so_total" t-value="so_total + so_line.price_total"/>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_unit)"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_unit * line.quantity)"/></td>
+                                <t t-set="so_total" t-value="so_total + (so_line.price_unit * line.quantity)"/>
                             </t>
                         </tr>
                         <tr>
@@ -150,7 +150,7 @@
                 <div style="position:absolute; top:500px; left:75px; width:87%;">
                     <table width="100%">
                         <tr>
-                            <td><span t-out="so.x_studio_pedido_fisico"/></td>
+                            <td><strong>Pedido Físico:</strong> <span t-out="so.x_studio_pedido_fisico"/></td>
                             <td><strong>Saldo Pendiente:</strong> <span t-out="so.x_saldo_pendiente"/></td>
                             <td><strong>No. de Pedido:</strong> <span t-out="so.name"/></td>
                         </tr>
@@ -176,9 +176,9 @@
                                 <td><span t-out="so_line.product_uom.name"/></td>
                                 <td><span t-out="so_line.product_id.default_code"/></td>
                                 <td><span t-out="so_line.product_id.name"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_total / line.quantity)"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_total)"/></td>
-                                <t t-set="so_total" t-value="so_total + so_line.price_total"/>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_unit)"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_unit * line.quantity)"/></td>
+                                <t t-set="so_total" t-value="so_total + (so_line.price_unit * line.quantity)"/>
                             </t>
                         </tr>
                         <tr>
@@ -272,7 +272,7 @@
                 <div style="position:absolute; top:500px; left:75px; width:87%;">
                     <table width="100%">
                         <tr>
-                            <td><span t-out="so.x_studio_pedido_fisico"/></td>
+                            <td><strong>Pedido Físico:</strong> <span t-out="so.x_studio_pedido_fisico"/></td>
                             <td><strong>Saldo Pendiente:</strong> <span t-out="so.x_saldo_pendiente"/></td>
                             <td><strong>No. de Pedido:</strong> <span t-out="so.name"/></td>
                         </tr>
@@ -298,9 +298,9 @@
                                 <td><span t-out="so_line.product_uom.name"/></td>
                                 <td><span t-out="so_line.product_id.default_code"/></td>
                                 <td><span t-out="so_line.product_id.name"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_total / line.quantity)"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_total)"/></td>
-                                <t t-set="so_total" t-value="so_total + so_line.price_total"/>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_unit)"/></td>
+                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_unit * line.quantity)"/></td>
+                                <t t-set="so_total" t-value="so_total + (so_line.price_unit * line.quantity)"/>
                             </t>
                         </tr>
                         <tr>
