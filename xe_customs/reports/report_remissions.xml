@@ -78,15 +78,15 @@
                                 <td><span t-out="so_line.product_uom.name"/></td>
                                 <td><span t-out="so_line.product_id.default_code"/></td>
                                 <td><span t-out="so_line.product_id.name"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_unit)"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_unit * line.quantity)"/></td>
+                                <td style="text-align: right;">$<span t-out="so_line.price_unit"/></td>
+                                <td style="text-align: right;">$<span t-out="so_line.price_unit * line.quantity"/></td>
                                 <t t-set="so_total" t-value="so_total + (so_line.price_unit * line.quantity)"/>
                             </t>
                         </tr>
                         <tr>
                             <td colspan="4"/>
                             <td><strong>Total:</strong></td>
-                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_total)"/></td>
+                            <td style="text-align: right;">$<span t-out="so_total"/></td>
                         </tr>
                     </table>
                 </div>
@@ -176,15 +176,15 @@
                                 <td><span t-out="so_line.product_uom.name"/></td>
                                 <td><span t-out="so_line.product_id.default_code"/></td>
                                 <td><span t-out="so_line.product_id.name"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_unit)"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_unit * line.quantity)"/></td>
+                                <td style="text-align: right;">$<span t-out="so_line.price_unit"/></td>
+                                <td style="text-align: right;">$<span t-out="so_line.price_unit * line.quantity"/></td>
                                 <t t-set="so_total" t-value="so_total + (so_line.price_unit * line.quantity)"/>
                             </t>
                         </tr>
                         <tr>
                             <td colspan="4"/>
                             <td><strong>Total:</strong></td>
-                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_total)"/></td>
+                            <td style="text-align: right;">$<span t-out="so_total"/></td>
                         </tr>
                     </table>
                 </div>
@@ -298,15 +298,15 @@
                                 <td><span t-out="so_line.product_uom.name"/></td>
                                 <td><span t-out="so_line.product_id.default_code"/></td>
                                 <td><span t-out="so_line.product_id.name"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_unit)"/></td>
-                                <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_line.price_unit * line.quantity)"/></td>
+                                <td style="text-align: right;">$<span t-out="so_line.price_unit"/></td>
+                                <td style="text-align: right;">$<span t-out="so_line.price_unit * line.quantity"/></td>
                                 <t t-set="so_total" t-value="so_total + (so_line.price_unit * line.quantity)"/>
                             </t>
                         </tr>
                         <tr>
                             <td colspan="4"/>
                             <td><strong>Total:</strong></td>
-                            <td style="text-align: right;"><span t-out="'${:,.2f}'.format(so_total)"/></td>
+                            <td style="text-align: right;">$<span t-out="so_total"/></td>
                         </tr>
                     </table>
                 </div>
