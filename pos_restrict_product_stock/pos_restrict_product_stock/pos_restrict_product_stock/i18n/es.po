@@ -238,7 +238,6 @@ msgstr "Factura del cliente"
 msgid "Delivery Partner"
 msgstr "Contacto para entregas"
 
-
 #. module: pos_restrict_product_stock
 #. odoo-javascript
 #: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0

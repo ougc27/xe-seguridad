@@ -2,7 +2,6 @@
 import { patch } from "@web/core/utils/patch";
 import RestrictStockPopup from "@pos_restrict_product_stock/js/RestrictStockPopup"
 import { PosStore } from "@point_of_sale/app/store/pos_store";
-import { ErrorPopup } from "@point_of_sale/app/errors/popups/error_popup";
 import { _t } from "@web/core/l10n/translation";
 
 
