@@ -38,7 +38,7 @@ patch(PaymentScreen.prototype, {
             return false;
         }
 
-        let partner = this.currentOrder.get_partner();
+        //let partner = this.currentOrder.get_partner();
         if (
             this.currentOrder.getShippingDate()
         ) {

@@ -158,7 +158,9 @@ class L10nMxEdiDocument(models.Model):
             on_failure("\n".join(cfdi_values['errors']))
             return
 
-        payment_reference = cfdi_values['conceptos_list'][0]['line']['record'].move_id.payment_reference
+        payment_reference = None
+        if cfdi_values.get('conceptos_list'):
+            payment_reference = cfdi_values['conceptos_list'][0]['line']['record'].move_id.payment_reference
         
         for concepto_list in cfdi_values['conceptos_list']:
             description = concepto_list['description']

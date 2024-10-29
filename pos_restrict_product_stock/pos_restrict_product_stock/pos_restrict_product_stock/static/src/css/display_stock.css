@@ -27,3 +27,30 @@
        font-size: 14px;
        color:white
 }
+
+.pos-receipt .pos-receipt-order-data {
+    text-align: center;
+    font-size: 100%;
+}
+
+.pos-receipt .pos-receipt-contact {
+    text-align: center;
+    font-size: 100%;
+}
+
+.pos-receipt .pos-receipt-logo {
+    width: 50%;
+    /*display: block;*/
+    display: none;
+    margin: 0 auto;
+    filter: grayscale(100%) contrast(200%) brightness(80%);
+}
+
+.bold-text {
+    font-weight: bold;
+}
+
+.company-name {
+    font-size: 20px !important;
+    text-align: center !important;
+}
