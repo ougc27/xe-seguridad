@@ -7,6 +7,12 @@ class AccountMove(models.Model):
     purchase_order_reference = fields.Char(copy=False)
     vendor_number_addenda = fields.Char(copy=False)
     
+    @api.model
+    def create(self, vals):
+        record = super(AccountMove, self).create(vals)
+        record._onchange_partner_addenda()
+        return record
+
     @api.onchange('partner_id')
     def _onchange_partner_addenda(self):
         if self.partner_id and self.partner_id.l10n_mx_edi_addenda and self.move_type == 'out_invoice':
@@ -20,6 +26,8 @@ class AccountMove(models.Model):
             prod_suppl_id = self.env['product.supplierinfo'].search(domain, limit=1)
             if prod_suppl_id:
                 vendor_number_addenda = prod_suppl_id.partner_id.ref
+            else:
+                vendor_number_addenda = self.partner_id.ref
         return vendor_number_addenda
 
 

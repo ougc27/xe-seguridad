@@ -58,9 +58,9 @@
                                 <tradeItemIdentification>
                                     <gtin t-raw="line.product_id.default_code"></gtin>
                                 </tradeItemIdentification>
-                                <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line.product_id.default_code"></alternateTradeItemIdentification>
+                                <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line.addenda_coppel_vendor_id.product_code"></alternateTradeItemIdentification>
                                 <tradeItemDescriptionInformation language="ES">
-                                    <longText t-raw="line.name"></longText>
+                                    <longText t-raw="line.addenda_coppel_vendor_id.product_name"></longText>
                                 </tradeItemDescriptionInformation>
                                 <invoicedQuantity t-att-unitOfMeasure="line.product_uom_id.name" t-raw="line.quantity"></invoicedQuantity>
                                 <grossPrice>
@@ -70,7 +70,7 @@
                                     <Amount t-raw="line.price_unit"></Amount>
                                 </netPrice>
                                 <modeloInformation>
-                                    <longText t-raw="line.product_id.name"></longText>
+                                    <longTextExt t-raw="line.product_id.name"></longTextExt>
                                 </modeloInformation>
                                 <allowanceCharge allowanceChargeType="ALLOWANCE_GLOBAL">
                                     <specialServicesType>PAD</specialServicesType>

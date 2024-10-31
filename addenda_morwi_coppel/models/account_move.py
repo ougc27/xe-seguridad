@@ -128,3 +128,16 @@ class AccountMoveSend(models.TransientModel):
 
         res = super()._process_send_and_print(moves, wizard=wizard, allow_fallback_pdf=allow_fallback_pdf, **kwargs)
         return res
+
+
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
+
+    addenda_coppel_vendor_id = fields.Many2one('product.supplierinfo', compute='_compute_addenda_coppel_vendor_id', string='Vendor')
+
+    def _compute_addenda_coppel_vendor_id(self):
+        for line in self:
+            if line.product_id:
+                line.addenda_coppel_vendor_id = line.product_id.seller_ids.filtered(lambda x: x.product_tmpl_id.id == line.product_id.product_tmpl_id.id)
+            else:
+                line.addenda_coppel_vendor_id = False
