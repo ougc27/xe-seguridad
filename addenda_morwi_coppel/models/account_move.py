@@ -133,11 +133,15 @@ class AccountMoveSend(models.TransientModel):
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
-    addenda_coppel_vendor_id = fields.Many2one('product.supplierinfo', compute='_compute_addenda_coppel_vendor_id', string='Vendor', store=True)
+    addenda_coppel_vendor_id = fields.Many2one('product.supplierinfo', compute='_compute_addenda_coppel_vendor_id', string='Vendor')
 
     def _compute_addenda_coppel_vendor_id(self):
         for line in self:
-            if line.product_id:
-                line.addenda_coppel_vendor_id = line.product_id.seller_ids.filtered(lambda x: x.partner_id.id == line.move_id.partner_id.id)
+            if line.product_id and line.product_id.seller_ids:
+                vendors = line.product_id.seller_ids.filtered(lambda x: x.partner_id.id == line.move_id.partner_id.id)
+                if len(vendors) = 1:
+                    line.addenda_coppel_vendor_id = vendors
+                else:
+                    line.addenda_coppel_vendor_id = False
             else:
                 line.addenda_coppel_vendor_id = False
