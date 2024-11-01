@@ -139,7 +139,7 @@ class AccountMoveLine(models.Model):
         for line in self:
             if line.product_id and line.product_id.seller_ids:
                 vendors = line.product_id.seller_ids.filtered(lambda x: x.partner_id.id == line.move_id.partner_id.id)
-                if len(vendors) = 1:
+                if len(vendors) == 1:
                     line.addenda_coppel_vendor_id = vendors
                 else:
                     line.addenda_coppel_vendor_id = False
