@@ -49,6 +49,10 @@
                     <span t-field="so.partner_id.street2"/>
                     <t t-if="so.partner_id.street2">,</t>
 
+                    <span t-field="so.partner_id.l10n_mx_edi_colony"/>
+                    <span t-field="so.partner_id.l10n_mx_edi_colony_code"/>
+                    <t t-if="so.partner_id.l10n_mx_edi_colony or so.partner_id.l10n_mx_edi_colony_code">,</t>
+
                     <span t-field="so.partner_id.zip"/>
                     <span t-field="so.partner_id.city_id.name" t-if="so.partner_id.city_id"/>
                     <span t-field="so.partner_id.city" t-if="not so.partner_id.city_id"/>
@@ -100,6 +104,8 @@
                             <th>Total</th>
                         </tr>
                         <t t-set="so_total" t-value="0.0"/>
+                        <t t-set="door_count" t-value="0"/>
+                        <t t-set="other_count" t-value="0"/>
                         <tr t-foreach="doc.move_ids_without_package" t-as="line">
                             <t t-if="line.quantity > 0">
                                 <t t-set="so_line" t-value="so.order_line.filtered(lambda x: line.id in x.move_ids.ids)" />
@@ -110,10 +116,20 @@
                                 <td style="padding-top:0px; padding-bottom:0px; text-align:right;">$<span t-out="so_line.price_unit"/></td>
                                 <td style="padding-top:0px; padding-bottom:0px; text-align:right;">$<span t-out="so_line.price_unit * line.quantity"/></td>
                                 <t t-set="so_total" t-value="so_total + (so_line.price_unit * line.quantity)"/>
+                                <t t-if="so_line.product_id.is_door">
+                                    <t t-set="door_count" t-value="door_count + line.quantity"/>
+                                </t>
+                                <t t-else="">
+                                    <t t-set="other_count" t-value="other_count + line.quantity"/>
+                                </t>
                             </t>
                         </tr>
                         <tr>
-                            <td colspan="4"/>
+                            <td colspan="4">
+                                <strong>Total Puertas:</strong> <span t-out="door_count"/>
+                                <span style="display:inline-block; width:100px;"/>
+                                <strong>Otros Productos:</strong> <span t-out="other_count"/>
+                            </td>
                             <td><strong>Total:</strong></td>
                             <td style="text-align:right;"><span t-out="'${:,.4f}'.format(so_total)"/></td>
                         </tr>
@@ -177,6 +193,10 @@
                     <span t-field="so.partner_id.street2"/>
                     <t t-if="so.partner_id.street2">,</t>
 
+                    <span t-field="so.partner_id.l10n_mx_edi_colony"/>
+                    <span t-field="so.partner_id.l10n_mx_edi_colony_code"/>
+                    <t t-if="so.partner_id.l10n_mx_edi_colony or so.partner_id.l10n_mx_edi_colony_code">,</t>
+
                     <span t-field="so.partner_id.zip"/>
                     <span t-field="so.partner_id.city_id.name" t-if="so.partner_id.city_id"/>
                     <span t-field="so.partner_id.city" t-if="not so.partner_id.city_id"/>
@@ -228,6 +248,8 @@
                             <th>Total</th>
                         </tr>
                         <t t-set="so_total" t-value="0.0"/>
+                        <t t-set="door_count" t-value="0"/>
+                        <t t-set="other_count" t-value="0"/>
                         <tr t-foreach="doc.move_ids_without_package" t-as="line">
                             <t t-if="line.quantity > 0">
                                 <t t-set="so_line" t-value="so.order_line.filtered(lambda x: line.id in x.move_ids.ids)" />
@@ -238,10 +260,20 @@
                                 <td style="padding-top:0px; padding-bottom:0px; text-align:right;">$<span t-out="so_line.price_unit"/></td>
                                 <td style="padding-top:0px; padding-bottom:0px; text-align:right;">$<span t-out="so_line.price_unit * line.quantity"/></td>
                                 <t t-set="so_total" t-value="so_total + (so_line.price_unit * line.quantity)"/>
+                                <t t-if="so_line.product_id.is_door">
+                                    <t t-set="door_count" t-value="door_count + line.quantity"/>
+                                </t>
+                                <t t-else="">
+                                    <t t-set="other_count" t-value="other_count + line.quantity"/>
+                                </t>
                             </t>
                         </tr>
                         <tr>
-                            <td colspan="4"/>
+                            <td colspan="4">
+                                <strong>Total Puertas:</strong> <span t-out="door_count"/>
+                                <span style="display:inline-block; width:100px;"/>
+                                <strong>Otros Productos:</strong> <span t-out="other_count"/>
+                            </td>
                             <td><strong>Total:</strong></td>
                             <td style="text-align:right;"><span t-out="'${:,.4f}'.format(so_total)"/></td>
                         </tr>
@@ -329,6 +361,10 @@
                     <span t-field="so.partner_id.street2"/>
                     <t t-if="so.partner_id.street2">,</t>
 
+                    <span t-field="so.partner_id.l10n_mx_edi_colony"/>
+                    <span t-field="so.partner_id.l10n_mx_edi_colony_code"/>
+                    <t t-if="so.partner_id.l10n_mx_edi_colony or so.partner_id.l10n_mx_edi_colony_code">,</t>
+
                     <span t-field="so.partner_id.zip"/>
                     <span t-field="so.partner_id.city_id.name" t-if="so.partner_id.city_id"/>
                     <span t-field="so.partner_id.city" t-if="not so.partner_id.city_id"/>
@@ -380,6 +416,8 @@
                             <th>Total</th>
                         </tr>
                         <t t-set="so_total" t-value="0.0"/>
+                        <t t-set="door_count" t-value="0"/>
+                        <t t-set="other_count" t-value="0"/>
                         <tr t-foreach="doc.move_ids_without_package" t-as="line">
                             <t t-if="line.quantity > 0">
                                 <t t-set="so_line" t-value="so.order_line.filtered(lambda x: line.id in x.move_ids.ids)" />
@@ -390,10 +428,20 @@
                                 <td style="padding-top:0px; padding-bottom:0px; text-align:right;">$<span t-out="so_line.price_unit"/></td>
                                 <td style="padding-top:0px; padding-bottom:0px; text-align:right;">$<span t-out="so_line.price_unit * line.quantity"/></td>
                                 <t t-set="so_total" t-value="so_total + (so_line.price_unit * line.quantity)"/>
+                                <t t-if="so_line.product_id.is_door">
+                                    <t t-set="door_count" t-value="door_count + line.quantity"/>
+                                </t>
+                                <t t-else="">
+                                    <t t-set="other_count" t-value="other_count + line.quantity"/>
+                                </t>
                             </t>
                         </tr>
                         <tr>
-                            <td colspan="4"/>
+                            <td colspan="4">
+                                <strong>Total Puertas:</strong> <span t-out="door_count"/>
+                                <span style="display:inline-block; width:100px;"/>
+                                <strong>Otros Productos:</strong> <span t-out="other_count"/>
+                            </td>
                             <td><strong>Total:</strong></td>
                             <td style="text-align:right;"><span t-out="'${:,.4f}'.format(so_total)"/></td>
                         </tr>
