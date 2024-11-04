@@ -2,7 +2,8 @@
 # © 2024 Morwi Encoders Consulting SA DE CV
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html).
 
-from odoo import fields, models
+from odoo import fields, models, _
+from odoo.exceptions import UserError
 
 class StockPicking(models.Model):
     _inherit = "stock.picking"
@@ -46,6 +47,13 @@ class StockPicking(models.Model):
             })
             backorder.action_assign()
         self.write({'state': 'transit'})
+
+
+    def do_unreserve(self):
+        self.ensure_one()
+        if self.state == 'transit':
+            raise UserError(_('You cannot unreserve a transit picking.'))
+        return super(StockPicking, self).do_unreserve()
 
     def action_cancel_transit(self):
         self.ensure_one()
