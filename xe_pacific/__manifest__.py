@@ -1,0 +1,41 @@
+# See LICENSE file for full copyright and licensing details.
+
+{
+    "name": "MX-EDI Pacific Rim",
+    "version": "17.0.0.0.0",
+    "license": "LGPL-3",
+    "author": "XE Brands",
+    'sequence': 1,
+    "depends": [
+        'base',
+        'sale_project',
+        'helpdesk_fsm',
+        'helpdesk_sale',
+        'mrp',
+        'hr',
+        'industry_fsm',
+        'sale_management',
+        'mail',
+        'sale_stock'
+    ],
+    "category": "Accounting",
+    "summary": "MX-EDI XE Brands",
+    'data': [
+        'data/email_backorder_to_salesperson.xml',
+        'data/email_notify_seller_of_changes.xml',
+        'views/supervisor_installer_view.xml',
+        'views/supervisor_installer_menu.xml',
+        'views/fsm_project_menus.xml',
+        'views/sale_views.xml',
+        'views/helpdesk_views.xml',
+        'views/stock_picking_views.xml',
+        'views/inventory_tag_views.xml',
+        'views/inventory_tag_menu.xml',
+        'wizard/stock_backorder_confirmation.xml',
+        'security/ir.model.access.csv',
+    ],
+    "demo": [],
+    'installable': True,
+    'auto_install': False,
+    "images":['static/src/img/imagenVisitasTecnicas.png'],
+}
