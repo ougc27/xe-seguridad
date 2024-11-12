@@ -28,6 +28,8 @@ class AccountMove(models.Model):
         string="Has Down Payment",
         copy=False,
     )
+    locked = fields.Boolean(default=False)
+    auto_credit_note = fields.Boolean(default=False)
     
     def _get_source_orders(self):
         for move in self:

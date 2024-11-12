@@ -25,6 +25,9 @@
                     </group>
                 </page>
             </xpath>
+            <xpath expr="//field[@name='invoice_line_ids']" position="attributes">
+                <attribute name="readonly">locked</attribute>
+            </xpath>
         </field>
     </record>
 

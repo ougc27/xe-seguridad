@@ -25,4 +25,9 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                         origins.append(inv.l10n_mx_edi_cfdi_uuid)
                 if len(origins) > 0:
                     invoice.l10n_mx_edi_cfdi_origin = '07|' + ','.join(origins)
+
+        invoices.locked = True
+        if self.advance_payment_method == 'delivered':
+            invoices.auto_credit_note = True
+
         return invoices
