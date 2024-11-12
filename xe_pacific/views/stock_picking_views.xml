@@ -1,0 +1,33 @@
+<odoo>
+    <record id="view_picking_form_inherit" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='button_validate']" position="after">
+                <field name="is_remission_separated" invisible="1"/>
+                <button name="separate_remissions" type="object" string="Separar Partidas" class="oe_highlight" invisible="state in ('done', 'cancel') or is_remission_separated"/>
+            </xpath>
+            <xpath expr="//field[@name='date_deadline']" position="before">
+                <label for="end_date"/>
+                <div class="o_row">
+                    <field name="end_date" readonly="state in ['cancel', 'done']"/>
+                    <field name="json_popover" nolabel="1" widget="stock_rescheduling_popover" invisible="not json_popover"/>
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='picking_type_id']" position="after">
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="stock_picking_tree_inherit" model="ir.ui.view">
+        <field name="name">stock.picking.tree.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='scheduled_date']" position="after">
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
