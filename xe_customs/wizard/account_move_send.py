@@ -43,11 +43,10 @@ class AccountMoveSend(models.TransientModel):
                         })]
                     })
                     credit_note.action_post()
-                    credit_note.action_send_and_print()
+                    credit_note._l10n_mx_edi_cfdi_invoice_try_send()
 
-                    # # Reconcile
-                    # for line in credit_note.line_ids:
-                    #     move.js_assign_outstanding_line(line.id)
-                    # raise Exception("Hello")
+                    # Reconcile
+                    for line in credit_note.line_ids:
+                        move.js_assign_outstanding_line(line.id)
                 
         return res

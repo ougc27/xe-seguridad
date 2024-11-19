@@ -4,11 +4,15 @@
 
 from odoo import models, fields, api
 
+from odoo.exceptions import UserError
+
 class SaleMakeInvoiceAdvance(models.TransientModel):
     _inherit = 'sale.advance.payment.inv'
 
     def _create_invoices(self, sale_orders):
         invoices = super(SaleMakeInvoiceAdvance, self)._create_invoices(sale_orders)
+        if self.advance_payment_method == 'percentage':
+            raise UserError('La opción de porcentaje no está disponible para la generación de facturas de anticipo.')
         if self.advance_payment_method != 'delivered':
             for invoice in invoices:
                 for order_line in invoice.line_ids.sale_line_ids:
