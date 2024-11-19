@@ -7,6 +7,8 @@ class SaleOrder(models.Model):
 
     is_exception = fields.Boolean(string="Excepción")
 
+    pos_store = fields.Many2one('res.partner', domain="[('is_pos_store', '=', True)]")
+
     def send_notify_changes_mail(self):
         template = self.env.ref('xe_pacific.email_template_notify_salesperson_of_changes')
         template.send_mail(self.id, force_send=True)
@@ -36,8 +38,6 @@ class SaleOrder(models.Model):
         result = super()._action_confirm()
         for rec in self:
             if rec.team_id.name == 'CONSTRUCTORAS':
-                for picking in rec.picking_ids:
-                    picking.separate_remissions()
                 for line in rec.order_line:
                     sku = line.product_id.default_code
                     if sku in ('INS10', 'INSBASCDI', 'VISREF', 'VISTEC_COMPRADA'):
@@ -56,6 +56,16 @@ class SaleOrder(models.Model):
                     line.task_id.write({
                         'sale_order_id': line.order_id.id,
                     })
+                for picking in rec.picking_ids:
+                    picking.separate_remissions()
+                continue
+            for picking in rec.picking_ids:
+                moves = picking.move_ids.filtered(lambda move: (
+                     move.product_id.product_tmpl_id.not_automatic_lot_number
+                ))
+                if moves:
+                    picking.do_unreserve()
+                    picking.action_assign()
         return result
 
     @api.depends('order_line.product_id.project_id', 'order_line.project_id')

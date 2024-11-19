@@ -30,6 +30,16 @@
             <xpath expr="//page[@name='other_information']//field[@name='tag_ids']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+            <xpath expr="//field[@name='partner_shipping_id']" position="after">
+                <field name="pos_store" 
+                    readonly="state == 'cancel' or locked"
+                    invisible="team_id != 19"
+                    required="team_id == 19"/>
+                <field name="pos_store" 
+                    readonly="state == 'cancel' or locked"
+                    invisible="partner_id not in [88942, 88908, 97403]"
+                    required="partner_id in [88942, 88908, 97403]"/>
+            </xpath>
         </field>
     </record>
 </odoo>
