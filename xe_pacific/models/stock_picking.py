@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-import logging
-_logger = logging.getLogger(__name__)
-
 from odoo import api, models, fields, _
 from odoo.osv import expression
+from odoo.exceptions import UserError
 
 
 class StockPicking(models.Model):
@@ -157,3 +154,31 @@ class StockPicking(models.Model):
             )
             return [row[0] for row in self.env.cr.fetchall()]
         return super()._name_search(name, domain, operator, limit, order)
+
+    def action_assign(self):
+        """ Check availability of picking moves.
+        This has the effect of changing the state and reserve quants on available moves, and may
+        also impact the state of the picking as it is computed based on move's states.
+        @return: True
+        """
+        self.mapped('package_level_ids').filtered(lambda pl: pl.state == 'draft' and not pl.move_ids)._generate_moves()
+        self.filtered(lambda picking: picking.state == 'draft').action_confirm()
+        moves = self.move_ids.filtered(
+            lambda move: (
+                move.state not in ('draft', 'cancel', 'done')
+                and not move.product_id.product_tmpl_id.not_automatic_lot_number
+            )
+        ).sorted(
+            key=lambda move: (
+                -int(move.priority),
+                not bool(move.date_deadline),
+                move.date_deadline,
+                move.date,
+                move.id
+            )
+        )
+        if not moves:
+            raise UserError(_('Nothing to check the availability for.'))
+        moves._action_assign()
+        return True
+

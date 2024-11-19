@@ -670,3 +670,23 @@ msgstr "Usa las etiquetas para dar seguimiento y manejar tus entregas."
 #: model_terms:ir.ui.view,arch_db:xe_pacific.inventory_tag_view_form
 msgid "e.g. Services"
 msgstr "Por ejemplo, servicios"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_res_partner__is_pos_store
+#: model:ir.model.fields,field_description:xe_pacific.field_res_users__is_pos_store
+msgid "Is Pos Store"
+msgstr "Es punto de venta"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_account_bank_statement_line__pos_store
+#: model:ir.model.fields,field_description:xe_pacific.field_account_move__pos_store
+#: model:ir.model.fields,field_description:xe_pacific.field_account_payment__pos_store
+#: model:ir.model.fields,field_description:xe_pacific.field_sale_order__pos_store
+msgid "Pos Store"
+msgstr "Tienda punto de venta"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_product_product__not_automatic_lot_number
+#: model:ir.model.fields,field_description:xe_pacific.field_product_template__not_automatic_lot_number
+msgid "Not Automatic Lot Number"
+msgstr "Número de lote no automático"

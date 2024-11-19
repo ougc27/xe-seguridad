@@ -6,3 +6,7 @@ from . import supervisor_installer
 from . import project_task
 from . import mail_thread
 from . import inventory_tag
+from . import product_template
+from . import res_partner
+from . import account_move_line
+from . import account_move
