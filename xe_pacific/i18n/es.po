@@ -53,6 +53,7 @@ msgid "Create a Field Service task"
 msgstr "Crear una tarea en el campo de servicio"
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__create_uid
@@ -60,6 +61,7 @@ msgid "Created by"
 msgstr "Creado por"
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__create_date
@@ -72,6 +74,7 @@ msgid "Devolución / Cancelación"
 msgstr "Devolución / Cancelación"
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__display_name
@@ -149,6 +152,7 @@ msgid "Helpdesk Ticket"
 msgstr "Ticket de servicio de asistencia"
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__id
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__id
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__id
 #: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__id
@@ -181,6 +185,7 @@ msgid "Kanban Task Status"
 msgstr "Estado de la tarea Kanban"
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__write_uid
@@ -188,6 +193,7 @@ msgid "Last Updated by"
 msgstr "Última actualización por"
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__write_date
@@ -690,3 +696,39 @@ msgstr "Tienda punto de venta"
 #: model:ir.model.fields,field_description:xe_pacific.field_product_template__not_automatic_lot_number
 msgid "Not Automatic Lot Number"
 msgstr "Número de lote no automático"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.base_copy_user_access_view_form
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.base_copy_user_access_view_form
+msgid "Copy"
+msgstr "Copiar"
+
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.base_copy_user_access_view_form
+msgid "Copy Access Right From User"
+msgstr "Copiar los permisos de acceso desde el usuario"
+
+#. module: xe_pacific
+#: model:ir.actions.act_window,name:xe_pacific.base_copy_user_access_action
+msgid "Copy User Access"
+msgstr "Copiar accesos del usuario"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__user_id
+msgid "User"
+msgstr "Usuario"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_base_copy_user_access
+msgid "Wizard Copy User Access"
+msgstr "Ventana para copiar accesos del usuario"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_users_form_inherit_copy_access
+msgid "Copy Access"
+msgstr "Copiar permisos"
