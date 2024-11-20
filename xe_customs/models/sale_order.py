@@ -185,9 +185,10 @@ class SaleDownPayment(models.Model):
                 order = payment.order_id
                 tax_id = order.order_line.tax_id
                 amount = payment.amount / (1 + (tax_id[0].amount / 100))
-                reconciled = sum(order._origin.down_payment_ids.mapped('amount'))
+                reconciled = sum(order.down_payment_ids.mapped('amount'))
 
-                if amount + reconciled > order.amount_total:
+                if reconciled > order.amount_total:
+                    reconciled -= payment.amount
                     amount = (order.amount_total - reconciled) / (1 + (tax_id[0].amount / 100))
 
                 if payment.order_line_id:
@@ -228,6 +229,7 @@ class SaleDownPayment(models.Model):
                     payment.order_line_id = down_payment
                     invoice_down_payment.sale_line_ids += down_payment
                     payment.invoice_id._get_source_orders()
+                payment.write(payment.read()[0])
 
     def unlink(self):
         for payment in self:
