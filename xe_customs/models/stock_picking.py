@@ -33,6 +33,9 @@ class StockPicking(models.Model):
                 move.write({
                     'product_uom_qty': move.quantity,
                 })
+                if move.quantity == 0:
+                    move.unlink()
+
             backorder.write({
                 'partner_id': self.partner_id.id,
                 'picking_type_id': self.picking_type_id.id,
@@ -44,9 +47,16 @@ class StockPicking(models.Model):
                 'scheduled_date': self.scheduled_date,
                 'user_id': self.user_id.id,
                 'group_id': self.group_id.id,
+                'is_locked': True,
+                'backorder_id': self.id,
             })
             backorder.action_assign()
-        self.write({'state': 'transit'})
+            self.message_post(body=_('The backorder %s has been created.', backorder._get_html_link()))
+
+        self.write({
+            'state': 'transit',
+            'is_locked': True,
+        })
 
 
     def do_unreserve(self):
@@ -57,5 +67,8 @@ class StockPicking(models.Model):
 
     def action_cancel_transit(self):
         self.ensure_one()
-        self.write({'state': 'confirmed'})
+        self.write({
+            'state': 'confirmed',
+            'is_locked': False,
+        })
         self.move_ids._do_unreserve()

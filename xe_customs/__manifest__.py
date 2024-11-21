@@ -28,6 +28,11 @@
         'views/sale_views.xml',
         'views/stock_picking.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            "xe_customs/static/src/js/*.js",
+        ],
+    },
     "demo": [],
     'installable': True,
     'auto_install': False,
