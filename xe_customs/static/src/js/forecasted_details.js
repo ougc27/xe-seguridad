@@ -20,7 +20,7 @@ patch(ForecastedDetails.prototype, {
 
         console.log(super.displayReserve(line) && !picking.is_locked);
 
-        return await super.displayReserve(line) && !picking.is_locked;
+        return super.displayReserve(line) && !picking.is_locked;
     }
 });
 
