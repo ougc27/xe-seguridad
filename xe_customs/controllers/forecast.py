@@ -12,7 +12,6 @@ class ForecastView(http.Controller):
 
     @route('/xe_customs/forecast/get_picking_locked', type='json', auth='user')
     def get_picking_locked(self, picking_id):
-        picking_id = request.env['stock.picking'].browse(picking_id)
         return {
-            'is_locked': picking_id.is_locked,
+            'is_locked': request.env['stock.picking'].browse(picking_id).is_locked,
         }
