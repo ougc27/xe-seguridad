@@ -7,5 +7,8 @@ patch(ForecastedDetails.prototype, {
     displayReserve(line) {
         console.log(line)
         return super.displayReserve(line) && !line.move_out.is_locked;
+        //search line.move_out.picking_id.id
+        var picking_id = line.move_out.picking_id.id;
+
     }
 });
