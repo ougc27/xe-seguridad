@@ -4,7 +4,7 @@ import { ForecastedDetails } from "@stock/stock_forecasted/forecasted_details";
 import { patch } from "@web/core/utils/patch";
 import { useService } from "@web/core/utils/hooks";
 
-patch(ForecastedDetails.prototype, {
+/*patch(ForecastedDetails.prototype, {
     setup() {
         super.setup(...arguments);
         this.rpc = useService("rpc");
@@ -23,13 +23,11 @@ patch(ForecastedDetails.prototype, {
 
         return super.displayReserve(line) && !picking.is_locked;
     }
-});
+});*/
 
-/*
 patch(ForecastedDetails.prototype, {
     displayReserve(line) {
         console.log(line)
         return super.displayReserve(line) && !line.move_out.is_locked;
     }
 });
-*/
