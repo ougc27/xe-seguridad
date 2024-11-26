@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0+e-20240711\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-24 18:06+0000\n"
-"PO-Revision-Date: 2024-10-24 18:06+0000\n"
+"POT-Creation-Date: 2024-11-26 19:38+0000\n"
+"PO-Revision-Date: 2024-11-26 19:38+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -44,7 +44,30 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
-msgid "<strong>No. de Pedido:</strong>"
+msgid ""
+"<span style=\"display:inline-block; width:100px;\"/>\n"
+"                                <strong>Otros Productos:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Orden de Entrega:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Orden de Venta:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Pedido Físico:</strong>"
 msgstr ""
 
 #. module: xe_customs
@@ -52,6 +75,13 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
 msgid "<strong>Saldo Pendiente:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Total Puertas:</strong>"
 msgstr ""
 
 #. module: xe_customs
@@ -82,9 +112,16 @@ msgid "Assigns the priority to the list of product client."
 msgstr "Asigna la prioridad de la lista de precios del producto"
 
 #. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__auto_credit_note
+#: model:ir.model.fields,field_description:xe_customs.field_account_move__auto_credit_note
+#: model:ir.model.fields,field_description:xe_customs.field_account_payment__auto_credit_note
+msgid "Auto Credit Note"
+msgstr "Nota de Crédito Automática"
+
+#. module: xe_customs
 #: model_terms:ir.ui.view,arch_db:xe_customs.view_picking_form_inherit
 msgid "Cancel Transit"
-msgstr "Cancelar Tránsito"
+msgstr "Cancelar Remisión"
 
 #. module: xe_customs
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
@@ -236,7 +273,8 @@ msgstr "Folio Fiscal"
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_sale_down_payment__l10n_mx_edi_cfdi_uuid
 msgid "Folio in electronic invoice, is returned by SAT when send to stamp."
-msgstr "Folio en la Factura electrónica, es devuelto por el SAT cuando se firma."
+msgstr ""
+"Folio en la Factura electrónica, es devuelto por el SAT cuando se firma."
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__has_down_payment
@@ -256,7 +294,8 @@ msgstr ""
 msgid ""
 "If not set, the client price will apply to all variants of this product."
 msgstr ""
-"Si no se establece, el precio del cliente aplicará para todas las variantes de este producto."
+"Si no se establece, el precio del cliente aplicará para todas las variantes "
+"de este producto."
 
 #. module: xe_customs
 #. odoo-python
@@ -268,7 +307,7 @@ msgstr "Importar Plantillas para Listas de Precios de Clientes"
 #. module: xe_customs
 #: model_terms:ir.ui.view,arch_db:xe_customs.view_picking_form_inherit
 msgid "Installation"
-msgstr ""
+msgstr "Instalación"
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_stock_picking__installer_id
@@ -297,6 +336,12 @@ msgstr "Facturas"
 #: model:ir.model,name:xe_customs.model_account_invoice_report
 msgid "Invoices Statistics"
 msgstr "Estadísticas de facturas"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_product__is_door
+#: model:ir.model.fields,field_description:xe_customs.field_product_template__is_door
+msgid "Is Door"
+msgstr "Es Puerta"
 
 #. module: xe_customs
 #: model:ir.model,name:xe_customs.model_account_move
@@ -328,8 +373,15 @@ msgid ""
 "automatic computation of the purchase order planning."
 msgstr ""
 "Tiempo de entrega en días entre la confirmación de la orden de compra y la "
-"recepción de los productos en su almacén. Utilizado para planificar "
-"los cálculos automáticos de la entrega de la orden de compra."
+"recepción de los productos en su almacén. Utilizado para planificar los "
+"cálculos automáticos de la entrega de la orden de compra."
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__locked
+#: model:ir.model.fields,field_description:xe_customs.field_account_move__locked
+#: model:ir.model.fields,field_description:xe_customs.field_account_payment__locked
+msgid "Locked"
+msgstr "Bloqueado"
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_account_invoice_report__price_margin
@@ -412,17 +464,17 @@ msgstr "Monto Conciliado"
 #. module: xe_customs
 #: model:ir.actions.report,name:xe_customs.report_remission1
 msgid "Remission 1"
-msgstr ""
+msgstr "Remisión 1"
 
 #. module: xe_customs
 #: model:ir.actions.report,name:xe_customs.report_remission2
 msgid "Remission 2"
-msgstr ""
+msgstr "Remisión 2"
 
 #. module: xe_customs
 #: model:ir.actions.report,name:xe_customs.report_remission3
 msgid "Remission 3"
-msgstr ""
+msgstr "Remisión 3"
 
 #. module: xe_customs
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
@@ -452,7 +504,7 @@ msgstr "Factura de anticipo de ventas"
 #. module: xe_customs
 #: model:ir.model,name:xe_customs.model_sale_report
 msgid "Sales Analysis Report"
-msgstr "Reporte del análisis de ventas"
+msgstr "Reporte de análisis de ventas"
 
 #. module: xe_customs
 #: model:ir.model,name:xe_customs.model_sale_order
@@ -490,9 +542,21 @@ msgid "Status"
 msgstr "Estado"
 
 #. module: xe_customs
+#: model:ir.model,name:xe_customs.model_stock_forecasted_product_product
+msgid "Stock Replenishment Report"
+msgstr "Reporte de reabastecimiento de existencias"
+
+#. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_stock_picking__supervisor_id
 msgid "Supervisor"
 msgstr ""
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/stock_picking.py:0
+#, python-format
+msgid "The backorder %s has been created."
+msgstr "La orden parcial %s se ha creado."
 
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_product_clientinfo__price
@@ -504,7 +568,8 @@ msgstr "El precio de compra del producto"
 #: code:addons/xe_customs/models/product_clientinfo.py:0
 #, python-format
 msgid "The product variant must be a variant of the product template."
-msgstr "La variante del producto debe ser una variante de la plantilla del producto"
+msgstr ""
+"La variante del producto debe ser una variante de la plantilla del producto"
 
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_product_clientinfo__min_qty
@@ -514,8 +579,15 @@ msgid ""
 "unit of measure of the product otherwise."
 msgstr ""
 "La cantidad a comprar de este cliente para obtener el beneficio de precio, "
-"expresado en la Unidad de Medida del cliente, y si no tiene, en la unidad de medida "
-"por defecto del producto."
+"expresado en la Unidad de Medida del cliente, y si no tiene, en la unidad de"
+" medida por defecto del producto."
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/stock_picking.py:0
+#, python-format
+msgid "There is not enough stock to transit."
+msgstr "No hay suficiente Stock para Remisionar"
 
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_product_clientinfo__product_barcode
@@ -523,8 +595,8 @@ msgid ""
 "This client's product code will be used for  adding the barcode of the "
 "client in quotation and invoice."
 msgstr ""
-"Este código de producto del cliente se utilizará al agregar el producto en una "
-"cotización o factura de cliente."
+"Este código de producto del cliente se utilizará al agregar el producto en "
+"una cotización o factura de cliente."
 
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_product_clientinfo__product_code
@@ -532,8 +604,8 @@ msgid ""
 "This client's product code will be used when printing a request for "
 "quotation. Keep empty to use the internal one."
 msgstr ""
-"Este código de producto del cliente se utilizará cuanto se imprima una solicitud "
-"de cotización. Manténgalo vacío para utilizar el interno."
+"Este código de producto del cliente se utilizará cuanto se imprima una "
+"solicitud de cotización. Manténgalo vacío para utilizar el interno."
 
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_product_clientinfo__product_name
@@ -541,8 +613,8 @@ msgid ""
 "This client's product name will be used when printing a request for "
 "quotation. Keep empty to use the internal one."
 msgstr ""
-"Este nombre de producto del cliente se utilizará cuanto se imprima una solicitud "
-"de cotización. Manténgalo vacío para utilizar el interno."
+"Este nombre de producto del cliente se utilizará cuanto se imprima una "
+"solicitud de cotización. Manténgalo vacío para utilizar el interno."
 
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_product_clientinfo__product_uom
@@ -565,7 +637,7 @@ msgstr "Transferir "
 #. module: xe_customs
 #: model:ir.model.fields.selection,name:xe_customs.selection__stock_picking__state__transit
 msgid "Transit"
-msgstr "Tránsito"
+msgstr "Remisión"
 
 #. module: xe_customs
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
@@ -625,3 +697,17 @@ msgstr "No se puede cancelar una orden con anticipos"
 #, python-format
 msgid "You cannot change the invoice of a down payment."
 msgstr "No se puede cambiar la factura de un anticipo"
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/reports/stock_forecasted.py:0
+#, python-format
+msgid "You cannot unreserve a move that is locked."
+msgstr "No se puede anular la reserva de un movimiento bloqueado."
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/stock_picking.py:0
+#, python-format
+msgid "You cannot unreserve a transit picking."
+msgstr "No se puede anular la reserva de un movimiento en Remisión."
