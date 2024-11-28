@@ -39,7 +39,7 @@ class StockPicking(models.Model):
 
     is_remission_separated = fields.Boolean()
 
-    x_studio_folio_rem = fields.Char(string='Remisión')
+    x_studio_folio_rem = fields.Char(string='Remisión', copy=False)
 
     end_date = fields.Datetime(
         index=True, tracking=True)
