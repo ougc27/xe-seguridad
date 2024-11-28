@@ -56,7 +56,7 @@ class ProductProduct(models.Model):
         product_ids = super(ProductProduct, self)._name_search(name, domain, operator, limit, order)
 
         if name and self._context.get('partner_id'):
-            clients_ids = self.env['product.clientinfo']._search([
+            clients_ids = self.env['product.clientinfo'].search([
                 ('name', '=', self._context.get('partner_id')),
                 '|',
                 ('product_code', operator, name),
