@@ -60,7 +60,7 @@ class ProductProduct(models.Model):
                 ('name', '=', self._context.get('partner_id')),
                 '|',
                 ('product_code', operator, name),
-                ('product_name', operator, name)])
+                ('product_name', operator, name)]).ids
             if clients_ids:
                 product_ids.extend(self._search([('product_tmpl_id.client_ids', 'in', clients_ids)], limit=limit, order=order))
 
