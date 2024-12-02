@@ -33,90 +33,121 @@
                 <!-- <img t-att-src="'/xe_customs/static/img/format1-2.jpg'" class="background" style="position:absolute; width:100%; z-index:-1; top:0; left:0;"/> -->
 
                 <!-- Numbers -->
-                <div style="position:absolute; top:95px; left:900px; width:300px;" class="text-center">
-                    <span t-out="doc.x_studio_folio_rem"/><br/>
-                    <span t-out="doc.date_done" t-options='{"widget": "date","format": "dd-MM-yyyy"}'/>
+                <div style="position:absolute; top:130px; left:900px; width:300px;" class="text-center">
+                    <strong><span t-out="doc.x_studio_folio_rem"/></strong><br/>
+                    <span t-out="doc.date_done" t-options="{&quot;widget&quot;: &quot;date&quot;,&quot;format&quot;: &quot;dd-MM-yyyy&quot;}"/>
                 </div>
-
+                
                 <!-- Addresses -->
-                <div style="position:absolute; top:215px; left:75px; width:500px;">
-                    <strong><span t-out="so.partner_id.name"/></strong><br/>
-                    <span t-field="so.partner_id.street"/>
-                    <span t-field="so.partner_id.street_number"/>
-                    <span t-field="so.partner_id.street_number2"/>
-                    <t t-if="so.partner_id.street or so.partner_id.street_number or so.partner_id.street_number2">,</t>
-
-                    <span t-field="so.partner_id.street2"/>
-                    <t t-if="so.partner_id.street2">,</t>
-
-                    <span t-field="so.partner_id.l10n_mx_edi_colony"/>
-                    <span t-field="so.partner_id.l10n_mx_edi_colony_code"/>
-                    <t t-if="so.partner_id.l10n_mx_edi_colony or so.partner_id.l10n_mx_edi_colony_code">,</t>
-
-                    <span t-field="so.partner_id.zip"/>
-                    <span t-field="so.partner_id.city_id.name" t-if="so.partner_id.city_id"/>
-                    <span t-field="so.partner_id.city" t-if="not so.partner_id.city_id"/>
-                    <t t-if="so.partner_id.city_id or so.partner_id.city">,</t>
-
-                    <span t-field="so.partner_id.state_id.name"/>
-                    <span t-field="so.partner_id.country_id"/>
-                </div>
-                <div style="position:absolute; top:215px; left:625px; width:550px;">
-                    <strong><span t-out="doc.partner_id.name"/></strong><br/>
-                    <span t-field="doc.partner_id.street"/>
-                    <span t-field="doc.partner_id.street_number"/>
-                    <span t-field="doc.partner_id.street_number2"/>
-                    <t t-if="doc.partner_id.street or doc.partner_id.street_number or doc.partner_id.street_number2">,</t>
-
-                    <span t-field="doc.partner_id.street2"/>
-                    <t t-if="doc.partner_id.street2">,</t>
-
-                    <span t-field="doc.partner_id.zip"/>
-                    <span t-field="doc.partner_id.city_id.name" t-if="doc.partner_id.city_id"/>
-                    <span t-field="doc.partner_id.city" t-if="not doc.partner_id.city_id"/>
-                    <t t-if="doc.partner_id.city_id or doc.partner_id.city">,</t>
-
-                    <span t-field="doc.partner_id.state_id.name"/>
-                    <span t-field="doc.partner_id.country_id"/>
-                </div>
+                <t t-if="doc.x_studio_folio_rem">
+                    <div style="position:absolute; top:215px; left:75px; width:500px; text-transform: uppercase;">
+                        <strong><span t-out="so.partner_id.name"/></strong><br/>
+                        <span t-field="so.partner_id.street"/>
+                        <span t-field="so.partner_id.street_number"/>
+                        <span t-field="so.partner_id.street_number2"/>
+                        <t t-if="so.partner_id.street or so.partner_id.street_number or so.partner_id.street_number2">,</t>
+    
+                        <span t-field="so.partner_id.street2"/>
+                        <t t-if="so.partner_id.street2">,</t>
+    
+                        <span t-field="so.partner_id.l10n_mx_edi_colony"/>
+                        <span t-field="so.partner_id.l10n_mx_edi_colony_code"/>
+                        <t t-if="so.partner_id.l10n_mx_edi_colony or so.partner_id.l10n_mx_edi_colony_code">,</t>
+    
+                        <span t-field="so.partner_id.zip"/>
+                        <span t-field="so.partner_id.city_id.name" t-if="so.partner_id.city_id"/>
+                        <span t-field="so.partner_id.city" t-if="not so.partner_id.city_id"/>
+                        <t t-if="so.partner_id.city_id or so.partner_id.city">,</t>
+    
+                        <span t-field="so.partner_id.state_id.name"/>
+                        <span t-field="so.partner_id.country_id"/>
+                        
+                        <br/><br/>
+                        <t t-if="so.partner_id.vat"><strong>RFC:</strong> <span t-field="so.partner_id.vat"/></t><br/>
+                        <t t-if="so.partner_id.phone or so.partner_id.mobile">
+                        <strong>Tel:</strong> <span t-field="so.partner_id.phone"/>
+                        <t t-if="so.partner_id.phone and so.partner_id.mobile"><span style="margin-left: 20px;"/></t>
+                        <strong>Cel:</strong> <span t-field="so.partner_id.mobile"/>
+                        </t><br/>
+                        <t t-if="so.partner_id.email"><strong>Email:</strong> <span t-field="so.partner_id.email" style="text-transform: lowercase;"/></t>
+                    </div>
+                    <div style="position:absolute; top:215px; left:625px; width:520px; text-transform: uppercase;">
+                        <strong><span t-out="doc.partner_id.complete_name"/></strong><br/>
+                        <span t-field="doc.partner_id.street"/>
+                        <span t-field="doc.partner_id.street_number"/>
+                        <span t-field="doc.partner_id.street_number2"/>
+                        <t t-if="doc.partner_id.street or doc.partner_id.street_number or doc.partner_id.street_number2">,</t>
+    
+                        <span t-field="doc.partner_id.street2"/>
+                        <t t-if="doc.partner_id.street2">,</t>
+                        
+                        <span t-field="doc.partner_id.l10n_mx_edi_colony"/>
+                        <span t-field="doc.partner_id.l10n_mx_edi_colony_code"/>
+                        <t t-if="doc.partner_id.l10n_mx_edi_colony or doc.partner_id.l10n_mx_edi_colony_code">,</t>
+    
+                        <span t-field="doc.partner_id.zip"/>
+                        <span t-field="doc.partner_id.city_id.name" t-if="doc.partner_id.city_id"/>
+                        <span t-field="doc.partner_id.city" t-if="not doc.partner_id.city_id"/>
+                        <t t-if="doc.partner_id.city_id or doc.partner_id.city">,</t>
+    
+                        <span t-field="doc.partner_id.state_id.name"/>
+                        <span t-field="doc.partner_id.country_id"/>
+                        
+                        <br/><br/>
+                        <t t-if="doc.partner_id.phone or doc.partner_id.mobile">
+                        <strong>Tel:</strong> <span t-field="doc.partner_id.phone"/>
+                        <t t-if="doc.partner_id.phone and doc.partner_id.mobile"><span style="margin-left: 20px;"/></t>
+                        <strong>Cel:</strong> <span t-field="doc.partner_id.mobile"/>
+                        </t><br/>
+                        <t t-if="doc.partner_id.email"><strong>Email:</strong> <span t-field="doc.partner_id.email" style="text-transform: lowercase;"/></t>
+                    </div>
+                </t>
+                
+                <!-- Warning -->
+                <t t-if="not doc.x_studio_folio_rem">
+                    <div style="position:absolute; top:250px; left:130px; font-size:35px" class="text-center">
+                        DOCUMENTO SIN FOLIO DE REMISIÓN, NO SURTIR!
+                    </div>
+                </t>
 
                 <!-- Sales Order -->
-                <div style="position:absolute; top:475px; left:75px; width:87%;">
+                <div style="position:absolute; top:468px; left:75px; width:87%;">
                     <table width="100%">
                         <tr>
-                            <td><strong>Pedido Físico:</strong> <span t-out="so.x_studio_pedido_fisico"/></td>
-                            <td><strong>Saldo Pendiente:</strong> <span t-out="so.x_saldo_pendiente"/></td>
-                            <td><strong>Orden de Venta:</strong> <span t-out="so.name"/></td>
-                            <td><strong>Orden de Entrega:</strong> <span t-out="doc.name"/></td>
+                            <td><strong>Folio de traslado:</strong> <span t-out="doc.name"/></td>
+                            <t t-if="so.name"><td><strong>Orden de venta:</strong> <span t-out="so.name"/></td></t>
+                            <t t-if="so.x_studio_pedido_fisico"><td><strong>Pedido físico:</strong> <span t-out="so.x_studio_pedido_fisico"/></td></t>
+                            <t t-if="so.name"><td><strong>Saldo pendiente:</strong> $<span t-out="so.x_saldo_pendiente"/></td></t>
+                            <t t-if="not so.name"><td><strong>Origen:</strong> <span t-out="doc.location_id.complete_name"/></td></t>
+                            <t t-if="not so.name"><td><strong>Destino:</strong> <span t-out="doc.location_dest_id.complete_name"/></td></t>
                         </tr>
                     </table>
                 </div>
 
                 <!-- Products -->
-                <div style="position:absolute; top:520px; left:75px; width:87%;">
+                <div style="position:absolute; top:523px; left:75px; width:87%;">
                     <table width="100%">
                         <tr>
                             <th>Cantidad</th>
                             <th>Unidad</th>
                             <th>Clave</th>
                             <th>Producto</th>
-                            <th>P. U.</th>
-                            <th>Total</th>
+                            <!--<th>P. U.</th>-->
+                            <!--<th>Total</th>-->
                         </tr>
-                        <t t-set="so_total" t-value="0.0"/>
+                        
+                        <!--<t t-set="so_total" t-value="0.0"/>-->
                         <t t-set="door_count" t-value="0"/>
                         <t t-set="other_count" t-value="0"/>
                         <tr t-foreach="doc.move_ids_without_package" t-as="line">
-                            <t t-if="line.quantity > 0">
-                                <t t-set="so_line" t-value="so.order_line.filtered(lambda x: line.id in x.move_ids.ids)" />
-                                <td style="padding-top:0px; padding-bottom:0px;"><span t-out="line.quantity"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px;"><span t-out="so_line.product_uom.name"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px;"><span t-out="so_line.product_id.default_code"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px;"><span t-out="so_line.product_id.name"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px; text-align:right;">$<span t-out="so_line.price_unit"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px; text-align:right;">$<span t-out="so_line.price_unit * line.quantity"/></td>
-                                <t t-set="so_total" t-value="so_total + (so_line.price_unit * line.quantity)"/>
-                                <t t-if="so_line.product_id.is_door">
+                            <t t-if="line.quantity &gt; 0">
+                                <td style="padding-top:6px; padding-bottom:5px;"><span t-out="line.quantity"/></td>
+                                <td style="padding-top:6px; padding-bottom:5px;"><span t-out="line.product_uom.name"/></td>
+                                <td style="padding-top:6px; padding-bottom:5px;"><span t-out="line.product_id.default_code"/></td>
+                                <td style="padding-top:6px; padding-bottom:5px;"><span t-out="line.product_id.name"/></td>
+                                <!--<t t-set="so_total" t-value="so_total + (line.price_unit * line.quantity)"/>-->
+                                
+                                <t t-if="'Puertas / Puertas' in line.product_id.categ_id.complete_name">
                                     <t t-set="door_count" t-value="door_count + line.quantity"/>
                                 </t>
                                 <t t-else="">
@@ -124,24 +155,25 @@
                                 </t>
                             </t>
                         </tr>
+                        
                         <tr>
-                            <td colspan="4">
+                            <td colspan="4" style="text-align: right; padding-right: 25px;">
                                 <strong>Total Puertas:</strong> <span t-out="door_count"/>
                                 <span style="display:inline-block; width:100px;"/>
                                 <strong>Otros Productos:</strong> <span t-out="other_count"/>
                             </td>
-                            <td><strong>Total:</strong></td>
-                            <td style="text-align:right;"><span t-out="'${:,.4f}'.format(so_total)"/></td>
+                            <!--<td><strong>Total:</strong></td>-->
+                            <!--<td style="text-align:right;"><span t-out="'${:,.4f}'.format(so_total)"/></td>-->
                         </tr>
                     </table>
-                    <span t-field="doc.note"/>
+                    <div style="padding-top:5px"><span t-field="doc.note"/></div>
                 </div>
 
                 <!-- Users -->
-                <div style="position:absolute; top:1350px; left:600px; width:300px;" class="text-center">
+                <div style="position:absolute; top:1290px; left:600px; width:300px;" class="text-center">
                     <span t-out="doc.supervisor_id.name"/>
                 </div>
-                <div style="position:absolute; top:1350px; left:875px; width:300px;" class="text-center">
+                <div style="position:absolute; top:1290px; left:875px; width:300px;" class="text-center">
                     <span t-out="doc.installer_id.name"/>
                 </div>
             </t>
@@ -177,112 +209,143 @@
                 <!-- <img t-att-src="'/xe_customs/static/img/format1-2.jpg'" class="background" style="position:absolute; width:100%; z-index:-1; top:0; left:0;"/> -->
 
                 <!-- Numbers -->
-                <div style="position:absolute; top:95px; left:900px; width:300px;" class="text-center">
-                    <span t-out="doc.x_studio_folio_rem"/><br/>
-                    <span t-out="doc.date_done" t-options='{"widget": "date","format": "dd-MM-yyyy"}'/>
+                <div style="position:absolute; top:130px; left:900px; width:300px;" class="text-center">
+                    <strong><span t-out="doc.x_studio_folio_rem"/></strong><br/>
+                    <span t-out="doc.date_done" t-options="{&quot;widget&quot;: &quot;date&quot;,&quot;format&quot;: &quot;dd-MM-yyyy&quot;}"/>
                 </div>
 
                 <!-- Addresses -->
-                <div style="position:absolute; top:215px; left:75px; width:500px;">
-                    <strong><span t-out="so.partner_id.name"/></strong><br/>
-                    <span t-field="so.partner_id.street"/>
-                    <span t-field="so.partner_id.street_number"/>
-                    <span t-field="so.partner_id.street_number2"/>
-                    <t t-if="so.partner_id.street or so.partner_id.street_number or so.partner_id.street_number2">,</t>
-
-                    <span t-field="so.partner_id.street2"/>
-                    <t t-if="so.partner_id.street2">,</t>
-
-                    <span t-field="so.partner_id.l10n_mx_edi_colony"/>
-                    <span t-field="so.partner_id.l10n_mx_edi_colony_code"/>
-                    <t t-if="so.partner_id.l10n_mx_edi_colony or so.partner_id.l10n_mx_edi_colony_code">,</t>
-
-                    <span t-field="so.partner_id.zip"/>
-                    <span t-field="so.partner_id.city_id.name" t-if="so.partner_id.city_id"/>
-                    <span t-field="so.partner_id.city" t-if="not so.partner_id.city_id"/>
-                    <t t-if="so.partner_id.city_id or so.partner_id.city">,</t>
-
-                    <span t-field="so.partner_id.state_id.name"/>
-                    <span t-field="so.partner_id.country_id"/>
-                </div>
-                <div style="position:absolute; top:215px; left:625px; width:550px;">
-                    <strong><span t-out="doc.partner_id.name"/></strong><br/>
-                    <span t-field="doc.partner_id.street"/>
-                    <span t-field="doc.partner_id.street_number"/>
-                    <span t-field="doc.partner_id.street_number2"/>
-                    <t t-if="doc.partner_id.street or doc.partner_id.street_number or doc.partner_id.street_number2">,</t>
-
-                    <span t-field="doc.partner_id.street2"/>
-                    <t t-if="doc.partner_id.street2">,</t>
-
-                    <span t-field="doc.partner_id.zip"/>
-                    <span t-field="doc.partner_id.city_id.name" t-if="doc.partner_id.city_id"/>
-                    <span t-field="doc.partner_id.city" t-if="not doc.partner_id.city_id"/>
-                    <t t-if="doc.partner_id.city_id or doc.partner_id.city">,</t>
-
-                    <span t-field="doc.partner_id.state_id.name"/>
-                    <span t-field="doc.partner_id.country_id"/>
-                </div>
+                <t t-if="doc.x_studio_folio_rem">
+                    <div style="position:absolute; top:215px; left:75px; width:500px; text-transform: uppercase;">
+                        <strong><span t-out="so.partner_id.name"/></strong><br/>
+                        <span t-field="so.partner_id.street"/>
+                        <span t-field="so.partner_id.street_number"/>
+                        <span t-field="so.partner_id.street_number2"/>
+                        <t t-if="so.partner_id.street or so.partner_id.street_number or so.partner_id.street_number2">,</t>
+    
+                        <span t-field="so.partner_id.street2"/>
+                        <t t-if="so.partner_id.street2">,</t>
+    
+                        <span t-field="so.partner_id.l10n_mx_edi_colony"/>
+                        <span t-field="so.partner_id.l10n_mx_edi_colony_code"/>
+                        <t t-if="so.partner_id.l10n_mx_edi_colony or so.partner_id.l10n_mx_edi_colony_code">,</t>
+    
+                        <span t-field="so.partner_id.zip"/>
+                        <span t-field="so.partner_id.city_id.name" t-if="so.partner_id.city_id"/>
+                        <span t-field="so.partner_id.city" t-if="not so.partner_id.city_id"/>
+                        <t t-if="so.partner_id.city_id or so.partner_id.city">,</t>
+    
+                        <span t-field="so.partner_id.state_id.name"/>
+                        <span t-field="so.partner_id.country_id"/>
+                        
+                        <br/><br/>
+                        <t t-if="so.partner_id.vat"><strong>RFC:</strong> <span t-field="so.partner_id.vat"/></t><br/>
+                        <t t-if="so.partner_id.phone or so.partner_id.mobile">
+                        <strong>Tel:</strong> <span t-field="so.partner_id.phone"/>
+                        <t t-if="so.partner_id.phone and so.partner_id.mobile"><span style="margin-left: 20px;"/></t>
+                        <strong>Cel:</strong> <span t-field="so.partner_id.mobile"/>
+                        </t><br/>
+                        <t t-if="so.partner_id.email"><strong>Email:</strong> <span t-field="so.partner_id.email" style="text-transform: lowercase;"/></t>
+                    </div>
+                    <div style="position:absolute; top:215px; left:625px; width:520px; text-transform: uppercase;">
+                        <strong><span t-out="doc.partner_id.complete_name"/></strong><br/>
+                        <span t-field="doc.partner_id.street"/>
+                        <span t-field="doc.partner_id.street_number"/>
+                        <span t-field="doc.partner_id.street_number2"/>
+                        <t t-if="doc.partner_id.street or doc.partner_id.street_number or doc.partner_id.street_number2">,</t>
+    
+                        <span t-field="doc.partner_id.street2"/>
+                        <t t-if="doc.partner_id.street2">,</t>
+                        
+                        <span t-field="doc.partner_id.l10n_mx_edi_colony"/>
+                        <span t-field="doc.partner_id.l10n_mx_edi_colony_code"/>
+                        <t t-if="doc.partner_id.l10n_mx_edi_colony or doc.partner_id.l10n_mx_edi_colony_code">,</t>
+    
+                        <span t-field="doc.partner_id.zip"/>
+                        <span t-field="doc.partner_id.city_id.name" t-if="doc.partner_id.city_id"/>
+                        <span t-field="doc.partner_id.city" t-if="not doc.partner_id.city_id"/>
+                        <t t-if="doc.partner_id.city_id or doc.partner_id.city">,</t>
+    
+                        <span t-field="doc.partner_id.state_id.name"/>
+                        <span t-field="doc.partner_id.country_id"/>
+                        
+                        <br/><br/>
+                        <t t-if="doc.partner_id.phone or doc.partner_id.mobile">
+                        <strong>Tel:</strong> <span t-field="doc.partner_id.phone"/>
+                        <t t-if="doc.partner_id.phone and doc.partner_id.mobile"><span style="margin-left: 20px;"/></t>
+                        <strong>Cel:</strong> <span t-field="doc.partner_id.mobile"/>
+                        </t><br/>
+                        <t t-if="doc.partner_id.email"><strong>Email:</strong> <span t-field="doc.partner_id.email" style="text-transform: lowercase;"/></t>
+                    </div>
+                </t>
+                
+                <!-- Warning -->
+                <t t-if="not doc.x_studio_folio_rem">
+                    <div style="position:absolute; top:250px; left:130px; font-size:35px" class="text-center">
+                        DOCUMENTO SIN FOLIO DE REMISIÓN, NO SURTIR!
+                    </div>
+                </t>
 
                 <!-- Sales Order -->
-                <div style="position:absolute; top:475px; left:75px; width:87%;">
+                <div style="position:absolute; top:468px; left:75px; width:87%;">
                     <table width="100%">
                         <tr>
-                            <td><strong>Pedido Físico:</strong> <span t-out="so.x_studio_pedido_fisico"/></td>
-                            <td><strong>Saldo Pendiente:</strong> <span t-out="so.x_saldo_pendiente"/></td>
-                            <td><strong>Orden de Venta:</strong> <span t-out="so.name"/></td>
-                            <td><strong>Orden de Entrega:</strong> <span t-out="doc.name"/></td>
+                            <td><strong>Folio de traslado:</strong> <span t-out="doc.name"/></td>
+                            <t t-if="so.name"><td><strong>Orden de venta:</strong> <span t-out="so.name"/></td></t>
+                            <t t-if="so.x_studio_pedido_fisico"><td><strong>Pedido físico:</strong> <span t-out="so.x_studio_pedido_fisico"/></td></t>
+                            <t t-if="so.name"><td><strong>Saldo pendiente:</strong> $<span t-out="so.x_saldo_pendiente"/></td></t>
+                            <t t-if="not so.name"><td><strong>Origen:</strong> <span t-out="doc.location_id.complete_name"/></td></t>
+                            <t t-if="not so.name"><td><strong>Destino:</strong> <span t-out="doc.location_dest_id.complete_name"/></td></t>
                         </tr>
                     </table>
                 </div>
 
                 <!-- Products -->
-                <div style="position:absolute; top:520px; left:75px; width:87%;">
+                <div style="position:absolute; top:523px; left:75px; width:87%;">
                     <table width="100%">
                         <tr>
                             <th>Cantidad</th>
                             <th>Unidad</th>
                             <th>Clave</th>
                             <th>Producto</th>
-                            <th>P. U.</th>
-                            <th>Total</th>
+                            <!--<th>P. U.</th>-->
+                            <!--<th>Total</th>-->
                         </tr>
-                        <t t-set="so_total" t-value="0.0"/>
+                        
+                        <!--<t t-set="so_total" t-value="0.0"/>-->
                         <t t-set="door_count" t-value="0"/>
                         <t t-set="other_count" t-value="0"/>
                         <tr t-foreach="doc.move_ids_without_package" t-as="line">
-                            <t t-if="line.quantity > 0">
-                                <t t-set="so_line" t-value="so.order_line.filtered(lambda x: line.id in x.move_ids.ids)" />
-                                <td style="padding-top:0px; padding-bottom:0px;"><span t-out="line.quantity"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px;"><span t-out="so_line.product_uom.name"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px;"><span t-out="so_line.product_id.default_code"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px;"><span t-out="so_line.product_id.name"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px; text-align:right;">$<span t-out="so_line.price_unit"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px; text-align:right;">$<span t-out="so_line.price_unit * line.quantity"/></td>
-                                <t t-set="so_total" t-value="so_total + (so_line.price_unit * line.quantity)"/>
-                                <t t-if="so_line.product_id.is_door">
+                            <t t-if="line.quantity &gt; 0">
+                                <td style="padding-top:6px; padding-bottom:5px;"><span t-out="line.quantity"/></td>
+                                <td style="padding-top:6px; padding-bottom:5px;"><span t-out="line.product_uom.name"/></td>
+                                <td style="padding-top:6px; padding-bottom:5px;"><span t-out="line.product_id.default_code"/></td>
+                                <td style="padding-top:6px; padding-bottom:5px;"><span t-out="line.product_id.name"/></td>
+                                <!--<t t-set="so_total" t-value="so_total + (line.price_unit * line.quantity)"/>-->
+                                
+                                <t t-if="'Puertas / Puertas' in line.product_id.categ_id.complete_name">
                                     <t t-set="door_count" t-value="door_count + line.quantity"/>
                                 </t>
                                 <t t-else="">
                                     <t t-set="other_count" t-value="other_count + line.quantity"/>
                                 </t>
                             </t>
-                        </tr>
+                        </tr>                       
                         <tr>
-                            <td colspan="4">
+                            <td colspan="4" style="text-align: right; padding-right: 25px;">
                                 <strong>Total Puertas:</strong> <span t-out="door_count"/>
                                 <span style="display:inline-block; width:100px;"/>
                                 <strong>Otros Productos:</strong> <span t-out="other_count"/>
                             </td>
-                            <td><strong>Total:</strong></td>
-                            <td style="text-align:right;"><span t-out="'${:,.4f}'.format(so_total)"/></td>
+                            <!--<td><strong>Total:</strong></td>-->
+                            <!--<td style="text-align:right;"><span t-out="'${:,.4f}'.format(so_total)"/></td>-->
                         </tr>
                     </table>
-                    <span t-field="doc.note"/>
+                    <div style="padding-top:5px"><span t-field="doc.note"/></div>
                 </div>
 
                 <!-- Boxes -->
-                <div style="position:absolute; top:1110px; left:75px; width:43%;">
+                <div style="position:absolute; top:1084px; left:75px; width:43%;">
                     <table width="100%">
                         <tr>
                             <th colspan="2" style="text-align:center; vertical-align:bottom;">Revisión de Salida</th>
@@ -293,7 +356,7 @@
                         </tr>
                     </table>
                 </div>
-                <div style="position:absolute; top:1110px; left:600px; width:43%;">
+                <div style="position:absolute; top:1084px; left:600px; width:43%;">
                     <table width="100%">
                         <tr>
                             <th colspan="2" style="text-align:center; vertical-align:bottom;">Revisión de Entrada de Material Devuelto</th>
@@ -306,10 +369,10 @@
                 </div>
 
                 <!-- Users -->
-                <div style="position:absolute; top:1350px; left:600px; width:300px;" class="text-center">
+                <div style="position:absolute; top:1290px; left:600px; width:300px;" class="text-center">
                     <span t-out="doc.supervisor_id.name"/>
                 </div>
-                <div style="position:absolute; top:1350px; left:875px; width:300px;" class="text-center">
+                <div style="position:absolute; top:1290px; left:875px; width:300px;" class="text-center">
                     <span t-out="doc.installer_id.name"/>
                 </div>
             </t>
@@ -329,7 +392,7 @@
 
     <!-- Report format 3 -->
     <template id="report_remission_format3">
-        <t t-call="web.basic_layout">
+         <t t-call="web.basic_layout">
             <t t-foreach="docs" t-as="doc">
                 <t t-set="so" t-value="request.env['sale.order'].search([('name', '=', doc.origin)], limit=1)"/>
                 <style>
@@ -345,90 +408,120 @@
                 <!-- <img t-att-src="'/xe_customs/static/img/format3.jpg'" class="background" style="position:absolute; width:100%; z-index:-1; top:0; left:0;"/> -->
 
                 <!-- Numbers -->
-                <div style="position:absolute; top:95px; left:900px; width:300px;" class="text-center">
-                    <span t-out="doc.x_studio_folio_rem"/><br/>
-                    <span t-out="doc.date_done" t-options='{"widget": "date","format": "dd-MM-yyyy"}'/>
+                <div style="position:absolute; top:130px; left:900px; width:300px;" class="text-center">
+                    <strong><span t-out="doc.x_studio_folio_rem"/></strong><br/>
+                    <span t-out="doc.date_done" t-options="{&quot;widget&quot;: &quot;date&quot;,&quot;format&quot;: &quot;dd-MM-yyyy&quot;}"/>
                 </div>
 
                 <!-- Addresses -->
-                <div style="position:absolute; top:215px; left:75px; width:500px;">
-                    <strong><span t-out="so.partner_id.name"/></strong><br/>
-                    <span t-field="so.partner_id.street"/>
-                    <span t-field="so.partner_id.street_number"/>
-                    <span t-field="so.partner_id.street_number2"/>
-                    <t t-if="so.partner_id.street or so.partner_id.street_number or so.partner_id.street_number2">,</t>
-
-                    <span t-field="so.partner_id.street2"/>
-                    <t t-if="so.partner_id.street2">,</t>
-
-                    <span t-field="so.partner_id.l10n_mx_edi_colony"/>
-                    <span t-field="so.partner_id.l10n_mx_edi_colony_code"/>
-                    <t t-if="so.partner_id.l10n_mx_edi_colony or so.partner_id.l10n_mx_edi_colony_code">,</t>
-
-                    <span t-field="so.partner_id.zip"/>
-                    <span t-field="so.partner_id.city_id.name" t-if="so.partner_id.city_id"/>
-                    <span t-field="so.partner_id.city" t-if="not so.partner_id.city_id"/>
-                    <t t-if="so.partner_id.city_id or so.partner_id.city">,</t>
-
-                    <span t-field="so.partner_id.state_id.name"/>
-                    <span t-field="so.partner_id.country_id"/>
-                </div>
-                <div style="position:absolute; top:215px; left:625px; width:550px;">
-                    <strong><span t-out="doc.partner_id.name"/></strong><br/>
-                    <span t-field="doc.partner_id.street"/>
-                    <span t-field="doc.partner_id.street_number"/>
-                    <span t-field="doc.partner_id.street_number2"/>
-                    <t t-if="doc.partner_id.street or doc.partner_id.street_number or doc.partner_id.street_number2">,</t>
-
-                    <span t-field="doc.partner_id.street2"/>
-                    <t t-if="doc.partner_id.street2">,</t>
-
-                    <span t-field="doc.partner_id.zip"/>
-                    <span t-field="doc.partner_id.city_id.name" t-if="doc.partner_id.city_id"/>
-                    <span t-field="doc.partner_id.city" t-if="not doc.partner_id.city_id"/>
-                    <t t-if="doc.partner_id.city_id or doc.partner_id.city">,</t>
-
-                    <span t-field="doc.partner_id.state_id.name"/>
-                    <span t-field="doc.partner_id.country_id"/>
-                </div>
+                <t t-if="doc.x_studio_folio_rem">
+                    <div style="position:absolute; top:215px; left:75px; width:500px; text-transform: uppercase;">
+                        <strong><span t-out="so.partner_id.name"/></strong><br/>
+                        <span t-field="so.partner_id.street"/>
+                        <span t-field="so.partner_id.street_number"/>
+                        <span t-field="so.partner_id.street_number2"/>
+                        <t t-if="so.partner_id.street or so.partner_id.street_number or so.partner_id.street_number2">,</t>
+    
+                        <span t-field="so.partner_id.street2"/>
+                        <t t-if="so.partner_id.street2">,</t>
+    
+                        <span t-field="so.partner_id.l10n_mx_edi_colony"/>
+                        <span t-field="so.partner_id.l10n_mx_edi_colony_code"/>
+                        <t t-if="so.partner_id.l10n_mx_edi_colony or so.partner_id.l10n_mx_edi_colony_code">,</t>
+    
+                        <span t-field="so.partner_id.zip"/>
+                        <span t-field="so.partner_id.city_id.name" t-if="so.partner_id.city_id"/>
+                        <span t-field="so.partner_id.city" t-if="not so.partner_id.city_id"/>
+                        <t t-if="so.partner_id.city_id or so.partner_id.city">,</t>
+    
+                        <span t-field="so.partner_id.state_id.name"/>
+                        <span t-field="so.partner_id.country_id"/>
+                        
+                        <br/><br/>
+                        <t t-if="so.partner_id.vat"><strong>RFC:</strong> <span t-field="so.partner_id.vat"/></t><br/>
+                        <t t-if="so.partner_id.phone or so.partner_id.mobile">
+                        <strong>Tel:</strong> <span t-field="so.partner_id.phone"/>
+                        <t t-if="so.partner_id.phone and so.partner_id.mobile"><span style="margin-left: 20px;"/></t>
+                        <strong>Cel:</strong> <span t-field="so.partner_id.mobile"/>
+                        </t><br/>
+                        <t t-if="so.partner_id.email"><strong>Email:</strong> <span t-field="so.partner_id.email" style="text-transform: lowercase;"/></t>
+                    </div>
+                    <div style="position:absolute; top:215px; left:625px; width:520px; text-transform: uppercase;">
+                        <strong><span t-out="doc.partner_id.complete_name"/></strong><br/>
+                        <span t-field="doc.partner_id.street"/>
+                        <span t-field="doc.partner_id.street_number"/>
+                        <span t-field="doc.partner_id.street_number2"/>
+                        <t t-if="doc.partner_id.street or doc.partner_id.street_number or doc.partner_id.street_number2">,</t>
+    
+                        <span t-field="doc.partner_id.street2"/>
+                        <t t-if="doc.partner_id.street2">,</t>
+                        
+                        <span t-field="doc.partner_id.l10n_mx_edi_colony"/>
+                        <span t-field="doc.partner_id.l10n_mx_edi_colony_code"/>
+                        <t t-if="doc.partner_id.l10n_mx_edi_colony or doc.partner_id.l10n_mx_edi_colony_code">,</t>
+    
+                        <span t-field="doc.partner_id.zip"/>
+                        <span t-field="doc.partner_id.city_id.name" t-if="doc.partner_id.city_id"/>
+                        <span t-field="doc.partner_id.city" t-if="not doc.partner_id.city_id"/>
+                        <t t-if="doc.partner_id.city_id or doc.partner_id.city">,</t>
+    
+                        <span t-field="doc.partner_id.state_id.name"/>
+                        <span t-field="doc.partner_id.country_id"/>
+                        
+                        <br/><br/>
+                        <t t-if="doc.partner_id.phone or doc.partner_id.mobile">
+                        <strong>Tel:</strong> <span t-field="doc.partner_id.phone"/>
+                        <t t-if="doc.partner_id.phone and doc.partner_id.mobile"><span style="margin-left: 20px;"/></t>
+                        <strong>Cel:</strong> <span t-field="doc.partner_id.mobile"/>
+                        </t><br/>
+                        <t t-if="doc.partner_id.email"><strong>Email:</strong> <span t-field="doc.partner_id.email" style="text-transform: lowercase;"/></t>
+                    </div>
+                </t>
+                
+                <!-- Warning -->
+                <t t-if="not doc.x_studio_folio_rem">
+                    <div style="position:absolute; top:250px; left:130px; font-size:35px" class="text-center">
+                        DOCUMENTO SIN FOLIO DE REMISIÓN, NO SURTIR!
+                    </div>
+                </t>
 
                 <!-- Sales Order -->
-                <div style="position:absolute; top:475px; left:75px; width:87%;">
+                <div style="position:absolute; top:468px; left:75px; width:87%;">
                     <table width="100%">
                         <tr>
-                            <td><strong>Pedido Físico:</strong> <span t-out="so.x_studio_pedido_fisico"/></td>
-                            <td><strong>Saldo Pendiente:</strong> <span t-out="so.x_saldo_pendiente"/></td>
-                            <td><strong>Orden de Venta:</strong> <span t-out="so.name"/></td>
-                            <td><strong>Orden de Entrega:</strong> <span t-out="doc.name"/></td>
+                            <td><strong>Folio de traslado:</strong> <span t-out="doc.name"/></td>
+                            <t t-if="so.name"><td><strong>Orden de venta:</strong> <span t-out="so.name"/></td></t>
+                            <t t-if="so.x_studio_pedido_fisico"><td><strong>Pedido físico:</strong> <span t-out="so.x_studio_pedido_fisico"/></td></t>
+                            <t t-if="so.name"><td><strong>Saldo pendiente:</strong> $<span t-out="so.x_saldo_pendiente"/></td></t>
+                            <t t-if="not so.name"><td><strong>Origen:</strong> <span t-out="doc.location_id.complete_name"/></td></t>
+                            <t t-if="not so.name"><td><strong>Destino:</strong> <span t-out="doc.location_dest_id.complete_name"/></td></t>
                         </tr>
                     </table>
                 </div>
 
                 <!-- Products -->
-                <div style="position:absolute; top:520px; left:75px; width:87%;">
+                <div style="position:absolute; top:523px; left:75px; width:87%;">
                     <table width="100%">
                         <tr>
                             <th>Cantidad</th>
                             <th>Unidad</th>
                             <th>Clave</th>
                             <th>Producto</th>
-                            <th>P. U.</th>
-                            <th>Total</th>
+                            <!--<th>P. U.</th>-->
+                            <!--<th>Total</th>-->
                         </tr>
-                        <t t-set="so_total" t-value="0.0"/>
+                        
+                        <!--<t t-set="so_total" t-value="0.0"/>-->
                         <t t-set="door_count" t-value="0"/>
                         <t t-set="other_count" t-value="0"/>
                         <tr t-foreach="doc.move_ids_without_package" t-as="line">
-                            <t t-if="line.quantity > 0">
-                                <t t-set="so_line" t-value="so.order_line.filtered(lambda x: line.id in x.move_ids.ids)" />
-                                <td style="padding-top:0px; padding-bottom:0px;"><span t-out="line.quantity"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px;"><span t-out="so_line.product_uom.name"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px;"><span t-out="so_line.product_id.default_code"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px;"><span t-out="so_line.product_id.name"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px; text-align:right;">$<span t-out="so_line.price_unit"/></td>
-                                <td style="padding-top:0px; padding-bottom:0px; text-align:right;">$<span t-out="so_line.price_unit * line.quantity"/></td>
-                                <t t-set="so_total" t-value="so_total + (so_line.price_unit * line.quantity)"/>
-                                <t t-if="so_line.product_id.is_door">
+                            <t t-if="line.quantity &gt; 0">
+                                <td style="padding-top:6px; padding-bottom:5px;"><span t-out="line.quantity"/></td>
+                                <td style="padding-top:6px; padding-bottom:5px;"><span t-out="line.product_uom.name"/></td>
+                                <td style="padding-top:6px; padding-bottom:5px;"><span t-out="line.product_id.default_code"/></td>
+                                <td style="padding-top:6px; padding-bottom:5px;"><span t-out="line.product_id.name"/></td>
+                                <!--<t t-set="so_total" t-value="so_total + (line.price_unit * line.quantity)"/>-->                      
+                                <t t-if="'Puertas / Puertas' in line.product_id.categ_id.complete_name">
                                     <t t-set="door_count" t-value="door_count + line.quantity"/>
                                 </t>
                                 <t t-else="">
@@ -437,16 +530,16 @@
                             </t>
                         </tr>
                         <tr>
-                            <td colspan="4">
+                            <td colspan="4" style="text-align: right; padding-right: 25px;">
                                 <strong>Total Puertas:</strong> <span t-out="door_count"/>
                                 <span style="display:inline-block; width:100px;"/>
                                 <strong>Otros Productos:</strong> <span t-out="other_count"/>
                             </td>
-                            <td><strong>Total:</strong></td>
-                            <td style="text-align:right;"><span t-out="'${:,.4f}'.format(so_total)"/></td>
+                            <!--<td><strong>Total:</strong></td>-->
+                            <!--<td style="text-align:right;"><span t-out="'${:,.4f}'.format(so_total)"/></td>-->
                         </tr>
                     </table>
-                    <span t-field="doc.note"/>
+                    <div style="padding-top:5px"><span t-field="doc.note"/></div>
                 </div>
             </t>
         </t>
