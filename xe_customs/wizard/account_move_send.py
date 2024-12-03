@@ -46,7 +46,7 @@ class AccountMoveSend(models.TransientModel):
                     credit_note._l10n_mx_edi_cfdi_invoice_try_send()
 
                     # Reconcile
-                    for line in credit_note.line_ids.filtered(lambda x: x.reconciled == False):
+                    for line in credit_note.line_ids.filtered(lambda x: x.reconciled == False).filtered(lambda x: x.account_id.reconcile):
                         move.js_assign_outstanding_line(line.id)
                 
         return res

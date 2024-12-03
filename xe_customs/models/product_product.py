@@ -72,4 +72,3 @@ class ProductProduct(models.Model):
                 product_ids = list(set(product_ids) | set(additional_ids))
 
         return product_ids
-
