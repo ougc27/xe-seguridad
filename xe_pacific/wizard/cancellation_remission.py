@@ -19,8 +19,12 @@ class CancelledRemissionWizard(models.TransientModel):
         picking_id = self.env.context.get('active_id', False)
         picking_record = self.env['stock.picking'].browse(picking_id)
         team_name = 'final_client'
-        if 'constructoras' in picking_record.x_studio_canal_de_distribucin.lower():
-            team_name = 'construction'
+        distribution_channel = picking_record.x_studio_canal_de_distribucin
+        if distribution_channel:
+            if 'constructoras' in distribution_channel.lower():
+                team_name = 'construction'
+        else:
+            team_name = ''
         if picking_id:
             res.update({
                 'picking_id': picking_id,

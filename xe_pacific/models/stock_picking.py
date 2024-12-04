@@ -37,7 +37,7 @@ class StockPicking(models.Model):
 
     is_remission_separated = fields.Boolean()
 
-    x_studio_folio_rem = fields.Char(string='Remisión')
+    x_studio_folio_rem = fields.Char(string='Remisión', copy=False, tracking=True)
 
     end_date = fields.Datetime(
         index=True, tracking=True)
@@ -149,7 +149,7 @@ class StockPicking(models.Model):
             scheduled_date = rec.scheduled_date
     
             door_moves = rec.move_ids.filtered(
-                lambda m: m.product_id.categ_id.complete_name == 'Ventas / Puertas / Puertas' and 
+                lambda m: m.product_id.categ_id.complete_name == 'Ventas / XE / Puertas / Puertas' and 
                           m.product_id.type == 'product'
             )
             lock_moves = rec.move_ids.filtered(
