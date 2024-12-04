@@ -9,10 +9,47 @@ from odoo.exceptions import UserError
 class SaleMakeInvoiceAdvance(models.TransientModel):
     _inherit = 'sale.advance.payment.inv'
 
+    down_payment_ids = fields.One2many('sale.down.payment.wizard', 'advance_id', "Down Payments", default=lambda self: self._default_down_payment_ids())
+    reconciled_amount = fields.Monetary(
+        string="Reconciled Amount",
+        compute="_compute_reconciled_amount",
+    )
+
+    def _compute_reconciled_amount(self):
+        self.reconciled_amount = sum(self.down_payment_ids.mapped('amount'))
+
+    def _default_down_payment_ids(self):
+        orders = self.env['sale.order'].browse(self._context.get('active_ids', []))
+        if len(orders) > 1:
+            raise UserError('You can only create one invoice at a time.')
+        return [(0, 0, {
+            'invoice_id': line.id,
+            'amount': 0,
+        }) for line in self.env['account.move'].search([
+            ('move_type', '=', 'out_invoice'),
+            ('partner_id', 'in', orders.mapped('partner_id').ids),
+            ('has_down_payment', '=', True),
+            ('state', '!=', 'cancel')
+        ])]
+
     def _create_invoices(self, sale_orders):
         invoices = super(SaleMakeInvoiceAdvance, self)._create_invoices(sale_orders)
         if self.advance_payment_method == 'percentage':
-            raise UserError('La opción de porcentaje no está disponible para la generación de facturas de anticipo.')
+            raise UserError('The percentage method is not supported for down payments.')
+
+        # Check down payments total
+        order_id = self.env['sale.order'].browse(self._context.get('active_ids', []))[0]
+        if order_id.reconciled_amount + self.reconciled_amount > order_id.amount_total:
+            raise UserError('The total amount of down payments exceeds the total amount of the order.')
+
+        # Register down payments
+        downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0)
+        for downpayment in downpayments:
+            dp = self.env['sale.down.payment'].create({
+                'invoice_id': downpayment.invoice_id.id,
+            })
+            dp._prepare_lines(self.env['sale.order'].browse(self._context.get('active_ids', []))[0], downpayment.amount)
+
         if self.advance_payment_method != 'delivered':
             for invoice in invoices:
                 for order_line in invoice.line_ids.sale_line_ids:
@@ -35,3 +72,44 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
             invoices.auto_credit_note = True
 
         return invoices
+
+
+
+class SaleDownPaymentWizard(models.TransientModel):
+    _name = "sale.down.payment.wizard"
+    _description = "Sale Down Payment"
+
+    advance_id = fields.Many2one('sale.advance.payment.inv')
+    invoice_id = fields.Many2one(
+        comodel_name = 'account.move',
+        string = "Invoice",
+        copy = False
+    )
+    l10n_mx_edi_cfdi_uuid = fields.Char(
+        string = "Fiscal Folio",
+        related = 'invoice_id.l10n_mx_edi_cfdi_uuid',
+    )
+    currency_id = fields.Many2one(
+        comodel_name = 'res.currency',
+        string = "Currency",
+        related = 'invoice_id.currency_id',
+    )
+    balance = fields.Monetary(
+        string = "Balance",
+        related = 'invoice_id.reconcile_balance',
+    )
+    amount = fields.Monetary(
+        string = "Amount",
+        copy = False
+    )
+
+    def _onchange_amount(self):
+        for payment in self:
+            if payment.amount > payment.balance:
+                payment.amount = payment.balance
+                return {
+                    'warning': {
+                        'title': "Warning",
+                        'message': "The amount is greater than the balance."
+                    }
+                }

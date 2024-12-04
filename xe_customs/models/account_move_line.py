@@ -29,3 +29,14 @@ class AccountMoveLine(models.Model):
                 line.client_barcode = client.product_barcode
             else:
                 line.client_barcode = False
+
+    @api.onchange('price_unit')
+    def _onchange_price_unit(self):
+        for move in self:
+            if move.is_downpayment:
+                downpayments = self.env['sale.down.payment'].search([
+                    ('invoice_id', '=', move._origin.move_id.id),
+                ])
+                reconciled_amount = sum(downpayments.order_line_id.mapped('price_unit'))
+                if reconciled_amount > move.price_unit:
+                    raise UserError(_("Down Payment amount cannot be lower than the reconciled amounts."))

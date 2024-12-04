@@ -20,6 +20,15 @@ class SaleOrder(models.Model):
         copy=False,
         readonly=False
     )
+    reconciled_amount = fields.Monetary(
+        string="Reconciled Amount",
+        compute="_compute_reconciled_amount",
+    )
+
+    def _compute_reconciled_amount(self):
+        for order in self:
+            reconciled_lines = order.order_line.filtered(lambda x: x.is_downpayment)
+            order.reconciled_amount = sum(reconciled_lines.mapped('price_unit')) * (1 + (reconciled_lines.tax_id.amount / 100))
 
     def _add_client_to_product(self):
         # Add the partner in the client list of the product if the client is not registered for
@@ -166,6 +175,7 @@ class SaleDownPayment(models.Model):
         related = 'invoice_id.currency_id',
     )
     amount = fields.Monetary(
+        related = 'invoice_id.amount_total',
         string = "Amount",
         copy = False
     )
@@ -173,63 +183,56 @@ class SaleDownPayment(models.Model):
     @api.onchange('invoice_id')
     def _onchange_invoice_id(self):
         for payment in self:
-            if len(payment._origin.invoice_id) == 0 and len(payment.invoice_id) > 0:
-                payment.amount = payment.invoice_id.reconcile_balance
-            if len(payment._origin.invoice_id) > 0 and payment.invoice_id.id != payment._origin.invoice_id.id:
-                raise UserError(_('You cannot change the invoice of a down payment.'))
+            if payment.invoice_id:
+                order_id = payment.order_id
 
-    @api.onchange('amount')
-    def _onchange_amount(self):
+                payment.amount = payment.invoice_id.amount_total
+                
+                amount = payment.invoice_id.reconcile_balance
+                if order_id.reconciled_amount + amount > order_id.amount_total:
+                    amount = order_id.amount_total - order_id.reconciled_amount
+
+                self._prepare_lines(order_id, amount)
+
+    def _prepare_lines(self, order_id, amount):
         for payment in self:
-            if payment.amount and payment.amount != payment._origin.amount:
-                order = payment.order_id
-                tax_id = order.order_line.tax_id
-                amount = payment.amount / (1 + (tax_id[0].amount / 100))
-                reconciled = sum(order.down_payment_ids.mapped('amount'))
+            product_id = order_id.company_id.sale_down_payment_product_id
+            tax_id = product_id.taxes_id[0]
+            
+            # Create down payment section if necessary
+            section = self.env['sale.order.line'].with_context(sale_no_log_for_new_lines=True)
+            if not any(line.display_type and line.is_downpayment for line in order_id.order_line):
+                section.create(
+                    self._prepare_down_payment_section_values(order_id)
+                )
 
-                if reconciled > order.amount_total:
-                    reconciled -= payment.amount
-                    amount = (order.amount_total - reconciled) / (1 + (tax_id[0].amount / 100))
+            # Add new down payment line on Invoice
+            invoice_down_payment = self.env['account.move.line'].create({
+                'move_id': payment.invoice_id.id,
+                'product_id': product_id.id,
+                'quantity': 0,
+                'price_unit': amount / (1 + (tax_id.amount / 100)),
+                'tax_ids': [(6, 0, tax_id.ids)],
+                'is_downpayment': True,
+                'name': _('Down Payment'),
+                'sequence': payment.invoice_id.invoice_line_ids and payment.invoice_id.invoice_line_ids[-1].sequence + 1 or 10,
+            })
 
-                if payment.order_line_id:
-                    payment.order_line_id.price_unit = amount
-                    payment.order_line_id.invoice_lines.price_unit = amount
-                else:
-                    # Create down payment section if necessary
-                    section = self.env['sale.order.line'].with_context(sale_no_log_for_new_lines=True)
-                    if not any(line.display_type and line.is_downpayment for line in order.order_line):
-                        section.create(
-                            self._prepare_down_payment_section_values(order)
-                        )
-
-                    # Add new down payment line on Invoice
-                    invoice_down_payment = self.env['account.move.line'].create({
-                        'move_id': payment.invoice_id.id,
-                        'product_id': order.company_id.sale_down_payment_product_id.id,
-                        'quantity': 0,
-                        'price_unit': amount,
-                        'tax_ids': [(6, 0, tax_id.ids)],
-                        'is_downpayment': True,
-                        'name': _('Down Payment'),
-                        'sequence': payment.invoice_id.invoice_line_ids and payment.invoice_id.invoice_line_ids[-1].sequence + 1 or 10,
-                    })
-
-                    # Add new down payment line on Sale
-                    down_payment = order.order_line.create({
-                        'product_id': order.company_id.sale_down_payment_product_id.id,
-                        'order_id': order._origin.id,
-                        'product_uom_qty': 0,
-                        'discount': 0.0,
-                        'price_unit': amount,
-                        'tax_id': [(6, 0, tax_id.ids)],
-                        'is_downpayment': True,
-                        'invoice_lines': [(6, 0, invoice_down_payment.ids)],
-                        'sequence': order.order_line and order.order_line[-1].sequence + 1 or 10,
-                    })
-                    payment.order_line_id = down_payment
-                    invoice_down_payment.sale_line_ids += down_payment
-                    payment.invoice_id._get_source_orders()
-                payment.write(payment.read()[0])
+            # Add new down payment line on Sale
+            sale_down_payment = order_id.order_line.create({
+                'product_id': product_id.id,
+                'order_id': order_id._origin.id,
+                'product_uom_qty': 0,
+                'discount': 0.0,
+                'price_unit': amount / (1 + (tax_id.amount / 100)),
+                'tax_id': [(6, 0, tax_id.ids)],
+                'is_downpayment': True,
+                'invoice_lines': [(6, 0, invoice_down_payment.ids)],
+                'sequence': order_id.order_line and order_id.order_line[-1].sequence + 1 or 10,
+            })
+            payment.order_line_id = sale_down_payment
+            invoice_down_payment.sale_line_ids += sale_down_payment
+            payment.invoice_id._get_source_orders()
 
     def unlink(self):
         for payment in self:

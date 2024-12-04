@@ -27,6 +27,9 @@
         'views/product_views.xml',
         'views/sale_views.xml',
         'views/stock_picking.xml',
+
+        # Wizards
+        'wizard/sale_make_invoice_advance_views.xml',
     ],
     'assets': {
         'web.assets_backend': [
