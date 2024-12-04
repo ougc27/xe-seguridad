@@ -10,3 +10,7 @@ from . import product_template
 from . import res_partner
 from . import account_move_line
 from . import account_move
+from . import hr_employee
+from . import models
+from . import cancelled_remission_reason
+from . import cancelled_remission

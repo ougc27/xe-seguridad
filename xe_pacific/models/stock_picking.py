@@ -6,8 +6,6 @@ from odoo.exceptions import UserError
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    #, compute="_compute_shipping_assignment"
-
     shipping_assignment = fields.Selection([
         ('logistics', 'Logística'),
         ('shipments', 'Embarques')], store=True, compute="_compute_shipping_assignment")
@@ -39,7 +37,7 @@ class StockPicking(models.Model):
 
     is_remission_separated = fields.Boolean()
 
-    x_studio_folio_rem = fields.Char(string='Remisión', copy=False)
+    x_studio_folio_rem = fields.Char(string='Remisión')
 
     end_date = fields.Datetime(
         index=True, tracking=True)
@@ -81,13 +79,37 @@ class StockPicking(models.Model):
     def _group_expand_status(self, states, domain, order):
         return [key for key, val in self._fields['shipment_task_status'].selection]
 
-    def separate_remissions(self):
-        first_move_id = self.move_ids[0].id
-        scheduled_date = self.scheduled_date
-        self.write({'is_remission_separated': True})
-        for move in self.move_ids:
+    def _create_separated_picking_by_categ(self, rec, moves, sale_order, scheduled_date):
+        new_picking = rec.copy({
+            'is_remission_separated': True,
+            'scheduled_date': scheduled_date,
+            'state': 'confirmed',
+        })
+        moves.write({'picking_id': new_picking.id})
+        rec.create_notes_in_pickings(sale_order, new_picking)
+        for move in new_picking.move_ids:
+            if move not in moves:
+                move.unlink()
+        return new_picking
+
+    def create_notes_in_pickings(self, sale_order, new_picking):
+        html_link = self.with_context(
+            model_name="sale.order",
+            record_id=sale_order.id
+        )._get_html_link(
+            title=sale_order.name
+        )
+
+        body = _("Este trasladar se creó a partir de: %s", html_link)
+
+        new_picking.message_post(body=body,
+            author_id=self.env.ref('base.partner_root').id,
+            subtype_xmlid='mail.mt_note')
+    
+    def single_product_separation(self, move_ids, sale_order, scheduled_date, construction=False):
+        for move in move_ids:
             quantity = int(move.product_uom_qty)
-            if move.id == first_move_id:
+            if move.id == move_ids[0].id and not construction:
                 quantity -= 1
             if quantity >= 1:
                 move.write({'product_uom_qty': 1})
@@ -95,23 +117,207 @@ class StockPicking(models.Model):
                 new_picking = self.copy(
                     {
                         'is_remission_separated': True,
-                        'scheduled_date': scheduled_date, 
+                        'scheduled_date': scheduled_date,
                     }
                 )
                 for new_move in new_picking.move_ids:
                     if new_move.product_id.id == move.product_id.id:
-                        new_move.write({'product_uom_qty': 1})
+                        new_move.write({'product_uom_qty': 1, 'state': 'confirmed'})
+
                         continue
                     new_move.unlink()
+                new_picking.write({'state': 'confirmed'})
+                self.create_notes_in_pickings(sale_order, new_picking)
 
-                new_picking.write({
-                    'state': 'confirmed'
+    def separate_remissions(self):
+        for rec in self:
+            first_move_id = rec.move_ids[0].id
+            sale_order = rec.env['sale.order'].search(
+                [('name', '=', rec.group_id.name), ('company_id', '=', rec.env.company.id)])
+            scheduled_date = rec.scheduled_date
+            rec.write({'is_remission_separated': True})
+            rec.single_product_separation(rec.move_ids, sale_order, scheduled_date)
+            for move in rec.move_ids:
+                if move.id != first_move_id:
+                    move.unlink()
+
+    def separate_construction_remissions(self):
+        for rec in self:
+            sale_order = rec.env['sale.order'].search(
+                [('name', '=', rec.group_id.name), ('company_id', '=', rec.env.company.id)]
+            )
+            scheduled_date = rec.scheduled_date
+    
+            door_moves = rec.move_ids.filtered(
+                lambda m: m.product_id.categ_id.complete_name == 'Ventas / Puertas / Puertas' and 
+                          m.product_id.type == 'product'
+            )
+            lock_moves = rec.move_ids.filtered(
+                lambda m: 'cerraduras' in m.product_id.categ_id.complete_name.lower() and 
+                          m.product_id.type == 'product'
+            )
+            door_accessory_moves = rec.move_ids.filtered(
+                lambda m: 'accesorios' in m.product_id.categ_id.complete_name.lower() and
+                          m.product_id.type == 'product'
+            )
+            door_installation_moves = rec.move_ids.filtered(
+                lambda m: m.product_id.default_code in ('INSBAS', 'INS10')
+            )
+            lock_installation_moves = rec.move_ids.filtered(
+                lambda m: m.product_id.default_code in ('INSBASCDI', 'INSCDI')
+            )
+
+            while sum(m.product_uom_qty for m in door_moves) > 0 or sum(m.product_uom_qty for m in lock_moves) > 0 or sum(m.product_uom_qty for m in door_accessory_moves) > 0:
+                grouped_moves = []
+    
+                for move in door_moves.filtered(lambda m: m.product_uom_qty > 0):
+                    grouped_moves.append((move, 1))
+                    move.write({'product_uom_qty': move.product_uom_qty - 1})
+    
+                    if door_installation_moves:
+                        installation_move = door_installation_moves.filtered(lambda m: m.product_uom_qty > 0)
+                        if installation_move:
+                            grouped_moves.append((installation_move[0], 1))
+                            installation_move[0].write({'product_uom_qty': installation_move[0].product_uom_qty - 1})
+                    break
+    
+                for move in door_accessory_moves.filtered(lambda m: m.product_uom_qty > 0):
+                    grouped_moves.append((move, 1))
+                    move.write({'product_uom_qty': move.product_uom_qty - 1})
+    
+                for move in lock_moves.filtered(lambda m: m.product_uom_qty > 0):
+                    grouped_moves.append((move, 1))
+                    move.write({'product_uom_qty': move.product_uom_qty - 1})
+    
+                    if lock_installation_moves:
+                        installation_move = lock_installation_moves.filtered(lambda m: m.product_uom_qty > 0)
+                        if installation_move:
+                            grouped_moves.append((installation_move[0], 1))
+                            installation_move[0].write({'product_uom_qty': installation_move[0].product_uom_qty - 1})
+                    break
+    
+                new_picking = rec.copy({
+                    'is_remission_separated': True,
+                    'scheduled_date': scheduled_date,
+                    'state': 'confirmed',
                 })
-                #new_picking.action_confirm()
-        for move in self.move_ids:
-            if move.id != first_move_id:
-                move.unlink()
-        #self.action_confirm()
+    
+                for new_move in new_picking.move_ids:
+                    for original_move, qty in grouped_moves:
+                        if new_move.product_id.id == original_move.product_id.id:
+                            new_move.write({'product_uom_qty': qty, 'state': 'confirmed'})
+                            break
+                    else:
+                        new_move.unlink()
+    
+                rec.create_notes_in_pickings(sale_order, new_picking)
+
+        remaining_moves = rec.move_ids - (door_moves + lock_moves + door_accessory_moves + door_installation_moves + lock_installation_moves)
+
+        if remaining_moves:
+            grouped_moves = [(move, move.product_uom_qty) for move in remaining_moves]
+
+            new_picking = rec.copy({
+                'is_remission_separated': True,
+                'scheduled_date': scheduled_date,
+                'state': 'confirmed',
+            })
+
+            for new_move in new_picking.move_ids:
+                for original_move, qty in grouped_moves:
+                    if new_move.product_id.id == original_move.product_id.id:
+                        new_move.write({'product_uom_qty': qty, 'state': 'confirmed'})
+                        break
+                else:
+                    new_move.unlink()
+
+            rec.create_notes_in_pickings(sale_order, new_picking)
+    
+            if not door_moves and not lock_moves:
+                if door_installation_moves:
+                    rec.single_product_separation(
+                        door_installation_moves, sale_order, scheduled_date, True
+                    )
+                if lock_installation_moves:
+                    rec.single_product_separation(
+                        lock_installation_moves, sale_order, scheduled_date, True
+                    )
+    
+            rec.unlink()
+
+    def separate_client_remissions(self):
+        for rec in self:
+            sale_order = rec.env['sale.order'].search(
+                [('name', '=', rec.group_id.name), ('company_id', '=', rec.env.company.id)]
+            )
+            storable_moves = rec.move_ids.filtered(
+                lambda m: m.product_id.type == 'product'
+            )
+            service_moves = rec.move_ids.filtered(
+                lambda m: m.product_id.type == 'consu' and 
+                          'visita' in m.product_id.name.lower()
+            )
+            installation_moves = rec.move_ids.filtered(
+                lambda m: m.product_id.type == 'consu' and 
+                'instalación' in m.product_id.name.lower() or
+                'instalacion' in m.product_id.name.lower()    
+            )
+            scheduled_date = rec.scheduled_date
+    
+            if service_moves:
+                rec._create_separated_picking_by_categ(
+                    rec, service_moves, sale_order, scheduled_date)
+    
+            if installation_moves:
+                rec._create_separated_picking_by_categ(
+                    rec, installation_moves, sale_order, scheduled_date)
+
+            rec.write({'is_remission_separated': True})
+                
+    def combine_remissions(self):
+        if not self:
+            return
+
+        primary_picking = self[0]
+
+        picking_state = any(
+            move.state not in ('waiting', 'confirmed', 'assigned')
+            for move in self
+        )
+        if picking_state:
+            raise UserError("Una de las entregas no esta en estado de espera o listo")
+
+        group_id = self.mapped('group_id')
+        partner_id = self.mapped('partner_id')
+        location_id = self.mapped('location_id')
+
+        if len(group_id) > 1 or len(partner_id) > 1 or len(location_id) > 1:
+            raise UserError("El contacto, ubicación origen o la venta no son iguales en las entregas")
+
+        for picking in self - primary_picking:
+            for move in picking.move_ids:
+                existing_move = primary_picking.move_ids.filtered(
+                    lambda m: m.product_id == move.product_id and m.product_uom == move.product_uom
+                )
+                if existing_move:
+                    existing_move.product_uom_qty += move.product_uom_qty
+                else:
+                    move.write({'picking_id': primary_picking.id})
+            
+            picking.action_cancel()
+            picking.unlink()
+
+        primary_picking.write({
+            'is_remission_separated': False,
+            'state': 'confirmed'
+        })
+
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'stock.picking',
+            'view_mode': 'form',
+            'res_id': primary_picking.id,
+        }
 
     @api.depends('name', 'x_studio_folio_rem')
     @api.depends_context('from_helpdesk_ticket')

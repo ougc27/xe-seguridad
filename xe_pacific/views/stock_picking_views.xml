@@ -9,11 +9,14 @@
                 <button name="separate_remissions" type="object" string="Separar Partidas" class="oe_highlight" invisible="state in ('done', 'cancel') or is_remission_separated"/>
             </xpath>
             <xpath expr="//field[@name='date_deadline']" position="before">
-                <label for="end_date"/>
-                <div class="o_row">
+                <label for="end_date" invisible="company_id != 4"/>
+                <div class="o_row" invisible="company_id != 4">
                     <field name="end_date" readonly="state in ['cancel', 'done']"/>
                     <field name="json_popover" nolabel="1" widget="stock_rescheduling_popover" invisible="not json_popover"/>
                 </div>
+            </xpath>
+            <xpath expr="//field[@name='origin']" position="before">
+                <field name="user_id" position="move"/>
             </xpath>
             <xpath expr="//field[@name='picking_type_id']" position="after">
                 <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
@@ -29,5 +32,47 @@
                 <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" optional="show"/>
             </xpath>
         </field>
+    </record>
+    <record id="view_picking_form_replace_cancel_transit" model="ir.ui.view">
+        <field name="name">stock.picking.form.replace.cancel.transit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="xe_customs.view_picking_form_inherit"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_cancel_transit']" position="replace">
+                <button name="%(action_open_cancelled_remission_wizard)d" 
+                    string="Cancel Remission" 
+                    type="action" 
+                    class="oe_highlight"
+                    groups="stock.group_stock_user"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="action_combine_remissions" model="ir.actions.server">
+        <field name="name">Combinar entregas</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="state">code</field>
+        <field name="code">action = records.combine_remissions()</field>
+    </record>
+    <record id="action_separate_remissions" model="ir.actions.server">
+        <field name="name">Separar remisiones individuales</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="state">code</field>
+        <field name="code">action = records.separate_remissions()</field>
+    </record>
+    <record id="action_separate_construction_remissions" model="ir.actions.server">
+        <field name="name">Separar remisiones (CONSTRUCTORAS)</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="state">code</field>
+        <field name="code">action = records.separate_construction_remissions()</field>
+    </record>
+    <record id="action_separate_final_client_remissions" model="ir.actions.server">
+        <field name="name">Separar remisiones (CLIENTE FINAL)</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="state">code</field>
+        <field name="code">action = records.separate_client_remissions()</field>
     </record>
 </odoo>

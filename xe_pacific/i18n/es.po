@@ -57,6 +57,9 @@ msgstr "Crear una tarea en el campo de servicio"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -65,6 +68,9 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -78,6 +84,9 @@ msgstr "Devolución / Cancelación"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -156,6 +165,9 @@ msgstr "Ticket de servicio de asistencia"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__id
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__id
 #: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__id
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__id
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__id
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -189,6 +201,9 @@ msgstr "Estado de la tarea Kanban"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -197,6 +212,9 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualización el"
 
@@ -664,6 +682,8 @@ msgstr "Nombre de la etiqueta ya existe!"
 #: model:ir.ui.menu,name:xe_pacific.menu_inventory_tag
 #: model_terms:ir.ui.view,arch_db:xe_pacific.inventory_tag_view_form
 #: model_terms:ir.ui.view,arch_db:xe_pacific.inventory_tag_view_tree
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__tag_ids
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__tag_ids
 msgid "Tags"
 msgstr "Etiquetas"
 
@@ -699,6 +719,7 @@ msgstr "Número de lote no automático"
 
 #. module: xe_pacific
 #: model_terms:ir.ui.view,arch_db:xe_pacific.base_copy_user_access_view_form
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_wizard
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -732,3 +753,142 @@ msgstr "Ventana para copiar accesos del usuario"
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_users_form_inherit_copy_access
 msgid "Copy Access"
 msgstr "Copiar permisos"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__comments
+msgid "Additional details or observations about the cancellation."
+msgstr "Detalles adicionales u observaciones sobre la cancelación."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__team
+msgid "Applicable To"
+msgstr "Aplicable a"
+
+#. module: xe_pacific
+#: model:ir.actions.act_window,name:xe_pacific.action_open_cancelled_remission_wizard
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_wizard
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_picking_form_inherit
+msgid "Cancel Remission"
+msgstr "Cancelar remisión"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__cancelled_reason
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__cancelled_reason
+msgid "Cancellation Reason"
+msgstr "Razón de la cancelación"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__user_id
+msgid "Cancelled By"
+msgstr "Cancelado por"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__cancelled_date
+msgid "Cancelled Date"
+msgstr "Fecha de cancelación"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_form
+msgid "Cancelled Remission"
+msgstr "Remisión cancelada"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_reason_form
+msgid "Cancelled Remission Reason"
+msgstr "Razón de remisión cancelada"
+
+#. module: xe_pacific
+#: model:ir.actions.act_window,name:xe_pacific.action_cancelled_remission_reason
+#: model:ir.model,name:xe_pacific.model_cancelled_remission_reason
+#: model:ir.ui.menu,name:xe_pacific.menu_cancelled_remission_reason
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_reason_tree
+msgid "Cancelled Remission Reasons"
+msgstr "Razones de cancelación de remisiones"
+
+#. module: xe_pacific
+#: model:ir.actions.act_window,name:xe_pacific.action_cancelled_remission
+#: model:ir.ui.menu,name:xe_pacific.menu_cancelled_remission
+msgid "Cancelled Remissions"
+msgstr "Remisiones canceladas"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_cancelled_remission
+msgid "Cancelled Remissions from stock.picking"
+msgstr "Remisiones canceladas desde stock.picking"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__cancelled_date
+msgid "Cancelled date of the remission folio"
+msgstr "Fecha de cancelación del folio de remisión"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__remission_folio
+msgid "Cancelled remission folio from transfer"
+msgstr "Folio de remisión cancelado desde la transferencia"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__comments
+msgid "Comments"
+msgstr "Comentarios"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__cancelled_remission_reason__team__construction
+msgid "Construction"
+msgstr "Constructoras"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__cancelled_remission_reason__team__final_client
+msgid "Final Client"
+msgstr "Cliente Final"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__comments
+msgid "Observations"
+msgstr "Observaciones"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__name
+msgid "Reason Name"
+msgstr "Nombre de la razón"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__cancelled_reason
+msgid "Reason for cancelling the remission."
+msgstr "Razón para cancelar la remisión."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__remission_folio
+msgid "Remission Folio"
+msgstr "Folio de remisión"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_wizard
+msgid "Save"
+msgstr "Guardar"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__picking_id
+msgid "The transfer folio where the remission folio was cancelled"
+msgstr "El folio de transferencia donde se canceló el folio de remisión"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__picking_id
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__picking_id
+msgid "Transfer Folio"
+msgstr "Folio de transferencia"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_cancelled_remission_wizard
+msgid "Wizard for Cancelled Remission"
+msgstr "Ventana para remisión cancelada"
+
+#. module: xe_pacific
+#: model:ir.ui.menu,name:xe_pacific.menu_xe_custom_configuration
+msgid "XE Custom Configurations"
+msgstr "Configuraciones Personalizadas XE"
+
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__team_name
+msgid "Team Name"
+msgstr "Nombre equipo"
