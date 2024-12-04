@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="base_view_partner_form_inherit_comisiones" model="ir.ui.view">
+        <field name="name">base.view.partner.form.inherit.comisiones</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='sales_purchases']//field[@name='user_id']" position="after">
+                <field name="es_usuario_comision" invisible="1"/>
+                <field name="es_usuario_avanzado_comision" invisible="1"/>
+                <field name="es_administrador_comision" invisible="1"/>
+                <label for="agente1_id"/>
+                <div>
+                    <field name="agente1_id"
+                           class="oe_inline"
+                           readonly="not es_usuario_comision and not es_usuario_avanzado_comision and not es_administrador_comision"
+                           force_save="1"
+                           options="{'no_open': True, 'no_create': True}"/>
+                    <span> </span>
+                    <field name="por_agente1"
+                           force_save="1"
+                           readonly="not es_usuario_avanzado_comision and not es_administrador_comision"
+                           class="oe_inline"/> %
+                </div>
+                <label for="agente2_id"/>
+                <div>
+                    <field name="agente2_id"
+                           class="oe_inline"
+                           force_save="1"
+                           readonly="not es_usuario_comision and not es_usuario_avanzado_comision and not es_administrador_comision"
+                           options="{'no_open': True, 'no_create': True}"/>
+                    <span> </span>
+                    <field name="por_agente2"
+                           force_save="1"
+                           readonly="not es_usuario_avanzado_comision and not es_administrador_comision"
+                           class="oe_inline"/> %
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>
