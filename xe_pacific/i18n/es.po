@@ -767,7 +767,7 @@ msgstr "Aplicable a"
 #. module: xe_pacific
 #: model:ir.actions.act_window,name:xe_pacific.action_open_cancelled_remission_wizard
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_wizard
-#: model_terms:ir.ui.view,arch_db:xe_pacific.view_picking_form_inherit
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_picking_form_replace_cancel_transit
 msgid "Cancel Remission"
 msgstr "Cancelar remisión"
 
