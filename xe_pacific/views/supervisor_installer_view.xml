@@ -8,7 +8,7 @@
                 <sheet>
                     <group>
                         <!--<field name="name" readonly="1"/>-->
-                        <field name="employee_id"/>
+                        <field name="employee_id" options="{'no_create_edit': True, 'no_create': True}"/>
                         <field name="supervisor_number"/>
                         <field name="installer_number"/>
                     </group>
@@ -23,7 +23,7 @@
         <field name="arch" type="xml">
             <tree string="Supervisors and Installers" editable="bottom">
                 <!--<field name="name"/>-->
-                <field name="employee_id"/>
+                <field name="employee_id" options="{'no_create_edit': True, 'no_create': True}"/>
                 <field name="supervisor_number"/>
                 <field name="installer_number"/>
             </tree>

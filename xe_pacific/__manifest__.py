@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.2",
+    "version": "17.0.0.0.3",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
@@ -16,13 +16,17 @@
         'industry_fsm',
         'sale_management',
         'mail',
-        'sale_stock'
+        'sale_stock',
+        'xe_customs'
     ],
     "category": "Accounting",
     "summary": "MX-EDI XE Brands",
     'data': [
         'data/email_backorder_to_salesperson.xml',
         'data/email_notify_seller_of_changes.xml',
+        'wizard/stock_backorder_confirmation.xml',
+        'wizard/base_copy_user_access.xml',
+        'wizard/cancellation_remision.xml',
         'views/supervisor_installer_view.xml',
         'views/supervisor_installer_menu.xml',
         'views/fsm_project_menus.xml',
@@ -34,9 +38,10 @@
         'views/product_template.xml',
         'views/res_partner_views.xml',
         'views/account_move_views.xml',
-        'wizard/stock_backorder_confirmation.xml',
-        'wizard/base_copy_user_access.xml',
+        'views/hr_employee_views.xml',
         'views/res_user_views.xml',
+        'views/cancelled_remission_reason_views.xml',
+        'views/cancelled_remission_views.xml',
         'security/ir.model.access.csv',
     ],
     "demo": [],
