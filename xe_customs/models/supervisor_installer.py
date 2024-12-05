@@ -7,7 +7,7 @@ class SupervisorInstaller(models.Model):
 
     name = fields.Char(
         compute="_compute_employee_name",
-        string='Subject',
+        string='Name',
         index=True,
         store=True,
     )

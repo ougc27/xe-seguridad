@@ -183,12 +183,14 @@ msgstr "Compañía"
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__create_uid
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__create_uid
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__create_date
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__create_date
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -229,6 +231,7 @@ msgstr "Tiempo de Entrega"
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__display_name
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__display_name
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__display_name
 msgid "Display Name"
 msgstr "Nombre Mostrado"
 
@@ -286,8 +289,9 @@ msgstr "Tiene Anticipos"
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__id
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__id
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__id
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_product_clientinfo__product_id
@@ -356,12 +360,14 @@ msgstr "Apunte contable"
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__write_uid
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__write_uid
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__write_date
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__write_date
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__write_date
 msgid "Last Updated on"
 msgstr "Última actualización el"
 
@@ -711,3 +717,53 @@ msgstr "No se puede anular la reserva de un movimiento bloqueado."
 #, python-format
 msgid "You cannot unreserve a transit picking."
 msgstr "No se puede anular la reserva de un movimiento en Remisión."
+
+#. module: xe_customs
+#: model_terms:ir.actions.act_window,help:xe_customs.supervisor_installer_action
+msgid "Assign supervisors and installers"
+msgstr "Asignar supervisores e instaladores"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__employee_id
+msgid "Employee"
+msgstr "Empleado"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_supervisor_installer__employee_id
+msgid "Employee that is supervisor or installer"
+msgstr "Empleado que sea supervisor o instalador"
+
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__installer_number
+msgid "Installer Number"
+msgstr "Número Instalador"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__supervisor_number
+msgid "Supervisor Number"
+msgstr "Número Supervisor"
+
+#. module: xe_customs
+#: model:ir.actions.act_window,name:xe_customs.supervisor_installer_action
+#: model:ir.model,name:xe_customs.model_supervisor_installer
+#: model:ir.ui.menu,name:xe_customs.supervisors_and_installers
+#: model_terms:ir.ui.view,arch_db:xe_customs.supervisor_installer_view_form
+#: model_terms:ir.ui.view,arch_db:xe_customs.supervisor_installer_view_tree
+msgid "Supervisors and Installers"
+msgstr "Supervisores e Instaladores"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_supervisor_installer__installer_number
+msgid "Unique identifier for the installer"
+msgstr "Identificador único para el instalador"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_supervisor_installer__supervisor_number
+msgid "Unique identifier for the supervisor"
+msgstr "Identificador único para el supervisor"

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<odoo>
-    <menuitem name="Supervisors and Installers"
-        id="supervisors_and_installers"
-        parent="hr.menu_hr_root"
-        action="supervisor_installer_action"/>
-</odoo>

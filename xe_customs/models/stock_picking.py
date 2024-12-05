@@ -8,8 +8,8 @@ from odoo.exceptions import UserError
 class StockPicking(models.Model):
     _inherit = "stock.picking"
 
-    supervisor_id = fields.Many2one('res.users', 'Supervisor', help="Define the supervisor of the picking.")
-    installer_id = fields.Many2one('res.users', 'Installer', help="Define the installer of the picking.")
+    supervisor_id = fields.Many2one('supervisor.installer', 'Supervisor', help="Define the supervisor of the picking.")
+    installer_id = fields.Many2one('supervisor.installer', 'Installer', help="Define the installer of the picking.")
     state = fields.Selection(selection_add=[('transit', 'Transit'), ('done',)])
 
     def action_transit(self):
