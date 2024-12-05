@@ -2,7 +2,7 @@
 # © 2024 Morwi Encoders Consulting SA DE CV
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html).
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 
 from odoo.exceptions import UserError
 
@@ -59,6 +59,9 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                         'amount': order_line.price_unit * (1 + (order_line.tax_id[0].amount / 100)),
                     })
         else:
+            product_id = order_id.company_id.sale_down_payment_product_id
+            tax_id = product_id.taxes_id[0]
+
             for invoice in invoices:
                 origins = []
                 for inv in invoice.line_ids.sale_line_ids.order_id.down_payment_ids:
@@ -66,6 +69,18 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                         origins.append(inv.l10n_mx_edi_cfdi_uuid)
                 if len(origins) > 0:
                     invoice.l10n_mx_edi_cfdi_origin = '07|' + ','.join(origins)
+                
+                raise Exception(order_id.order_line.filtered(lambda x: x.is_downpayment and not x.display_type and x.qty_invoiced == 0).mapped('price_unit'))
+                # for order_line in order_id.order_line.filtered(lambda x: x.is_downpayment and not x.display_type):
+                #     invoice_down_payment = self.env['account.move.line'].create({
+                #         'move_id': invoice.id,
+                #         'product_id': order_line.product_id.id,
+                #         'quantity': 0,
+                #         'price_unit': order_line.price_unit,
+                #         'tax_ids': [(6, 0, tax_id.ids)],
+                #         'is_downpayment': True,
+                #         'name': _('Down Payment'),
+                #     })
 
         invoices.locked = True
         if self.advance_payment_method == 'delivered':

@@ -66,6 +66,11 @@ class SaleOrder(models.Model):
                 except AccessError:  # no write access rights -> just ignore
                     break
 
+    # @api.onchange('order_line')
+    # def _compute_amount_to_invoice(self):
+    #     super(SaleOrder, self)._compute_amount_to_invoice()
+    #     raise Exception(self.invoiced_amount)
+
     def action_cancel(self):
         for order in self:
             if len(order.down_payment_ids) > 0:
