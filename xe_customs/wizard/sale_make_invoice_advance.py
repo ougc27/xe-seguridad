@@ -39,7 +39,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
 
         # Check down payments total
         order_id = self.env['sale.order'].browse(self._context.get('active_ids', []))[0]
-        if order_id.reconciled_amount + self.reconciled_amount > order_id.amount_total:
+        if self.reconciled_amount > 0 and order_id.reconciled_amount + self.reconciled_amount > order_id.amount_total:
             raise UserError('The total amount of down payments exceeds the total amount of the order.')
 
         # Register down payments
@@ -88,6 +88,14 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
             invoices.auto_credit_note = True
 
         return invoices
+
+    @api.depends('sale_order_ids', 'reconciled_amount')
+    def _compute_invoice_amounts(self):
+        super(SaleMakeInvoiceAdvance, self)._compute_invoice_amounts()
+        for wizard in self:
+            order_id = self.env['sale.order'].browse(self._context.get('active_ids', []))[0]
+            wizard.amount_invoiced += order_id.reconciled_amount
+            wizard.amount_to_invoice -= order_id.reconciled_amount
 
 
 
