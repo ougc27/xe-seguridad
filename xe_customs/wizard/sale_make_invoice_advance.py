@@ -69,18 +69,19 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                         origins.append(inv.l10n_mx_edi_cfdi_uuid)
                 if len(origins) > 0:
                     invoice.l10n_mx_edi_cfdi_origin = '07|' + ','.join(origins)
-                
-                raise Exception(order_id.order_line.filtered(lambda x: x.is_downpayment and not x.display_type and x.qty_invoiced == 0).mapped('price_unit'))
-                # for order_line in order_id.order_line.filtered(lambda x: x.is_downpayment and not x.display_type):
-                #     invoice_down_payment = self.env['account.move.line'].create({
-                #         'move_id': invoice.id,
-                #         'product_id': order_line.product_id.id,
-                #         'quantity': 0,
-                #         'price_unit': order_line.price_unit,
-                #         'tax_ids': [(6, 0, tax_id.ids)],
-                #         'is_downpayment': True,
-                #         'name': _('Down Payment'),
-                #     })
+
+                for order_line in order_id.order_line.filtered(
+                    lambda x: x.is_downpayment and not x.display_type and x.price_unit > 0 and x.qty_invoiced == 0
+                ):
+                    invoice_down_payment = self.env['account.move.line'].create({
+                        'move_id': invoice.id,
+                        'product_id': order_line.product_id.id,
+                        'quantity': 0,
+                        'price_unit': order_line.price_unit,
+                        'tax_ids': [(6, 0, tax_id.ids)],
+                        'is_downpayment': True,
+                        'name': _('Down Payment'),
+                    })
 
         invoices.locked = True
         if self.advance_payment_method == 'delivered':
