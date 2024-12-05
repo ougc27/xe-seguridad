@@ -41,4 +41,9 @@
             </p>
         </field>
     </record>
+
+    <menuitem name="Supervisors and Installers"
+        id="supervisors_and_installers"
+        parent="hr.menu_hr_root"
+        action="supervisor_installer_action"/>
 </odoo>

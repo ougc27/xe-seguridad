@@ -31,11 +31,6 @@ msgid "Asesoría / Información"
 msgstr "Asesoría / Información"
 
 #. module: xe_pacific
-#: model_terms:ir.actions.act_window,help:xe_pacific.supervisor_installer_action
-msgid "Assign supervisors and installers"
-msgstr "Asignar supervisores e instaladores(masculino)"
-
-#. module: xe_pacific
 #: model:ir.model.fields.selection,name:xe_pacific.selection__helpdesk_ticket__ticket_type__ci_change
 msgid "Cambio Ci"
 msgstr "Cambio Ci"
@@ -56,7 +51,6 @@ msgstr "Crear una tarea en el campo de servicio"
 #: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_uid
@@ -67,7 +61,6 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_date
-#: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_date
@@ -83,7 +76,6 @@ msgstr "Devolución / Cancelación"
 #: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__display_name
-#: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__display_name
@@ -114,16 +106,6 @@ msgstr "ENT PROGRAMADA"
 #: model:ir.model.fields.selection,name:xe_pacific.selection__stock_picking__shipping_assignment__shipments
 msgid "Embarques"
 msgstr "Embarques"
-
-#. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__employee_id
-msgid "Employee"
-msgstr "Empleado"
-
-#. module: xe_pacific
-#: model:ir.model.fields,help:xe_pacific.field_supervisor_installer__employee_id
-msgid "Employee that is supervisor or installer"
-msgstr "Empleado que sea supervisor o instalador"
 
 #. module: xe_pacific
 #: model:ir.model.fields.selection,name:xe_pacific.selection__helpdesk_ticket__ticket_type__survey
@@ -164,7 +146,6 @@ msgstr "Ticket de servicio de asistencia"
 #: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__id
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__id
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__id
-#: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__id
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__id
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__id
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__id
@@ -182,11 +163,6 @@ msgid "Installer"
 msgstr "Instalador"
 
 #. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__installer_number
-msgid "Installer Number"
-msgstr "Número Instalador"
-
-#. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__kanban_state
 msgid "Kanban State"
 msgstr "Estado Kanban"
@@ -200,7 +176,6 @@ msgstr "Estado de la tarea Kanban"
 #: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__write_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__write_uid
@@ -211,7 +186,6 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__write_date
-#: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__write_date
@@ -265,7 +239,6 @@ msgstr "Asignación de envío"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__name
-#: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__name
 msgid "Subject"
 msgstr "Asunto"
 
@@ -273,20 +246,6 @@ msgstr "Asunto"
 #: model:ir.model.fields,field_description:xe_pacific.field_project_task__supervisor_id
 msgid "Supervisor"
 msgstr "Supervisor"
-
-#. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__supervisor_number
-msgid "Supervisor Number"
-msgstr "Número Supervisor"
-
-#. module: xe_pacific
-#: model:ir.actions.act_window,name:xe_pacific.supervisor_installer_action
-#: model:ir.model,name:xe_pacific.model_supervisor_installer
-#: model:ir.ui.menu,name:xe_pacific.supervisors_and_installers
-#: model_terms:ir.ui.view,arch_db:xe_pacific.supervisor_installer_view_form
-#: model_terms:ir.ui.view,arch_db:xe_pacific.supervisor_installer_view_tree
-msgid "Supervisors and Installers"
-msgstr "Supervisores e Instaladores"
 
 #. module: xe_pacific
 #: model:ir.model,name:xe_pacific.model_project_task
@@ -302,16 +261,6 @@ msgstr "Tipo de ticket"
 #: model:ir.model,name:xe_pacific.model_stock_picking
 msgid "Transfer"
 msgstr "Trasladar"
-
-#. module: xe_pacific
-#: model:ir.model.fields,help:xe_pacific.field_supervisor_installer__installer_number
-msgid "Unique identifier for the installer"
-msgstr "Identificador único para el instalador"
-
-#. module: xe_pacific
-#: model:ir.model.fields,help:xe_pacific.field_supervisor_installer__supervisor_number
-msgid "Unique identifier for the supervisor"
-msgstr "Identificador único para el supervisor"
 
 #. module: xe_pacific
 #: model:ir.model.fields.selection,name:xe_pacific.selection__helpdesk_ticket__ticket_type__technical_visit
@@ -472,7 +421,6 @@ msgstr "Número de vivienda"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__id
-#: model:ir.model.fields,field_description:xe_pacific.field_supervisor_installer__id
 msgid "ID"
 msgstr "ID"
 

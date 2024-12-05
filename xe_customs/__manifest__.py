@@ -4,7 +4,7 @@
 
 {
     "name": "XE Customs",
-    "version": "17.0.0.0.1",
+    "version": "17.0.0.0.2",
     "license": "LGPL-3",
     "author": "XE Customs",
     'sequence': 1,
@@ -12,6 +12,7 @@
         'purchase',
         'sale',
         'account',
+        'hr'
     ],
     "category": "Accounting",
     "summary": "XE Customs",
@@ -27,6 +28,7 @@
         'views/product_views.xml',
         'views/sale_views.xml',
         'views/stock_picking.xml',
+        'views/supervisor_installer_view.xml',
 
         # Wizards
         'wizard/sale_make_invoice_advance_views.xml',

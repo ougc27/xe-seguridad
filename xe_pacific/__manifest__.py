@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.4",
+    "version": "17.0.0.0.5",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
@@ -27,8 +27,6 @@
         'wizard/stock_backorder_confirmation.xml',
         'wizard/base_copy_user_access.xml',
         'wizard/cancellation_remision.xml',
-        'views/supervisor_installer_view.xml',
-        'views/supervisor_installer_menu.xml',
         'views/fsm_project_menus.xml',
         'views/sale_views.xml',
         'views/helpdesk_views.xml',
