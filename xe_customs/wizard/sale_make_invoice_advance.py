@@ -71,7 +71,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                     invoice.l10n_mx_edi_cfdi_origin = '07|' + ','.join(origins)
 
                 for order_line in order_id.order_line.filtered(
-                    lambda x: x.is_downpayment and not x.display_type and x.price_unit > 0 and x.qty_invoiced == 0
+                    lambda x: x.is_downpayment and not x.display_type and x.price_unit > 0 # and x.qty_invoiced == 0
                 ):
                     invoice_down_payment = self.env['account.move.line'].create({
                         'move_id': invoice.id,
