@@ -19,10 +19,10 @@ class AccountMoveSend(models.TransientModel):
             if move.auto_credit_note:
                 move.auto_credit_note = False
 
-                so_line_ids = move.source_orders.order_line.filtered(lambda x: x.is_downpayment)
-                for line in so_line_ids:
-                    if move.id not in line.invoice_lines.mapped('move_id').ids:
-                        so_line_ids -= line
+                so_line_ids = move.source_orders.order_line.filtered(lambda x: x.is_downpayment and not x.display_type)
+                # for line in so_line_ids:
+                #     if move.id not in line.invoice_lines.mapped('move_id').ids:
+                #         so_line_ids -= line
                 
                 down_payment = sum(so_line_ids.mapped('price_unit'))
                 if down_payment > 0:

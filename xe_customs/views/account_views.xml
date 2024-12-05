@@ -25,6 +25,7 @@
                         <field name="amount_total"/>
                         <field name="reconciled_amount"/>
                         <field name="reconcile_balance"/>
+                        <field name="auto_credit_note"/>
                     </group>
                 </page>
             </xpath>
