@@ -63,7 +63,7 @@ class StockPicking(models.Model):
                         rec.shipping_assignment = 'shipments'
                         continue
                     if rec.location_id.warehouse_id.name == 'Monterrey PR': 
-                        if rec.x_studio_canal_de_distribucin == 'DISTRIBUIDORES XE':
+                        if rec.x_studio_canal_de_distribucin == 'DISTRIBUIDORES':
                             rec.shipping_assignment = 'shipments'
                             continue
                         if rec.move_ids.filtered(lambda record: record.product_id.default_code == 'FLTENVIO'):
