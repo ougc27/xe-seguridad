@@ -76,7 +76,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                     invoice_down_payment = self.env['account.move.line'].create({
                         'move_id': invoice.id,
                         'product_id': order_line.product_id.id,
-                        'quantity': 0,
+                        'quantity': -1,
                         'price_unit': order_line.price_unit,
                         'tax_ids': [(6, 0, tax_id.ids)],
                         'is_downpayment': True,
