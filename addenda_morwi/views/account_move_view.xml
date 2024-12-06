@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_move_view_form_addenda" model="ir.ui.view">
+        <field name="name">account.move.view.form.addenda</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@id='other_tab']" position="before">
+                <page name="addenda" string="Addendas" invisible="partner_id.l10n_mx_edi_addenda == False">
+                    <group>
+                        <group>
+                            <field name="purchase_order_reference"/>
+                        </group>
+                        <group>
+                            <field name="vendor_number_addenda"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

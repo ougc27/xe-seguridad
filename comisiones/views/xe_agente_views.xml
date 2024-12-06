@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="xe_agente_tree_view" model="ir.ui.view">
+        <field name="name">xe.agente.tree.view</field>
+        <field name="model">xe.agente</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"
+                       required="1"
+                       options="{'no_create': True, 'no_open': True}"/>
+                <field name="numero"/>
+                <field name="comision"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>
