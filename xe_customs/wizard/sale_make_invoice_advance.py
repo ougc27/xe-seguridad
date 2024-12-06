@@ -127,6 +127,7 @@ class SaleDownPaymentWizard(models.TransientModel):
         copy = False
     )
 
+    @api.onchange('amount')
     def _onchange_amount(self):
         for payment in self:
             if payment.amount > payment.balance:
