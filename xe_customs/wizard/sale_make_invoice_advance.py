@@ -135,6 +135,6 @@ class SaleDownPaymentWizard(models.TransientModel):
                 return {
                     'warning': {
                         'title': "Warning",
-                        'message': "The amount is greater than the balance."
+                        'message': "The amount is greater than the balance. It was reset to the balance.",
                     }
                 }
