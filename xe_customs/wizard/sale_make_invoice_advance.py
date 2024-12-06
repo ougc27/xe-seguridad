@@ -22,15 +22,28 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         orders = self.env['sale.order'].browse(self._context.get('active_ids', []))
         if len(orders) > 1:
             raise UserError('You can only create one invoice at a time.')
-        return [(0, 0, {
-            'invoice_id': line.id,
+        
+        downpayments = self.env['sale.down.payment'].search([
+            ('order_id', '=', orders.id),
+        ])
+        lines = [(0, 0, {
+            'invoice_id': downpayment.invoice_id.id,
+            'amount': downpayment.order_line_id.price_unit * (1 + (downpayment.order_line_id.tax_id[0].amount / 100)),
+            'readonly': True,
+        }) for downpayment in downpayments]
+
+        lines += [(0, 0, {
+            'invoice_id': invoice.id,
             'amount': 0,
-        }) for line in self.env['account.move'].search([
+        }) for invoice in self.env['account.move'].search([
             ('move_type', '=', 'out_invoice'),
             ('partner_id', 'in', orders.mapped('partner_id').ids),
             ('has_down_payment', '=', True),
-            ('state', '!=', 'cancel')
+            ('state', '!=', 'cancel'),
+            ('id', 'not in', downpayments.mapped('invoice_id').ids),
         ])]
+
+        return lines
 
     def _create_invoices(self, sale_orders):
         invoices = super(SaleMakeInvoiceAdvance, self)._create_invoices(sale_orders)
@@ -43,7 +56,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
             raise UserError('The total amount of down payments exceeds the total amount of the order.')
 
         # Register down payments
-        downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0)
+        downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0 and x.readonly == False)
         for downpayment in downpayments:
             dp = self.env['sale.down.payment'].create({
                 'invoice_id': downpayment.invoice_id.id,
@@ -107,7 +120,6 @@ class SaleDownPaymentWizard(models.TransientModel):
     invoice_id = fields.Many2one(
         comodel_name = 'account.move',
         string = "Invoice",
-        copy = False
     )
     l10n_mx_edi_cfdi_uuid = fields.Char(
         string = "Fiscal Folio",
@@ -124,7 +136,9 @@ class SaleDownPaymentWizard(models.TransientModel):
     )
     amount = fields.Monetary(
         string = "Amount",
-        copy = False
+    )
+    readonly = fields.Boolean(
+        string = "Readonly",
     )
 
     @api.onchange('amount')

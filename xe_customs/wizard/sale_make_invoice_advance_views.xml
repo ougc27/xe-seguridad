@@ -10,11 +10,12 @@
                 <group string="Invoices" invisible="down_payment_ids == []"/>
                 <field name="down_payment_ids" invisible="down_payment_ids == []">
                     <tree editable="inline" create="false" delete="false">
+                        <field name="readonly" column_invisible="1"/>
+                        <field name="currency_id" column_invisible="1"/>
                         <field name="invoice_id" readonly="1" force_save="1"/>
                         <field name="l10n_mx_edi_cfdi_uuid"/>
-                        <field name="currency_id"/>
                         <field name="balance"/>
-                        <field name="amount"/>
+                        <field name="amount" readonly="readonly"/>
                     </tree>
                 </field>
             </footer>
