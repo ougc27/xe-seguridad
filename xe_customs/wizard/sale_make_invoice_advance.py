@@ -128,11 +128,15 @@ class SaleDownPaymentWizard(models.TransientModel):
     )
     balance = fields.Monetary(
         string = "Balance",
-        related = 'invoice_id.reconcile_balance',
+        compute = "_compute_balance",
     )
     amount = fields.Monetary(
         string = "Amount",
     )
+
+    def _compute_balance(self):
+        for payment in self:
+            payment.balance = payment.invoice_id.reconcile_balance + payment.amount
 
     @api.onchange('amount')
     def _onchange_amount(self):

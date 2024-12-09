@@ -34,6 +34,12 @@ class AccountMoveLine(models.Model):
     def _onchange_price_unit(self):
         for move in self:
             if move.is_downpayment:
+                # Update related sale order line
+                move.sale_line_ids.write({
+                    'price_unit': move.price_unit,
+                })
+
+                # Don't allow to set a price unit lower than the reconciled amounts
                 downpayments = self.env['sale.down.payment'].search([
                     ('invoice_id', '=', move._origin.move_id.id),
                 ])
