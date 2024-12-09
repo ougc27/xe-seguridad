@@ -51,15 +51,15 @@ class StockPicking(models.Model):
     tag_ids = fields.Many2many(
         'inventory.tag', 'inventory_tag_rel', 'picking_id', 'tag_id', string='Tags')
     
-    invoice_ids = fields.Many2many(
-        'account.move',
-        'account_move_picking_rel',
-        'picking_id',
-        'move_id',
-        string='Invoices',
-        help='Match the invoices with the shipment.',
-        readonly=True
-    )
+    #invoice_ids = fields.Many2many(
+        #'account.move',
+        #'account_move_picking_rel',
+        #'picking_id',
+        #'move_id',
+        #string='Invoices',
+        #help='Match the invoices with the shipment.',
+        #readonly=True
+    #)
 
     @api.depends('location_id', 'move_ids', 'x_studio_canal_de_distribucin')
     def _compute_shipping_assignment(self):
