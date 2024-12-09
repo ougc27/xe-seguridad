@@ -15,3 +15,13 @@ class AccountMove(models.Model):
         readonly=True,
         store=True
     )
+
+    picking_ids = fields.Many2many(
+        'stock.picking',
+        'account_move_picking_rel',
+        'move_id',
+        'picking_id',
+        string='Remissions',
+        #context={'from_helpdesk_ticket': True},
+        help='Relationship between referrals and invoice.'
+    )

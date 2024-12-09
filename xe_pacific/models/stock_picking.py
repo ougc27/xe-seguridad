@@ -50,6 +50,16 @@ class StockPicking(models.Model):
 
     tag_ids = fields.Many2many(
         'inventory.tag', 'inventory_tag_rel', 'picking_id', 'tag_id', string='Tags')
+    
+    invoice_ids = fields.Many2many(
+        'account.move',
+        'account_move_picking_rel',
+        'picking_id',
+        'move_id',
+        string='Invoices',
+        help='Match the invoices with the shipment.',
+        readonly=True
+    )
 
     @api.depends('location_id', 'move_ids', 'x_studio_canal_de_distribucin')
     def _compute_shipping_assignment(self):
@@ -147,6 +157,10 @@ class StockPicking(models.Model):
                 [('name', '=', rec.group_id.name), ('company_id', '=', rec.env.company.id)]
             )
             scheduled_date = rec.scheduled_date
+
+            if len(rec.move_ids) == 1:
+                rec.single_product_separation(rec.move_ids, sale_order, scheduled_date)
+                continue
     
             door_moves = rec.move_ids.filtered(
                 lambda m: m.product_id.categ_id.complete_name == 'Ventas / XE / Puertas / Puertas' and 
@@ -212,38 +226,40 @@ class StockPicking(models.Model):
     
                 rec.create_notes_in_pickings(sale_order, new_picking)
 
-        remaining_moves = rec.move_ids - (door_moves + lock_moves + door_accessory_moves + door_installation_moves + lock_installation_moves)
+            remaining_moves = rec.move_ids - (door_moves + lock_moves + door_accessory_moves + door_installation_moves + lock_installation_moves)
 
-        if remaining_moves:
-            grouped_moves = [(move, move.product_uom_qty) for move in remaining_moves]
+            if remaining_moves:
+                grouped_moves = [(move, move.product_uom_qty) for move in remaining_moves]
 
-            new_picking = rec.copy({
-                'is_remission_separated': True,
-                'scheduled_date': scheduled_date,
-                'state': 'confirmed',
-            })
+                new_picking = rec.copy({
+                    'is_remission_separated': True,
+                    'scheduled_date': scheduled_date,
+                    'state': 'confirmed',
+                })
 
-            for new_move in new_picking.move_ids:
-                for original_move, qty in grouped_moves:
-                    if new_move.product_id.id == original_move.product_id.id:
-                        new_move.write({'product_uom_qty': qty, 'state': 'confirmed'})
-                        break
-                else:
-                    new_move.unlink()
+                for new_move in new_picking.move_ids:
+                    for original_move, qty in grouped_moves:
+                        if new_move.product_id.id == original_move.product_id.id:
+                            new_move.write({'product_uom_qty': qty, 'state': 'confirmed'})
+                            break
+                    else:
+                        new_move.unlink()
 
-            rec.create_notes_in_pickings(sale_order, new_picking)
-    
-            if not door_moves and not lock_moves:
-                if door_installation_moves:
-                    rec.single_product_separation(
-                        door_installation_moves, sale_order, scheduled_date, True
-                    )
-                if lock_installation_moves:
-                    rec.single_product_separation(
-                        lock_installation_moves, sale_order, scheduled_date, True
-                    )
-    
-            rec.unlink()
+                rec.create_notes_in_pickings(sale_order, new_picking)
+        
+                if not door_moves and not lock_moves:
+                    if door_installation_moves:
+                        rec.single_product_separation(
+                            door_installation_moves, sale_order, scheduled_date, True
+                        )
+                    if lock_installation_moves:
+                        rec.single_product_separation(
+                            lock_installation_moves, sale_order, scheduled_date, True
+                        )
+        
+                rec.unlink()
+            elif not rec.move_ids.filtered(lambda m: m.product_uom_qty > 0):
+                rec.unlink()
 
     def separate_client_remissions(self):
         for rec in self:

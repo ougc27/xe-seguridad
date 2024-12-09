@@ -840,3 +840,37 @@ msgstr "Configuraciones Personalizadas XE"
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__team_name
 msgid "Team Name"
 msgstr "Nombre equipo"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__invoice_ids
+msgid "Invoices"
+msgstr "Facturas"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_stock_picking__invoice_ids
+msgid "Match the invoices with the shipment."
+msgstr "Facturas relacionadas con el envío."
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_account_bank_statement_line__picking_ids
+#: model:ir.model.fields,help:xe_pacific.field_account_move__picking_ids
+#: model:ir.model.fields,help:xe_pacific.field_account_payment__picking_ids
+msgid "Relationship between referrals and invoice."
+msgstr "Relacionar facturas con las remisiones"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_account_bank_statement_line__picking_ids
+#: model:ir.model.fields,field_description:xe_pacific.field_account_move__picking_ids
+#: model:ir.model.fields,field_description:xe_pacific.field_account_payment__picking_ids
+msgid "Remissions"
+msgstr "Remisiones"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_picking_internal_search_inherit
+msgid "Remission with invoice"
+msgstr "Remisiones con factura"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_picking_internal_search_inherit
+msgid "Remission without invoice"
+msgstr "Remisiones sin factura"
