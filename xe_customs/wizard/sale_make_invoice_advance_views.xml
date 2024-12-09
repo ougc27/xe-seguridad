@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_sale_advance_payment_inv" model="ir.ui.view">
+        <field name="name">Invoice Orders</field>
+        <field name="model">sale.advance.payment.inv</field>
+        <field name="inherit_id" ref="sale.view_sale_advance_payment_inv"/>
+        <field name="arch" type="xml">
+            <footer position="before">
+                <group string="Invoices" invisible="down_payment_ids == []"/>
+                <field name="down_payment_ids" invisible="down_payment_ids == []">
+                    <tree editable="inline" create="false" delete="false">
+                        <field name="downpayment_id" column_invisible="1"/>
+                        <field name="currency_id" column_invisible="1"/>
+                        <field name="invoice_id" readonly="1" force_save="1"/>
+                        <field name="l10n_mx_edi_cfdi_uuid"/>
+                        <field name="balance"/>
+                        <field name="amount"/>
+                    </tree>
+                </field>
+            </footer>
+        </field>
+    </record>
+
+</odoo>

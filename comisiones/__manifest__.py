@@ -1,0 +1,31 @@
+# -*- coding: utf-8 -*-
+{
+    'name': 'Comisiones',
+    "author": "Xe Brands",
+    'version': '17.0',
+    'summary': 'Comisiones',
+    'description': 'Comisiones',
+    'category': 'Sales/Sales',
+    'depends': [
+        'sale_management',
+        'hr',
+        'contacts',
+    ],
+    'data': [
+        'security/security.xml',
+        'security/ir.model.access.csv',
+        'data/ir_sequence.xml',
+        'views/hr_views.xml',
+        'views/xe_agente_views.xml',
+        'views/res_partner_views.xml',
+        'views/sale_order_views.xml',
+        'views/account_move_views.xml',
+        'views/account_views.xml',
+        'views/xe_comisiones_views.xml',
+        'views/xe_pago_comisiones_views.xml',
+        'views/xe_pago_comisiones_masivo_views.xml',
+        'report/xe_pago_comisiones_report.xml',
+        'wizard/recalculo_comision_views.xml',
+    ],
+    'license': 'LGPL-3',
+}

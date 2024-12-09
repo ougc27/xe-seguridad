@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="comisiones_open_action" model="ir.actions.act_window">
+        <field name="name">Comisiones</field>
+        <field name="res_model">xe.comisiones</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+    <record id="pago_comisiones_open_action" model="ir.actions.act_window">
+        <field name="name">Pago de comisiones</field>
+        <field name="res_model">xe.pago.comisiones</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="pago_comisiones_masivo_open_action" model="ir.actions.act_window">
+        <field name="name">Pago de comisiones masivo</field>
+        <field name="res_model">xe.pago.comisiones.masivo</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="recalculo_comision_open_action" model="ir.actions.act_window">
+        <field name="name">Recalculo de comisiones</field>
+        <field name="res_model">recalculo.comision</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="account_comisiones_menuitem"
+              name="Comisiones"
+              groups="comisiones.comisiones_usuario_avanzado_group,account.group_account_manager"
+              parent="account.menu_finance_receivables"
+              sequence="150"/>
+
+    <menuitem id="comisiones_comisiones_menuitem"
+              parent="account_comisiones_menuitem"
+              name="Comisiones"
+              action="comisiones_open_action"
+              sequence="5"/>
+
+    <menuitem id="comisiones_pago_comisiones_menuitem"
+              parent="account_comisiones_menuitem"
+              name="Pago de comisiones"
+              action="pago_comisiones_open_action"
+              sequence="10"/>
+
+    <menuitem id="comisiones_pago_comisiones_masivo_menuitem"
+              parent="account_comisiones_menuitem"
+              name="Pago de comisiones masivo"
+              action="pago_comisiones_masivo_open_action"
+              sequence="15"/>
+
+    <menuitem id="recalculo_comision_menuitem"
+              parent="account_comisiones_menuitem"
+              name="Recalculo de comisiones"
+              action="recalculo_comision_open_action"
+              sequence="20"/>
+
+</odoo>

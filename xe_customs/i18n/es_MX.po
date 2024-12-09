@@ -1,0 +1,769 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* xe_customs
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e-20240711\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-11-26 19:38+0000\n"
+"PO-Revision-Date: 2024-11-26 19:38+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_stock_picking__state
+msgid ""
+" * Draft: The transfer is not confirmed yet. Reservation doesn't apply.\n"
+" * Waiting another operation: This transfer is waiting for another operation before being ready.\n"
+" * Waiting: The transfer is waiting for the availability of some products.\n"
+"(a) The shipping policy is \"As soon as possible\": no product could be reserved.\n"
+"(b) The shipping policy is \"When all products are ready\": not all the products could be reserved.\n"
+" * Ready: The transfer is ready to be processed.\n"
+"(a) The shipping policy is \"As soon as possible\": at least one product has been reserved.\n"
+"(b) The shipping policy is \"When all products are ready\": all product have been reserved.\n"
+" * Done: The transfer has been processed.\n"
+" * Cancelled: The transfer has been cancelled."
+msgstr ""
+"* Borrador: no se ha confirmado el traslado. No se realizan reservas.\n"
+" * En espera de otra operación: el traslado espera otra operación antes de estar listo.\n"
+" * En espera: el traslado está en espera de disponibilidad de algunos productos.\n"
+"(a) La política de envío es \"Tan pronto como sea posible\": no se pudo reservar ningún producto.\n"
+"(b) La política de envío es \"Cuando todos los productos estén listos\": no se pueden reservar todos los productos.\n"
+" * Listo: el traslado está listo para ser procesado.\n"
+"(a) La política de envío es \"Tan pronto como sea posible\": se reservó al menos un producto.\n"
+"(b) La política de envío es \"Cuando todos los productos estén listos\": se reservaron todos los productos.\n"
+" * Hecho: se procesó el traslado.\n"
+" * Cancelado: se canceló el traslado."
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid ""
+"<span style=\"display:inline-block; width:100px;\"/>\n"
+"                                <strong>Otros Productos:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Orden de Entrega:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Orden de Venta:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Pedido Físico:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Saldo Pendiente:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Total Puertas:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Total:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_account_move_send
+msgid "Account Move Send"
+msgstr "Enviar movimiento de cuenta"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+msgid "Almacén"
+msgstr ""
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__amount
+msgid "Amount"
+msgstr "Monto"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_clientinfo__sequence
+msgid "Assigns the priority to the list of product client."
+msgstr "Asigna la prioridad de la lista de precios del producto"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__auto_credit_note
+#: model:ir.model.fields,field_description:xe_customs.field_account_move__auto_credit_note
+#: model:ir.model.fields,field_description:xe_customs.field_account_payment__auto_credit_note
+msgid "Auto Credit Note"
+msgstr "Nota de Crédito Automática"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.view_picking_form_inherit
+msgid "Cancel Transit"
+msgstr "Cancelar Remisión"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "Cantidad"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "Clave"
+msgstr ""
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__name
+msgid "Client"
+msgstr "Cliente"
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_product_clientinfo
+msgid "Client Pricelist"
+msgstr "Lista de Precios del Cliente"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_account_move_line__client_barcode
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__product_barcode
+#: model:ir.model.fields,field_description:xe_customs.field_sale_order_line__client_barcode
+msgid "Client Product Barcode"
+msgstr "Código de Barras del Producto del Cliente"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__product_code
+msgid "Client Product Code"
+msgstr "Código del Producto del Cliente"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__product_name
+msgid "Client Product Name"
+msgstr "Nombre del Producto del Cliente"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_clientinfo__name
+msgid "Client of this product"
+msgstr "Cliente de este Producto"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_product__client_ids
+#: model:ir.model.fields,field_description:xe_customs.field_product_template__client_ids
+msgid "Clients"
+msgstr "Clientes"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__create_uid
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__create_uid
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__create_date
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__create_date
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__currency_id
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__currency_id
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_product__client_ids
+#: model:ir.model.fields,help:xe_customs.field_product_template__client_ids
+msgid "Define client pricelists."
+msgstr "Definir la Lista de Precios del Cliente"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_stock_picking__installer_id
+msgid "Define the installer of the picking."
+msgstr "Definir al Instalador de la Entrega."
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_stock_picking__supervisor_id
+msgid "Define the supervisor of the picking."
+msgstr "Definir al Supervisor de la Entrega."
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/sale_order.py:0
+#, python-format
+msgid "Deleted Down Payment"
+msgstr "Anticipo Eliminado"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__delay
+msgid "Delivery Lead Time"
+msgstr "Tiempo de Entrega"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__display_name
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__display_name
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__display_name
+msgid "Display Name"
+msgstr "Nombre Mostrado"
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/sale_order.py:0
+#: code:addons/xe_customs/wizard/account_move_send.py:0
+#, python-format
+msgid "Down Payment"
+msgstr "Anticipo"
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/sale_order.py:0
+#: model_terms:ir.ui.view,arch_db:xe_customs.view_order_form_inherit
+#, python-format
+msgid "Down Payments"
+msgstr "Anticipos"
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/wizard/account_move_send.py:0
+#, python-format
+msgid "Down Payments of: %s"
+msgstr "Anticipos de: %s"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__date_end
+msgid "End Date"
+msgstr "Fecha de Término"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_clientinfo__date_end
+msgid "End date for this client price"
+msgstr "Fecha de término del precio para este cliente"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__l10n_mx_edi_cfdi_uuid
+msgid "Fiscal Folio"
+msgstr "Folio Fiscal"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_sale_down_payment__l10n_mx_edi_cfdi_uuid
+msgid "Folio in electronic invoice, is returned by SAT when send to stamp."
+msgstr ""
+"Folio en la Factura electrónica, es devuelto por el SAT cuando se firma."
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__has_down_payment
+#: model:ir.model.fields,field_description:xe_customs.field_account_move__has_down_payment
+#: model:ir.model.fields,field_description:xe_customs.field_account_payment__has_down_payment
+msgid "Has Down Payment"
+msgstr "Tiene Anticipos"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__id
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__id
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__id
+msgid "ID"
+msgstr "ID"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_clientinfo__product_id
+msgid ""
+"If not set, the client price will apply to all variants of this product."
+msgstr ""
+"Si no se establece, el precio del cliente aplicará para todas las variantes "
+"de este producto."
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/product_clientinfo.py:0
+#, python-format
+msgid "Import Template for client Pricelists"
+msgstr "Importar Plantillas para Listas de Precios de Clientes"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.view_picking_form_inherit
+msgid "Installation"
+msgstr "Instalación"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_stock_picking__installer_id
+msgid "Installer"
+msgstr "Instalador"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_account_invoice_report__inventory_value
+msgid "Inventory Value"
+msgstr "Valor del inventario"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__invoice_id
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__source_orders
+#: model:ir.model.fields,field_description:xe_customs.field_account_move__source_orders
+#: model:ir.model.fields,field_description:xe_customs.field_account_payment__source_orders
+#: model:ir.model.fields,field_description:xe_customs.field_sale_order__down_payment_ids
+msgid "Invoices"
+msgstr "Facturas"
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_account_invoice_report
+msgid "Invoices Statistics"
+msgstr "Estadísticas de facturas"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_product__is_door
+#: model:ir.model.fields,field_description:xe_customs.field_product_template__is_door
+msgid "Is Door"
+msgstr "Es Puerta"
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento contable"
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_account_move_line
+msgid "Journal Item"
+msgstr "Apunte contable"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__write_uid
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__write_uid
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__write_date
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__write_date
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_clientinfo__delay
+msgid ""
+"Lead time in days between the confirmation of the purchase order and the "
+"receipt of the products in your warehouse. Used by the scheduler for "
+"automatic computation of the purchase order planning."
+msgstr ""
+"Tiempo de entrega en días entre la confirmación de la orden de compra y la "
+"recepción de los productos en su almacén. Utilizado para planificar los "
+"cálculos automáticos de la entrega de la orden de compra."
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__locked
+#: model:ir.model.fields,field_description:xe_customs.field_account_move__locked
+#: model:ir.model.fields,field_description:xe_customs.field_account_payment__locked
+msgid "Locked"
+msgstr "Bloqueado"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_account_invoice_report__price_margin
+#: model:ir.model.fields,field_description:xe_customs.field_sale_order_line__margin
+#: model:ir.model.fields,field_description:xe_customs.field_sale_report__margin
+msgid "Margin"
+msgstr "Margen"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_account_move_send__move_ids
+msgid "Move"
+msgstr "Movimiento"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__order_id
+msgid "Order"
+msgstr "Orden"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__order_line_id
+msgid "Order Line"
+msgstr "Línea de la Orden"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "P. U."
+msgstr ""
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__price
+#: model_terms:ir.ui.view,arch_db:xe_customs.product_clientinfo_tree_view
+msgid "Price"
+msgstr "Precio"
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_product_template
+msgid "Product"
+msgstr "Producto"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__product_tmpl_id
+msgid "Product Template"
+msgstr "Plantilla de Producto"
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_product_product
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__product_id
+msgid "Product Variant"
+msgstr "Variante del producto"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "Producto"
+msgstr ""
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__min_qty
+msgid "Quantity"
+msgstr "Cantidad"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__reconcile_balance
+#: model:ir.model.fields,field_description:xe_customs.field_account_move__reconcile_balance
+#: model:ir.model.fields,field_description:xe_customs.field_account_payment__reconcile_balance
+msgid "Reconcile Balance"
+msgstr "Balance Conciliado"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__reconciled_amount
+#: model:ir.model.fields,field_description:xe_customs.field_account_move__reconciled_amount
+#: model:ir.model.fields,field_description:xe_customs.field_account_payment__reconciled_amount
+#: model:ir.model.fields,field_description:xe_customs.field_sale_order__down_payment_context
+msgid "Reconciled Amount"
+msgstr "Monto Conciliado"
+
+#. module: xe_customs
+#: model:ir.actions.report,name:xe_customs.report_remission1
+msgid "Remission 1"
+msgstr "Remisión 1"
+
+#. module: xe_customs
+#: model:ir.actions.report,name:xe_customs.report_remission2
+msgid "Remission 2"
+msgstr "Remisión 2"
+
+#. module: xe_customs
+#: model:ir.actions.report,name:xe_customs.report_remission3
+msgid "Remission 3"
+msgstr "Remisión 3"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+msgid "Revisión de Entrada de Material Devuelto"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+msgid "Revisión de Salida"
+msgstr ""
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_sale_down_payment
+msgid "Sale Down Payment"
+msgstr "Anticipo"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.view_move_form_inherit
+msgid "Sales"
+msgstr "Ventas"
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_sale_advance_payment_inv
+msgid "Sales Advance Payment Invoice"
+msgstr "Factura de anticipo de ventas"
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_sale_report
+msgid "Sales Analysis Report"
+msgstr "Reporte de análisis de ventas"
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_sale_order
+msgid "Sales Order"
+msgstr "Orden de venta"
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Línea de la orden de venta"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.view_picking_form_inherit
+msgid "Send to Transit"
+msgstr "Remisionar"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__sequence
+msgid "Sequence"
+msgstr "Secuencia"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__date_start
+msgid "Start Date"
+msgstr "Fecha de Inicio"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_clientinfo__date_start
+msgid "Start date for this client price"
+msgstr "Fecha de inicio del precio para este cliente"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_stock_picking__state
+msgid "Status"
+msgstr "Estado"
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_stock_forecasted_product_product
+msgid "Stock Replenishment Report"
+msgstr "Reporte de reabastecimiento de existencias"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_stock_picking__supervisor_id
+msgid "Supervisor"
+msgstr ""
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/stock_picking.py:0
+#, python-format
+msgid "The backorder %s has been created."
+msgstr "La orden parcial %s se ha creado."
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_clientinfo__price
+msgid "The price to purchase a product"
+msgstr "El precio de compra del producto"
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/product_clientinfo.py:0
+#, python-format
+msgid "The product variant must be a variant of the product template."
+msgstr ""
+"La variante del producto debe ser una variante de la plantilla del producto"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_clientinfo__min_qty
+msgid ""
+"The quantity to purchase from this client to benefit from the price, "
+"expressed in the client Product Unit of Measure if not any, in the default "
+"unit of measure of the product otherwise."
+msgstr ""
+"La cantidad a comprar de este cliente para obtener el beneficio de precio, "
+"expresado en la Unidad de Medida del cliente, y si no tiene, en la unidad de"
+" medida por defecto del producto."
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/stock_picking.py:0
+#, python-format
+msgid "There is not enough stock to transit."
+msgstr "No hay suficiente Stock para Remisionar"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_clientinfo__product_barcode
+msgid ""
+"This client's product code will be used for  adding the barcode of the "
+"client in quotation and invoice."
+msgstr ""
+"Este código de producto del cliente se utilizará al agregar el producto en "
+"una cotización o factura de cliente."
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_clientinfo__product_code
+msgid ""
+"This client's product code will be used when printing a request for "
+"quotation. Keep empty to use the internal one."
+msgstr ""
+"Este código de producto del cliente se utilizará cuanto se imprima una "
+"solicitud de cotización. Manténgalo vacío para utilizar el interno."
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_clientinfo__product_name
+msgid ""
+"This client's product name will be used when printing a request for "
+"quotation. Keep empty to use the internal one."
+msgstr ""
+"Este nombre de producto del cliente se utilizará cuanto se imprima una "
+"solicitud de cotización. Manténgalo vacío para utilizar el interno."
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_clientinfo__product_uom
+msgid "This comes from the product form."
+msgstr "Esto proviene del formulario del producto"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+#: model_terms:ir.ui.view,arch_db:xe_customs.view_order_form_inherit
+msgid "Total"
+msgstr ""
+
+#. module: xe_customs
+#: model:ir.model,name:xe_customs.model_stock_picking
+msgid "Transfer"
+msgstr "Transferir "
+
+#. module: xe_customs
+#: model:ir.model.fields.selection,name:xe_customs.selection__stock_picking__state__transit
+msgid "Transit"
+msgstr "Remisión"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "Unidad"
+msgstr ""
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__product_uom
+msgid "Unit of Measure"
+msgstr "Unidad de Medida"
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/sale_order.py:0
+#, python-format
+msgid "Unlinked Down Payment"
+msgstr "Anticipo Desvinculado"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.view_picking_form_inherit
+msgid "Validate"
+msgstr "Validar"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_product__variant_client_ids
+#: model:ir.model.fields,field_description:xe_customs.field_product_template__variant_client_ids
+msgid "Variant Client"
+msgstr "Variante de Cliente"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__product_variant_count
+msgid "Variant Count"
+msgstr "Variantes"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.product_clientinfo_tree_view
+msgid "Vendor Information"
+msgstr "Información de Proveedor"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+msgid "Vigilancia"
+msgstr ""
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/sale_order.py:0
+#, python-format
+msgid "You cannot cancel an order with down payments."
+msgstr "No se puede cancelar una orden con anticipos"
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/sale_order.py:0
+#, python-format
+msgid "You cannot change the invoice of a down payment."
+msgstr "No se puede cambiar la factura de un anticipo"
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/reports/stock_forecasted.py:0
+#, python-format
+msgid "You cannot unreserve a move that is locked."
+msgstr "No se puede anular la reserva de un movimiento bloqueado."
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/stock_picking.py:0
+#, python-format
+msgid "You cannot unreserve a transit picking."
+msgstr "No se puede anular la reserva de un movimiento en Remisión."
+
+#. module: xe_customs
+#: model_terms:ir.actions.act_window,help:xe_customs.supervisor_installer_action
+msgid "Assign supervisors and installers"
+msgstr "Asignar supervisores e instaladores"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__employee_id
+msgid "Employee"
+msgstr "Empleado"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_supervisor_installer__employee_id
+msgid "Employee that is supervisor or installer"
+msgstr "Empleado que sea supervisor o instalador"
+
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__installer_number
+msgid "Installer Number"
+msgstr "Número Instalador"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__supervisor_number
+msgid "Supervisor Number"
+msgstr "Número Supervisor"
+
+#. module: xe_customs
+#: model:ir.actions.act_window,name:xe_customs.supervisor_installer_action
+#: model:ir.model,name:xe_customs.model_supervisor_installer
+#: model:ir.ui.menu,name:xe_customs.supervisors_and_installers
+#: model_terms:ir.ui.view,arch_db:xe_customs.supervisor_installer_view_form
+#: model_terms:ir.ui.view,arch_db:xe_customs.supervisor_installer_view_tree
+msgid "Supervisors and Installers"
+msgstr "Supervisores e Instaladores"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_supervisor_installer__installer_number
+msgid "Unique identifier for the installer"
+msgstr "Identificador único para el instalador"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_supervisor_installer__supervisor_number
+msgid "Unique identifier for the supervisor"
+msgstr "Identificador único para el supervisor"
