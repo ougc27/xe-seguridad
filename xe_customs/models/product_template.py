@@ -9,3 +9,4 @@ class ProductTemplate(models.Model):
 
     client_ids = fields.One2many('product.clientinfo', 'product_tmpl_id', 'Clients', depends_context=('company',), help="Define client pricelists.")
     variant_client_ids = fields.One2many('product.clientinfo', 'product_tmpl_id')
+    is_door = fields.Boolean('Is Door', default=False)

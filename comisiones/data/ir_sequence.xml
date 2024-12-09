@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="xe_pago_comision_sequence" model="ir.sequence">
+        <field name="name">Secuencia de pago de comisiones</field>
+        <field name="code">xe.pago.comision</field>
+        <field name="prefix">COM/</field>
+        <field name="padding">5</field>
+    </record>
+
+    <record id="xe_pago_comision_masivo_sequence" model="ir.sequence">
+        <field name="name">Secuencia de pago de comisiones masivo</field>
+        <field name="code">xe.pago.comision.masivo</field>
+        <field name="prefix">COM-BATCH/</field>
+        <field name="padding">4</field>
+    </record>
+
+</odoo>
