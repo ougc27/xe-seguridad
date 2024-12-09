@@ -29,7 +29,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         lines = [(0, 0, {
             'invoice_id': downpayment.invoice_id.id,
             'amount': downpayment.order_line_id.price_unit * (1 + (downpayment.order_line_id.tax_id[0].amount / 100)),
-            'readonly': True,
+            'downpayment_id': downpayment.id,
         }) for downpayment in downpayments]
 
         lines += [(0, 0, {
@@ -50,19 +50,6 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         if self.advance_payment_method == 'percentage':
             raise UserError('The percentage method is not supported for down payments.')
 
-        # Check down payments total
-        order_id = self.env['sale.order'].browse(self._context.get('active_ids', []))[0]
-        if self.reconciled_amount > 0 and order_id.reconciled_amount + self.reconciled_amount > order_id.amount_total:
-            raise UserError('The total amount of down payments exceeds the total amount of the order.')
-
-        # Register down payments
-        downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0 and x.readonly == False)
-        for downpayment in downpayments:
-            dp = self.env['sale.down.payment'].create({
-                'invoice_id': downpayment.invoice_id.id,
-            })
-            dp._prepare_lines(self.env['sale.order'].browse(self._context.get('active_ids', []))[0], downpayment.amount)
-
         if self.advance_payment_method != 'delivered':
             for invoice in invoices:
                 for order_line in invoice.line_ids.sale_line_ids:
@@ -72,8 +59,27 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                         'amount': order_line.price_unit * (1 + (order_line.tax_id[0].amount / 100)),
                     })
         else:
+            order_id = self.env['sale.order'].browse(self._context.get('active_ids', []))[0]
             product_id = order_id.company_id.sale_down_payment_product_id
             tax_id = product_id.taxes_id[0]
+
+            # Check down payments total
+            if self.reconciled_amount > order_id.amount_total:
+                raise UserError('The total amount of down payments exceeds the total amount of the order.')
+            
+            # Update down payments
+            downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0 and x.downpayment_id)
+            for downpayment in downpayments:
+                downpayment.downpayment_id.order_line_id.price_unit = downpayment.amount / (1 + (tax_id.amount / 100))
+
+            # Register down payments
+            downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0 and not x.downpayment_id)
+            for downpayment in downpayments:
+                dp = self.env['sale.down.payment'].create({
+                    'invoice_id': downpayment.invoice_id.id,
+                })
+                dp._prepare_lines(self.env['sale.order'].browse(self._context.get('active_ids', []))[0], downpayment.amount)
+                
 
             for invoice in invoices:
                 origins = []
@@ -82,19 +88,6 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                         origins.append(inv.l10n_mx_edi_cfdi_uuid)
                 if len(origins) > 0:
                     invoice.l10n_mx_edi_cfdi_origin = '07|' + ','.join(origins)
-
-                # for order_line in order_id.order_line.filtered(
-                #     lambda x: x.is_downpayment and not x.display_type and x.price_unit > 0 # and x.qty_invoiced == 0
-                # ):
-                #     invoice_down_payment = self.env['account.move.line'].create({
-                #         'move_id': invoice.id,
-                #         'product_id': order_line.product_id.id,
-                #         'quantity': -1,
-                #         'price_unit': order_line.price_unit,
-                #         'tax_ids': [(6, 0, tax_id.ids)],
-                #         'is_downpayment': True,
-                #         'name': _('Down Payment'),
-                #     })
 
         invoices.locked = True
         if self.advance_payment_method == 'delivered':
@@ -117,6 +110,9 @@ class SaleDownPaymentWizard(models.TransientModel):
     _description = "Sale Down Payment"
 
     advance_id = fields.Many2one('sale.advance.payment.inv')
+    downpayment_id = fields.Many2one(
+        comodel_name = 'sale.down.payment',
+    )
     invoice_id = fields.Many2one(
         comodel_name = 'account.move',
         string = "Invoice",
@@ -136,9 +132,6 @@ class SaleDownPaymentWizard(models.TransientModel):
     )
     amount = fields.Monetary(
         string = "Amount",
-    )
-    readonly = fields.Boolean(
-        string = "Readonly",
     )
 
     @api.onchange('amount')

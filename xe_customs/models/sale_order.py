@@ -194,8 +194,8 @@ class SaleDownPayment(models.Model):
                 payment.amount = payment.invoice_id.amount_total
                 
                 amount = payment.invoice_id.reconcile_balance
-                if order_id.reconciled_amount + amount > order_id.amount_total:
-                    amount = order_id.amount_total - order_id.reconciled_amount
+                # if order_id.reconciled_amount + amount > order_id.amount_total:
+                #     amount = order_id.amount_total - order_id.reconciled_amount
 
                 self._prepare_lines(order_id, amount)
 
