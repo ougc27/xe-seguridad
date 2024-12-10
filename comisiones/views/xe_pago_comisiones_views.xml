@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="xe_pago_comisiones_tree_view" model="ir.ui.view">
+        <field name="name">xe.pago_comisiones.tree.view</field>
+        <field name="model">xe.pago.comisiones</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="agente_id"/>
+                <field name="fecha_inicial"/>
+                <field name="fecha_final"/>
+                <field name="total" sum="Total"/>
+                <field name="state"
+                       widget="badge"
+                       decoration-info="state == 'confirmado'"
+                       decoration-success="state == 'pagado'"/>
+                <field name="currency_id" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="xe_pago_comisiones_form_view" model="ir.ui.view">
+        <field name="name">xe.pago_comisiones.form.view</field>
+        <field name="model">xe.pago.comisiones</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button string="Calcular"
+                            type="object"
+                            name="action_calcular"
+                            invisible="comisiones_ids"
+                            groups="comisiones.comisiones_pago_comisiones_group"
+                            class="oe_highlight"/>
+                    <button string="Confirmar"
+                            type="object"
+                            name="action_confirmar"
+                            confirm="¿Está seguro que desea confirmar este pago de comisiones?"
+                            invisible="not comisiones_ids or state != 'borrador'"
+                            groups="comisiones.comisiones_pago_comisiones_group"
+                            class="oe_highlight"/>
+                    <button string="Calcular"
+                            type="object"
+                            name="action_calcular"
+                            groups="comisiones.comisiones_pago_comisiones_group"
+                            invisible="not comisiones_ids or state != 'borrador'"/>
+                    <button string="Pagar"
+                            type="object"
+                            name="action_pagar"
+                            confirm="¿Está seguro que desea pagar las comisiones listadas?"
+                            invisible="state != 'confirmado'"
+                            groups="comisiones.comisiones_pago_comisiones_group"
+                            class="oe_highlight"/>
+                    <button string="Regresar a borrador"
+                            type="object"
+                            name="action_regresar_borrador"
+                            groups="comisiones.comisiones_pago_comisiones_group"
+                            invisible="state != 'confirmado'"/>
+                    <button string="Romper pago"
+                            type="object"
+                            name="action_romper_pago"
+                            groups="comisiones.comisiones_administrador_group"
+                            confirm="¿Está seguro que desea deshacer las comisiones pagadas?"
+                            invisible="state != 'pagado'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group string="Invisibles" invisible="1">
+                        <group>
+                            <field name="currency_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="fecha_inicial" required="1" readonly="state != 'borrador'"/>
+                            <field name="fecha_final" required="1" readonly="state != 'borrador'"/>
+                        </group>
+                        <group>
+                            <field name="agente_id"
+                                   required="1"
+                                   readonly="state != 'borrador'"
+                                   options="{'no_open': True, 'no_create': True}"/>
+                            <field name="fecha_pago"
+                                   readonly="1"
+                                   invisible="state != 'pagado'"
+                                   force_save="1"/>
+                        </group>
+                    </group>
+                    <field name="comisiones_ids" readonly="1">
+                        <tree editable="bottom">
+                            <field name="fecha"/>
+                            <field name="move_id"/>
+                            <field name="fecha_cobro"/>
+                            <field name="cliente_id"/>
+                            <field name="cobrado"/>
+                            <field name="comision"/>
+                            <field name="pagado"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <button icon="fa-trash-o" title="Eliminar" type="object" name="action_eliminar" invisible="parent.state != 'borrador'"/>
+                        </tree>
+                    </field>
+                    <div class="row">
+                        <div class="col-8"/>
+                        <div class="col-4">
+                            <div class="text-end" style="font-size: 20px; font-weight: bold;">
+                                <span>Total</span>
+                                <field name="total" style="padding-left: 50px;" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

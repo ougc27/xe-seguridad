@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="xe_comisiones_tree_view" model="ir.ui.view">
+        <field name="name">xe.comisiones.tree.view</field>
+        <field name="model">xe.comisiones</field>
+        <field name="arch" type="xml">
+            <tree create="false">
+                <field name="posicion"/>
+                <field name="agente_id"/>
+                <field name="fecha"/>
+                <field name="move_id"/>
+                <field name="sale_orders"
+                       optional="hide"/>
+                <field name="sale_order_ids"
+                       column_invisible="1"
+                       widget="many2many_tags"/>
+                <field name="fecha_cobro"/>
+                <field name="payment_id" optional="hide"/>
+                <field name="cliente_id"/>
+                <field name="cobrado"/>
+                <field name="comision"/>
+                <field name="pagado"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="por_agente" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>
