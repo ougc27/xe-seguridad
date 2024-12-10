@@ -8,16 +8,16 @@
     'sequence': 1,
     "depends": [
         'base',
+        'xe_customs',
         'sale_project',
         'helpdesk_fsm',
         'helpdesk_sale',
         'mrp',
-        'hr',
+        #'hr',
         'industry_fsm',
         'sale_management',
         'mail',
         'sale_stock',
-        'xe_customs'
     ],
     "category": "Accounting",
     "summary": "MX-EDI XE Brands",
