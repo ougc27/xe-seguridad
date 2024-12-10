@@ -4,7 +4,7 @@
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//button[@name='signature']" position="before">
+            <xpath expr="//widget[@name='signature']" position="before">
                 <field name="is_remission_separated" invisible="1"/>
                 <button name="separate_remissions" type="object" string="Separar Partidas" class="oe_highlight" invisible="state in ('done', 'cancel') or is_remission_separated"/>
             </xpath>
