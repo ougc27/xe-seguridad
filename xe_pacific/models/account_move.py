@@ -24,4 +24,4 @@ class AccountMove(models.Model):
         string='Remissions',
         #context={'from_helpdesk_ticket': True},
         help='Relationship between referrals and invoice.'
-    #)
+    )
