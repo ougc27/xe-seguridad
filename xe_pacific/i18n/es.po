@@ -835,7 +835,6 @@ msgstr "Ventana para remisión cancelada"
 msgid "XE Custom Configurations"
 msgstr "Configuraciones Personalizadas XE"
 
-
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__team_name
 msgid "Team Name"
