@@ -10,6 +10,8 @@ class SaleOrder(models.Model):
     pos_store = fields.Many2one('res.partner', domain="[('is_pos_store', '=', True)]")
 
     def send_notify_changes_mail(self):
+        if len(self) > 1:
+            return
         for rec in self:
             template = self.env.ref('xe_pacific.email_template_notify_salesperson_of_changes')
             template.send_mail(rec.id, force_send=True)
