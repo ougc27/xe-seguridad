@@ -81,7 +81,8 @@ class StockPicking(models.Model):
                             continue
                 rec.shipping_assignment= 'logistics'
                 continue
-            rec.shipping_assignment = False
+            else:
+                rec.shipping_assignment = 'shipments'
 
     def _group_expand_states(self, states, domain, order):
         return [key for key, val in self._fields['kanban_task_status'].selection]
@@ -99,7 +100,7 @@ class StockPicking(models.Model):
         rec.create_notes_in_pickings(sale_order, new_picking)
         for move in new_picking.move_ids:
             if move not in moves:
-                move.unlink()
+                move.sudo().unlink()
         return new_picking
 
     def create_notes_in_pickings(self, sale_order, new_picking):
@@ -135,7 +136,7 @@ class StockPicking(models.Model):
                         new_move.write({'product_uom_qty': 1, 'state': 'confirmed'})
 
                         continue
-                    new_move.unlink()
+                    new_move.sudo().unlink()
                 new_picking.write({'state': 'confirmed'})
                 self.create_notes_in_pickings(sale_order, new_picking)
 
@@ -149,7 +150,7 @@ class StockPicking(models.Model):
             rec.single_product_separation(rec.move_ids, sale_order, scheduled_date)
             for move in rec.move_ids:
                 if move.id != first_move_id:
-                    move.unlink()
+                    move.sudo().unlink()
 
     def separate_construction_remissions(self):
         for rec in self:
@@ -222,7 +223,7 @@ class StockPicking(models.Model):
                             new_move.write({'product_uom_qty': qty, 'state': 'confirmed'})
                             break
                     else:
-                        new_move.unlink()
+                        new_move.sudo().unlink()
     
                 rec.create_notes_in_pickings(sale_order, new_picking)
 
@@ -243,7 +244,7 @@ class StockPicking(models.Model):
                             new_move.write({'product_uom_qty': qty, 'state': 'confirmed'})
                             break
                     else:
-                        new_move.unlink()
+                        new_move.sudo().unlink()
 
                 rec.create_notes_in_pickings(sale_order, new_picking)
         
@@ -257,9 +258,9 @@ class StockPicking(models.Model):
                             lock_installation_moves, sale_order, scheduled_date, True
                         )
         
-                rec.unlink()
+                rec.sudo().unlink()
             elif not rec.move_ids.filtered(lambda m: m.product_uom_qty > 0):
-                rec.unlink()
+                rec.sudo().unlink()
 
     def separate_client_remissions(self):
         for rec in self:
@@ -321,7 +322,7 @@ class StockPicking(models.Model):
                     move.write({'picking_id': primary_picking.id})
             
             picking.action_cancel()
-            picking.unlink()
+            picking.sudo().unlink()
 
         primary_picking.write({
             'is_remission_separated': False,
