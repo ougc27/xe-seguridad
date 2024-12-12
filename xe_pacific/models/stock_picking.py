@@ -159,6 +159,7 @@ class StockPicking(models.Model):
                 [('name', '=', rec.group_id.name), ('company_id', '=', rec.env.company.id)]
             )
             scheduled_date = rec.scheduled_date
+            rec.batch_id.sudo().unlink()
 
             if len(rec.move_ids) == 1:
                 rec.single_product_separation(rec.move_ids, sale_order, scheduled_date)
@@ -258,11 +259,9 @@ class StockPicking(models.Model):
                         rec.single_product_separation(
                             lock_installation_moves, sale_order, scheduled_date, True
                         )
-        
                 rec.sudo().unlink()
             elif not rec.move_ids.filtered(lambda m: m.product_uom_qty > 0):
                 rec.sudo().unlink()
-            rec.batch_id.sudo().unlink()
 
     def separate_client_remissions(self):
         for rec in self:
