@@ -151,6 +151,7 @@ class StockPicking(models.Model):
             for move in rec.move_ids:
                 if move.id != first_move_id:
                     move.sudo().unlink()
+            rec.batch_id.sudo().unlink()
 
     def separate_construction_remissions(self):
         for rec in self:
@@ -261,6 +262,7 @@ class StockPicking(models.Model):
                 rec.sudo().unlink()
             elif not rec.move_ids.filtered(lambda m: m.product_uom_qty > 0):
                 rec.sudo().unlink()
+            rec.batch_id.sudo().unlink()
 
     def separate_client_remissions(self):
         for rec in self:
@@ -290,6 +292,7 @@ class StockPicking(models.Model):
                     rec, installation_moves, sale_order, scheduled_date)
 
             rec.write({'is_remission_separated': True})
+            rec.batch_id.sudo().unlink()
                 
     def combine_remissions(self):
         if not self:
