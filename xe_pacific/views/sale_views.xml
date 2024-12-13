@@ -35,9 +35,6 @@
                 <field name="pos_store" 
                     invisible="team_id not in [19, 5]"
                     required="team_id == 19"/>
-                <field name="pos_store" 
-                    invisible="partner_id not in [88942, 88908, 97403]"
-                    required="partner_id in [88942, 88908, 97403]"/>
             </xpath>
         </field>
     </record>

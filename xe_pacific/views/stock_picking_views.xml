@@ -57,10 +57,10 @@
                 <separator/>
                 <filter name="remission_invoice"
                     string="Remission with invoice" 
-                    domain="[('invoice_ids', '!=', False)]"/>
+                    domain="[('invoice_ids', '!=', False), ('x_studio_canal_de_distribucin', 'ilike', 'CONSTRUCTORAS')]"/>
                 <filter name="remission_not_invoice"
                      string="Remission without invoice" 
-                    domain="[('x_studio_folio_rem', '!=', False), ('invoice_ids', '=', False)]"/>
+                    domain="[('x_studio_folio_rem', '!=', False), ('invoice_ids', '=', False), ('x_studio_canal_de_distribucin', 'ilike', 'CONSTRUCTORAS')]"/>
             </xpath>
         </field>
     </record>
