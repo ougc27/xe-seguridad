@@ -22,6 +22,7 @@
     "category": "Accounting",
     "summary": "MX-EDI XE Brands",
     'data': [
+        'data/ir_config_parameter.xml',
         'data/email_backorder_to_salesperson.xml',
         'data/email_notify_seller_of_changes.xml',
         'wizard/stock_backorder_confirmation.xml',

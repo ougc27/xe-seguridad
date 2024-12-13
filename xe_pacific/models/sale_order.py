@@ -40,7 +40,9 @@ class SaleOrder(models.Model):
     def _action_confirm(self):
         result = super()._action_confirm()
         for rec in self:
-            if rec.company_id.id == 4:
+            separate_remissions = self.env['ir.config_parameter'].sudo().get_param(
+                'separate_remissions_activate', None)
+            if rec.company_id.id == 4 and separate_remissions == "1":
                 if rec.team_id.name.lower() == 'constructoras':
                     # for line in rec.order_line:
                     #     sku = line.product_id.default_code
