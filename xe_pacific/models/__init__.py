@@ -13,3 +13,4 @@ from . import hr_employee
 from . import models
 from . import cancelled_remission_reason
 from . import cancelled_remission
+from . import account_invoice_report

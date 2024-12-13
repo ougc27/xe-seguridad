@@ -873,3 +873,8 @@ msgstr "Remisiones con factura"
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_picking_internal_search_inherit
 msgid "Remission without invoice"
 msgstr "Remisiones sin factura"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form
+msgid "<i class=\"fa fa-random me-2\" role=\"img\" title=\"Planning overlap\"/>"
+msgstr "<i class=\"fa fa-random me-2\" role=\"img\" title=\"Planning overlap\"/>"
