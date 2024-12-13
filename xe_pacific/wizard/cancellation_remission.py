@@ -23,8 +23,6 @@ class CancelledRemissionWizard(models.TransientModel):
         if distribution_channel:
             if 'constructoras' in distribution_channel.lower():
                 team_name = 'construction'
-        else:
-            team_name = ''
         if picking_id:
             res.update({
                 'picking_id': picking_id,
