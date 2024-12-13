@@ -653,6 +653,7 @@ msgstr "Es punto de venta"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_account_bank_statement_line__pos_store
+#: model:ir.model.fields,field_description:xe_pacific.field_account_invoice_report__pos_store
 #: model:ir.model.fields,field_description:xe_pacific.field_account_move__pos_store
 #: model:ir.model.fields,field_description:xe_pacific.field_account_payment__pos_store
 #: model:ir.model.fields,field_description:xe_pacific.field_sale_order__pos_store
