@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="xe_pago_comisiones_report_action" model="ir.actions.report">
+        <field name="name">Pago comisiones</field>
+        <field name="model">xe.pago.comisiones</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">comisiones.pago_comisiones_template</field>
+        <field name="report_file">comisiones.pago_comisiones_template</field>
+        <field name="print_report_name">'Pago comisiones {0}'.format(object.name)</field>
+        <field name="attachment">'Pago comisiones {0}.pdf'.format(object.name)</field>
+        <field name="binding_model_id" ref="model_xe_pago_comisiones"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="pago_comisiones_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center">
+                            <div style="font-size: 22px;">
+                                <strong>PAGOS A AGENTES</strong>
+                            </div>
+                            <div>
+                                <span style="font-size: 19px;">
+                                    FOLIO: <span t-field="o.name"/>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row" style="padding-top: 20px;">
+                            <div class="col-4" style="padding: 0 30px;">
+                                <div style="border: 2px solid; border-radius: 7px;">
+                                    <div class="text-center" style="border-bottom: 2px solid; padding: 3px;">
+                                        <span>AGENTE</span>
+                                    </div>
+                                    <div class="text-center" style="padding: 3px;">
+                                        <span t-field="o.agente_id.numero"/>
+                                        <span> - </span>
+                                        <span t-field="o.agente_id"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4" style="padding: 0 30px;">
+                                <div style="border: 2px solid; border-radius: 7px;">
+                                    <div class="text-center" style="border-bottom: 2px solid; padding: 3px;">
+                                        <span>FECHA DEL PAGO</span>
+                                    </div>
+                                    <div class="text-center" style="padding: 3px;">
+                                        <span t-field="o.fecha_pago"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4" style="padding: 0 30px;">
+                                <div style="border: 2px solid; border-radius: 7px;">
+                                    <div class="text-center" style="border-bottom: 2px solid; padding: 3px;">
+                                        <span>STATUS</span>
+                                    </div>
+                                    <div class="text-center" style="padding: 3px;">
+                                        <span t-field="o.state"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding-top: 40px;">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">CLIENTE</th>
+                                        <th scope="col">FECHA</th>
+                                        <th scope="col">NÚM. FACTURA</th>
+                                        <th scope="col">ÓRD. DE VENTA</th>
+                                        <th scope="col">COBRADO</th>
+                                        <th scope="col">COMISIÓN</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.comisiones_ids.sorted(lambda x: x.move_id, reverse=False)" t-as="l">
+                                        <td><span t-field="l.cliente_id"/></td>
+                                        <td><span t-field="l.fecha"/></td>
+                                        <td><span t-field="l.move_id"/></td>
+                                        <td><span t-field="l.sale_orders"/></td>
+                                        <td class="text-end"><span t-field="l.cobrado"/></td>
+                                        <td class="text-end"><span t-field="l.comision"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-end" colspan="5"><span>TOTAL</span></td>
+                                        <td class="text-end"><span t-field="o.total"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

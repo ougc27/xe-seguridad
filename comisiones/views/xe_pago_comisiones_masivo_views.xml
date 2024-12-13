@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="xe_pago_comisiones_masivo_tree_view" model="ir.ui.view">
+        <field name="name">xe.pago_comisiones.masivo.tree.view</field>
+        <field name="model">xe.pago.comisiones.masivo</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="fecha_inicial"/>
+                <field name="fecha_final"/>
+                <field name="total" sum="Total"/>
+                <field name="state"
+                       widget="badge"
+                       decoration-info="state == 'confirmado'"
+                       decoration-success="state == 'pagado'"/>
+                <field name="currency_id" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="xe_pago_comisiones_masivo_form_view" model="ir.ui.view">
+        <field name="name">xe.pago_comisiones.masivo.form.view</field>
+        <field name="model">xe.pago.comisiones.masivo</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button string="Calcular"
+                            type="object"
+                            name="action_calcular"
+                            invisible="pago_comisiones_ids"
+                            groups="comisiones.comisiones_pago_comisiones_group"
+                            class="oe_highlight"/>
+                    <button string="Confirmar"
+                            type="object"
+                            name="action_confirmar"
+                            confirm="¿Está seguro que desea confirmar este pago de comisiones?"
+                            invisible="not pago_comisiones_ids or state != 'borrador'"
+                            groups="comisiones.comisiones_pago_comisiones_group"
+                            class="oe_highlight"/>
+                    <button string="Calcular"
+                            type="object"
+                            name="action_calcular"
+                            groups="comisiones.comisiones_pago_comisiones_group"
+                            invisible="not pago_comisiones_ids or state != 'borrador'"/>
+                    <button string="Pagar"
+                            type="object"
+                            name="action_pagar"
+                            groups="comisiones.comisiones_pago_comisiones_group"
+                            confirm="¿Está seguro que desea pagar las comisiones listadas?"
+                            invisible="state != 'confirmado'"
+                            class="oe_highlight"/>
+                    <button string="Regresar a borrador"
+                            type="object"
+                            name="action_regresar_borrador"
+                            groups="comisiones.comisiones_pago_comisiones_group"
+                            invisible="state != 'confirmado'"/>
+                    <button string="Romper pago"
+                            type="object"
+                            name="action_romper_pago"
+                            groups="comisiones.comisiones_administrador_group"
+                            confirm="¿Está seguro que desea deshacer las comisiones pagadas?"
+                            invisible="state != 'pagado'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_pago_comisiones" type="object"
+                                class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="not ctd_pago_comisiones">
+                            <div class="o_stat_info">
+                                <field name="ctd_pago_comisiones" class="o_stat_value"/>
+                                <span class="o_stat_text">Comisiones</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group string="Invisibles" invisible="1">
+                        <group>
+                            <field name="currency_id"/>
+                            <field name="pago_comisiones_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="fecha_inicial" required="1" readonly="state != 'borrador'"/>
+                            <field name="fecha_final" required="1" readonly="state != 'borrador'"/>
+                        </group>
+                        <group>
+                            <field name="fecha_pago"
+                                   readonly="1"
+                                   invisible="state != 'pagado'"
+                                   force_save="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="agente_ids"
+                               widget="many2many_tags"
+                               options="{'no_open': True, 'no_create': True}"
+                               required="1"/>
+                    </group>
+                    <div class="row">
+                        <div class="col-8"/>
+                        <div class="col-4">
+                            <div class="text-end" style="font-size: 20px; font-weight: bold;">
+                                <span>Total</span>
+                                <field name="total" style="padding-left: 50px;" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>
