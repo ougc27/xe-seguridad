@@ -3,6 +3,7 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html).
 
 from odoo import models, fields, api, _
+from odoo.fields import Command
 
 from odoo.exceptions import UserError
 
@@ -46,23 +47,16 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         return lines
 
     def _create_invoices(self, sale_orders):
-        invoices = super(SaleMakeInvoiceAdvance, self)._create_invoices(sale_orders)
+        self.ensure_one()
+        order_id = self.env['sale.order'].sudo().browse(self._context.get('active_ids', []))[0]
+        product_id = order_id.company_id.sudo().sale_down_payment_product_id
+        tax_id = product_id.sudo().taxes_id[0]
+
         if self.advance_payment_method == 'percentage':
             raise UserError('The percentage method is not supported for down payments.')
-
-        if self.advance_payment_method != 'delivered':
-            for invoice in invoices:
-                for order_line in invoice.line_ids.sale_line_ids:
-                    self.env['sale.down.payment'].create({
-                        'order_line_id': order_line.id,
-                        'invoice_id': invoice.id,
-                        'amount': order_line.price_unit * (1 + (order_line.tax_id[0].amount / 100)),
-                    })
-        else:
-            order_id = self.env['sale.order'].browse(self._context.get('active_ids', []))[0]
-            product_id = order_id.company_id.sale_down_payment_product_id
-            tax_id = product_id.taxes_id[0]
-
+        elif self.advance_payment_method == 'delivered':
+            invoices = sale_orders._create_invoices(final=self.deduct_down_payments, grouped=not self.consolidated_billing)
+            
             # Check down payments total
             if self.reconciled_amount > order_id.amount_total:
                 raise UserError('The total amount of down payments exceeds the total amount of the order.')
@@ -89,11 +83,81 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                 if len(origins) > 0:
                     invoice.l10n_mx_edi_cfdi_origin = '07|' + ','.join(origins)
 
-        invoices.locked = True
-        if self.advance_payment_method == 'delivered':
-            invoices.auto_credit_note = True
+            invoices.locked = True
+            if self.advance_payment_method == 'delivered':
+                invoices.auto_credit_note = True
 
-        return invoices
+            return invoices
+        else:
+            self = self.with_company(self.company_id)
+
+            # Create deposit product if necessary
+            if not self.product_id:
+                self.company_id.sudo().sale_down_payment_product_id = self.env['product.product'].create(
+                    self._prepare_down_payment_product_values()
+                )
+                self._compute_product_id()
+
+            invoice = self.env['account.move'].sudo().create({
+                **order_id._prepare_invoice(),
+                'invoice_line_ids': [(0, 0, {
+                    'product_id': product_id.id,
+                    'quantity': 1.0,
+                    'price_unit': self.fixed_amount / (1 + (tax_id.amount / 100)),
+                    'tax_ids': [(6, 0, tax_id.ids)],
+                    'is_downpayment': True,
+                    'name': _('Down Payment'),
+                    'sequence': 10,
+                })],
+            })
+
+            # Ensure the invoice total is exactly the expected fixed amount.
+            if self.advance_payment_method == 'fixed':
+                delta_amount = (invoice.amount_total - self.fixed_amount) * (1 if invoice.is_inbound() else -1)
+                if not order_id.currency_id.is_zero(delta_amount):
+                    receivable_line = invoice.line_ids\
+                        .filtered(lambda aml: aml.account_id.account_type == 'asset_receivable')[:1]
+                    product_lines = invoice.line_ids\
+                        .filtered(lambda aml: aml.display_type == 'product')
+                    tax_lines = invoice.line_ids\
+                        .filtered(lambda aml: aml.tax_line_id.amount_type not in (False, 'fixed'))
+
+                    if product_lines and tax_lines and receivable_line:
+                        line_commands = [Command.update(receivable_line.id, {
+                            'amount_currency': receivable_line.amount_currency + delta_amount,
+                        })]
+                        delta_sign = 1 if delta_amount > 0 else -1
+                        for lines, attr, sign in (
+                            (product_lines, 'price_total', -1),
+                            (tax_lines, 'amount_currency', 1),
+                        ):
+                            remaining = delta_amount
+                            lines_len = len(lines)
+                            for line in lines:
+                                if order_id.currency_id.compare_amounts(remaining, 0) != delta_sign:
+                                    break
+                                amt = delta_sign * max(
+                                    order.currency_id.rounding,
+                                    abs(order_id.currency_id.round(remaining / lines_len)),
+                                )
+                                remaining -= amt
+                                line_commands.append(Command.update(line.id, {attr: line[attr] + amt * sign}))
+                        invoice.line_ids = line_commands
+
+            # Unsudo the invoice after creation if not already sudoed
+            invoice = invoice.sudo(self.env.su)
+
+            poster = self.env.user._is_internal() and self.env.user.id or SUPERUSER_ID
+            invoice.with_user(poster).message_post_with_source(
+                'mail.message_origin_link',
+                render_values={'self': invoice, 'origin': order_id},
+                subtype_xmlid='mail.mt_note',
+            )
+
+            title = _("Down payment invoice")
+            order_id.with_user(poster).message_post(
+                body=_("%s has been created", invoice._get_html_link(title=title)),
+            )
 
     @api.depends('sale_order_ids', 'reconciled_amount')
     def _compute_invoice_amounts(self):
@@ -102,7 +166,6 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
             order_id = self.env['sale.order'].browse(self._context.get('active_ids', []))[0]
             wizard.amount_invoiced += order_id.reconciled_amount
             wizard.amount_to_invoice -= order_id.reconciled_amount
-
 
 
 class SaleDownPaymentWizard(models.TransientModel):

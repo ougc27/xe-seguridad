@@ -184,20 +184,23 @@ class SaleDownPayment(models.Model):
         string = "Amount",
         copy = False
     )
+    reconciled_amount = fields.Float(
+        string = "Reconciled Amount",
+        compute = "_compute_reconciled_amount",
+    )
 
-    @api.onchange('invoice_id')
-    def _onchange_invoice_id(self):
+    def _compute_reconciled_amount(self):
         for payment in self:
-            if payment.invoice_id:
-                order_id = payment.order_id
+            payment.reconciled_amount = payment.order_line_id.price_unit * (1 + (payment.order_line_id.tax_id.amount / 100))
 
-                payment.amount = payment.invoice_id.amount_total
-                
-                amount = payment.invoice_id.reconcile_balance
-                # if order_id.reconciled_amount + amount > order_id.amount_total:
-                #     amount = order_id.amount_total - order_id.reconciled_amount
-
-                self._prepare_lines(order_id, amount)
+    # @api.onchange('invoice_id')
+    # def _onchange_invoice_id(self):
+    #     for payment in self:
+    #         if payment.invoice_id:
+    #             order_id = payment.order_id
+    #             payment.amount = payment.invoice_id.amount_total
+    #             amount = payment.invoice_id.reconcile_balance
+    #             self._prepare_lines(order_id, amount)
 
     def _prepare_lines(self, order_id, amount):
         for payment in self:
