@@ -12,14 +12,9 @@
             <xpath expr="//notebook" position="inside">
                 <page string="Down Payments" name="down_payments">
                     <field name="down_payment_ids" nolabel="1">
-                        <tree string="Down Payments" editable="bottom">
+                        <tree string="Down Payments" create="false">
                             <field name="order_line_id" force_save="1" column_invisible="1"/>
-                            <field name="invoice_id" readonly="invoice_id != False" force_save="1" domain="[
-                                ('move_type', '=', 'out_invoice'),
-                                ('partner_id', '=', parent.partner_id),
-                                ('has_down_payment', '=', True),
-                                ('state', '!=', 'cancel')
-                            ]"/>
+                            <field name="invoice_id" readonly="1" force_save="1"/>
                             <field name="l10n_mx_edi_cfdi_uuid"/>
                             <field name="reconciled_amount" sum="Total" readonly="1" force_save="1"/>
                             <field name="amount" sum="Total" readonly="1" force_save="1"/>

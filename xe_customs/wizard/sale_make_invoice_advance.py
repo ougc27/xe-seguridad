@@ -29,7 +29,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         ])
         lines = [(0, 0, {
             'invoice_id': downpayment.invoice_id.id,
-            'amount': downpayment.order_line_id.price_unit * (1 + (downpayment.order_line_id.tax_id[0].amount / 100)),
+            'amount': downpayment.order_line_id.price_unit * (1 + sum(tax.amount for tax in downpayment.order_line_id.tax_id) / 100),
             'downpayment_id': downpayment.id,
         }) for downpayment in downpayments]
 
@@ -48,16 +48,19 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
 
     def _create_invoices(self, sale_orders):
         self.ensure_one()
-        order_id = self.env['sale.order'].sudo().browse(self._context.get('active_ids', []))[0]
+        order_id = self.env['sale.order'].sudo().browse(self._context.get('active_ids', [])).ensure_one()
         product_id = order_id.company_id.sudo().sale_down_payment_product_id
-        tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id[0]
+        tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id.filtered(lambda x: x.company_id == order_id.company_id)
+        
         # Create deposit product if necessary
         if not product_id:
             self.company_id.sudo().sale_down_payment_product_id = self.env['product.product'].create(
                 self._prepare_down_payment_product_values()
             )
             product_id = order_id.company_id.sudo().sale_down_payment_product_id
-            tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id[0]
+            tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id.filtered(lambda x: x.company_id == order_id.company_id)
+        
+        total_tax = sum(tax_id.mapped('amount'))
 
         if self.advance_payment_method == 'percentage':
             raise UserError('The percentage method is not supported for down payments.')
@@ -71,7 +74,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
             # Update down payments
             downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0 and x.downpayment_id)
             for downpayment in downpayments:
-                downpayment.downpayment_id.order_line_id.price_unit = downpayment.amount / (1 + (tax_id.amount / 100))
+                downpayment.downpayment_id.order_line_id.price_unit = downpayment.amount / (1 + (total_tax / 100))
 
             # Register down payments
             downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0 and not x.downpayment_id)
@@ -102,7 +105,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                 'invoice_line_ids': [(0, 0, {
                     'product_id': product_id.id,
                     'quantity': 1.0,
-                    'price_unit': self.fixed_amount / (1 + (tax_id.amount / 100)),
+                    'price_unit': self.fixed_amount / (1 + (total_tax / 100)),
                     'tax_ids': [(6, 0, tax_id.ids)],
                     'is_downpayment': True,
                     'name': _('Down Payment'),

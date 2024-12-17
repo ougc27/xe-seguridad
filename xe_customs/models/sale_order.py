@@ -205,7 +205,8 @@ class SaleDownPayment(models.Model):
     def _prepare_lines(self, order_id, amount):
         for payment in self:
             product_id = order_id.company_id.sudo().sale_down_payment_product_id
-            tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id[0]
+            tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id
+            total_tax = sum(tax_id.mapped('amount'))
             
             # Create down payment section if necessary
             section = self.env['sale.order.line'].with_context(sale_no_log_for_new_lines=True)
@@ -219,7 +220,7 @@ class SaleDownPayment(models.Model):
                 'move_id': payment.invoice_id.id,
                 'product_id': product_id.id,
                 'quantity': 0,
-                'price_unit': amount / (1 + (tax_id.amount / 100)),
+                'price_unit': amount / (1 + (total_tax / 100)),
                 'tax_ids': [(6, 0, tax_id.ids)],
                 'is_downpayment': True,
                 'name': _('Down Payment'),
@@ -232,7 +233,7 @@ class SaleDownPayment(models.Model):
                 'order_id': order_id._origin.id,
                 'product_uom_qty': 0,
                 'discount': 0.0,
-                'price_unit': amount / (1 + (tax_id.amount / 100)),
+                'price_unit': amount / (1 + (total_tax / 100)),
                 'tax_id': [(6, 0, tax_id.ids)],
                 'is_downpayment': True,
                 'invoice_lines': [(6, 0, invoice_down_payment.ids)],
