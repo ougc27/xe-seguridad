@@ -49,7 +49,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
     def _create_invoices(self, sale_orders):
         self.ensure_one()
         order_id = self.env['sale.order'].sudo().browse(self._context.get('active_ids', []))[0]
-        product_id = order_id.company_id.sudo().sale_down_payment_product_id
+        product_id = order_id.company_id.sudo().with_context(company_id=order_id.company_id.id).sale_down_payment_product_id
         tax_id = product_id.sudo().taxes_id[0]
         # Create deposit product if necessary
         if not product_id:
@@ -96,7 +96,6 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
 
             return invoices
         else:
-            raise Exception(product_id.company_id, tax_id.company_id)
             self = self.with_company(self.company_id)
             invoice = self.env['account.move'].sudo().create({
                 **order_id._prepare_invoice(),

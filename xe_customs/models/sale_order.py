@@ -204,8 +204,8 @@ class SaleDownPayment(models.Model):
 
     def _prepare_lines(self, order_id, amount):
         for payment in self:
-            product_id = order_id.company_id.sale_down_payment_product_id
-            tax_id = product_id.taxes_id[0]
+            product_id = order_id.company_id.sudo().with_context(company_id=order_id.company_id.id).sale_down_payment_product_id
+            tax_id = product_id.sudo().taxes_id[0]
             
             # Create down payment section if necessary
             section = self.env['sale.order.line'].with_context(sale_no_log_for_new_lines=True)
