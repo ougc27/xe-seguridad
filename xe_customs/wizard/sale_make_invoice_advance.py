@@ -58,7 +58,6 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
             )
             product_id = order_id.company_id.sudo().sale_down_payment_product_id
             tax_id = product_id.sudo().taxes_id[0]
-        raise Exception(self.deposit_taxes_id)
 
         if self.advance_payment_method == 'percentage':
             raise UserError('The percentage method is not supported for down payments.')
@@ -97,6 +96,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
 
             return invoices
         else:
+            raise Exception(product_id.company_id, tax_id.company_id)
             self = self.with_company(self.company_id)
             invoice = self.env['account.move'].sudo().create({
                 **order_id._prepare_invoice(),
