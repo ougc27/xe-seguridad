@@ -51,6 +51,13 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         order_id = self.env['sale.order'].sudo().browse(self._context.get('active_ids', []))[0]
         product_id = order_id.company_id.sudo().sale_down_payment_product_id
         tax_id = product_id.sudo().taxes_id[0]
+        # Create deposit product if necessary
+        if not product_id:
+            self.company_id.sudo().sale_down_payment_product_id = self.env['product.product'].create(
+                self._prepare_down_payment_product_values()
+            )
+            product_id = order_id.company_id.sudo().sale_down_payment_product_id
+            tax_id = product_id.sudo().taxes_id[0]
 
         if self.advance_payment_method == 'percentage':
             raise UserError('The percentage method is not supported for down payments.')
@@ -90,14 +97,6 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
             return invoices
         else:
             self = self.with_company(self.company_id)
-
-            # Create deposit product if necessary
-            if not self.product_id:
-                self.company_id.sudo().sale_down_payment_product_id = self.env['product.product'].create(
-                    self._prepare_down_payment_product_values()
-                )
-                self._compute_product_id()
-
             invoice = self.env['account.move'].sudo().create({
                 **order_id._prepare_invoice(),
                 'invoice_line_ids': [(0, 0, {
