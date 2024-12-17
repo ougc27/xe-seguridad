@@ -205,7 +205,7 @@ class SaleDownPayment(models.Model):
     def _prepare_lines(self, order_id, amount):
         for payment in self:
             product_id = order_id.company_id.sudo().sale_down_payment_product_id
-            tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id
+            tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id.sudo()
             total_tax = sum(tax_id.mapped('amount'))
             
             # Create down payment section if necessary
