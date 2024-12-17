@@ -58,6 +58,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
             )
             product_id = order_id.company_id.sudo().sale_down_payment_product_id
             tax_id = product_id.sudo().taxes_id[0]
+        raise Exception(self.deposit_taxes_id)
 
         if self.advance_payment_method == 'percentage':
             raise UserError('The percentage method is not supported for down payments.')
@@ -109,7 +110,6 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                     'sequence': 10,
                 })],
             })
-            raise Exception(invoice)
 
             # Ensure the invoice total is exactly the expected fixed amount.
             if self.advance_payment_method == 'fixed':
