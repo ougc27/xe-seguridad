@@ -101,6 +101,7 @@ class StockPicking(models.Model):
         for move in new_picking.move_ids:
             if move not in moves:
                 move.sudo().unlink()
+        new_picking.batch_id.sudo().unlink()
         return new_picking
 
     def create_notes_in_pickings(self, sale_order, new_picking):
@@ -138,6 +139,7 @@ class StockPicking(models.Model):
                         continue
                     new_move.sudo().unlink()
                 new_picking.write({'state': 'confirmed'})
+                new_picking.batch_id.sudo().unlink()
                 self.create_notes_in_pickings(sale_order, new_picking)
 
     def separate_remissions(self):
