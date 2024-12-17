@@ -52,7 +52,6 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         product_id = order_id.company_id.sudo().sale_down_payment_product_id
         tax_id = product_id.sudo().taxes_id[0]
         # Create deposit product if necessary
-        raise Exception(self.deposit_taxes_id, self.product_id, product_id)
         if not product_id:
             self.company_id.sudo().sale_down_payment_product_id = self.env['product.product'].create(
                 self._prepare_down_payment_product_values()
@@ -80,7 +79,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                 dp = self.env['sale.down.payment'].create({
                     'invoice_id': downpayment.invoice_id.id,
                 })
-                dp._prepare_lines(self.env['sale.order'].browse(self._context.get('active_ids', []))[0], downpayment.amount)
+                dp._prepare_lines(order_id, downpayment.amount)
                 
 
             for invoice in invoices:
@@ -110,6 +109,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                     'sequence': 10,
                 })],
             })
+            raise Exception(invoice)
 
             # Ensure the invoice total is exactly the expected fixed amount.
             if self.advance_payment_method == 'fixed':
@@ -137,7 +137,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                                 if order_id.currency_id.compare_amounts(remaining, 0) != delta_sign:
                                     break
                                 amt = delta_sign * max(
-                                    order.currency_id.rounding,
+                                    order_id.currency_id.rounding,
                                     abs(order_id.currency_id.round(remaining / lines_len)),
                                 )
                                 remaining -= amt
