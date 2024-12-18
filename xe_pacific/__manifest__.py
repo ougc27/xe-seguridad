@@ -10,6 +10,7 @@
     'sequence': 1,
     "depends": [
         'stock',
+        'hr'
     ],
     "category": "Accounting",
     "summary": "MX-EDI XE Brands",
