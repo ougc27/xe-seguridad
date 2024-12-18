@@ -28,7 +28,8 @@ class SaleOrder(models.Model):
     def _compute_reconciled_amount(self):
         for order in self:
             reconciled_lines = order.order_line.filtered(lambda x: x.is_downpayment)
-            order.reconciled_amount = sum(reconciled_lines.mapped('price_unit')) * (1 + (reconciled_lines.tax_id.amount / 100))
+            total_tax = sum(reconciled_lines.tax_id.mapped('amount'))
+            order.reconciled_amount = sum(reconciled_lines.mapped('price_unit')) * (1 + (total_tax / 100))
 
     def _add_client_to_product(self):
         # Add the partner in the client list of the product if the client is not registered for
@@ -191,7 +192,8 @@ class SaleDownPayment(models.Model):
 
     def _compute_reconciled_amount(self):
         for payment in self:
-            payment.reconciled_amount = payment.order_line_id.price_unit * (1 + (payment.order_line_id.tax_id.amount / 100))
+            total_tax = sum(payment.order_line_id.tax_id.mapped('amount'))
+            payment.reconciled_amount = payment.order_line_id.price_unit * (1 + (total_tax / 100))
 
     # @api.onchange('invoice_id')
     # def _onchange_invoice_id(self):
