@@ -26,7 +26,7 @@ class AccountMove(models.Model):
                         ('product_tmpl_id', '=', product.product_tmpl_id.id)
                     ], limit=1).product_name
                     if product_name:
-                        concepto_list['no_identificacion'] = f"PO:{product_name}"
+                        concepto_list['no_identificacion'] = product_name
         if is_amazon_addenda:
-            cfdi_values['condiciones_de_pago'] = self.payment_reference
+            cfdi_values['condiciones_de_pago'] = f"PO:{self.payment_reference}"
         return res
