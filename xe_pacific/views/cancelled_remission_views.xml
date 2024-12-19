@@ -20,6 +20,7 @@
                                 options="{'color_field': 'color', 'no_create_edit': True}"
                                 readonly="1"/>
                             <field name="comments" readonly="1"/>
+                            <field name="company_id" readonly="1"/>
                         </group>
                     </group>
                 </sheet>
@@ -38,6 +39,7 @@
                 <field name="cancelled_reason"/>
                 <field name="tag_ids" widget="many2many_tags"/>
                 <field name="comments"/>
+                <field name="company_id"/>
             </tree>
         </field>
     </record>
