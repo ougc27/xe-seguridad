@@ -42,6 +42,7 @@
         'views/cancelled_remission_reason_views.xml',
         'views/cancelled_remission_views.xml',
         'security/ir.model.access.csv',
+        'security/xe_pacific_security.xml'
     ],
     "demo": [],
     'installable': True,

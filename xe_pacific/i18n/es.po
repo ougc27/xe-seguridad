@@ -569,7 +569,7 @@ msgstr "Folio del ticket"
 msgid "Ticket calls"
 msgstr "Llamadas en el ticket"
 
-#. module: xe_pacific_rim
+#. module: xe_pacific
 #: model:ir.model.fields.selection,name:xe_pacific_rim.selection__helpdesk_ticket__ticket_type__technical_visit
 msgid "VT"
 msgstr "VT"
@@ -676,7 +676,6 @@ msgstr "Cancelar"
 #: model_terms:ir.ui.view,arch_db:xe_pacific.base_copy_user_access_view_form
 msgid "Copy"
 msgstr "Copiar"
-
 
 #. module: xe_pacific
 #: model_terms:ir.ui.view,arch_db:xe_pacific.base_copy_user_access_view_form
@@ -874,3 +873,13 @@ msgstr "Remisiones con factura"
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_picking_internal_search_inherit
 msgid "Remission without invoice"
 msgstr "Remisiones sin factura"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__company_id
+msgid "Company"
+msgstr "Empresa"
+
+#. module: stock
+#: model:ir.model.fields,field_description:stock.field_stock_picking__picking_type_id
+msgid "Operation Type"
+msgstr "Tipo de operación"

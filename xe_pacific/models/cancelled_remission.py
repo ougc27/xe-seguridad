@@ -44,3 +44,7 @@ class CancelledRemission(models.Model):
     tag_ids = fields.Many2many('inventory.tag',
         string="Tags",
         readonly=True)
+
+    company_id = fields.Many2one(
+        'res.company', 'Company', required=True, index=True,
+        default=lambda self: self.env.company)
