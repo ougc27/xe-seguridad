@@ -79,3 +79,8 @@ class StockPicking(models.Model):
             'is_locked': False,
         })
         self.move_ids._do_unreserve()
+
+    def button_validate_remission(self):
+        if self.state != 'transit':
+            raise UserError(_('You cannot validate a delivery order unless it is in the "Remission" state.'))
+        return super(StockPicking, self).button_validate()

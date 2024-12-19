@@ -38,4 +38,20 @@
         </field>
     </record>
 
+    <record id="action_separate_final_client_remissions" model="ir.actions.server">
+        <field name="name">Remisionar</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="state">code</field>
+        <field name="code">action = records.action_transit()</field>
+    </record>
+
+    <record id="action_separate_final_client_remissions" model="ir.actions.server">
+        <field name="name">Validar entrega remisionada</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="state">code</field>
+        <field name="code">action = records.button_validate_remission()</field>
+    </record>
+
 </odoo>
