@@ -31,6 +31,7 @@ class AccountMove(models.Model):
     
     def _get_source_orders(self):
         for move in self:
+            raise Exception(move.invoice_line_ids.mapped('sale_line_ids.order_id'))
             move.source_orders = move.invoice_line_ids.mapped('sale_line_ids.order_id')
             move.source_orders.down_payment_context = 0
             for order_line in move.invoice_line_ids.sale_line_ids:
