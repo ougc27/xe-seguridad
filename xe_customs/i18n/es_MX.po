@@ -767,3 +767,13 @@ msgstr "Identificador único para el instalador"
 #: model:ir.model.fields,help:xe_customs.field_supervisor_installer__supervisor_number
 msgid "Unique identifier for the supervisor"
 msgstr "Identificador único para el supervisor"
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/stock_picking.py:0
+#, python-format
+msgid ""
+"You cannot validate a delivery order unless it is in the \"Remission\" "
+"state."
+msgstr ""
+"No puedes validar una orden de entrega a menos que esté en estado \"Remisión\"."
