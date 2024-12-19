@@ -84,8 +84,7 @@
         <field name="binding_model_id" ref="stock.model_stock_picking"/>
         <field name="state">code</field>
         <field name="code">
-            for rec in records:
-                action = rec.separate_construction_remissions()
+            action = records.separate_construction_remissions()
         </field>
     </record>
     <record id="action_separate_final_client_remissions" model="ir.actions.server">
@@ -94,8 +93,7 @@
         <field name="binding_model_id" ref="stock.model_stock_picking"/>
         <field name="state">code</field>
         <field name="code">
-            for rec in records:
-                action = rec.separate_client_remissions()
+            action = records.separate_client_remissions()
         </field>
     </record>
 </odoo>

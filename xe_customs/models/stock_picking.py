@@ -14,6 +14,8 @@ class StockPicking(models.Model):
 
     def action_transit(self):
         self.ensure_one()
+        if self.state == 'done':
+            raise UserError(_('You cannot remission a validated order'))
         moves = []
         qty = sum(self.move_ids_without_package.mapped('quantity'))
         if qty == 0:
