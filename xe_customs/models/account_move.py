@@ -31,7 +31,7 @@ class AccountMove(models.Model):
     
     def _get_source_orders(self):
         for move in self:
-            move.source_orders = (6, 0, move.invoice_line_ids.sale_line_ids.order_id.ids)
+            move.source_orders = [(6, 0, move.invoice_line_ids.sale_line_ids.order_id.ids)]
             move.source_orders.down_payment_context = 0
             for order_line in move.invoice_line_ids.sale_line_ids:
                 if move.id in order_line.invoice_lines.move_id.ids:
