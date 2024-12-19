@@ -31,7 +31,6 @@ class AccountMove(models.Model):
     
     def _get_source_orders(self):
         for move in self:
-            raise Exception(move.invoice_line_ids.mapped('sale_line_ids.order_id'))
             move.source_orders = move.invoice_line_ids.mapped('sale_line_ids.order_id')
             move.source_orders.down_payment_context = 0
             for order_line in move.invoice_line_ids.sale_line_ids:
@@ -40,3 +39,4 @@ class AccountMove(models.Model):
             move.reconciled_amount = sum(move.source_orders.mapped('down_payment_context'))
             move.reconcile_balance = sum(move.invoice_line_ids.filtered(lambda x: x.product_id.id == x.company_id.sale_down_payment_product_id.id).mapped('price_total')) - move.reconciled_amount
             move.has_down_payment = move.reconcile_balance > 0
+            raise Exception(move.source_orders)
