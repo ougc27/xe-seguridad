@@ -87,7 +87,7 @@ class AccountMove(models.Model):
         )
         if comision_pagada_ids:
             raise UserError('No puede cancelar esta factura debido a que cuenta con comisiones pagadas.')
-        return super(AccountMove, self).button_cancel()
+        return super(AccountMove, self).button_request_cancel()
 
     @api.onchange('partner_id')
     def onchange_partner_id(self):
