@@ -11,6 +11,10 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
     _inherit = 'sale.advance.payment.inv'
 
     down_payment_ids = fields.One2many('sale.down.payment.wizard', 'advance_id', "Down Payments", default=lambda self: self._default_down_payment_ids())
+    down_payment_ids_count = fields.Integer(
+        string="Down Payments",
+        compute="_compute_down_payment_ids_count",
+    )
     reconciled_amount = fields.Monetary(
         string="Reconciled Amount",
         compute="_compute_reconciled_amount",
@@ -19,10 +23,13 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
     def _compute_reconciled_amount(self):
         self.reconciled_amount = sum(self.down_payment_ids.mapped('amount'))
 
+    def _compute_down_payment_ids_count(self):
+        self.down_payment_ids_count = len(self.down_payment_ids)
+
     def _default_down_payment_ids(self):
         orders = self.env['sale.order'].browse(self._context.get('active_ids', []))
         if len(orders) > 1:
-            raise UserError('You can only create one invoice at a time.')
+            return []
         
         downpayments = self.env['sale.down.payment'].search([
             ('order_id', '=', orders.id),
@@ -47,8 +54,11 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         return lines
 
     def _create_invoices(self, sale_orders):
+        order_id = self.env['sale.order'].sudo().browse(self._context.get('active_ids', []))
+        if len(order_id) > 1:
+            return super(SaleMakeInvoiceAdvance, self)._create_invoices(sale_orders)
+
         self.ensure_one()
-        order_id = self.env['sale.order'].sudo().browse(self._context.get('active_ids', [])).ensure_one()
         product_id = order_id.company_id.sudo().sale_down_payment_product_id
         tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id.sudo().filtered(lambda x: x.company_id == order_id.company_id)
         
@@ -164,8 +174,11 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
     @api.depends('sale_order_ids', 'reconciled_amount')
     def _compute_invoice_amounts(self):
         super(SaleMakeInvoiceAdvance, self)._compute_invoice_amounts()
+        order_id = self.env['sale.order'].browse(self._context.get('active_ids', []))
+        if len(order_id) > 1:
+            return
+
         for wizard in self:
-            order_id = self.env['sale.order'].browse(self._context.get('active_ids', []))[0]
             wizard.amount_invoiced += order_id.reconciled_amount
             wizard.amount_to_invoice -= order_id.reconciled_amount
 
