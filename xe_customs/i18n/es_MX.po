@@ -777,3 +777,10 @@ msgid ""
 "state."
 msgstr ""
 "No puedes validar una orden de entrega a menos que esté en estado \"Remisión\"."
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/stock_picking.py:0
+#, python-format
+msgid "You cannot remission a validated order"
+msgstr "No puedes remisionar una entrega en estado hecho"
