@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI XE Brands Whatsapp",
-    "version": "17.0.0.0.1",
+    "version": "17.0.0.0.2",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
