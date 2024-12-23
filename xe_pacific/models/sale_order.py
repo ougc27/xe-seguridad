@@ -44,17 +44,6 @@ class SaleOrder(models.Model):
                         line.task_id.write({
                             'partner_id': line.partner_id.id,
                         })
-            #if rec.is_exception:
-                """for line in rec.order_line:
-                    task_stage = self.env['project.task.type'].sudo().search([
-                        ('name', 'ilike', '%EXCEPCIÓN'),
-                        ('project_ids', '=', line.task_id.project_id.id)
-                    ], limit=1)
-                    if task_stage:
-                        line.task_id.write({
-                            'stage_id': task_stage.id
-                        })"""
-                #rec.mark_tasks_as_exception()
         return result
 
     @api.depends('order_line.product_id.project_id', 'order_line.project_id')
