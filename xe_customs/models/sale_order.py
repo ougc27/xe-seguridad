@@ -9,28 +9,6 @@ from odoo.exceptions import UserError, AccessError
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    down_payment_context = fields.Monetary(
-        string="Reconciled Amount",
-        copy=False
-    )
-    down_payment_ids = fields.One2many(
-        comodel_name='sale.down.payment',
-        inverse_name='order_id',
-        string="Invoices",
-        copy=False,
-        readonly=False
-    )
-    reconciled_amount = fields.Monetary(
-        string="Reconciled Amount",
-        compute="_compute_reconciled_amount",
-    )
-
-    def _compute_reconciled_amount(self):
-        for order in self:
-            reconciled_lines = order.order_line.filtered(lambda x: x.is_downpayment)
-            total_tax = sum(reconciled_lines.tax_id.mapped('amount'))
-            order.reconciled_amount = sum(reconciled_lines.mapped('price_unit')) * (1 + (total_tax / 100))
-
     def _add_client_to_product(self):
         # Add the partner in the client list of the product if the client is not registered for
         # this product. We limit to 10 the number of clients for a product to avoid the mess that
@@ -71,13 +49,6 @@ class SaleOrder(models.Model):
     # def _compute_amount_to_invoice(self):
     #     super(SaleOrder, self)._compute_amount_to_invoice()
     #     raise Exception(self.invoiced_amount)
-
-    def action_cancel(self):
-        for order in self:
-            if len(order.down_payment_ids) > 0:
-                raise UserError(_('You cannot cancel an order with down payments.'))
-            else:
-                return super(SaleOrder, order).action_cancel()
 
     def action_confirm(self):
         for order in self:
@@ -149,128 +120,3 @@ class SaleOrderLine(models.Model):
             else:
                 line.price_unit = line.product_id.lst_price
                 line.name = line.product_id.name
-
-
-class SaleDownPayment(models.Model):
-    _name = "sale.down.payment"
-    _description = "Sale Down Payment"
-
-    invoice_id = fields.Many2one(
-        comodel_name = 'account.move',
-        string = "Invoice",
-        copy = False
-    )
-    l10n_mx_edi_cfdi_uuid = fields.Char(
-        string = "Fiscal Folio",
-        related = 'invoice_id.l10n_mx_edi_cfdi_uuid',
-    )
-    order_line_id = fields.Many2one(
-        comodel_name = 'sale.order.line',
-        string = "Order Line",
-        copy = False
-    )
-    order_id = fields.Many2one(
-        comodel_name = 'sale.order',
-        string = "Order",
-        related = 'order_line_id.order_id',
-        copy = False
-    )
-    currency_id = fields.Many2one(
-        comodel_name = 'res.currency',
-        string = "Currency",
-        related = 'invoice_id.currency_id',
-    )
-    amount = fields.Monetary(
-        related = 'invoice_id.amount_total',
-        string = "Amount",
-        copy = False
-    )
-    reconciled_amount = fields.Float(
-        string = "Reconciled Amount",
-        compute = "_compute_reconciled_amount",
-    )
-
-    def _compute_reconciled_amount(self):
-        for payment in self:
-            total_tax = sum(payment.order_line_id.tax_id.mapped('amount'))
-            payment.reconciled_amount = payment.order_line_id.price_unit * (1 + (total_tax / 100))
-
-    # @api.onchange('invoice_id')
-    # def _onchange_invoice_id(self):
-    #     for payment in self:
-    #         if payment.invoice_id:
-    #             order_id = payment.order_id
-    #             payment.amount = payment.invoice_id.amount_total
-    #             amount = payment.invoice_id.reconcile_balance
-    #             self._prepare_lines(order_id, amount)
-
-    def _prepare_lines(self, order_id, amount):
-        for payment in self:
-            product_id = order_id.company_id.sudo().sale_down_payment_product_id
-            tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id.sudo().filtered(lambda x: x.company_id == order_id.company_id)
-            total_tax = sum(tax_id.mapped('amount'))
-            
-            # Create down payment section if necessary
-            section = self.env['sale.order.line'].with_context(sale_no_log_for_new_lines=True)
-            if not any(line.display_type and line.is_downpayment for line in order_id.order_line):
-                section.create(
-                    self._prepare_down_payment_section_values(order_id)
-                )
-
-            # Add new down payment line on Invoice
-            invoice_down_payment = self.env['account.move.line'].create({
-                'move_id': payment.invoice_id.id,
-                'product_id': product_id.id,
-                'quantity': 0,
-                'price_unit': amount / (1 + (total_tax / 100)),
-                'tax_ids': [(6, 0, tax_id.ids)],
-                'is_downpayment': True,
-                'name': _('Down Payment'),
-                'sequence': payment.invoice_id.invoice_line_ids and payment.invoice_id.invoice_line_ids[-1].sequence + 1 or 10,
-            })
-
-            # Add new down payment line on Sale
-            sale_down_payment = order_id.order_line.create({
-                'product_id': product_id.id,
-                'order_id': order_id._origin.id,
-                'product_uom_qty': 0,
-                'discount': 0.0,
-                'price_unit': amount / (1 + (total_tax / 100)),
-                'tax_id': [(6, 0, tax_id.ids)],
-                'is_downpayment': True,
-                'invoice_lines': [(6, 0, invoice_down_payment.ids)],
-                'sequence': order_id.order_line and order_id.order_line[-1].sequence + 1 or 10,
-            })
-            payment.order_line_id = sale_down_payment
-            invoice_down_payment.sale_line_ids += sale_down_payment
-            payment.invoice_id._get_source_orders()
-
-    def unlink(self):
-        for payment in self:
-            payment.order_line_id.invoice_lines.write({
-                'sale_line_ids': False,
-                'name': _('Unlinked Down Payment'),
-            })
-            payment.order_line_id.write({
-                'invoice_lines': False,
-                'price_unit': 0,
-                'name': _('Deleted Down Payment'),
-            })
-            payment.invoice_id._get_source_orders()
-        return super(SaleDownPayment, self).unlink()
-
-    def _prepare_down_payment_section_values(self, order):
-        context = {'lang': order.partner_id.lang}
-
-        so_values = {
-            'name': _('Down Payments'),
-            'product_uom_qty': 0.0,
-            'order_id': order._origin.id,
-            'display_type': 'line_section',
-            'is_downpayment': True,
-            'sequence': order.order_line and order.order_line[-1].sequence + 1 or 10,
-        }
-
-        del context
-        return so_values
-  
