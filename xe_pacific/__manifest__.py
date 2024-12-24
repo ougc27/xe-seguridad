@@ -2,20 +2,16 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.9",
+    "version": "17.0.0.0.2",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
     "depends": [
-        'base',
         'xe_customs',
-        'xe_analytic',
         'sale_project',
         'helpdesk_fsm',
         'helpdesk_sale',
         'mrp',
-        'industry_fsm',
-        'sale_management',
         'mail',
     ],
     "category": "Accounting",
@@ -40,6 +36,7 @@
         'views/res_user_views.xml',
         'views/cancelled_remission_reason_views.xml',
         'views/cancelled_remission_views.xml',
+        'views/analytic_distribution_model.xml',
         'security/ir.model.access.csv',
         'security/xe_pacific_security.xml'
     ],

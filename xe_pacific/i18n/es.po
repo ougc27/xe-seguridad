@@ -883,3 +883,73 @@ msgstr "Empresa"
 #: model:ir.model.fields,field_description:stock.field_stock_picking__picking_type_id
 msgid "Operation Type"
 msgstr "Tipo de operación"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_account_analytic_distribution_model
+msgid "Analytic Distribution Model"
+msgstr "Modelo de distribución analítica"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento contable"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_account_move_line
+msgid "Journal Item"
+msgstr "Apunte contable"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_account_bank_statement_line__x_order_id
+#: model:ir.model.fields,field_description:xe_pacific.field_account_move__x_order_id
+#: model:ir.model.fields,field_description:xe_pacific.field_account_move_line__x_order_id
+#: model:ir.model.fields,field_description:xe_pacific.field_account_payment__x_order_id
+msgid "Order Reference"
+msgstr "Referencia de la orden"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr "Línea de orden de compra"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Línea de la orden de venta"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_account_analytic_distribution_model__warehouse_id
+msgid ""
+"Select a warehouse for which the analytic distribution will be used (e.g. "
+"create new customer invoice or Sales order if we select this warehouse, it "
+"will automatically take this as an analytic account)"
+msgstr ""
+"Seleccione un almacén para el cual se utilizará la distribución analítica (por "
+"ejemplo, al crear una nueva factura de cliente o un pedido de venta. Si seleccionamos "
+"este almacén, se tomará automáticamente como cuenta analítica)."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_account_analytic_distribution_model__warehouse_id
+#: model:ir.model.fields,field_description:xe_pacific.field_account_bank_statement_line__x_studio_almacen_id
+#: model:ir.model.fields,field_description:xe_pacific.field_account_move__x_studio_almacen_id
+#: model:ir.model.fields,field_description:xe_pacific.field_account_payment__x_studio_almacen_id
+msgid "Warehouse"
+msgstr "Almacén"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_account_analytic_distribution_model__team_id
+msgid ""
+"Select a distribution channel for which the analytic distribution will be "
+"used (e.g. create new customer invoice or Sales order if we select this "
+"distribution channel, it will automatically take this as an analytic "
+"account)"
+msgstr ""
+"Seleccione un canal de distribución para el cual se utilizará la distribución "
+"analítica (por ejemplo, al crear una nueva factura de cliente o un pedido de "
+"venta. Si seleccionamos este canal de distribución, se tomará automáticamente "
+"como cuenta analítica)."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_account_analytic_distribution_model__team_id
+msgid "Distribution Channel"
+msgstr "Canal de distribución"
