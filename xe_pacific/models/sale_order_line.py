@@ -1,5 +1,4 @@
 from odoo import models, api
-from odoo.tools import frozendict
 
 
 class SaleOrderLine(models.Model):

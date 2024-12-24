@@ -8,8 +8,12 @@ from . import inventory_tag
 from . import product_template
 from . import res_partner
 from . import account_move
+from . import account_move_line
 from . import hr_employee
 from . import models
 from . import cancelled_remission_reason
 from . import cancelled_remission
 from . import account_invoice_report
+from . import analytic_distribution_model
+from . import purchase_order_line
+from . import sale_order_line
