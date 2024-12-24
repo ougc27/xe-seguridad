@@ -1,0 +1,612 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* commissions
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-23 06:30+0000\n"
+"PO-Revision-Date: 2024-12-23 06:30+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: commissions
+#: model:ir.actions.report,print_report_name:commissions.xe_payment_commissions_report_action
+msgid "'Payment commissions {0}'.format(object.name)"
+msgstr "'Pago de comisiones {0}'.format(object.name)"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
+msgid "<span class=\"o_stat_text\">Commissions</span>"
+msgstr "<span class=\"o_stat_text\">Comisiones</span>"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "<span> - </span>"
+msgstr ""
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "<span>AGENT</span>"
+msgstr "<span>AGENTE</span>"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "<span>NUMBER: </span>"
+msgstr "<span>FOLIO: </span>"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "<span>PAYMENT DATE</span>"
+msgstr "<span>FECHA DE PAGO</span>"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "<span>STATUS</span>"
+msgstr ""
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "<span>TOTAL</span>"
+msgstr ""
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
+#: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
+msgid "<span>Total</span>"
+msgstr ""
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "<strong>PAYMENTS TO AGENTS</strong>"
+msgstr "<strong>PAGOS A AGENTES</strong>"
+
+#. module: commissions
+#. odoo-python
+#: code:addons/commissions/models/xe_agent.py:0
+#, python-format
+msgid "A record already exists for agent {0}."
+msgstr "Ya existe un registro para el agente {0}."
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.commission_recalculation_form_view
+msgid "Accept"
+msgstr "Aceptar"
+
+#. module: commissions
+#: model:res.groups,name:commissions.commission_admin_group
+msgid "Administrator"
+msgstr "Administrador"
+
+#. module: commissions
+#: model:res.groups,name:commissions.advanced_user_commissions_group
+msgid "Advanced user"
+msgstr "Usuario avanzado"
+
+#. module: commissions
+#: model:ir.model,name:commissions.model_xe_agent
+#: model:ir.model.fields,field_description:commissions.field_xe_agent__name
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__agent_id
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__agent_id
+msgid "Agent"
+msgstr "Agente"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__agent1_id
+#: model:ir.model.fields,field_description:commissions.field_account_move__agent1_id
+#: model:ir.model.fields,field_description:commissions.field_account_payment__agent1_id
+#: model:ir.model.fields,field_description:commissions.field_res_partner__agent1_id
+#: model:ir.model.fields,field_description:commissions.field_res_users__agent1_id
+#: model:ir.model.fields,field_description:commissions.field_sale_order__agent1_id
+msgid "Agent 1"
+msgstr "Agente 1"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__agent1_per
+#: model:ir.model.fields,field_description:commissions.field_account_move__agent1_per
+#: model:ir.model.fields,field_description:commissions.field_account_payment__agent1_per
+#: model:ir.model.fields,field_description:commissions.field_res_partner__agent1_per
+#: model:ir.model.fields,field_description:commissions.field_res_users__agent1_per
+#: model:ir.model.fields,field_description:commissions.field_sale_order__agent1_per
+msgid "Agent 1 percentage"
+msgstr "Porcentaje agent 1"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__agent2_id
+#: model:ir.model.fields,field_description:commissions.field_account_move__agent2_id
+#: model:ir.model.fields,field_description:commissions.field_account_payment__agent2_id
+#: model:ir.model.fields,field_description:commissions.field_res_partner__agent2_id
+#: model:ir.model.fields,field_description:commissions.field_res_users__agent2_id
+#: model:ir.model.fields,field_description:commissions.field_sale_order__agent2_id
+msgid "Agent 2"
+msgstr "Agente 2"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__agent2_per
+#: model:ir.model.fields,field_description:commissions.field_account_move__agent2_per
+#: model:ir.model.fields,field_description:commissions.field_account_payment__agent2_per
+#: model:ir.model.fields,field_description:commissions.field_res_partner__agent2_per
+#: model:ir.model.fields,field_description:commissions.field_res_users__agent2_per
+#: model:ir.model.fields,field_description:commissions.field_sale_order__agent2_per
+msgid "Agent 2 percentage"
+msgstr "Porcentaje de agente 2"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_agent__number
+msgid "Agent number"
+msgstr "Número de agente"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__agent_per
+msgid "Agent percentage"
+msgstr "Porcentaje del agente"
+
+#. module: commissions
+#: model:ir.actions.act_window,name:commissions.agent_open_action
+#: model:ir.model.fields,field_description:commissions.field_commission_recalculation__agent_ids
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__agent_ids
+#: model:ir.ui.menu,name:commissions.agent_menuitem
+msgid "Agents"
+msgstr "Agentes"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
+#: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
+msgid "Are you sure you want to confirm this commission payment?"
+msgstr "¿Está seguro que desea confirmar este pago de comisiones?"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
+#: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
+msgid "Are you sure you want to pay the listed commissions?"
+msgstr "¿Está seguro que desea pagar las comisiones listadas?"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
+#: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
+msgid "Are you sure you want to undo the paid commissions?"
+msgstr "¿Está seguro que desea deshacer las comisiones pagadas?"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "COLLECTED"
+msgstr "COBRADO"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "COMMISSION"
+msgstr "COMISIÓN"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "CUSTOMER"
+msgstr "CLIENTE"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
+#: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
+msgid "Calculate"
+msgstr "Calcular"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.commission_recalculation_form_view
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__collected
+msgid "Collected"
+msgstr "Cobrado"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__collected_date
+msgid "Collected date"
+msgstr "Fecha cobro"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__payment_id
+msgid "Collection"
+msgstr "Cobro"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_agent__commission
+msgid "Commission (%)"
+msgstr "Comisión (%)"
+
+#. module: commissions
+#: model:ir.actions.act_window,name:commissions.commission_recalculation_open_action
+#: model:ir.model,name:commissions.model_commission_recalculation
+#: model:ir.ui.menu,name:commissions.commission_recalculation_menuitem
+msgid "Commission recalculation"
+msgstr "Recalculo de comisión"
+
+#. module: commissions
+#: model:ir.actions.act_window,name:commissions.commissions_open_action
+#: model:ir.model,name:commissions.model_xe_commissions
+#: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__commission_ids
+#: model:ir.model.fields,field_description:commissions.field_account_move__commission_ids
+#: model:ir.model.fields,field_description:commissions.field_account_payment__commission_ids
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__commission
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__payment_commissions_ids
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__commissions_ids
+#: model:ir.module.category,name:commissions.commissions_commissions_module_category
+#: model:ir.module.category,name:commissions.commissions_module_category
+#: model:ir.ui.menu,name:commissions.account_commissions_menuitem
+#: model:ir.ui.menu,name:commissions.commissions_commissions_menuitem
+#: model_terms:ir.ui.view,arch_db:commissions.account_view_move_form_inherit_commissions
+msgid "Commissions"
+msgstr "Comisiones"
+
+#. module: commissions
+#: model:res.groups,name:commissions.commissions_payment_group
+msgid "Commissions payment"
+msgstr "Pago de comisiones"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__commission_qty
+#: model:ir.model.fields,field_description:commissions.field_account_move__commission_qty
+#: model:ir.model.fields,field_description:commissions.field_account_payment__commission_qty
+msgid "Commissions quantity"
+msgstr "Cantidad de comisiones"
+
+#. module: commissions
+#: model:ir.actions.server,name:commissions.commission_sequence_cron_ir_actions_server
+msgid "Commissions: Create sequences for existing companies"
+msgstr "Comisiones: Crea secuencias para compañías existentes"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_agent__company_id
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__company_id
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__company_id
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
+#: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
+msgid "Confirm"
+msgstr "Confirmar"
+
+#. module: commissions
+#: model:ir.model.fields.selection,name:commissions.selection__xe_mass_payment_commissions__state__confirmed
+#: model:ir.model.fields.selection,name:commissions.selection__xe_payment_commissions__state__confirmed
+msgid "Confirmed"
+msgstr "Confirmado"
+
+#. module: commissions
+#: model:ir.model,name:commissions.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_commission_recalculation__create_uid
+#: model:ir.model.fields,field_description:commissions.field_xe_agent__create_uid
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__create_uid
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__create_uid
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_commission_recalculation__create_date
+#: model:ir.model.fields,field_description:commissions.field_xe_agent__create_date
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__create_date
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__create_date
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__currency_id
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__currency_id
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__currency_id
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__customer_id
+msgid "Customer"
+msgstr "Cliente"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "DATE"
+msgstr "FECHA"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__date
+msgid "Date"
+msgstr "Fecha"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
+msgid "Delete"
+msgstr "Eliminar"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_commission_recalculation__display_name
+#: model:ir.model.fields,field_description:commissions.field_xe_agent__display_name
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__display_name
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__display_name
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__display_name
+msgid "Display Name"
+msgstr "Nombre a mostrar"
+
+#. module: commissions
+#: model:ir.model.fields.selection,name:commissions.selection__xe_mass_payment_commissions__state__draft
+#: model:ir.model.fields.selection,name:commissions.selection__xe_payment_commissions__state__draft
+msgid "Draft"
+msgstr "Borrador"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_commission_recalculation__end_date
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__end_date
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__end_date
+msgid "End date"
+msgstr "Fecha final"
+
+#. module: commissions
+#. odoo-python
+#: code:addons/commissions/wizard/account_payment_register.py:0
+#, python-format
+msgid "Error in payment creation."
+msgstr "Error en la creación del pago."
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_commission_recalculation__id
+#: model:ir.model.fields,field_description:commissions.field_xe_agent__id
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__id
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__id
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__id
+msgid "ID"
+msgstr ""
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "INVOICE NUMBER"
+msgstr "FOLIO"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
+#: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
+msgid "Invisibles"
+msgstr ""
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__is_advanced_commission_user
+#: model:ir.model.fields,field_description:commissions.field_account_move__is_advanced_commission_user
+#: model:ir.model.fields,field_description:commissions.field_account_payment__is_advanced_commission_user
+#: model:ir.model.fields,field_description:commissions.field_res_partner__is_advanced_commission_user
+#: model:ir.model.fields,field_description:commissions.field_res_users__is_advanced_commission_user
+#: model:ir.model.fields,field_description:commissions.field_sale_order__is_advanced_commission_user
+msgid "Is advanced commission user"
+msgstr "Es usuario avanzado de comisión"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__is_commission_admin
+#: model:ir.model.fields,field_description:commissions.field_account_move__is_commission_admin
+#: model:ir.model.fields,field_description:commissions.field_account_payment__is_commission_admin
+msgid "Is commission admin"
+msgstr "Es administrador de comisión"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_res_partner__is_commission_admin
+#: model:ir.model.fields,field_description:commissions.field_res_users__is_commission_admin
+#: model:ir.model.fields,field_description:commissions.field_sale_order__is_commission_admin
+msgid "Is commission administrator"
+msgstr "Es administrador de comisión"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_res_partner__is_commission_user
+#: model:ir.model.fields,field_description:commissions.field_res_users__is_commission_user
+msgid "Is commission user"
+msgstr "Es usuario de comisión"
+
+#. module: commissions
+#: model:ir.model,name:commissions.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento contable"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_commission_recalculation__write_uid
+#: model:ir.model.fields,field_description:commissions.field_xe_agent__write_uid
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__write_uid
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__write_uid
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_commission_recalculation__write_date
+#: model:ir.model.fields,field_description:commissions.field_xe_agent__write_date
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__write_date
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__write_date
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: commissions
+#: model:ir.actions.act_window,name:commissions.mass_payment_commissions_open_action
+#: model:ir.model,name:commissions.model_xe_mass_payment_commissions
+#: model:ir.ui.menu,name:commissions.commissions_mass_payment_commissions_menuitem
+msgid "Mass payment commissions"
+msgstr "Pago masivo de comisiones"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__move_id
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__name
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__name
+msgid "Number"
+msgstr "Número"
+
+#. module: commissions
+#. odoo-python
+#: code:addons/commissions/models/xe_payment_commissions.py:0
+#, python-format
+msgid "Only commission payments in draft status can be deleted."
+msgstr "Sólo se pueden eliminar pagos de comisiones en estado borrador."
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__paid
+#: model:ir.model.fields.selection,name:commissions.selection__xe_mass_payment_commissions__state__paid
+#: model:ir.model.fields.selection,name:commissions.selection__xe_payment_commissions__state__paid
+msgid "Paid"
+msgstr "Pagado"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
+#: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
+msgid "Pay"
+msgstr "Pagar"
+
+#. module: commissions
+#: model:ir.actions.act_window,name:commissions.payment_commissions_open_action
+#: model:ir.actions.report,name:commissions.xe_payment_commissions_report_action
+#: model:ir.model,name:commissions.model_xe_payment_commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__payment_commission_id
+#: model:ir.ui.menu,name:commissions.commissions_payment_commissions_menuitem
+msgid "Payment commissions"
+msgstr "Pago de comisiones"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__payment_commissions_qty
+msgid "Payment commissions quantity"
+msgstr "Cantidad de pagos de comisiones"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__payment_date
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__payment_date
+msgid "Payment date"
+msgstr "Fecha pago"
+
+#. module: commissions
+#: model:ir.model,name:commissions.model_account_payment
+msgid "Payments"
+msgstr "Pagos"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__position
+msgid "Position"
+msgstr "Posición"
+
+#. module: commissions
+#: model:ir.model,name:commissions.model_account_payment_register
+msgid "Register Payment"
+msgstr "Registrar pago"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
+#: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
+msgid "Return to draft"
+msgstr "Regresar a borrador"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "SALE ORDERS"
+msgstr "ÓRDENES DE VENTA"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__sale_order_ids
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__sale_orders
+msgid "Sale orders"
+msgstr "Órdenes de venta"
+
+#. module: commissions
+#: model:ir.model,name:commissions.model_sale_order
+msgid "Sales Order"
+msgstr "Orden de venta"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
+#: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
+msgid "Separate payment"
+msgstr "Romper pago"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_commission_recalculation__start_date
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__start_date
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__start_date
+msgid "Start date"
+msgstr "Fecha inicial"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__state
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__state
+msgid "State"
+msgstr "Estado"
+
+#. module: commissions
+#. odoo-python
+#: code:addons/commissions/models/xe_agent.py:0
+#, python-format
+msgid "The agent number must be greater than 0."
+msgstr "El número de agente debe ser mayor a 0."
+
+#. module: commissions
+#. odoo-python
+#: code:addons/commissions/models/xe_agent.py:0
+#, python-format
+msgid "The agent's commission must be greater than 0."
+msgstr "La comisión del agente debe ser mayor a 0."
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__total
+#: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__total
+#: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_tree_view
+#: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_tree_view
+msgid "Total"
+msgstr ""
+
+#. module: commissions
+#: model:res.groups,name:commissions.commissions_user_group
+msgid "User"
+msgstr "Usuario"
+
+#. module: commissions
+#. odoo-python
+#: code:addons/commissions/models/account_move.py:0
+#: code:addons/commissions/models/account_move.py:0
+#, python-format
+msgid "You cannot cancel this invoice because it has paid commissions."
+msgstr ""
+"No puede cancelar esta factura debido a que cuenta con comisiones pagadas."
+
+#. module: commissions
+#. odoo-python
+#: code:addons/commissions/models/account_payment.py:0
+#, python-format
+msgid "You cannot cancel this payment because it has paid commissions."
+msgstr ""
+"No puede cancelar este pago debido a que cuenta con comisiones pagadas."
+
+#. module: commissions
+#. odoo-python
+#: code:addons/commissions/models/account_move.py:0
+#, python-format
+msgid ""
+"You cannot reset this invoice to draft because it has paid commissions."
+msgstr ""
+"No puede cancelar esta factura debido a que cuenta con comisiones pagadas."
+
+#. module: commissions
+#. odoo-python
+#: code:addons/commissions/models/account_payment.py:0
+#, python-format
+msgid ""
+"You cannot reset this payment to draft because it has paid commissions."
+msgstr ""
+"No puede restablecer a borrador este pago debido a que cuenta con comisiones"
+" pagadas."
+
+#. module: commissions
+#. odoo-python
+#: code:addons/commissions/models/xe_payment_commissions.py:0
+#, python-format
+msgid "You must list at least one commission to pay."
+msgstr "Debe listar al menos 1 comisión a pagar."
