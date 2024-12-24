@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="account_analytic_distribution_model_tree_inherit" model="ir.ui.view">
+            <field name="name">account.analytic.distribution.model.inherit.tree</field>
+            <field name="model">account.analytic.distribution.model</field>
+            <field name="inherit_id" ref="analytic.account_analytic_distribution_model_tree_view"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//field[@name='company_id']" position="before">
+                        <field name="warehouse_id" optional="show"/>
+                        <field name="team_id" optional="show"/>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+
+        <record id="account_analytic_distribution_model_form_inherit" model="ir.ui.view">
+            <field name="name">account.analytic.distribution.model.inherit.form</field>
+            <field name="model">account.analytic.distribution.model</field>
+            <field name="inherit_id" ref="analytic.account_analytic_distribution_model_form_view"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//field[@name='company_id']" position="before">
+                            <field name="warehouse_id"/>
+                            <field name="team_id"/>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+    </data>
+</odoo>
