@@ -2,12 +2,13 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.2",
+    "version": "17.0.0.0.3",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
     "depends": [
         'xe_customs',
+        'project',
         'sale_project',
         'helpdesk_fsm',
         'helpdesk_sale',
@@ -25,7 +26,7 @@
         'wizard/cancellation_remision.xml',
         'views/fsm_project_menus.xml',
         'views/sale_views.xml',
-        'views/helpdesk_views.xml',
+        #'views/helpdesk_views.xml',
         'views/stock_picking_views.xml',
         'views/inventory_tag_views.xml',
         'views/inventory_tag_menu.xml',
