@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_move_view_form_addenda_coppel" model="ir.ui.view">
+        <field name="name">account.move.view.form.addenda</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="addenda_morwi.account_move_view_form_addenda"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='purchase_order_reference']" position="after">
+                <field name="addenda_coppel_po_date"/>
+                <field name="addenda_coppel_po_date_delivery"/>
+            </xpath>
+            <xpath expr="//page[@name='addenda']" position="inside">
+                <group string="Coppel">
+                    <group>
+                        <field name="addenda_coppel_transaction_type"/>
+                        <field name="addenda_coppel_supplier_type"/>
+                        <field name="addenda_coppel_dc"/>
+                        <field name="addenda_coppel_reception_dc"/>
+                    </group>
+                    <group>
+                        <field name="addenda_coppel_region"/>
+                        <field name="addenda_coppel_currency_function"/>
+                        <field name="addenda_coppel_packing"/>
+                        <field name="addenda_coppel_transporter"/>
+                        <field name="addenda_coppel_discount_charge"/>
+                        <field name="addenda_coppel_discount_charge_imputation"/>
+                        <field name="addenda_coppel_discount_type"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

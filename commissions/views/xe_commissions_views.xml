@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="xe_commissions_tree_view" model="ir.ui.view">
+        <field name="name">xe.commissions.tree.view</field>
+        <field name="model">xe.commissions</field>
+        <field name="arch" type="xml">
+            <tree create="false">
+                <field name="position"/>
+                <field name="agent_id"/>
+                <field name="date"/>
+                <field name="move_id"/>
+                <field name="sale_orders"
+                       optional="hide"/>
+                <field name="sale_order_ids"
+                       column_invisible="1"
+                       widget="many2many_tags"/>
+                <field name="collected_date"/>
+                <field name="payment_id" optional="hide"/>
+                <field name="customer_id"/>
+                <field name="collected"/>
+                <field name="commission"/>
+                <field name="paid"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="agent_per" column_invisible="1"/>
+                <field name="company_id"
+                       readonly="1"
+                       force_save="1"
+                       options="{'no_open': True}"
+                       groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>

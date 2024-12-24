@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_picking_form_inherit" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state'][2]" position="replace">
+                <field name="state" widget="statusbar" invisible="picking_type_code == 'incoming'" statusbar_visible="draft,confirmed,assigned,transit,done"/>
+            </xpath>
+            <xpath expr="//button[@name='button_validate'][1]" position="replace">
+                <button name="button_validate" invisible="(picking_type_code != 'incoming' and state != 'transit') or (picking_type_code == 'incoming' and state in ('draft', 'confirmed', 'done', 'cancel'))" string="Validate" type="object" groups="stock.group_stock_user" class="oe_highlight" data-hotkey="v"/>
+            </xpath>
+            <xpath expr="//button[@name='button_validate'][2]" position="replace">
+                <button name="action_transit" invisible="state in ('waiting', 'assigned', 'transit', 'done', 'cancel')" string="Send to Transit" type="object" groups="stock.group_stock_user" class="o_btn_validate" data-hotkey="v"/>
+            </xpath>
+
+            <xpath expr="//button[@name='action_assign']" position="after">
+                <button name="action_transit" invisible="picking_type_code == 'incoming' or state != 'assigned'" string="Send to Transit" type="object" groups="stock.group_stock_user" class="oe_highlight" data-hotkey="t"/>
+            </xpath>
+            <xpath expr="//button[@name='action_cancel']" position="before">
+                <button name="action_cancel_transit" invisible="state != 'transit'" string="Cancel Transit" type="object" groups="stock.group_stock_user" data-hotkey="t"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Installation" invisible="company_id != 4">
+                    <group>
+                        <group>
+                            <field name="supervisor_id" widget="many2one_avatar_user"/>
+                            <field name="installer_id" widget="many2one_avatar_user"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+            <xpath expr="//field[@name='move_ids_without_package']//field[@name='quantity']" position="attributes">
+                <attribute name="readonly">parent.state == 'transit'</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_remissions" model="ir.actions.server">
+        <field name="name">Remisionar</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="state">code</field>
+        <field name="code">
+            for rec in records:
+                action = rec.action_transit()
+        </field>
+    </record>
+
+    <record id="action_validate_remissions" model="ir.actions.server">
+        <field name="name">Validar entrega remisionada</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="state">code</field>
+        <field name="code">
+            for rec in records:
+                rec.button_validate_remission()
+        </field>
+    </record>
+
+</odoo>
