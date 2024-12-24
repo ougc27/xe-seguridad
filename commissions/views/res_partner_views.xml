@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="base_view_partner_form_inherit_commissions" model="ir.ui.view">
+        <field name="name">base.view.partner.form.inherit.commissions</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='sales_purchases']//field[@name='user_id']" position="after">
+                <field name="is_commission_user" invisible="1"/>
+                <field name="is_advanced_commission_user" invisible="1"/>
+                <field name="is_commission_admin" invisible="1"/>
+                <label for="agent1_id"/>
+                <div>
+                    <field name="agent1_id"
+                           class="oe_inline"
+                           readonly="not is_commission_user and not is_advanced_commission_user and not is_commission_admin"
+                           force_save="1"
+                           options="{'no_open': True, 'no_create': True}"/>
+                    <span> </span>
+                    <field name="agent1_per"
+                           force_save="1"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           class="oe_inline"/> %
+                </div>
+                <label for="agent2_id"/>
+                <div>
+                    <field name="agent2_id"
+                           class="oe_inline"
+                           force_save="1"
+                           readonly="not is_commission_user and not is_advanced_commission_user and not is_commission_admin"
+                           options="{'no_open': True, 'no_create': True}"/>
+                    <span> </span>
+                    <field name="agent2_per"
+                           force_save="1"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           class="oe_inline"/> %
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>
