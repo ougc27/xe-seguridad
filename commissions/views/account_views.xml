@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="commissions_open_action" model="ir.actions.act_window">
+        <field name="name">Commissions</field>
+        <field name="res_model">xe.commissions</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+    <record id="payment_commissions_open_action" model="ir.actions.act_window">
+        <field name="name">Payment commissions</field>
+        <field name="res_model">xe.payment.commissions</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="mass_payment_commissions_open_action" model="ir.actions.act_window">
+        <field name="name">Mass payment commissions</field>
+        <field name="res_model">xe.mass.payment.commissions</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="commission_recalculation_open_action" model="ir.actions.act_window">
+        <field name="name">Commission recalculation</field>
+        <field name="res_model">commission.recalculation</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="account_commissions_menuitem"
+              name="Commissions"
+              groups="commissions.advanced_user_commissions_group,account.group_account_manager"
+              parent="account.menu_finance_receivables"
+              sequence="150"/>
+
+    <menuitem id="commissions_commissions_menuitem"
+              parent="account_commissions_menuitem"
+              name="Commissions"
+              action="commissions_open_action"
+              sequence="5"/>
+
+    <menuitem id="commissions_payment_commissions_menuitem"
+              parent="account_commissions_menuitem"
+              name="Payment commissions"
+              action="payment_commissions_open_action"
+              sequence="10"/>
+
+    <menuitem id="commissions_mass_payment_commissions_menuitem"
+              parent="account_commissions_menuitem"
+              name="Mass payment commissions"
+              action="mass_payment_commissions_open_action"
+              sequence="15"/>
+
+    <menuitem id="commission_recalculation_menuitem"
+              parent="account_commissions_menuitem"
+              name="Commission recalculation"
+              action="commission_recalculation_open_action"
+              sequence="20"/>
+
+</odoo>
