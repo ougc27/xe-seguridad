@@ -56,12 +56,19 @@ class ProductProduct(models.Model):
         product_ids = super(ProductProduct, self)._name_search(name, domain, operator, limit, order)
 
         if name and self._context.get('partner_id'):
-            clients_ids = self.env['product.clientinfo']._search([
+            clients_ids = self.env['product.clientinfo'].search([
                 ('name', '=', self._context.get('partner_id')),
                 '|',
                 ('product_code', operator, name),
-                ('product_name', operator, name)])
+                ('product_name', operator, name)
+            ]).ids
+
             if clients_ids:
-                product_ids.extend(self._search([('product_tmpl_id.client_ids', 'in', clients_ids)], limit=limit, order=order))
+                additional_ids = self._search(
+                    [('product_tmpl_id.client_ids', 'in', clients_ids)], 
+                    limit=limit, 
+                    order=order
+                )
+                product_ids = list(set(product_ids) | set(additional_ids))
 
         return product_ids
