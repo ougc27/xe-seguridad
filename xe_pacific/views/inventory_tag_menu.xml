@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+     <menuitem id="menu_inventory_tag" name="Tags" parent="stock.menu_warehouse_config"
+        action="inventory_tag_action" sequence="9"/>
+</odoo>
