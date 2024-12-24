@@ -60,7 +60,7 @@ class SaleOrder(models.Model):
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
-    margin = fields.Monetary("Margin", compute='_compute_margin', store=True, groups="account.group_account_manager")
+    #margin = fields.Monetary("Margin", compute='_compute_margin', store=True, groups="account.group_account_manager")
 
     client_barcode = fields.Char(
         string='Client Product Barcode',
