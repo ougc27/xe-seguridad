@@ -87,7 +87,7 @@ class AccountMove(models.Model):
         )
         if paid_commission_ids:
             raise UserError(_('You cannot cancel this invoice because it has paid commissions.'))
-        return super(AccountMove, self).button_cancel()
+        return super(AccountMove, self).button_request_cancel()
 
     @api.onchange('partner_id')
     def onchange_partner_id(self):
