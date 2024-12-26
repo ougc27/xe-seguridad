@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="sale_view_order_form_inherit_commissions" model="ir.ui.view">
+        <field name="name">sale.view.order.form.inherit.commissions</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="is_advanced_commission_user" invisible="1"/>
+                <field name="is_commission_admin" invisible="1"/>
+                <label for="agent1_id"/>
+                <div>
+                    <field name="agent1_id"
+                           class="oe_inline"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           force_save="1"
+                           options="{'no_open': True, 'no_create': True}"/>
+                    <span> </span>
+                    <field name="agent1_per"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           force_save="1"
+                           class="oe_inline"/> %
+                </div>
+                <label for="agent2_id"/>
+                <div>
+                    <field name="agent2_id"
+                           class="oe_inline"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           force_save="1"
+                           options="{'no_open': True, 'no_create': True}"/>
+                    <span> </span>
+                    <field name="agent2_per"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           force_save="1"
+                           class="oe_inline"/> %
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

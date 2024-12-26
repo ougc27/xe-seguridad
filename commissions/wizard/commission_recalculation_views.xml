@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="commission_recalculation_form_view" model="ir.ui.view">
+        <field name="name">commission.recalculation.form.view</field>
+        <field name="model">commission.recalculation</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <group>
+                        <field name="start_date" required="1"/>
+                    </group>
+                    <group>
+                        <field name="end_date" required="1"/>
+                    </group>
+                </group>
+                <group>
+                    <field name="agent_ids"
+                           required="1"
+                           options="{'no_open': True, 'no_create': True}"
+                           widget="many2many_tags"/>
+                </group>
+                <footer>
+                    <button string="Accept" type="object" name="action_commission_recalculation" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="sale_order_form_quote_inherit_hide_optional_products" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.optional.products.hide</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_management.sale_order_form_quote"/>
+        <field name="arch" type="xml">
+            <page name="optional_products" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </page>
+            <xpath expr="//page[@name='other_information']//field[@name='require_signature']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='other_information']//field[@name='require_payment']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_order_form_inherit_information_tab" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='other_information']//field[@name='require_signature']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='other_information']//field[@name='require_payment']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='other_information']//field[@name='tag_ids']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_shipping_id']" position="after">
+                <field name="team_id" invisible="1"/>
+                <field name="pos_store" 
+                    invisible="team_id not in [19, 5]"
+                    required="team_id == 19"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

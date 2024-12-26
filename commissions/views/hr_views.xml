@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="agent_open_action" model="ir.actions.act_window">
+        <field name="name">Agents</field>
+        <field name="res_model">xe.agent</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+    <menuitem id="agent_menuitem"
+              name="Agents"
+              action="agent_open_action"
+              parent="hr.menu_config_employee"
+              sequence="15"/>
+
+</odoo>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="account_view_move_form_inherit_commissions" model="ir.ui.view">
+        <field name="name">account.view.move.form.inherit.commissions</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_commissions" type="object" class="oe_stat_button" icon="fa-money" invisible="commission_qty == 0">
+                    <field name="commission_qty" widget="statinfo" string="Commissions"/>
+                </button>
+            </xpath>
+            <xpath expr="//field[@name='invoice_user_id']" position="after">
+                <field name="is_advanced_commission_user" invisible="1"/>
+                <field name="is_commission_admin" invisible="1"/>
+                <label for="agent1_id"/>
+                <div>
+                    <field name="agent1_id"
+                           class="oe_inline"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           force_save="1"
+                           options="{'no_open': True, 'no_create': True}"/>
+                    <span> </span>
+                    <field name="agent1_per"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           force_save="1"
+                           class="oe_inline"/> %
+                </div>
+                <label for="agent2_id"/>
+                <div>
+                    <field name="agent2_id"
+                           class="oe_inline"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           force_save="1"
+                           options="{'no_open': True, 'no_create': True}"/>
+                    <span> </span>
+                    <field name="agent2_per"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           force_save="1"
+                           class="oe_inline"/> %
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
