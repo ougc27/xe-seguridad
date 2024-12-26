@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_cancelled_remission_form" model="ir.ui.view">
+        <field name="name">cancelled.remission.form</field>
+        <field name="model">cancelled.remission</field>
+        <field name="arch" type="xml">
+            <form string="Cancelled Remission">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="picking_id" readonly="1"/>
+                            <field name="remission_folio" readonly="1"/>
+                            <field name="cancelled_date" readonly="1"/>
+                            <field name="user_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="cancelled_reason" readonly="1"/>
+                            <field name="tag_ids"
+                                widget="many2many_tags"
+                                options="{'color_field': 'color', 'no_create_edit': True}"
+                                readonly="1"/>
+                            <field name="comments" readonly="1"/>
+                            <field name="company_id" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_cancelled_remission_tree" model="ir.ui.view">
+        <field name="name">cancelled.remission.tree</field>
+        <field name="model">cancelled.remission</field>
+        <field name="arch" type="xml">
+            <tree create="false">
+                <field name="picking_id"/>
+                <field name="remission_folio"/>
+                <field name="cancelled_date"/>
+                <field name="user_id"/>
+                <field name="cancelled_reason"/>
+                <field name="tag_ids" widget="many2many_tags"/>
+                <field name="comments"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_cancelled_remission" model="ir.actions.act_window">
+        <field name="name">Cancelled Remissions</field>
+        <field name="res_model">cancelled.remission</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_cancelled_remission_tree"/>
+    </record>
+
+    <menuitem id="menu_cancelled_remission"
+        name="Cancelled Remissions"
+        action="action_cancelled_remission"
+        parent="stock.menu_stock_warehouse_mgmt"
+        sequence="4"/>
+</odoo>
