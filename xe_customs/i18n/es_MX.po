@@ -457,7 +457,7 @@ msgstr "Cantidad"
 #: model:ir.model.fields,field_description:xe_customs.field_account_move__reconcile_balance
 #: model:ir.model.fields,field_description:xe_customs.field_account_payment__reconcile_balance
 msgid "Reconcile Balance"
-msgstr "Balance Conciliado"
+msgstr "Balance por Conciliar"
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__reconciled_amount

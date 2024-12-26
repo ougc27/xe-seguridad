@@ -19,10 +19,26 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         string="Reconciled Amount",
         compute="_compute_reconciled_amount",
     )
+    invoiceable_amount = fields.Monetary(
+        string="Invoiceable Amount",
+        compute="_compute_invoiceable_amount",
+        store=True,
+    )
+
+    @api.depends('advance_payment_method')
+    def _compute_invoiceable_amount(self):
+        orders = self.env['sale.order'].browse(self._context.get('active_ids', []))
+        amount = 0
+        for order in orders:
+            for line in order.order_line.filtered(lambda x: x.qty_to_invoice > 0):
+                amount += (line.price_total / line.product_uom_qty) * line.qty_to_invoice
+        self.invoiceable_amount = amount
+        return amount
 
     def _compute_reconciled_amount(self):
         self.reconciled_amount = sum(self.down_payment_ids.mapped('amount'))
 
+    @api.depends('down_payment_ids')
     def _compute_down_payment_ids_count(self):
         self.down_payment_ids_count = len(self.down_payment_ids)
 
@@ -34,13 +50,13 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         downpayments = self.env['sale.down.payment'].search([
             ('order_id', '=', orders.id),
         ])
-        lines = [(0, 0, {
-            'invoice_id': downpayment.invoice_id.id,
-            'amount': downpayment.order_line_id.price_unit * (1 + sum(tax.amount for tax in downpayment.order_line_id.tax_id) / 100),
-            'downpayment_id': downpayment.id,
-        }) for downpayment in downpayments]
+        # lines = [(0, 0, {
+        #     'invoice_id': downpayment.invoice_id.id,
+        #     'amount': downpayment.order_line_id.price_unit * (1 + sum(tax.amount for tax in downpayment.order_line_id.tax_id) / 100),
+        #     'downpayment_id': downpayment.id,
+        # }) for downpayment in downpayments]
 
-        lines += [(0, 0, {
+        lines = [(0, 0, {
             'invoice_id': invoice.id,
             'amount': 0,
         }) for invoice in self.env['account.move'].search([
@@ -48,6 +64,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
             ('partner_id', 'in', orders.mapped('partner_id').ids),
             ('has_down_payment', '=', True),
             ('state', '!=', 'cancel'),
+            ('l10n_mx_edi_cfdi_uuid', '!=', False),
             ('id', 'not in', downpayments.mapped('invoice_id').ids),
         ])]
 
@@ -78,8 +95,8 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
             invoices = sale_orders._create_invoices(final=self.deduct_down_payments, grouped=not self.consolidated_billing)
             
             # Check down payments total
-            if self.reconciled_amount > order_id.amount_total:
-                raise UserError('The total amount of down payments exceeds the total amount of the order.')
+            if self.reconciled_amount > self.invoiceable_amount:
+                raise UserError('The total amount of down payments exceeds the amount that can be invoiced.')
             
             # Update down payments
             downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0 and x.downpayment_id)
@@ -171,16 +188,15 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                 body=_("%s has been created", invoice._get_html_link(title=title)),
             )
 
-    @api.depends('sale_order_ids', 'reconciled_amount')
-    def _compute_invoice_amounts(self):
-        super(SaleMakeInvoiceAdvance, self)._compute_invoice_amounts()
-        order_id = self.env['sale.order'].browse(self._context.get('active_ids', []))
-        if len(order_id) > 1:
-            return
+    # @api.depends('sale_order_ids', 'reconciled_amount')
+    # def _compute_invoice_amounts(self):
+    #     super(SaleMakeInvoiceAdvance, self)._compute_invoice_amounts()
+    #     order_id = self.env['sale.order'].browse(self._context.get('active_ids', []))
+    #     if len(order_id) > 1:
+    #         return
 
-        for wizard in self:
-            wizard.amount_invoiced += order_id.reconciled_amount
-            wizard.amount_to_invoice -= order_id.reconciled_amount
+    #     self.amount_invoiced += order_id.reconciled_amount
+    #     self.amount_to_invoice -= order_id.reconciled_amount
 
 
 class SaleDownPaymentWizard(models.TransientModel):
@@ -214,7 +230,7 @@ class SaleDownPaymentWizard(models.TransientModel):
 
     def _compute_balance(self):
         for payment in self:
-            payment.balance = payment.invoice_id.reconcile_balance + payment.amount
+            payment.balance = payment.invoice_id.reconcile_balance
 
     @api.onchange('amount')
     def _onchange_amount(self):

@@ -123,6 +123,16 @@ class SaleOrderLine(models.Model):
             'delay': 0,
         }
 
+    def write(self, vals):
+        res = super(SaleOrderLine, self).write(vals)
+        if 'price_unit' in vals:
+            for line in self:
+                if line.is_downpayment:
+                    line._origin.invoice_lines.write({
+                        'price_unit': line.price_unit,
+                    })
+        return res
+
     @api.onchange('product_id', 'product_uom_qty')
     def onchange_product_id(self):
         for line in self:
