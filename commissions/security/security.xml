@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="commissions_module_category" model="ir.module.category">
+        <field name="name">Commissions</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="commissions_commissions_module_category" model="ir.module.category">
+        <field name="name">Commissions</field>
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="commissions.commissions_module_category"/>
+    </record>
+
+    <record id="commissions_user_group" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="commissions.commissions_commissions_module_category"/>
+        <field name="implied_ids" eval="[(6, 0, [ref('base.group_user')])]"/>
+    </record>
+
+    <record id="advanced_user_commissions_group" model="res.groups">
+        <field name="name">Advanced user</field>
+        <field name="category_id" ref="commissions.commissions_commissions_module_category"/>
+        <field name="implied_ids" eval="[(6, 0, [ref('commissions.commissions_user_group')])]"/>
+    </record>
+
+    <record id="commissions_payment_group" model="res.groups">
+        <field name="name">Commissions payment</field>
+        <field name="category_id" ref="commissions.commissions_commissions_module_category"/>
+        <field name="implied_ids" eval="[(6, 0, [ref('commissions.advanced_user_commissions_group')])]"/>
+    </record>
+
+    <record id="commission_admin_group" model="res.groups">
+        <field name="name">Administrator</field>
+        <field name="category_id" ref="commissions.commissions_commissions_module_category"/>
+        <field name="implied_ids" eval="[(6, 0, [ref('commissions.commissions_payment_group')])]"/>
+    </record>
+
+    <record id="agent_rule" model="ir.rule">
+        <field name="name">Agent multi-company</field>
+        <field name="model_id" ref="model_xe_agent"/>
+        <field eval="True" name="global"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+    </record>
+
+    <record id="commissions_rule" model="ir.rule">
+        <field name="name">Commissions multi-company</field>
+        <field name="model_id" ref="model_xe_commissions"/>
+        <field eval="True" name="global"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+    </record>
+
+    <record id="mass_payment_commissions_rule" model="ir.rule">
+        <field name="name">Mass payment commissions multi-company</field>
+        <field name="model_id" ref="model_xe_mass_payment_commissions"/>
+        <field eval="True" name="global"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+    </record>
+
+    <record id="payment_commissions_rule" model="ir.rule">
+        <field name="name">Payment commissions multi-company</field>
+        <field name="model_id" ref="model_xe_payment_commissions"/>
+        <field eval="True" name="global"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+    </record>
+
+</odoo>

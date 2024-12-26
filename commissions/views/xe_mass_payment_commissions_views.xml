@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="xe_mass_payment_commissions_tree_view" model="ir.ui.view">
+        <field name="name">xe.mass.payment.commissions.tree.view</field>
+        <field name="model">xe.mass.payment.commissions</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="total" sum="Total"/>
+                <field name="state"
+                       widget="badge"
+                       decoration-info="state == 'confirmed'"
+                       decoration-success="state == 'paid'"/>
+                <field name="company_id"
+                       readonly="1"
+                       force_save="1"
+                       options="{'no_open': True}"
+                       groups="base.group_multi_company"/>
+                <field name="currency_id" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="xe_mass_payment_commissions_form_view" model="ir.ui.view">
+        <field name="name">xe.mass.payment.commissions.form.view</field>
+        <field name="model">xe.mass.payment.commissions</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button string="Calculate"
+                            type="object"
+                            name="action_calculate"
+                            invisible="payment_commissions_ids"
+                            groups="commissions.commissions_payment_group"
+                            class="oe_highlight"/>
+                    <button string="Confirm"
+                            type="object"
+                            name="action_confirm"
+                            confirm="Are you sure you want to confirm this commission payment?"
+                            invisible="not payment_commissions_ids or state != 'draft'"
+                            groups="commissions.commissions_payment_group"
+                            class="oe_highlight"/>
+                    <button string="Calculate"
+                            type="object"
+                            name="action_calculate"
+                            groups="commissions.commissions_payment_group"
+                            invisible="not payment_commissions_ids or state != 'draft'"/>
+                    <button string="Pay"
+                            type="object"
+                            name="action_pay"
+                            groups="commissions.commissions_payment_group"
+                            confirm="Are you sure you want to pay the listed commissions?"
+                            invisible="state != 'confirmed'"
+                            class="oe_highlight"/>
+                    <button string="Return to draft"
+                            type="object"
+                            name="action_return_draft"
+                            groups="commissions.commissions_payment_group"
+                            invisible="state != 'confirmed'"/>
+                    <button string="Separate payment"
+                            type="object"
+                            name="action_separate_payment"
+                            groups="commissions.commission_admin_group"
+                            confirm="Are you sure you want to undo the paid commissions?"
+                            invisible="state != 'paid'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_payment_commissions" type="object"
+                                class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="not payment_commissions_qty">
+                            <div class="o_stat_info">
+                                <field name="payment_commissions_qty" class="o_stat_value"/>
+                                <span class="o_stat_text">Commissions</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group string="Invisibles" invisible="1">
+                        <group>
+                            <field name="currency_id"/>
+                            <field name="payment_commissions_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="start_date" required="1" readonly="state != 'draft'"/>
+                            <field name="end_date" required="1" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="payment_date"
+                                   readonly="1"
+                                   invisible="state != 'paid'"
+                                   force_save="1"/>
+                            <field name="company_id"
+                                   readonly="1"
+                                   force_save="1"
+                                   options="{'no_open': True}"
+                                   groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="agent_ids"
+                               widget="many2many_tags"
+                               options="{'no_open': True, 'no_create': True}"
+                               required="1"/>
+                    </group>
+                    <div class="row">
+                        <div class="col-8"/>
+                        <div class="col-4">
+                            <div class="text-end" style="font-size: 20px; font-weight: bold;">
+                                <span>Total</span>
+                                <field name="total" style="padding-left: 50px;" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="xe_agent_tree_view" model="ir.ui.view">
+        <field name="name">xe.agent.tree.view</field>
+        <field name="model">xe.agent</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"
+                       required="1"
+                       options="{'no_create': True, 'no_open': True}"/>
+                <field name="number"/>
+                <field name="commission"/>
+                <field name="company_id"
+                       readonly="1"
+                       force_save="1"
+                       options="{'no_open': True}"
+                       groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>
