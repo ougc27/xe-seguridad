@@ -30,7 +30,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         orders = self.env['sale.order'].browse(self._context.get('active_ids', []))
         amount = 0
         for order in orders:
-            for line in order.order_line.filtered(lambda x: x.qty_to_invoice > 0):
+            for line in order.order_line.filtered(lambda x: x.qty_to_invoice > 0 and x.product_uom_qty > 0 and not x.is_downpayment and not x.display_type):
                 amount += (line.price_total / line.product_uom_qty) * line.qty_to_invoice
         self.invoiceable_amount = amount
         return amount
