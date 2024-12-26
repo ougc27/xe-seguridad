@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="email_template_notify_salesperson_of_changes" model="mail.template">
+        <field name="name">Notify changes in sale order to salesperson</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="subject">Se modifico la orden de venta {{object.name}} en estado confirmada</field>
+        <field name="email_from">"Horacio Gonzalez" &lt;sistemas@xeseguridad.com&gt;</field>
+        <field name="lang">{{object.user_id.lang}}</field>
+        <field name="partner_to">{{object.user_id.partner_id.id}}</field>
+        <field name="body_html" type="html">
+          <div>
+            Se modifico la órden de venta por el usuario {{object.write_uid.name}}
+          </div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+</odoo>
