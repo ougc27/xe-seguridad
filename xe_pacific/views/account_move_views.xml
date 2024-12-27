@@ -6,7 +6,8 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_shipping_id']" position="after">
                 <field name="x_order_id" invisible="1"/>
-                <field name="picking_ids" 
+                <field name="picking_ids"
+                    groups="base.group_system" 
                     invisible="team_id != 6"
                     domain="[
                         ('x_studio_folio_rem', '!=', ''),
@@ -14,7 +15,7 @@
                         ('sale_id', '=', x_order_id)
                     ]"
                     widget="many2many_tags"/>
-                <field name="pos_store" invisible="team_id != 19 or not pos_store"/>
+                <field name="pos_store" groups="base.group_system" invisible="team_id != 19 or not pos_store"/>
             </xpath>
         </field>
     </record>
