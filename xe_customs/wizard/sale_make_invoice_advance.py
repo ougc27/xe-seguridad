@@ -50,13 +50,13 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         downpayments = self.env['sale.down.payment'].search([
             ('order_id', '=', orders.id),
         ])
-        # lines = [(0, 0, {
-        #     'invoice_id': downpayment.invoice_id.id,
-        #     'amount': downpayment.order_line_id.price_unit * (1 + sum(tax.amount for tax in downpayment.order_line_id.tax_id) / 100),
-        #     'downpayment_id': downpayment.id,
-        # }) for downpayment in downpayments]
-
+        downpayments.invoice_id._get_source_orders()
         lines = [(0, 0, {
+            'invoice_id': downpayment.invoice_id.id,
+            'amount': 0,
+            'downpayment_id': downpayment.id,
+        }) for downpayment in downpayments]
+        lines += [(0, 0, {
             'invoice_id': invoice.id,
             'amount': 0,
         }) for invoice in self.env['account.move'].search([
@@ -92,16 +92,17 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         if self.advance_payment_method == 'percentage':
             raise UserError('The percentage method is not supported for down payments.')
         elif self.advance_payment_method == 'delivered':
-            invoices = sale_orders._create_invoices(final=self.deduct_down_payments, grouped=not self.consolidated_billing)
-            
+            # Check invoiceable amount
+            if self.invoiceable_amount <= 0:
+                raise UserError(order_id._nothing_to_invoice_error_message())
             # Check down payments total
             if self.reconciled_amount > self.invoiceable_amount:
                 raise UserError('The total amount of down payments exceeds the amount that can be invoiced.')
-            
+
             # Update down payments
             downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0 and x.downpayment_id)
             for downpayment in downpayments:
-                downpayment.downpayment_id.order_line_id.price_unit = downpayment.amount / (1 + (total_tax / 100))
+                downpayment.downpayment_id.order_line_id.price_unit += downpayment.amount / (1 + (total_tax / 100))
 
             # Register down payments
             downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0 and not x.downpayment_id)
@@ -110,13 +111,14 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                     'invoice_id': downpayment.invoice_id.id,
                 })
                 dp._prepare_lines(order_id, downpayment.amount)
-                
 
+            downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0)
+            invoices = sale_orders._create_invoices(final=False, grouped=not self.consolidated_billing)
+            invoices.invoice_line_ids.filtered(lambda x: x.is_downpayment or x.display_type == 'line_section').unlink()
             for invoice in invoices:
                 origins = []
-                for inv in invoice.line_ids.sale_line_ids.order_id.down_payment_ids:
-                    if inv.l10n_mx_edi_cfdi_uuid:
-                        origins.append(inv.l10n_mx_edi_cfdi_uuid)
+                for inv in downpayments.mapped('invoice_id'):
+                    origins.append(inv.l10n_mx_edi_cfdi_uuid)
                 if len(origins) > 0:
                     invoice.l10n_mx_edi_cfdi_origin = '07|' + ','.join(origins)
 
