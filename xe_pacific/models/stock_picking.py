@@ -61,11 +61,13 @@ class StockPicking(models.Model):
         readonly=True
     )
 
-    @api.depends('location_id', 'move_ids', 'x_studio_canal_de_distribucin')
+    @api.depends('location_id', 'move_ids', 'group_id')
     def _compute_shipping_assignment(self):
         for rec in self:
             if rec.company_id.id == 4:
-                if rec.x_studio_canal_de_distribucin == 'INTERGRUPO':
+                sale_id = rec.group_id.sale_id
+                distribution_channel = sale_id.partner_id.team_id.name
+                if distribution_channel == 'INTERGRUPO':
                     rec.shipping_assignment = 'shipments'
                     continue
                 if rec.location_id and rec.location_id.warehouse_id.name:
@@ -73,10 +75,10 @@ class StockPicking(models.Model):
                         rec.shipping_assignment = 'shipments'
                         continue
                     if rec.location_id.warehouse_id.name == 'Monterrey PR': 
-                        if rec.x_studio_canal_de_distribucin == 'DISTRIBUIDORES':
+                        if distribution_channel == 'DISTRIBUIDORES':
                             rec.shipping_assignment = 'shipments'
                             continue
-                        if rec.move_ids.filtered(lambda record: record.product_id.default_code == 'FLTENVIO'):
+                        if sale_id.order_line.filtered(lambda record: record.product_id.default_code == 'FLTENVIO'):
                             rec.shipping_assignment = 'shipments'
                             continue
                 rec.shipping_assignment= 'logistics'
