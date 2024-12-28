@@ -27,15 +27,15 @@ class SaleOrder(models.Model):
     #                 'stage_id': task_stage.id
     #             })
 
-    def write(self, vals):
-        res = super().write(vals)
-        for rec in self:
-            if rec.state == 'sale':
+    #def write(self, vals):
+        #res = super().write(vals)
+        #for rec in self:
+            #if rec.state == 'sale':
                 # if rec.is_exception:
                 #     rec.mark_tasks_as_exception()
-                if rec.user_id.id != rec.write_uid.id:
-                    self.send_notify_changes_mail()
-        return res
+                #if rec.user_id.id != rec.write_uid.id:
+                    #self.send_notify_changes_mail()
+        #return res
 
     def _action_confirm(self):
         result = super()._action_confirm()

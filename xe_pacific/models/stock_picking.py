@@ -61,11 +61,13 @@ class StockPicking(models.Model):
         readonly=True
     )
 
-    @api.depends('location_id', 'move_ids', 'x_studio_canal_de_distribucin')
+    @api.depends('location_id', 'move_ids', 'group_id')
     def _compute_shipping_assignment(self):
         for rec in self:
             if rec.company_id.id == 4:
-                if rec.x_studio_canal_de_distribucin == 'INTERGRUPO':
+                sale_id = rec.group_id.sale_id
+                distribution_channel = sale_id.partner_id.team_id.name
+                if distribution_channel == 'INTERGRUPO':
                     rec.shipping_assignment = 'shipments'
                     continue
                 if rec.location_id and rec.location_id.warehouse_id.name:
@@ -73,10 +75,10 @@ class StockPicking(models.Model):
                         rec.shipping_assignment = 'shipments'
                         continue
                     if rec.location_id.warehouse_id.name == 'Monterrey PR': 
-                        if rec.x_studio_canal_de_distribucin == 'DISTRIBUIDORES':
+                        if distribution_channel == 'DISTRIBUIDORES':
                             rec.shipping_assignment = 'shipments'
                             continue
-                        if rec.move_ids.filtered(lambda record: record.product_id.default_code == 'FLTENVIO'):
+                        if sale_id.order_line.filtered(lambda record: record.product_id.default_code == 'FLTENVIO'):
                             rec.shipping_assignment = 'shipments'
                             continue
                 rec.shipping_assignment= 'logistics'
@@ -265,8 +267,9 @@ class StockPicking(models.Model):
             elif not rec.move_ids.filtered(lambda m: m.product_uom_qty > 0):
                 rec.sudo().unlink()
 
-    def separate_client_remissions(self):
+        def separate_client_remissions(self):
         for rec in self:
+            _logger.info("entre en el separate_client_remissions")
             sale_order = rec.env['sale.order'].search(
                 [('name', '=', rec.group_id.name), ('company_id', '=', rec.env.company.id)]
             )
@@ -282,6 +285,11 @@ class StockPicking(models.Model):
                 'instalación' in m.product_id.name.lower() or
                 'instalacion' in m.product_id.name.lower()    
             )
+            rest_moves = rec.move_ids.filtered(
+                lambda m: m.product_id.type == 'consu' and 
+                    'visita' not in m.product_id.name.lower() and
+                    'instalaci' not in m.product_id.name.lower()
+            )
             scheduled_date = rec.scheduled_date
     
             if service_moves:
@@ -291,6 +299,10 @@ class StockPicking(models.Model):
             if installation_moves:
                 rec._create_separated_picking_by_categ(
                     rec, installation_moves, sale_order, scheduled_date)
+
+            if rest_moves:
+                rec._create_separated_picking_by_categ(
+                    rec, rest_moves, sale_order, scheduled_date)
 
             rec.write({'is_remission_separated': True})
             rec.batch_id.sudo().unlink()
