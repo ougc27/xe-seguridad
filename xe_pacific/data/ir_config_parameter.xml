@@ -2,6 +2,6 @@
 <odoo noupdate="1">
     <record id="separate_remissions_activate" model="ir.config_parameter">
         <field name="key">separate_remissions_activate</field>
-        <field name="value">0</field>
+        <field name="value">1</field>
     </record>
 </odoo>
