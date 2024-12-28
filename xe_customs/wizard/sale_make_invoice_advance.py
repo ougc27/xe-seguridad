@@ -52,11 +52,6 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
         ])
         downpayments.invoice_id._get_source_orders()
         lines = [(0, 0, {
-            'invoice_id': downpayment.invoice_id.id,
-            'amount': 0,
-            'downpayment_id': downpayment.id,
-        }) for downpayment in downpayments]
-        lines += [(0, 0, {
             'invoice_id': invoice.id,
             'amount': 0,
         }) for invoice in self.env['account.move'].search([
@@ -65,8 +60,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
             ('has_down_payment', '=', True),
             ('state', '!=', 'cancel'),
             ('l10n_mx_edi_cfdi_uuid', '!=', False),
-            ('id', 'not in', downpayments.mapped('invoice_id').ids),
-        ])]
+        ]).filtered(lambda x: x.reconcile_balance > 0)]
 
         return lines
 
@@ -99,34 +93,31 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
             if self.reconciled_amount > self.invoiceable_amount:
                 raise UserError('The total amount of down payments exceeds the amount that can be invoiced.')
 
-            # Update down payments
-            downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0 and x.downpayment_id)
-            for downpayment in downpayments:
-                downpayment.downpayment_id.order_line_id.price_unit += downpayment.amount / (1 + (total_tax / 100))
+            # Create invoice
+            invoice = sale_orders._create_invoices(final=False, grouped=not self.consolidated_billing)
+            invoice.invoice_line_ids.filtered(lambda x: x.is_downpayment or x.display_type == 'line_section').unlink()
 
             # Register down payments
-            downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0 and not x.downpayment_id)
+            downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0)
             for downpayment in downpayments:
                 dp = self.env['sale.down.payment'].create({
                     'invoice_id': downpayment.invoice_id.id,
                 })
                 dp._prepare_lines(order_id, downpayment.amount)
+                dp.order_line_id.invoice_id = invoice
 
             downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0)
-            invoices = sale_orders._create_invoices(final=False, grouped=not self.consolidated_billing)
-            invoices.invoice_line_ids.filtered(lambda x: x.is_downpayment or x.display_type == 'line_section').unlink()
-            for invoice in invoices:
-                origins = []
-                for inv in downpayments.mapped('invoice_id'):
-                    origins.append(inv.l10n_mx_edi_cfdi_uuid)
-                if len(origins) > 0:
-                    invoice.l10n_mx_edi_cfdi_origin = '07|' + ','.join(origins)
+            origins = []
+            for inv in downpayments.mapped('invoice_id'):
+                origins.append(inv.l10n_mx_edi_cfdi_uuid)
+            if len(origins) > 0:
+                invoice.l10n_mx_edi_cfdi_origin = '07|' + ','.join(origins)
 
-            invoices.locked = True
+            invoice.locked = True
             if self.advance_payment_method == 'delivered':
-                invoices.auto_credit_note = True
+                invoice.auto_credit_note = True
 
-            return invoices
+            return invoice
         else:
             self = self.with_company(self.company_id)
             invoice = self.env['account.move'].sudo().create({

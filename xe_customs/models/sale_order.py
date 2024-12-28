@@ -90,11 +90,15 @@ class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
     margin = fields.Monetary("Margin", compute='_compute_margin', store=True, groups="account.group_account_manager")
-
     client_barcode = fields.Char(
         string='Client Product Barcode',
         compute='_compute_client_barcode',
         store=True)
+    invoice_id = fields.Many2one(
+        comodel_name='account.move',
+        string="Invoice",
+        copy=False
+    )
 
     @api.depends('order_id.partner_id', 'product_id')
     def _compute_client_barcode(self):
@@ -249,6 +253,7 @@ class SaleDownPayment(models.Model):
                 'tax_id': [(6, 0, tax_id.ids)],
                 'is_downpayment': True,
                 'invoice_lines': [(6, 0, invoice_down_payment.ids)],
+                'invoice_id': payment.invoice_id.id,
                 'sequence': order_id.order_line and order_id.order_line[-1].sequence + 1 or 10,
             })
             payment.order_line_id = sale_down_payment
