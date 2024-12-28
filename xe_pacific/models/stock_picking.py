@@ -267,9 +267,8 @@ class StockPicking(models.Model):
             elif not rec.move_ids.filtered(lambda m: m.product_uom_qty > 0):
                 rec.sudo().unlink()
 
-        def separate_client_remissions(self):
+    def separate_client_remissions(self):
         for rec in self:
-            _logger.info("entre en el separate_client_remissions")
             sale_order = rec.env['sale.order'].search(
                 [('name', '=', rec.group_id.name), ('company_id', '=', rec.env.company.id)]
             )
