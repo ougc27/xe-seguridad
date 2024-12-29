@@ -305,6 +305,9 @@ class StockPicking(models.Model):
 
             rec.write({'is_remission_separated': True})
             rec.batch_id.sudo().unlink()
+
+            if not rec.move_ids.filtered(lambda m: m.product_uom_qty > 0):
+                rec.sudo().unlink()
                 
     def combine_remissions(self):
         if not self:
