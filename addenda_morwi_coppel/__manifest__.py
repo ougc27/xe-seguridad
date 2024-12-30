@@ -35,6 +35,7 @@ Also a template is added for render the addenda.
     'data': [
         'data/4.0/addenda.xml',
         'views/account_move_view.xml',
+        'views/res_company_views.xml',
     ],
     'demo': [],
     'qweb': [],

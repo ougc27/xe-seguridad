@@ -19,7 +19,7 @@
                     </orderIdentification>
                     <seller>
                         <gln>0</gln>
-                        <alternatePartyIdentification type="SELLER_ASSIGNED_IDENTIFIER_FOR_A_PARTY">25933</alternatePartyIdentification>
+                        <alternatePartyIdentification type="SELLER_ASSIGNED_IDENTIFIER_FOR_A_PARTY" t-raw="record.company_id.addenda_coppel_party_id"></alternatePartyIdentification>
                         <IndentificaTipoProv t-raw="record.addenda_coppel_supplier_type"></IndentificaTipoProv>
                     </seller>
                     <shipTo>
@@ -34,7 +34,7 @@
                             <BodegaReceptora t-raw="record.addenda_coppel_reception_dc"></BodegaReceptora>
                         </nameAndAddress>
                     </shipTo>
-                    <currency currencyISOCode="record.currency_id.name">
+                    <currency t-att-currencyISOCode="record.currency_id.name">
                         <currencyFunction>BILLING_CURRENCY</currencyFunction>
                         <rateOfChange t-raw="list(record.currency_id._get_rates(record.company_id, record.invoice_date).values())[0]"></rateOfChange>
                     </currency>
@@ -58,9 +58,9 @@
                                 <tradeItemIdentification>
                                     <gtin t-raw="line.product_id.default_code"></gtin>
                                 </tradeItemIdentification>
-                                <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line.addenda_coppel_vendor_id.product_code"></alternateTradeItemIdentification>
+                                <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line._get_addenda_sku_client()"></alternateTradeItemIdentification>
                                 <tradeItemDescriptionInformation language="ES">
-                                    <longText t-raw="line.addenda_coppel_vendor_id.product_name"></longText>
+                                    <longText t-raw="line._get_addenda_product_name_client()"></longText>
                                 </tradeItemDescriptionInformation>
                                 <invoicedQuantity t-att-unitOfMeasure="line.product_uom_id.name" t-raw="line.quantity"></invoicedQuantity>
                                 <grossPrice>
@@ -70,7 +70,7 @@
                                     <Amount t-raw="line.price_unit"></Amount>
                                 </netPrice>
                                 <modeloInformation>
-                                    <longTextExt t-raw="line.product_id.name"></longTextExt>
+                                    <longTextExt t-raw="line._get_addenda_product_name_client()"></longTextExt>
                                 </modeloInformation>
                                 <allowanceCharge allowanceChargeType="ALLOWANCE_GLOBAL">
                                     <specialServicesType>PAD</specialServicesType>
