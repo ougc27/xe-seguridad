@@ -17,7 +17,7 @@
     'sequence': 50,
     'summary': "Addenda Coppel",
     'website': 'https://www.morwi.com',
-    'version': '1.0',
+    'version': '1.1',
     'description': """
 Addendas Coppel
 ===============================================================
