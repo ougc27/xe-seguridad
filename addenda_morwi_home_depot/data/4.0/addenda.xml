@@ -35,9 +35,9 @@
                                 <tradeItemIdentification>
                                     <gtin t-raw="line.product_id.default_code"></gtin>
                                 </tradeItemIdentification>
-                                <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line.product_id.default_code"></alternateTradeItemIdentification>
+                                <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line._get_addenda_sku_client()"></alternateTradeItemIdentification>
                                 <tradeItemDescriptionInformation language="ES">
-                                    <longText t-raw="line.name"></longText>
+                                    <longText t-raw="line.product_id.name"></longText>
                                 </tradeItemDescriptionInformation>
                                 <invoicedQuantity unitOfMeasure="NMTOKEN" t-raw="line.quantity"></invoicedQuantity>
                                 <grossPrice>
