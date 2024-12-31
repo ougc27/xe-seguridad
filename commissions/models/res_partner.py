@@ -72,7 +72,7 @@ class ResPartner(models.Model):
         self.agent2_per = agent2_per
 
     def duplicated_agent(self):
-        if self.agent1_id == self.agent2_id:
+        if self.agent1_id and self.agent2_id and self.agent1_id == self.agent2_id:
             raise UserError(_('Agent 1 and Agent 2 must be different.'))
 
     def write(self, vals):
