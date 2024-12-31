@@ -37,7 +37,7 @@
                                 </tradeItemIdentification>
                                 <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line._get_addenda_sku_client()"></alternateTradeItemIdentification>
                                 <tradeItemDescriptionInformation language="ES">
-                                    <longText t-raw="line.product_id.name"></longText>
+                                    <longText t-raw="line._get_addenda_product_name_client()"></longText>
                                 </tradeItemDescriptionInformation>
                                 <invoicedQuantity unitOfMeasure="NMTOKEN" t-raw="line.quantity"></invoicedQuantity>
                                 <grossPrice>
