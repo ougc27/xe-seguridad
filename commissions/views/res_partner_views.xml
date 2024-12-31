@@ -16,6 +16,7 @@
                            class="oe_inline"
                            readonly="not is_commission_user and not is_advanced_commission_user and not is_commission_admin"
                            force_save="1"
+                           domain="[('id', '!=', agent2_id)]"
                            options="{'no_open': True, 'no_create': True}"/>
                     <span> </span>
                     <field name="agent1_per"
@@ -28,6 +29,7 @@
                     <field name="agent2_id"
                            class="oe_inline"
                            force_save="1"
+                           domain="[('id', '!=', agent1_id)]"
                            readonly="not is_commission_user and not is_advanced_commission_user and not is_commission_admin"
                            options="{'no_open': True, 'no_create': True}"/>
                     <span> </span>

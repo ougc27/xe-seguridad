@@ -264,8 +264,12 @@ class StockPicking(models.Model):
                             lock_installation_moves, sale_order, scheduled_date, True
                         )
                 rec.sudo().unlink()
+                continue
             elif not rec.move_ids.filtered(lambda m: m.product_uom_qty > 0):
                 rec.sudo().unlink()
+                continue
+            for line in rec.move_ids.filtered(lambda m: m.product_uom_qty <= 0):
+                line.sudo().unlink()
 
     def separate_client_remissions(self):
         for rec in self:

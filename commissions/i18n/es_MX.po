@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-23 06:30+0000\n"
-"PO-Revision-Date: 2024-12-23 06:30+0000\n"
+"POT-Creation-Date: 2024-12-30 11:35+0000\n"
+"PO-Revision-Date: 2024-12-30 11:35+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -105,6 +105,13 @@ msgstr "Agente"
 #: model:ir.model.fields,field_description:commissions.field_sale_order__agent1_id
 msgid "Agent 1"
 msgstr "Agente 1"
+
+#. module: commissions
+#. odoo-python
+#: code:addons/commissions/models/res_partner.py:0
+#, python-format
+msgid "Agent 1 and Agent 2 must be different."
+msgstr "El agente 1 y el agente 2 deben ser distintos."
 
 #. module: commissions
 #: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__agent1_per
@@ -219,6 +226,13 @@ msgid "Commission (%)"
 msgstr "Comisión (%)"
 
 #. module: commissions
+#. odoo-python
+#: code:addons/commissions/models/res_company.py:0
+#, python-format
+msgid "Commission payment sequence"
+msgstr ""
+
+#. module: commissions
 #: model:ir.actions.act_window,name:commissions.commission_recalculation_open_action
 #: model:ir.model,name:commissions.model_commission_recalculation
 #: model:ir.ui.menu,name:commissions.commission_recalculation_menuitem
@@ -258,6 +272,11 @@ msgstr "Cantidad de comisiones"
 #: model:ir.actions.server,name:commissions.commission_sequence_cron_ir_actions_server
 msgid "Commissions: Create sequences for existing companies"
 msgstr "Comisiones: Crea secuencias para compañías existentes"
+
+#. module: commissions
+#: model:ir.model,name:commissions.model_res_company
+msgid "Companies"
+msgstr "Empresas"
 
 #. module: commissions
 #: model:ir.model.fields,field_description:commissions.field_xe_agent__company_id
@@ -432,6 +451,13 @@ msgid "Last Updated on"
 msgstr "Última actualización el"
 
 #. module: commissions
+#. odoo-python
+#: code:addons/commissions/models/res_company.py:0
+#, python-format
+msgid "Mass commission payment sequence"
+msgstr ""
+
+#. module: commissions
 #: model:ir.actions.act_window,name:commissions.mass_payment_commissions_open_action
 #: model:ir.model,name:commissions.model_xe_mass_payment_commissions
 #: model:ir.ui.menu,name:commissions.commissions_mass_payment_commissions_menuitem
@@ -527,6 +553,14 @@ msgstr "Orden de venta"
 #: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
 msgid "Separate payment"
 msgstr "Romper pago"
+
+#. module: commissions
+#. odoo-python
+#: code:addons/commissions/models/xe_mass_payment_commissions.py:0
+#: code:addons/commissions/models/xe_payment_commissions.py:0
+#, python-format
+msgid "Sequence not found"
+msgstr ""
 
 #. module: commissions
 #: model:ir.model.fields,field_description:commissions.field_commission_recalculation__start_date
