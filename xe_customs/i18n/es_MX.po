@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0+e-20240711\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-26 19:38+0000\n"
-"PO-Revision-Date: 2024-11-26 19:38+0000\n"
+"POT-Creation-Date: 2024-12-31 17:02+0000\n"
+"PO-Revision-Date: 2024-12-31 17:02+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -41,6 +41,13 @@ msgstr ""
 " * Cancelado: se canceló el traslado."
 
 #. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/wizard/sale_make_invoice_advance.py:0
+#, python-format
+msgid "%s has been created"
+msgstr "%s ha sido creado"
+
+#. module: xe_customs
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
@@ -53,28 +60,70 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
-msgid "<strong>Orden de Entrega:</strong>"
+msgid "<strong>Cel:</strong>"
 msgstr ""
 
 #. module: xe_customs
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
-msgid "<strong>Orden de Venta:</strong>"
+msgid "<strong>Destino:</strong>"
 msgstr ""
 
 #. module: xe_customs
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
-msgid "<strong>Pedido Físico:</strong>"
+msgid "<strong>Email:</strong>"
 msgstr ""
 
 #. module: xe_customs
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
-msgid "<strong>Saldo Pendiente:</strong>"
+msgid "<strong>Folio de traslado:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Orden de venta:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Origen:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Pedido físico:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>RFC:</strong>"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Saldo pendiente:</strong> $"
+msgstr ""
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "<strong>Tel:</strong>"
 msgstr ""
 
 #. module: xe_customs
@@ -85,16 +134,14 @@ msgid "<strong>Total Puertas:</strong>"
 msgstr ""
 
 #. module: xe_customs
-#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
-#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
-#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
-msgid "<strong>Total:</strong>"
-msgstr ""
-
-#. module: xe_customs
 #: model:ir.model,name:xe_customs.model_account_move_send
 msgid "Account Move Send"
 msgstr "Enviar movimiento de cuenta"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__advance_id
+msgid "Advance"
+msgstr "Adelanto"
 
 #. module: xe_customs
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
@@ -103,8 +150,14 @@ msgstr ""
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__amount
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__amount
 msgid "Amount"
 msgstr "Monto"
+
+#. module: xe_customs
+#: model_terms:ir.actions.act_window,help:xe_customs.supervisor_installer_action
+msgid "Assign supervisors and installers"
+msgstr "Asignar supervisores e instaladores"
 
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_product_clientinfo__sequence
@@ -117,6 +170,11 @@ msgstr "Asigna la prioridad de la lista de precios del producto"
 #: model:ir.model.fields,field_description:xe_customs.field_account_payment__auto_credit_note
 msgid "Auto Credit Note"
 msgstr "Nota de Crédito Automática"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__balance
+msgid "Balance"
+msgstr ""
 
 #. module: xe_customs
 #: model_terms:ir.ui.view,arch_db:xe_customs.view_picking_form_inherit
@@ -183,6 +241,7 @@ msgstr "Compañía"
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__create_uid
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__create_uid
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__create_uid
 #: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__create_uid
 msgid "Created by"
 msgstr "Creado por"
@@ -190,6 +249,7 @@ msgstr "Creado por"
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__create_date
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__create_date
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__create_date
 #: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__create_date
 msgid "Created on"
 msgstr "Creado el"
@@ -197,8 +257,16 @@ msgstr "Creado el"
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__currency_id
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__currency_id
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__currency_id
 msgid "Currency"
 msgstr "Moneda"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
+#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
+msgid "DOCUMENTO SIN FOLIO DE REMISIÓN, NO SURTIR!"
+msgstr ""
 
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_product_product__client_ids
@@ -231,6 +299,7 @@ msgstr "Tiempo de Entrega"
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__display_name
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__display_name
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__display_name
 #: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__display_name
 msgid "Display Name"
 msgstr "Nombre Mostrado"
@@ -239,13 +308,23 @@ msgstr "Nombre Mostrado"
 #. odoo-python
 #: code:addons/xe_customs/models/sale_order.py:0
 #: code:addons/xe_customs/wizard/account_move_send.py:0
+#: code:addons/xe_customs/wizard/sale_make_invoice_advance.py:0
 #, python-format
 msgid "Down Payment"
 msgstr "Anticipo"
 
 #. module: xe_customs
 #. odoo-python
+#: code:addons/xe_customs/models/account_move_line.py:0
+#, python-format
+msgid "Down Payment amount cannot be lower than the reconciled amounts."
+msgstr "El monto del anticipo no puede ser menor que los montos conciliados."
+
+#. module: xe_customs
+#. odoo-python
 #: code:addons/xe_customs/models/sale_order.py:0
+#: model:ir.model.fields,field_description:xe_customs.field_sale_advance_payment_inv__down_payment_ids
+#: model:ir.model.fields,field_description:xe_customs.field_sale_advance_payment_inv__down_payment_ids_count
 #: model_terms:ir.ui.view,arch_db:xe_customs.view_order_form_inherit
 #, python-format
 msgid "Down Payments"
@@ -259,6 +338,28 @@ msgid "Down Payments of: %s"
 msgstr "Anticipos de: %s"
 
 #. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/wizard/sale_make_invoice_advance.py:0
+#, python-format
+msgid "Down payment invoice"
+msgstr "Factura de anticipo"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__downpayment_id
+msgid "Downpayment"
+msgstr "Anticipo"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__employee_id
+msgid "Employee"
+msgstr "Empleado"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_supervisor_installer__employee_id
+msgid "Employee that is supervisor or installer"
+msgstr "Empleado que sea supervisor o instalador"
+
+#. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__date_end
 msgid "End Date"
 msgstr "Fecha de Término"
@@ -270,11 +371,13 @@ msgstr "Fecha de término del precio para este cliente"
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__l10n_mx_edi_cfdi_uuid
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__l10n_mx_edi_cfdi_uuid
 msgid "Fiscal Folio"
 msgstr "Folio Fiscal"
 
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_sale_down_payment__l10n_mx_edi_cfdi_uuid
+#: model:ir.model.fields,help:xe_customs.field_sale_down_payment_wizard__l10n_mx_edi_cfdi_uuid
 msgid "Folio in electronic invoice, is returned by SAT when send to stamp."
 msgstr ""
 "Folio en la Factura electrónica, es devuelto por el SAT cuando se firma."
@@ -289,9 +392,10 @@ msgstr "Tiene Anticipos"
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__id
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__id
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__id
 #: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_product_clientinfo__product_id
@@ -319,20 +423,33 @@ msgid "Installer"
 msgstr "Instalador"
 
 #. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__installer_number
+msgid "Installer Number"
+msgstr "Número Instalador"
+
+#. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_account_invoice_report__inventory_value
 msgid "Inventory Value"
 msgstr "Valor del inventario"
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__invoice_id
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__invoice_id
+#: model:ir.model.fields,field_description:xe_customs.field_sale_order_line__invoice_id
 msgid "Invoice"
 msgstr "Factura"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_sale_advance_payment_inv__invoiceable_amount
+msgid "Invoiceable Amount"
+msgstr "Monto Facturable"
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__source_orders
 #: model:ir.model.fields,field_description:xe_customs.field_account_move__source_orders
 #: model:ir.model.fields,field_description:xe_customs.field_account_payment__source_orders
 #: model:ir.model.fields,field_description:xe_customs.field_sale_order__down_payment_ids
+#: model_terms:ir.ui.view,arch_db:xe_customs.view_sale_advance_payment_inv
 msgid "Invoices"
 msgstr "Facturas"
 
@@ -360,6 +477,7 @@ msgstr "Apunte contable"
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__write_uid
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__write_uid
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__write_uid
 #: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
@@ -367,6 +485,7 @@ msgstr "Última actualización por"
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__write_date
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__write_date
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__write_date
 #: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__write_date
 msgid "Last Updated on"
 msgstr "Última actualización el"
@@ -402,6 +521,11 @@ msgid "Move"
 msgstr "Movimiento"
 
 #. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__order_id
 msgid "Order"
 msgstr "Orden"
@@ -410,13 +534,6 @@ msgstr "Orden"
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__order_line_id
 msgid "Order Line"
 msgstr "Línea de la Orden"
-
-#. module: xe_customs
-#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
-#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
-#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
-msgid "P. U."
-msgstr ""
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__price
@@ -457,15 +574,31 @@ msgstr "Cantidad"
 #: model:ir.model.fields,field_description:xe_customs.field_account_move__reconcile_balance
 #: model:ir.model.fields,field_description:xe_customs.field_account_payment__reconcile_balance
 msgid "Reconcile Balance"
-msgstr "Balance por Conciliar"
+msgstr "Balance Conciliado"
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__reconciled_amount
 #: model:ir.model.fields,field_description:xe_customs.field_account_move__reconciled_amount
 #: model:ir.model.fields,field_description:xe_customs.field_account_payment__reconciled_amount
+#: model:ir.model.fields,field_description:xe_customs.field_sale_advance_payment_inv__reconciled_amount
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__reconciled_amount
 #: model:ir.model.fields,field_description:xe_customs.field_sale_order__down_payment_context
+#: model:ir.model.fields,field_description:xe_customs.field_sale_order__reconciled_amount
 msgid "Reconciled Amount"
 msgstr "Monto Conciliado"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__remarks
+#: model:ir.model.fields,field_description:xe_customs.field_account_move__remarks
+#: model:ir.model.fields,field_description:xe_customs.field_account_payment__remarks
+#: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment_wizard__remarks
+msgid "Remarks"
+msgstr "Observaciones"
+
+#. module: xe_customs
+#: model:ir.actions.server,name:xe_customs.action_remissions
+msgid "Remisionar"
+msgstr ""
 
 #. module: xe_customs
 #: model:ir.actions.report,name:xe_customs.report_remission1
@@ -494,6 +627,7 @@ msgstr ""
 
 #. module: xe_customs
 #: model:ir.model,name:xe_customs.model_sale_down_payment
+#: model:ir.model,name:xe_customs.model_sale_down_payment_wizard
 msgid "Sale Down Payment"
 msgstr "Anticipo"
 
@@ -510,7 +644,7 @@ msgstr "Factura de anticipo de ventas"
 #. module: xe_customs
 #: model:ir.model,name:xe_customs.model_sale_report
 msgid "Sales Analysis Report"
-msgstr "Reporte de análisis de ventas"
+msgstr "Reporte del análisis de ventas"
 
 #. module: xe_customs
 #: model:ir.model,name:xe_customs.model_sale_order
@@ -550,12 +684,26 @@ msgstr "Estado"
 #. module: xe_customs
 #: model:ir.model,name:xe_customs.model_stock_forecasted_product_product
 msgid "Stock Replenishment Report"
-msgstr "Reporte de reabastecimiento de existencias"
+msgstr "Reporte de reabastecimiento de inventario"
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_stock_picking__supervisor_id
 msgid "Supervisor"
 msgstr ""
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__supervisor_number
+msgid "Supervisor Number"
+msgstr "Número Supervisor"
+
+#. module: xe_customs
+#: model:ir.actions.act_window,name:xe_customs.supervisor_installer_action
+#: model:ir.model,name:xe_customs.model_supervisor_installer
+#: model:ir.ui.menu,name:xe_customs.supervisors_and_installers
+#: model_terms:ir.ui.view,arch_db:xe_customs.supervisor_installer_view_form
+#: model_terms:ir.ui.view,arch_db:xe_customs.supervisor_installer_view_tree
+msgid "Supervisors and Installers"
+msgstr "Supervisores e Instaladores"
 
 #. module: xe_customs
 #. odoo-python
@@ -628,9 +776,6 @@ msgid "This comes from the product form."
 msgstr "Esto proviene del formulario del producto"
 
 #. module: xe_customs
-#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
-#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format2
-#: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format3
 #: model_terms:ir.ui.view,arch_db:xe_customs.view_order_form_inherit
 msgid "Total"
 msgstr ""
@@ -653,6 +798,16 @@ msgid "Unidad"
 msgstr ""
 
 #. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_supervisor_installer__installer_number
+msgid "Unique identifier for the installer"
+msgstr "Identificador único para el instalador"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_supervisor_installer__supervisor_number
+msgid "Unique identifier for the supervisor"
+msgstr "Identificador único para el supervisor"
+
+#. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__product_uom
 msgid "Unit of Measure"
 msgstr "Unidad de Medida"
@@ -663,6 +818,11 @@ msgstr "Unidad de Medida"
 #, python-format
 msgid "Unlinked Down Payment"
 msgstr "Anticipo Desvinculado"
+
+#. module: xe_customs
+#: model:ir.actions.server,name:xe_customs.action_validate_remissions
+msgid "Validar entrega remisionada"
+msgstr ""
 
 #. module: xe_customs
 #: model_terms:ir.ui.view,arch_db:xe_customs.view_picking_form_inherit
@@ -699,10 +859,10 @@ msgstr "No se puede cancelar una orden con anticipos"
 
 #. module: xe_customs
 #. odoo-python
-#: code:addons/xe_customs/models/sale_order.py:0
+#: code:addons/xe_customs/models/stock_picking.py:0
 #, python-format
-msgid "You cannot change the invoice of a down payment."
-msgstr "No se puede cambiar la factura de un anticipo"
+msgid "You cannot remission a validated order"
+msgstr "No puedes remisionar una entrega en estado hecho"
 
 #. module: xe_customs
 #. odoo-python
@@ -719,56 +879,6 @@ msgid "You cannot unreserve a transit picking."
 msgstr "No se puede anular la reserva de un movimiento en Remisión."
 
 #. module: xe_customs
-#: model_terms:ir.actions.act_window,help:xe_customs.supervisor_installer_action
-msgid "Assign supervisors and installers"
-msgstr "Asignar supervisores e instaladores"
-
-#. module: xe_customs
-#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__employee_id
-msgid "Employee"
-msgstr "Empleado"
-
-#. module: xe_customs
-#: model:ir.model.fields,help:xe_customs.field_supervisor_installer__employee_id
-msgid "Employee that is supervisor or installer"
-msgstr "Empleado que sea supervisor o instalador"
-
-
-#. module: xe_customs
-#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__installer_number
-msgid "Installer Number"
-msgstr "Número Instalador"
-
-#. module: xe_customs
-#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__name
-msgid "Name"
-msgstr "Nombre"
-
-#. module: xe_customs
-#: model:ir.model.fields,field_description:xe_customs.field_supervisor_installer__supervisor_number
-msgid "Supervisor Number"
-msgstr "Número Supervisor"
-
-#. module: xe_customs
-#: model:ir.actions.act_window,name:xe_customs.supervisor_installer_action
-#: model:ir.model,name:xe_customs.model_supervisor_installer
-#: model:ir.ui.menu,name:xe_customs.supervisors_and_installers
-#: model_terms:ir.ui.view,arch_db:xe_customs.supervisor_installer_view_form
-#: model_terms:ir.ui.view,arch_db:xe_customs.supervisor_installer_view_tree
-msgid "Supervisors and Installers"
-msgstr "Supervisores e Instaladores"
-
-#. module: xe_customs
-#: model:ir.model.fields,help:xe_customs.field_supervisor_installer__installer_number
-msgid "Unique identifier for the installer"
-msgstr "Identificador único para el instalador"
-
-#. module: xe_customs
-#: model:ir.model.fields,help:xe_customs.field_supervisor_installer__supervisor_number
-msgid "Unique identifier for the supervisor"
-msgstr "Identificador único para el supervisor"
-
-#. module: xe_customs
 #. odoo-python
 #: code:addons/xe_customs/models/stock_picking.py:0
 #, python-format
@@ -776,11 +886,5 @@ msgid ""
 "You cannot validate a delivery order unless it is in the \"Remission\" "
 "state."
 msgstr ""
-"No puedes validar una orden de entrega a menos que esté en estado \"Remisión\"."
-
-#. module: xe_customs
-#. odoo-python
-#: code:addons/xe_customs/models/stock_picking.py:0
-#, python-format
-msgid "You cannot remission a validated order"
-msgstr "No puedes remisionar una entrega en estado hecho"
+"No puedes validar una orden de entrega a menos que esté en estado "
+"\"Remisión\"."

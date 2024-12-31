@@ -208,6 +208,10 @@ class SaleDownPaymentWizard(models.TransientModel):
         string = "Fiscal Folio",
         related = 'invoice_id.l10n_mx_edi_cfdi_uuid',
     )
+    remarks = fields.Char(
+        string = "Remarks",
+        related = 'invoice_id.remarks',
+    )
     currency_id = fields.Many2one(
         comodel_name = 'res.currency',
         string = "Currency",

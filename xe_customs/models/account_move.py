@@ -28,6 +28,7 @@ class AccountMove(models.Model):
     )
     locked = fields.Boolean(default=False)
     auto_credit_note = fields.Boolean(default=False)
+    remarks = fields.Char(copy=False)
     
     @api.depends('invoice_line_ids')
     def _get_source_orders(self):

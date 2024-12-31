@@ -18,6 +18,7 @@
                         <field name="currency_id" column_invisible="1"/>
                         <field name="invoice_id" readonly="1" force_save="1"/>
                         <field name="l10n_mx_edi_cfdi_uuid"/>
+                        <field name="remarks"/>
                         <field name="balance"/>
                         <field name="amount"/>
                     </tree>
