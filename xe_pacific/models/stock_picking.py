@@ -266,6 +266,8 @@ class StockPicking(models.Model):
                 rec.sudo().unlink()
             elif not rec.move_ids.filtered(lambda m: m.product_uom_qty > 0):
                 rec.sudo().unlink()
+            for line in rec.move_ids.filtered(lambda m: m.product_uom_qty == 0):
+                line.sudo().unlink()
 
     def separate_client_remissions(self):
         for rec in self:
@@ -284,6 +286,11 @@ class StockPicking(models.Model):
                 'instalación' in m.product_id.name.lower() or
                 'instalacion' in m.product_id.name.lower()    
             )
+            rest_moves = rec.move_ids.filtered(
+                lambda m: m.product_id.type == 'consu' and 
+                    'visita' not in m.product_id.name.lower() and
+                    'instalaci' not in m.product_id.name.lower()
+            )
             scheduled_date = rec.scheduled_date
     
             if service_moves:
@@ -293,6 +300,10 @@ class StockPicking(models.Model):
             if installation_moves:
                 rec._create_separated_picking_by_categ(
                     rec, installation_moves, sale_order, scheduled_date)
+
+            if rest_moves:
+                rec._create_separated_picking_by_categ(
+                    rec, rest_moves, sale_order, scheduled_date)
 
             rec.write({'is_remission_separated': True})
             rec.batch_id.sudo().unlink()
