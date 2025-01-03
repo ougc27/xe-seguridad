@@ -75,7 +75,7 @@ class StockPicking(models.Model):
                         rec.shipping_assignment = 'shipments'
                         continue
                     if rec.location_id.warehouse_id.name == 'Monterrey PR': 
-                        if distribution_channel == 'DISTRIBUIDORES':
+                        if distribution_channel in ['DISTRIBUIDORES', 'MARKETPLACE']:
                             rec.shipping_assignment = 'shipments'
                             continue
                         if sale_id.order_line.filtered(lambda record: record.product_id.default_code == 'FLTENVIO'):
@@ -222,7 +222,7 @@ class StockPicking(models.Model):
                     'scheduled_date': scheduled_date,
                     'state': 'confirmed',
                 })
-    
+
                 for new_move in new_picking.move_ids:
                     for original_move, qty in grouped_moves:
                         if new_move.product_id.id == original_move.product_id.id:
@@ -426,4 +426,3 @@ class StockPicking(models.Model):
             raise UserError(_('Nothing to check the availability for.'))
         moves._action_assign()
         return True
-
