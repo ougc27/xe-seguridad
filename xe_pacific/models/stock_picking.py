@@ -425,3 +425,9 @@ class StockPicking(models.Model):
         moves._action_assign()
         return True
 
+    def write(self, vals):
+        res = super().write(vals)
+        for picking in self:
+            if picking.x_studio_folio_rem and picking.state not in ['transit', 'done']:
+                picking.write({'state': 'transit'})
+        return res
