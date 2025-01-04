@@ -55,6 +55,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
             'invoice_id': invoice.id,
             'amount': 0,
         }) for invoice in self.env['account.move'].search([
+            ('hidden_for_down_payment', '=', False),
             ('move_type', '=', 'out_invoice'),
             ('partner_id', 'in', orders.mapped('partner_id').ids),
             ('has_down_payment', '=', True),

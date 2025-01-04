@@ -26,6 +26,11 @@ class AccountMove(models.Model):
         string="Has Down Payment",
         copy=False,
     )
+    hidden_for_down_payment = fields.Boolean(
+        string="Hidden for Down Payments",
+        copy=False,
+        default=False
+    )
     locked = fields.Boolean(default=False)
     auto_credit_note = fields.Boolean(default=False)
     remarks = fields.Char(copy=False)
