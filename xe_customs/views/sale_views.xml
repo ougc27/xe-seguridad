@@ -9,6 +9,19 @@
             <xpath expr="//field[@name='product_template_id']" position="after">
                 <field name="client_barcode" readonly="1" optional="hide"/>
             </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Down Payments" name="down_payments">
+                    <field name="down_payment_ids" nolabel="1">
+                        <tree string="Down Payments" create="false" no_open="1">
+                            <field name="order_line_id" force_save="1" column_invisible="1"/>
+                            <field name="invoice_id" readonly="1" force_save="1"/>
+                            <field name="l10n_mx_edi_cfdi_uuid"/>
+                            <field name="reconciled_amount" sum="Total" readonly="1" force_save="1"/>
+                            <field name="amount" sum="Total" readonly="1" force_save="1"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
         </field>
     </record>
 

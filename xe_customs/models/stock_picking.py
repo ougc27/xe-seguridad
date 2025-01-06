@@ -49,6 +49,7 @@ class StockPicking(models.Model):
                     'picking_id': backorder.id,
                     'location_id': move.location_id.id,
                     'location_dest_id': move.location_dest_id.id,
+                    'sale_line_id': move.sale_line_id.id,
                 })
                 move.write({
                     'product_uom_qty': move.quantity,
