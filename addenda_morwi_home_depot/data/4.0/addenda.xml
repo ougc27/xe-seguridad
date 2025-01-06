@@ -19,7 +19,7 @@
                     </buyer>
                     <seller>
                         <gln>0007504005499</gln>
-                        <alternatePartyIdentification type="SELLER_ASSIGNED_IDENTIFIER_FOR_A_PARTY">101481</alternatePartyIdentification>
+                        <alternatePartyIdentification type="SELLER_ASSIGNED_IDENTIFIER_FOR_A_PARTY" t-raw="record.partner_id.addenda_home_depot_seller_id"/>
                     </seller>
                     <currency currencyISOCode="MXN">
                         <currencyFunction>BILLING_CURRENCY</currencyFunction>
@@ -33,7 +33,7 @@
                             <t t-set="count" t-value="count + 1"/>
                             <lineItem type="SimpleInvoiceLineItemType" t-att-number="count">
                                 <tradeItemIdentification>
-                                    <gtin t-raw="line.product_id.default_code"></gtin>
+                                    <gtin t-raw="line._get_addenda_sku_client()"></gtin>
                                 </tradeItemIdentification>
                                 <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line._get_addenda_sku_client()"></alternateTradeItemIdentification>
                                 <tradeItemDescriptionInformation language="ES">

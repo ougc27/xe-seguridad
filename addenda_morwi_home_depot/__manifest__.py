@@ -34,6 +34,7 @@ Also a template is added for render the addenda.
     ],
     'data': [
         'data/4.0/addenda.xml',
+        'views/res_partner_view.xml',
     ],
     'demo': [],
     'qweb': [],
