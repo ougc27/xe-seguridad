@@ -14,8 +14,8 @@ class SaleOrderLine(models.Model):
                 distribution = line.env['account.analytic.distribution.model']._get_distribution({
                     "product_id": line.product_id.id,
                     "product_categ_id": line.product_id.categ_id.id,
-                    "partner_id": line.order_id.partner_id.id,
-                    "partner_category_id": line.order_id.partner_id.category_id.ids,
+                    "partner_id": partner_id.id,
+                    "partner_category_id": partner_id.category_id.ids,
                     "company_id": line.company_id.id,
                     "warehouse_id": line.order_id.warehouse_id.id,
                     "team_id": line.order_id.team_id.id,

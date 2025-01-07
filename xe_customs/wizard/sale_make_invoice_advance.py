@@ -2,7 +2,7 @@
 # © 2024 Morwi Encoders Consulting SA DE CV
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html).
 
-from odoo import models, fields, api, _
+from odoo import models, fields, api, _, SUPERUSER_ID
 from odoo.fields import Command
 
 from odoo.exceptions import UserError
