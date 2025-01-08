@@ -538,3 +538,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:xe_pacific.field_account_analytic_distribution_model__team_id
 msgid "Distribution Channel"
 msgstr "Canal de distribución"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/sale_order.py:0
+#, python-format
+msgid ""
+"It contains a delivered product or deliveries with the status \"remission\"."
+msgstr ""
+"Contiene un producto entregado o tiene entregas con el estado \"Remisión\"."
