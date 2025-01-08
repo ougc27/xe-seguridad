@@ -27,6 +27,7 @@
             </form>
         </field>
     </record>
+
     <record id="view_cancelled_remission_tree" model="ir.ui.view">
         <field name="name">cancelled.remission.tree</field>
         <field name="model">cancelled.remission</field>
@@ -44,11 +45,25 @@
         </field>
     </record>
 
+    <record id="view_cancelled_remission_search" model="ir.ui.view">
+        <field name="name">cancelled.remission.search</field>
+        <field name="model">cancelled.remission</field>
+        <field name="arch" type="xml">
+            <search string="Cancelled Remission Search">
+                <field name="remission_folio"/>
+                <field name="picking_id"/>
+                <field name="user_id"/>
+                <field name="cancelled_reason"/>
+            </search>
+        </field>
+    </record>
+
     <record id="action_cancelled_remission" model="ir.actions.act_window">
         <field name="name">Cancelled Remissions</field>
         <field name="res_model">cancelled.remission</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="view_cancelled_remission_tree"/>
+        <field name="search_view_id" ref="view_cancelled_remission_search"/>
     </record>
 
     <menuitem id="menu_cancelled_remission"

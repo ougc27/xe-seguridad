@@ -41,6 +41,6 @@ class CancelledRemissionWizard(models.TransientModel):
             'comments': self.comments,
             'tag_ids': self.tag_ids
         })
-        self.picking_id.write({'x_studio_folio_rem': ''})
+        self.picking_id.write({'x_studio_folio_rem': False})
         self.picking_id.action_cancel_transit()
         return {'type': 'ir.actions.act_window_close'}
