@@ -22,8 +22,13 @@ class StockPicking(models.Model):
             self.action_assign()
             qty = sum(self.move_ids_without_package.mapped('quantity'))
             if qty == 0:
-                raise UserError(_('There is not enough stock to transit.'))
+                raise UserError(_('There is no reserved stock to transit.'))
         for move in self.move_ids_without_package:
+
+            if move.quantity > move.product_uom_qty:
+                raise UserError(_('You cannot transit more than the ordered quantity.'))
+            if move.product_id.detailed_type == 'product' and move.product_id.qty_available < move.quantity:
+                raise UserError(_('Not enough quantity available for product %s.') % move.product_id.display_name)
             if move.quantity < move.product_uom_qty:
                 moves.append(move)
         if len(moves) > 0:
