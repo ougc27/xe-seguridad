@@ -537,7 +537,7 @@ msgstr "Nombre"
 #: code:addons/xe_customs/models/stock_picking.py:0
 #, python-format
 msgid "Not enough quantity available for product %s."
-msgstr ""
+msgstr "No hay suficiente stock para el producto %s."
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__order_id
@@ -883,7 +883,7 @@ msgstr "No puedes remisionar una entrega en estado hecho"
 #: code:addons/xe_customs/models/stock_picking.py:0
 #, python-format
 msgid "You cannot transit more than the ordered quantity."
-msgstr ""
+msgstr "No puedes Remisionar más de la cantidad ordenada."
 
 #. module: xe_customs
 #. odoo-python
