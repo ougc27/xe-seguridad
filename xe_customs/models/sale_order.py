@@ -266,11 +266,13 @@ class SaleDownPayment(models.Model):
                 'sale_line_ids': False,
                 'name': _('Unlinked Down Payment'),
             })
+            payment.order_line_id.order_id.action_unlock()
             payment.order_line_id.write({
                 'invoice_lines': False,
                 'price_unit': 0,
                 'name': _('Deleted Down Payment'),
             })
+            payment.order_line_id.order_id.action_lock()
             payment.invoice_id._get_source_orders()
         return super(SaleDownPayment, self).unlink()
 
