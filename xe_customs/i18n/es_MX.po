@@ -784,3 +784,8 @@ msgstr ""
 #, python-format
 msgid "You cannot remission a validated order"
 msgstr "No puedes remisionar una entrega en estado hecho"
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_stock_picking__remission_date
+msgid "Remission Date"
+msgstr "Fecha de remisión"

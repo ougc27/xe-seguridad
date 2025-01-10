@@ -93,6 +93,8 @@ class StockPicking(models.Model):
         return [key for key, val in self._fields['shipment_task_status'].selection]
 
     def _create_separated_picking_by_categ(self, rec, moves, sale_order, scheduled_date):
+        if rec.state == 'done':
+            return
         new_picking = rec.copy({
             'is_remission_separated': True,
             'scheduled_date': scheduled_date,
@@ -159,6 +161,8 @@ class StockPicking(models.Model):
 
     def separate_construction_remissions(self):
         for rec in self:
+            if rec.state == 'done' or rec.state == 'cancel':
+                continue
             sale_order = rec.env['sale.order'].search(
                 [('name', '=', rec.group_id.name), ('company_id', '=', rec.env.company.id)]
             )

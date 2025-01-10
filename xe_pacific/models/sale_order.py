@@ -10,6 +10,19 @@ class SaleOrder(models.Model):
 
     pos_store = fields.Many2one('res.partner', domain="[('is_pos_store', '=', True)]")
 
+    def write(self, vals):
+        if 'order_line' in vals:
+            for order in self:
+                if order.picking_ids.filtered(lambda p: p.state == 'transit'): 
+                    raise UserError(_("You cannot modify sale order lines because there is at least one transfer in remission status."))
+        return super(SaleOrder, self).write(vals)
+
+    def action_unlock(self):
+        for rec in self:
+            if rec.picking_ids.filtered(lambda picking: picking.state == 'transit'):
+                raise UserError(_('An order cannot be unlocked if it has a delivery in remission status.'))
+            rec.locked = False
+
     def action_cancel(self):
         for rec in self:
             delivered = rec.order_line.filtered(lambda line: line.qty_delivered > 0)
