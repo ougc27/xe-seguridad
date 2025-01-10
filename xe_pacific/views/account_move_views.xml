@@ -10,7 +10,7 @@
                     groups="base.group_user" 
                     invisible="team_id != 6"
                     domain="[
-                        ('x_studio_folio_rem', '!=', ''),
+                        ('state', '=', 'done'),
                         ('picking_type_code', '=', 'outgoing'),
                         ('sale_id', '=', x_order_id)
                     ]"

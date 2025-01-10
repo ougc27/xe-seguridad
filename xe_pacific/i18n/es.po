@@ -187,7 +187,7 @@ msgstr "Estado de la entrega de embarques"
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__is_loose_construction
 msgid "Is Loose Construction"
-msgstr "Liberado"
+msgstr "Liberado CONS"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__color
@@ -547,3 +547,20 @@ msgid ""
 "It contains a delivered product or deliveries with the status \"remission\"."
 msgstr ""
 "Contiene un producto entregado o tiene entregas con el estado \"Remisión\"."
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/sale_order.py:0
+#, python-format
+msgid "An order cannot be unlocked if it has a delivery in remission status."
+msgstr "No se puede desbloquear una orden de venta si tiene una entrega en estado de remisión"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/sale_order.py:0
+#, python-format
+msgid ""
+"You cannot modify sale order lines because there is at least one transfer in"
+" remission status."
+msgstr "No se puede modificar las lineas de la orden de venta porque hay una entrega"
+" en estado de remisión"
