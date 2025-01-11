@@ -11,11 +11,11 @@
             </xpath>
             <xpath expr="//button[@name='button_validate'][1]" position="replace">
                 <button name="button_validate" invisible="(picking_type_code != 'incoming' and state != 'transit') or (picking_type_code == 'incoming' and state in ('draft', 'confirmed', 'done', 'cancel'))" string="Validate" type="object" groups="stock.group_stock_user" class="oe_highlight" data-hotkey="v"/>
-            </xpath>
-            <xpath expr="//button[@name='button_validate'][2]" position="replace">
                 <button name="action_transit" invisible="state in ('waiting', 'assigned', 'transit', 'done', 'cancel')" string="Send to Transit" type="object" groups="stock.group_stock_user" class="o_btn_validate" data-hotkey="v"/>
             </xpath>
-
+            <!--<xpath expr="//button[@name='button_validate'][2]" position="replace">
+                <button name="action_transit" invisible="state in ('waiting', 'assigned', 'transit', 'done', 'cancel')" string="Send to Transit" type="object" groups="stock.group_stock_user" class="o_btn_validate" data-hotkey="v"/>
+            </xpath>-->
             <xpath expr="//button[@name='action_assign']" position="after">
                 <button name="action_transit" invisible="picking_type_code == 'incoming' or state != 'assigned'" string="Send to Transit" type="object" groups="stock.group_stock_user" class="oe_highlight" data-hotkey="t"/>
             </xpath>

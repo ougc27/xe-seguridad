@@ -100,6 +100,12 @@ class SaleOrderLine(models.Model):
         copy=False
     )
 
+    @api.depends('price_subtotal', 'product_uom_qty', 'purchase_price')
+    def _compute_margin(self):
+        for line in self:
+            line.margin = line.price_subtotal - (line.purchase_price * line.product_uom_qty)
+            line.margin_percent = line.price_subtotal and line.margin/line.price_subtotal
+
     @api.depends('order_id.partner_id', 'product_id')
     def _compute_client_barcode(self):
         for line in self:
@@ -143,7 +149,7 @@ class SaleOrderLine(models.Model):
             if not line.product_id:
                 return
 
-            client = line.product_id._select_client(
+            client = line.product_id.sudo()._select_client(
                 partner_id=line.order_id.partner_id,
                 quantity=line.product_uom_qty,
                 date=line.order_id.date_order and line.order_id.date_order.date(),
