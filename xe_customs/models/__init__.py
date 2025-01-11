@@ -10,4 +10,5 @@ from . import account_move_line
 from . import account_invoice_report
 from . import sale_report
 from . import stock_picking
+from . import account_move
 from . import supervisor_installer
