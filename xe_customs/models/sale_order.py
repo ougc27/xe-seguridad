@@ -100,6 +100,12 @@ class SaleOrderLine(models.Model):
         copy=False
     )
 
+    @api.depends('price_subtotal', 'product_uom_qty', 'purchase_price')
+    def _compute_margin(self):
+        for line in self:
+            line.margin = line.price_subtotal - (line.purchase_price * line.product_uom_qty)
+            line.margin_percent = line.price_subtotal and line.margin/line.price_subtotal
+
     @api.depends('order_id.partner_id', 'product_id')
     def _compute_client_barcode(self):
         for line in self:
@@ -266,11 +272,13 @@ class SaleDownPayment(models.Model):
                 'sale_line_ids': False,
                 'name': _('Unlinked Down Payment'),
             })
+            payment.order_line_id.order_id.action_unlock()
             payment.order_line_id.write({
                 'invoice_lines': False,
                 'price_unit': 0,
                 'name': _('Deleted Down Payment'),
             })
+            payment.order_line_id.order_id.action_lock()
             payment.invoice_id._get_source_orders()
         return super(SaleDownPayment, self).unlink()
 

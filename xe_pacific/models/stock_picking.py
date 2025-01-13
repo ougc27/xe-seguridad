@@ -75,7 +75,7 @@ class StockPicking(models.Model):
                         rec.shipping_assignment = 'shipments'
                         continue
                     if rec.location_id.warehouse_id.name == 'Monterrey PR': 
-                        if distribution_channel == 'DISTRIBUIDORES':
+                        if distribution_channel in ['DISTRIBUIDORES', 'MARKETPLACE']:
                             rec.shipping_assignment = 'shipments'
                             continue
                         if sale_id.order_line.filtered(lambda record: record.product_id.default_code == 'FLTENVIO'):
@@ -93,6 +93,8 @@ class StockPicking(models.Model):
         return [key for key, val in self._fields['shipment_task_status'].selection]
 
     def _create_separated_picking_by_categ(self, rec, moves, sale_order, scheduled_date):
+        if rec.state == 'done':
+            return
         new_picking = rec.copy({
             'is_remission_separated': True,
             'scheduled_date': scheduled_date,
@@ -159,6 +161,8 @@ class StockPicking(models.Model):
 
     def separate_construction_remissions(self):
         for rec in self:
+            if rec.state == 'done' or rec.state == 'cancel':
+                continue
             sale_order = rec.env['sale.order'].search(
                 [('name', '=', rec.group_id.name), ('company_id', '=', rec.env.company.id)]
             )
@@ -222,7 +226,7 @@ class StockPicking(models.Model):
                     'scheduled_date': scheduled_date,
                     'state': 'confirmed',
                 })
-    
+
                 for new_move in new_picking.move_ids:
                     for original_move, qty in grouped_moves:
                         if new_move.product_id.id == original_move.product_id.id:
@@ -264,9 +268,11 @@ class StockPicking(models.Model):
                             lock_installation_moves, sale_order, scheduled_date, True
                         )
                 rec.sudo().unlink()
+                continue
             elif not rec.move_ids.filtered(lambda m: m.product_uom_qty > 0):
                 rec.sudo().unlink()
-            for line in rec.move_ids.filtered(lambda m: m.product_uom_qty == 0):
+                continue
+            for line in rec.move_ids.filtered(lambda m: m.product_uom_qty <= 0):
                 line.sudo().unlink()
 
     def separate_client_remissions(self):

@@ -28,7 +28,10 @@ class AccountMoveLine(models.Model):
                         ('name', '=', line.move_id.invoice_origin),
                         ('company_id', '=', line.move_id.company_id.id)
                     ])
-                    warehouse_id = order.warehouse_id.id
+                    if order:
+                        warehouse_id = order.warehouse_id.id
+                    else:
+                        warehouse_id = line.move_id.warehouse_id.id
                 arguments = frozendict({
                     "product_id": line.product_id.id,
                     "product_categ_id": line.product_id.categ_id.id,

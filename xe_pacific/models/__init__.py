@@ -17,3 +17,4 @@ from . import account_invoice_report
 from . import analytic_distribution_model
 from . import purchase_order_line
 from . import sale_order_line
+from . import mail_followers
