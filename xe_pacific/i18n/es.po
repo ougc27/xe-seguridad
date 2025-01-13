@@ -564,3 +564,8 @@ msgid ""
 " remission status."
 msgstr "No se puede modificar las lineas de la orden de venta porque hay una entrega"
 " en estado de remisión"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__sale_note
+msgid "Terms and Conditions"
+msgstr "Términos y condiciones"
