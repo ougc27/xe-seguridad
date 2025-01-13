@@ -34,7 +34,7 @@ class AccountMove(models.Model):
     locked = fields.Boolean(default=False)
     auto_credit_note = fields.Boolean(default=False)
     remarks = fields.Char(copy=False)
-
+    
     @api.depends('invoice_line_ids')
     def _get_source_orders(self):
         for move in self:
@@ -49,3 +49,12 @@ class AccountMove(models.Model):
             move.reconcile_balance = sum(move.invoice_line_ids.filtered(lambda x: x.product_id.id == x.company_id.sale_down_payment_product_id.id).mapped('price_total')) - move.reconciled_amount
             move.has_down_payment = move.reconcile_balance > 0
             move.source_orders = source_orders
+
+    def button_cancel(self):
+        for move in self:
+            so_line_ids = move.source_orders.order_line.filtered(lambda x: x.invoice_id == move)
+            down_payment_ids = self.env['sale.down.payment'].search([
+                ('order_line_id', 'in', so_line_ids.ids)
+            ])
+            down_payment_ids.unlink()
+        return super(AccountMove, self).button_cancel()

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-04 00:19+0000\n"
-"PO-Revision-Date: 2025-01-04 00:19+0000\n"
+"POT-Creation-Date: 2025-01-11 05:43+0000\n"
+"PO-Revision-Date: 2025-01-11 05:43+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -533,6 +533,13 @@ msgid "Name"
 msgstr "Nombre"
 
 #. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/stock_picking.py:0
+#, python-format
+msgid "Not enough quantity available for product %s."
+msgstr "No hay suficiente stock para el producto %s."
+
+#. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_sale_down_payment__order_id
 msgid "Order"
 msgstr "Orden"
@@ -551,7 +558,9 @@ msgstr "Precio"
 #. module: xe_customs
 #: model:ir.model,name:xe_customs.model_product_template
 msgid "Product"
-msgstr "Producto"
+msgstr ""
+"Modelo que agrega los campos necesarios a los productos para usarlos con las"
+" etiquetas electrónicas de precio."
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__product_tmpl_id
@@ -562,7 +571,7 @@ msgstr "Plantilla de Producto"
 #: model:ir.model,name:xe_customs.model_product_product
 #: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__product_id
 msgid "Product Variant"
-msgstr "Variante de producto"
+msgstr "Variante del producto"
 
 #. module: xe_customs
 #: model_terms:ir.ui.view,arch_db:xe_customs.report_remission_format1
@@ -581,7 +590,7 @@ msgstr "Cantidad"
 #: model:ir.model.fields,field_description:xe_customs.field_account_move__reconcile_balance
 #: model:ir.model.fields,field_description:xe_customs.field_account_payment__reconcile_balance
 msgid "Reconcile Balance"
-msgstr "Balance por Conciliar"
+msgstr "Balance Conciliado"
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_account_bank_statement_line__reconciled_amount
@@ -691,7 +700,7 @@ msgstr "Estado"
 #. module: xe_customs
 #: model:ir.model,name:xe_customs.model_stock_forecasted_product_product
 msgid "Stock Replenishment Report"
-msgstr "Reporte de reabastecimiento de inventario"
+msgstr "Reporte de reabastecimiento de existencias"
 
 #. module: xe_customs
 #: model:ir.model.fields,field_description:xe_customs.field_stock_picking__supervisor_id
@@ -747,8 +756,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/xe_customs/models/stock_picking.py:0
 #, python-format
-msgid "There is not enough stock to transit."
-msgstr "No hay suficiente Stock para Remisionar"
+msgid "There is no reserved stock to transit."
+msgstr ""
 
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_product_clientinfo__product_barcode
@@ -870,6 +879,13 @@ msgstr "No se puede cancelar una orden con anticipos"
 #, python-format
 msgid "You cannot remission a validated order"
 msgstr "No puedes remisionar una entrega en estado hecho"
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/stock_picking.py:0
+#, python-format
+msgid "You cannot transit more than the ordered quantity."
+msgstr "No puedes Remisionar más de la cantidad ordenada."
 
 #. module: xe_customs
 #. odoo-python

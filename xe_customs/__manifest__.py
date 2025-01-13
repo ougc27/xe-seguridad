@@ -10,7 +10,7 @@
     'sequence': 1,
     "depends": [
         'purchase',
-        'sale',
+        'sale_margin',
         'account',
         'hr'
     ],
