@@ -21,6 +21,14 @@
                     invisible="x_studio_canal_de_distribucin != 'CONSTRUCTORAS'"/>
                 <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
             </xpath>
+            <xpath expr="//page[@name='operations']" position="inside">
+                <group name="note_group" col="6" class="mt-2 mt-md-0">
+                    <group colspan="6">
+                        <field colspan="4" name="sale_note" nolabel="1"/>
+                    </group>
+                    <div class="clearfix"/>
+                </group>
+            </xpath>
         </field>
     </record>
     <record id="stock_picking_tree_inherit" model="ir.ui.view">
