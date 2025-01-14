@@ -37,6 +37,10 @@ class SaleOrder(models.Model):
             separate_remissions = self.env['ir.config_parameter'].sudo().get_param(
                 'separate_remissions_activate', None)
             if rec.company_id.id == 4 and separate_remissions == "1":
+                no_separate = rec.order_line.filtered(
+                    lambda record: record.product_id.default_code in ['FLTLOCAL', 'INSFOR'])
+                if no_separate:
+                    continue
                 if rec.team_id.name.lower() == 'constructoras':
                     rec.picking_ids.separate_construction_remissions()
                 else:
