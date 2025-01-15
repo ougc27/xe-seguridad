@@ -45,9 +45,6 @@
             <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='analytic_distribution']" position="attributes">
                 <attribute name="readonly">parent.locked</attribute>
             </xpath>
-            <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='quantity']" position="attributes">
-                <attribute name="readonly">parent.locked</attribute>
-            </xpath>
             <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='product_uom_id']" position="attributes">
                 <attribute name="readonly">parent.locked</attribute>
             </xpath>

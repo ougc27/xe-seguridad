@@ -1,8 +1,28 @@
-from odoo import models, api
-
+from odoo import models, api, _
+from odoo.fields import Command
+from odoo.exceptions import UserError
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
+
+    def restrict_unit_price_zero(self):
+        for rec in self:
+            if rec.product_uom_qty > 0 and rec.price_unit < 0.01:
+                product = rec.product_template_id
+                if product:
+                    if product.default_code not in ['ANT', 'DESC']:
+                        raise UserError(_("Items with a unit price of $0 are not allowed, please modify it to $0.01 (one cent)"))   
+
+    @api.model
+    def create(self, vals):
+        res = super().create(vals)
+        res.restrict_unit_price_zero()
+        return res
+
+    def write(self, vals):
+        res = super().write(vals)
+        self.restrict_unit_price_zero()
+        return res
 
     @api.depends('order_id.partner_id', 'product_id', 'order_id.warehouse_id')
     def _compute_analytic_distribution(self):
