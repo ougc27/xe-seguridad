@@ -66,5 +66,7 @@ class AccountMove(models.Model):
         for record in self:
             if record.invoice_origin:
                 order_names = [name.strip() for name in record.invoice_origin.split(',')]
-                record.order_ids = self.env['sale.order'].search([('name', 'in', order_names)]).ids
+                record.order_ids = self.env['sale.order'].sudo().search(
+                    [('company_id', '=', self.env.company.id), ('name', 'in', order_names)]).ids
+                continue
             record.order_ids = False
