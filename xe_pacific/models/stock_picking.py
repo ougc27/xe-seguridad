@@ -61,6 +61,12 @@ class StockPicking(models.Model):
         readonly=True
     )
 
+    sale_note = fields.Html(
+        string="Terms and Conditions",
+        related='sale_id.note',
+        readonly=True
+    )
+
     @api.depends('location_id', 'move_ids', 'group_id')
     def _compute_shipping_assignment(self):
         for rec in self:

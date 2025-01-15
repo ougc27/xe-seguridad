@@ -757,7 +757,7 @@ msgstr ""
 #: code:addons/xe_customs/models/stock_picking.py:0
 #, python-format
 msgid "There is no reserved stock to transit."
-msgstr ""
+msgstr "No hay cantidad reservada para Tránsito"
 
 #. module: xe_customs
 #: model:ir.model.fields,help:xe_customs.field_product_clientinfo__product_barcode
@@ -911,3 +911,8 @@ msgid ""
 msgstr ""
 "No puedes validar una orden de entrega a menos que esté en estado "
 "\"Remisión\"."
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_stock_picking__remission_date
+msgid "Remission Date"
+msgstr "Fecha de remisión"
