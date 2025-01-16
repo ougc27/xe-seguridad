@@ -73,8 +73,9 @@ class StockPicking(models.Model):
             if rec.company_id.id == 4:
                 sale_id = rec.group_id.sale_id
                 distribution_channel = sale_id.partner_id.team_id.name
-                if distribution_channel == 'INTERGRUPO':
-                    rec.shipping_assignment = 'shipments'
+                shipment_channels = ['DISTRIBUIDORES', 'MARKETPLACE', 'SODIMAC HC', 'INTERGRUPO']
+                if distribution_channel in shipment_channels:
+                    rec.is_loose_construction = True
                     continue
                 if rec.location_id and rec.location_id.warehouse_id.name:
                     if any(keyword in rec.location_id.warehouse_id.name for keyword in ['Amazon', 'MercadoLibre']):
@@ -85,6 +86,9 @@ class StockPicking(models.Model):
                             rec.shipping_assignment = 'shipments'
                             continue
                         if sale_id.order_line.filtered(lambda record: record.product_id.default_code == 'FLTENVIO'):
+                            rec.shipping_assignment = 'shipments'
+                            continue
+                        if rec.picking_type_code == 'internal':
                             rec.shipping_assignment = 'shipments'
                             continue
                 rec.shipping_assignment= 'logistics'
