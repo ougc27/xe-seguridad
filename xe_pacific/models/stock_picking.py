@@ -74,9 +74,11 @@ class StockPicking(models.Model):
                 sale_id = rec.group_id.sale_id
                 distribution_channel = sale_id.partner_id.team_id.name
                 shipment_channels = ['DISTRIBUIDORES', 'MARKETPLACE', 'SODIMAC HC', 'INTERGRUPO']
+                internal = rec.picking_type_code == 'internal'
                 if distribution_channel in shipment_channels:
                     rec.is_loose_construction = True
-                    continue
+                if internal:
+                    rec.x_is_loose = True
                 if rec.location_id and rec.location_id.warehouse_id.name:
                     if any(keyword in rec.location_id.warehouse_id.name for keyword in ['Amazon', 'MercadoLibre']):
                         rec.shipping_assignment = 'shipments'
