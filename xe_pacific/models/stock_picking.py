@@ -67,6 +67,9 @@ class StockPicking(models.Model):
         readonly=True
     )
 
+    x_task = fields.Many2one(
+        'project.task', 'Related task', copy=False)
+
     @api.depends('location_id', 'move_ids', 'group_id')
     def _compute_shipping_assignment(self):
         for rec in self:
@@ -448,4 +451,6 @@ class StockPicking(models.Model):
         for picking in self:
             if picking.x_studio_folio_rem and picking.state not in ['transit', 'done']:
                 picking.write({'state': 'transit'})
+            if picking.shipping_assignment == 'shipments':
+                picking.x_task.sudo().unlink()
         return res

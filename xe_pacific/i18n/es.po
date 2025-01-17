@@ -581,3 +581,8 @@ msgid ""
 msgstr ""
 "No se permiten partidas con precio unitario de $0, favor de modificar a $0.01 "
 "(un centavo)"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__x_task
+msgid "Related task"
+msgstr "Tarea relacionada"
