@@ -61,3 +61,24 @@ class ProjectTask(models.Model):
             #             })
             #             break
         return res
+
+    def process_gantt_data(self, gantt_data):
+        filtered_groups = [
+            group for group in gantt_data.get('groups', [])
+            if group.get('__record_ids')
+        ]
+        gantt_data['groups'] = filtered_groups
+        return gantt_data
+
+    @api.model
+    def get_gantt_data(self, domain, groupby, read_specification, limit=None, offset=0):
+        """
+        We override get_gantt_data to allow the display of open-ended records,
+        We also want to add in the gantt rows, the active emloyees that have a check in in the previous 7 days
+        """
+        original_gantt_data = super().get_gantt_data(
+            domain, groupby, read_specification, limit=limit, offset=offset)
+        user_ids_name_condition = any(condition[0] == 'user_ids.name' for condition in domain)
+        if user_ids_name_condition:
+            original_gantt_data = self.process_gantt_data(original_gantt_data)
+        return original_gantt_data
