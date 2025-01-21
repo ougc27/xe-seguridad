@@ -110,6 +110,9 @@ class L10nMxEdiDocument(models.Model):
                 partner_id = self.env['sale.order'].search([('name', '=', order_name)]).partner_id
                 if partner_id.is_border_zone_iva:
                     zip = partner_id.zip
+            else:
+                if invoice_customer.is_border_zone_iva:
+                    zip = invoice_customer.zip
 
         cfdi_values.update({
             'receptor': customer_values,
