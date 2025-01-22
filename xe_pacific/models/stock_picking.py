@@ -162,6 +162,8 @@ class StockPicking(models.Model):
                 self.create_notes_in_pickings(sale_order, new_picking)
 
     def separate_remissions(self):
+        if self.filtered(lambda p: p.state in ['transit', 'done']):
+            raise UserError(_("Remissions in transit or done states cannot be separated."))
         for rec in self:
             first_move_id = rec.move_ids[0].id
             sale_order = rec.env['sale.order'].search(
