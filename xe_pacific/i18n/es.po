@@ -586,3 +586,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__x_task
 msgid "Related task"
 msgstr "Tarea relacionada"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/stock_picking.py:0
+#, python-format
+msgid "Remissions in transit or done states cannot be separated."
+msgstr "Las remisiones en estado de tránsito o completado no pueden ser separadas."
