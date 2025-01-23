@@ -100,6 +100,12 @@ class SaleOrderLine(models.Model):
         copy=False
     )
 
+    @api.depends('price_subtotal', 'product_uom_qty', 'purchase_price')
+    def _compute_margin(self):
+        for line in self:
+            line.margin = line.price_subtotal - (line.purchase_price * line.product_uom_qty)
+            line.margin_percent = line.price_subtotal and line.margin/line.price_subtotal
+
     @api.depends('order_id.partner_id', 'product_id')
     def _compute_client_barcode(self):
         for line in self:
@@ -143,7 +149,7 @@ class SaleOrderLine(models.Model):
             if not line.product_id:
                 return
 
-            client = line.product_id._select_client(
+            client = line.product_id.sudo()._select_client(
                 partner_id=line.order_id.partner_id,
                 quantity=line.product_uom_qty,
                 date=line.order_id.date_order and line.order_id.date_order.date(),
@@ -218,10 +224,10 @@ class SaleDownPayment(models.Model):
     #             amount = payment.invoice_id.reconcile_balance
     #             self._prepare_lines(order_id, amount)
 
-    def _prepare_lines(self, order_id, amount):
+    def _prepare_lines(self, order_id, amount, tax_id):
         for payment in self:
             product_id = order_id.company_id.sudo().sale_down_payment_product_id
-            tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id.sudo().filtered(lambda x: x.company_id == order_id.company_id)
+            # tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id.sudo().filtered(lambda x: x.company_id == order_id.company_id)
             total_tax = sum(tax_id.mapped('amount'))
             
             # Create down payment section if necessary

@@ -11,6 +11,8 @@ class StockPicking(models.Model):
     supervisor_id = fields.Many2one('supervisor.installer', 'Supervisor', help="Define the supervisor of the picking.")
     installer_id = fields.Many2one('supervisor.installer', 'Installer', help="Define the installer of the picking.")
     state = fields.Selection(selection_add=[('transit', 'Transit'), ('done',)])
+    remission_date = fields.Datetime(
+        'Remission Date', copy=False, readonly=True)
 
     def action_transit(self):
         self.ensure_one()
@@ -71,6 +73,7 @@ class StockPicking(models.Model):
         self.write({
             'state': 'transit',
             'is_locked': True,
+            'remission_date': fields.Datetime.now()
         })
 
 

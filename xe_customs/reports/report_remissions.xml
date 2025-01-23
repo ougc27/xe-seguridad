@@ -35,7 +35,8 @@
                 <!-- Numbers -->
                 <div style="position:absolute; top:130px; left:900px; width:300px;" class="text-center">
                     <strong><span t-out="doc.x_studio_folio_rem"/></strong><br/>
-                    <span t-out="doc.date_done" t-options="{&quot;widget&quot;: &quot;date&quot;,&quot;format&quot;: &quot;dd-MM-yyyy&quot;}"/>
+                    <t t-if="doc.remission_date"><span t-out="doc.remission_date" t-options="{&quot;widget&quot;: &quot;date&quot;,&quot;format&quot;: &quot;dd-MM-yyyy&quot;}"/></t>
+                    <t t-else=""><span t-out="doc.scheduled_date" t-options="{&quot;widget&quot;: &quot;date&quot;,&quot;format&quot;: &quot;dd-MM-yyyy&quot;}"/></t>
                 </div>
                 
                 <!-- Addresses -->
@@ -139,6 +140,7 @@
                         <!--<t t-set="so_total" t-value="0.0"/>-->
                         <t t-set="door_count" t-value="0"/>
                         <t t-set="other_count" t-value="0"/>
+                        <t t-set="has_vistec" t-value="False"/> <!-- variable visita técnica V4 -->
                         <tr t-foreach="doc.move_ids_without_package" t-as="line">
                             <t t-if="line.quantity &gt; 0">
                                 <td style="padding-top:6px; padding-bottom:5px;"><span t-out="line.quantity"/></td>
@@ -153,6 +155,9 @@
                                 <t t-else="">
                                     <t t-set="other_count" t-value="other_count + line.quantity"/>
                                 </t>
+                                <t t-if="'VISTEC' in line.product_id.default_code"> <!-- revisar si contiene sku de visita técnica V4-->
+                                    <t t-set="has_vistec" t-value="True"/>
+                                </t>
                             </t>
                         </tr>
                         
@@ -166,8 +171,16 @@
                             <!--<td style="text-align:right;"><span t-out="'${:,.4f}'.format(so_total)"/></td>-->
                         </tr>
                     </table>
-                    <div style="padding-top:5px"><span t-field="doc.note"/></div>
+                    <t t-if="doc.note"><div style="padding-top:5px"><span t-field="doc.note"/></div></t>
+                    <t t-if="so.note"><div style="padding-top:5px"><span t-field="so.note"/></div></t>
                 </div>
+                
+                <!-- Tablero VT -->
+                <t t-if="has_vistec">
+                    <div style="position:absolute; top:930px; left:75px; width:87%; text-align:center;">
+                        <img src="https://xebrands.odoo.com/web/image/167128" style="max-width:100%; height:auto;"/>
+                    </div>
+                </t>
 
                 <!-- Users -->
                 <div style="position:absolute; top:1290px; left:600px; width:300px;" class="text-center">
@@ -211,7 +224,8 @@
                 <!-- Numbers -->
                 <div style="position:absolute; top:130px; left:900px; width:300px;" class="text-center">
                     <strong><span t-out="doc.x_studio_folio_rem"/></strong><br/>
-                    <span t-out="doc.date_done" t-options="{&quot;widget&quot;: &quot;date&quot;,&quot;format&quot;: &quot;dd-MM-yyyy&quot;}"/>
+                    <t t-if="doc.remission_date"><span t-out="doc.remission_date" t-options="{&quot;widget&quot;: &quot;date&quot;,&quot;format&quot;: &quot;dd-MM-yyyy&quot;}"/></t>
+                    <t t-else=""><span t-out="doc.scheduled_date" t-options="{&quot;widget&quot;: &quot;date&quot;,&quot;format&quot;: &quot;dd-MM-yyyy&quot;}"/></t>
                 </div>
 
                 <!-- Addresses -->
@@ -341,7 +355,8 @@
                             <!--<td style="text-align:right;"><span t-out="'${:,.4f}'.format(so_total)"/></td>-->
                         </tr>
                     </table>
-                    <div style="padding-top:5px"><span t-field="doc.note"/></div>
+                    <t t-if="doc.note"><div style="padding-top:5px"><span t-field="doc.note"/></div></t>
+                    <t t-if="so.note"><div style="padding-top:5px"><span t-field="so.note"/></div></t>
                 </div>
 
                 <!-- Boxes -->
@@ -392,7 +407,7 @@
 
     <!-- Report format 3 -->
     <template id="report_remission_format3">
-         <t t-call="web.basic_layout">
+        <t t-call="web.basic_layout">
             <t t-foreach="docs" t-as="doc">
                 <t t-set="so" t-value="request.env['sale.order'].search([('name', '=', doc.origin)], limit=1)"/>
                 <style>
@@ -410,7 +425,8 @@
                 <!-- Numbers -->
                 <div style="position:absolute; top:130px; left:900px; width:300px;" class="text-center">
                     <strong><span t-out="doc.x_studio_folio_rem"/></strong><br/>
-                    <span t-out="doc.date_done" t-options="{&quot;widget&quot;: &quot;date&quot;,&quot;format&quot;: &quot;dd-MM-yyyy&quot;}"/>
+                    <t t-if="doc.remission_date"><span t-out="doc.remission_date" t-options="{&quot;widget&quot;: &quot;date&quot;,&quot;format&quot;: &quot;dd-MM-yyyy&quot;}"/></t>
+                    <t t-else=""><span t-out="doc.scheduled_date" t-options="{&quot;widget&quot;: &quot;date&quot;,&quot;format&quot;: &quot;dd-MM-yyyy&quot;}"/></t>
                 </div>
 
                 <!-- Addresses -->
@@ -539,7 +555,8 @@
                             <!--<td style="text-align:right;"><span t-out="'${:,.4f}'.format(so_total)"/></td>-->
                         </tr>
                     </table>
-                    <div style="padding-top:5px"><span t-field="doc.note"/></div>
+                    <t t-if="doc.note"><div style="padding-top:5px"><span t-field="doc.note"/></div></t>
+                    <t t-if="so.note"><div style="padding-top:5px"><span t-field="so.note"/></div></t>
                 </div>
             </t>
         </t>

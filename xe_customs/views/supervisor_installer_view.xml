@@ -8,7 +8,7 @@
                 <sheet>
                     <group>
                         <!--<field name="name" readonly="1"/>-->
-                        <field name="employee_id" options="{'no_create_edit': True, 'no_create': True}"/>
+                        <field name="employee_id" domain="[('active', '=', True)]" options="{'no_create_edit': True, 'no_create': True}"/>
                         <field name="supervisor_number"/>
                         <field name="installer_number"/>
                     </group>
