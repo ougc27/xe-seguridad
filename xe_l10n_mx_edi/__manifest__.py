@@ -9,7 +9,7 @@
     "depends": [
         'l10n_mx_edi_extended',
         'sale',
-        'xe_customs'
+        'xe_pacific'
     ],
     "category": "Accounting",
     "summary": "MX-EDI XE Brands",
