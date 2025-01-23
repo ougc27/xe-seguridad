@@ -103,17 +103,9 @@ class L10nMxEdiDocument(models.Model):
             invoice_origin = self.env['account.move'].search([
                 ('name', '=', cfdi_values['document_name']),
                 ('company_id', '=', cfdi_values['company'].id)
-            ]).invoice_origin
-
-            if invoice_origin:
-                order_name = invoice_origin.split(", ")[0]
-                partner_id = self.env['sale.order'].search([('name', '=', order_name)]).partner_id
-                if partner_id.is_border_zone_iva:
-                    zip = partner_id.zip
-            else:
-                if invoice_customer.is_border_zone_iva:
-                    zip = invoice_customer.zip
-
+            ])
+            if invoice_origin.x_studio_almacen_id.partner_id.zip:
+                zip = invoice_origin.x_studio_almacen_id.partner_id.zip
         cfdi_values.update({
             'receptor': customer_values,
             'lugar_expedicion': zip,
@@ -152,11 +144,17 @@ class L10nMxEdiDocument(models.Model):
         customer = cfdi_values['receptor']['customer']
         if customer.parent_id:
             customer = customer.parent_id
-        if customer.is_border_zone_iva:
-            tz = customer._l10n_mx_edi_get_cfdi_timezone()
-            if datetime.fromisoformat(cfdi_values['fecha']).date() == datetime.now(tz).date():
-                date_fmt = '%Y-%m-%dT%H:%M:%S'
-                cfdi_values["fecha"] = datetime.now(tz).astimezone(tz).strftime(date_fmt)
+        if cfdi_values.get('document_name', None):
+            invoice_origin = self.env['account.move'].search([
+                ('name', '=', cfdi_values['document_name']),
+                ('company_id', '=', cfdi_values['company'].id)
+            ])
+            if invoice_origin.x_studio_almacen_id.partner_id:
+                customer = invoice_origin.x_studio_almacen_id.partner_id  
+        tz = customer._l10n_mx_edi_get_cfdi_timezone()
+        if datetime.fromisoformat(cfdi_values['fecha']).date() == datetime.now(tz).date():
+            date_fmt = '%Y-%m-%dT%H:%M:%S'
+            cfdi_values["fecha"] = datetime.now(tz).astimezone(tz).strftime(date_fmt)
         if cfdi_values.get('errors'):
             on_failure("\n".join(cfdi_values['errors']))
             return
