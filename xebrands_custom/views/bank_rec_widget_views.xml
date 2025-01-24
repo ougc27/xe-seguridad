@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="account_accountant_view_bank_statement_line_kanban_bank_rec_widget_inherit_xebrands_custom" model="ir.ui.view">
+            <field name="name">account.accountant.view.bank.statement.line.kanban.bank.rec.widget.inherit.xebrands.custom</field>
+            <field name="model">account.bank.statement.line</field>
+            <field name="inherit_id" ref="account_accountant.view_bank_statement_line_kanban_bank_rec_widget"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@t-attf-class='oe_kanban_card oe_kanban_global_click o_bank_rec_st_line_kanban_card']" position="inside">
+                    <!-- Row 3 -->
+                    <div class="d-flex">
+                        <field name="ref"/>
+                    </div>
+                </xpath>
+            </field>
+    </record>
+
+</odoo>
