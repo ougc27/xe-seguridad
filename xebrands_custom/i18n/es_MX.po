@@ -1,0 +1,36 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* xebrands_custom
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-18 18:38+0000\n"
+"PO-Revision-Date: 2025-01-18 18:38+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: xebrands_custom
+#: model:ir.model.fields,field_description:xebrands_custom.field_sale_order__amount_to_billing
+msgid "Amount to billing"
+msgstr "Importe pendiente de facturación"
+
+#. module: xebrands_custom
+#: model:ir.model.fields,field_description:xebrands_custom.field_sale_order__picking_date_to_billing
+msgid "Picking date to billing"
+msgstr "Fecha efectiva pendiente de facturación"
+
+#. module: xebrands_custom
+#: model:ir.model,name:xebrands_custom.model_sale_order
+msgid "Sales Order"
+msgstr "Orden de venta"
+
+#. module: xebrands_custom
+#: model:ir.model,name:xebrands_custom.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Línea de la orden de venta"
