@@ -593,3 +593,19 @@ msgstr "Tarea relacionada"
 #, python-format
 msgid "Remissions in transit or done states cannot be separated."
 msgstr "Las remisiones en estado de tránsito o completado no pueden ser separadas."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__color
+#: model_terms:ir.ui.view,arch_db:xe_pacific.inventory_tag_search_view
+msgid "Color"
+msgstr "Color"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.inventory_tag_search_view
+msgid "Archived"
+msgstr "Archivado"

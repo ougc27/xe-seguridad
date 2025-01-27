@@ -19,6 +19,9 @@ class SaleOrder(models.Model):
 
     def action_unlock(self):
         for rec in self:
+            if self.env.context.get('force_unlock'):
+                rec.locked = False
+                continue
             if rec.picking_ids.filtered(lambda picking: picking.state == 'transit'):
                 raise UserError(_('An order cannot be unlocked if it has a delivery in remission status.'))
             rec.locked = False
