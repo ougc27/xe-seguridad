@@ -272,7 +272,7 @@ class SaleDownPayment(models.Model):
                 'sale_line_ids': False,
                 'name': _('Unlinked Down Payment'),
             })
-            payment.order_line_id.order_id.action_unlock()
+            payment.order_line_id.order_id.with_context(force_unlock=True).action_unlock()
             payment.order_line_id.write({
                 'invoice_lines': False,
                 'price_unit': 0,
