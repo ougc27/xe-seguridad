@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-30 11:35+0000\n"
-"PO-Revision-Date: 2024-12-30 11:35+0000\n"
+"POT-Creation-Date: 2025-01-09 15:06+0000\n"
+"PO-Revision-Date: 2025-01-09 15:06+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -237,7 +237,7 @@ msgstr ""
 #: model:ir.model,name:commissions.model_commission_recalculation
 #: model:ir.ui.menu,name:commissions.commission_recalculation_menuitem
 msgid "Commission recalculation"
-msgstr "Recalculo de comisión"
+msgstr "Recálculo de comisión"
 
 #. module: commissions
 #: model:ir.actions.act_window,name:commissions.commissions_open_action
@@ -376,6 +376,14 @@ msgstr "Fecha final"
 #, python-format
 msgid "Error in payment creation."
 msgstr "Error en la creación del pago."
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__exclude_recalculation
+#: model:ir.model.fields,field_description:commissions.field_account_move__exclude_recalculation
+#: model:ir.model.fields,field_description:commissions.field_account_payment__exclude_recalculation
+#: model_terms:ir.ui.view,arch_db:commissions.account_view_invoice_tree_inherit_commissions
+msgid "Exclude recalculation"
+msgstr "Excluir recálculo"
 
 #. module: commissions
 #: model:ir.model.fields,field_description:commissions.field_commission_recalculation__id
@@ -523,6 +531,7 @@ msgstr "Posición"
 
 #. module: commissions
 #: model:ir.model,name:commissions.model_account_payment_register
+#: model_terms:ir.ui.view,arch_db:commissions.account_view_invoice_tree_inherit_commissions
 msgid "Register Payment"
 msgstr "Registrar pago"
 

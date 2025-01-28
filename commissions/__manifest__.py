@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Commissions',
-    "author": "Xe Brands",
-    'version': '17.0',
+    'author': 'Xe Brands',
+    'version': '17.20250125',
     'summary': 'Commissions',
     'description': 'Commissions',
     'category': 'Sales/Sales',

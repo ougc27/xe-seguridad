@@ -40,6 +40,21 @@
                            force_save="1"
                            class="oe_inline"/> %
                 </div>
+                <field name="exclude_recalculation"
+                       readonly="not is_commission_admin"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="account_view_invoice_tree_inherit_commissions" model="ir.ui.view">
+        <field name="name">account.view.invoice.tree.inherit.commissions</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_exclude_recalculation" type="object" string="Exclude recalculation"
+                            groups="commissions.commission_admin_group"
+                            invisible="context.get('default_move_type') not in ('out_invoice')"/>
             </xpath>
         </field>
     </record>

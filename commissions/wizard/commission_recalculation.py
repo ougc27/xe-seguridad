@@ -25,6 +25,7 @@ class CommissionRecalculation(models.TransientModel):
             ('invoice_date', '>=', self.start_date),
             ('invoice_date', '<=', self.end_date),
             ('state', '=', 'posted'),
+            ('exclude_recalculation', '=', False),
         ])
 
         ids_agent = self.agent_ids.ids
@@ -135,7 +136,7 @@ class CommissionRecalculation(models.TransientModel):
                                             commission = collected * move_id.agent2_per / 100
                                             self.create_commission(agent, move_id, collected, commission, payment_id.id, 2, move_id.agent2_per)
 
-    def create_ccommission(self, id_agent, move_id, collected, commission, id_payment, position, agent_per):
+    def create_commission(self, id_agent, move_id, collected, commission, id_payment, position, agent_per):
         payment_id = self.env['account.payment'].browse(id_payment)
         commission_id = self.env['xe.commissions'].create({
             'position': position,
