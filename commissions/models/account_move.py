@@ -59,6 +59,14 @@ class AccountMove(models.Model):
         string='Commissions quantity',
         compute='_compute_commission_qty',
     )
+    exclude_recalculation = fields.Boolean(
+        string='Exclude recalculation',
+    )
+
+    def action_exclude_recalculation(self):
+        self.write({
+            'exclude_recalculation': True,
+        })
 
     def action_open_commissions(self):
         action = self.env['ir.actions.actions']._for_xml_id('commissions.commissions_open_action')
