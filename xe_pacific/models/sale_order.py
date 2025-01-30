@@ -47,8 +47,9 @@ class SaleOrder(models.Model):
                 if rec.team_id.name.lower() == 'constructoras':
                     rec.picking_ids.separate_construction_remissions()
                 else:
-                    if rec.picking_ids[0] and rec.picking_ids[0].shipping_assignment == 'logistics':
-                        rec.picking_ids.separate_client_remissions()
+                    if rec.picking_ids:
+                        if rec.picking_ids[0] and rec.picking_ids[0].shipping_assignment == 'logistics':
+                            rec.picking_ids.separate_client_remissions()
             for picking in rec.picking_ids:
                 moves = picking.move_ids.filtered(lambda move: (
                      move.product_id.product_tmpl_id.not_automatic_lot_number
