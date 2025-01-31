@@ -19,6 +19,9 @@ class SaleOrder(models.Model):
 
     def action_unlock(self):
         for rec in self:
+            if self.env.context.get('force_unlock'):
+                rec.locked = False
+                continue
             if rec.picking_ids.filtered(lambda picking: picking.state == 'transit'):
                 raise UserError(_('An order cannot be unlocked if it has a delivery in remission status.'))
             rec.locked = False
@@ -44,8 +47,9 @@ class SaleOrder(models.Model):
                 if rec.team_id.name.lower() == 'constructoras':
                     rec.picking_ids.separate_construction_remissions()
                 else:
-                    if rec.picking_ids[0] and rec.picking_ids[0].shipping_assignment == 'logistics':
-                        rec.picking_ids.separate_client_remissions()
+                    if rec.picking_ids:
+                        if rec.picking_ids[0] and rec.picking_ids[0].shipping_assignment == 'logistics':
+                            rec.picking_ids.separate_client_remissions()
             for picking in rec.picking_ids:
                 moves = picking.move_ids.filtered(lambda move: (
                      move.product_id.product_tmpl_id.not_automatic_lot_number

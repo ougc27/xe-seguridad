@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
 <odoo>
-    <!--
-        inventory.tag views
-    -->
     <record id="inventory_tag_view_form" model="ir.ui.view">
         <field name="name">inventory.tag.view.form</field>
         <field name="model">inventory.tag</field>
@@ -36,7 +33,20 @@
         </field>
     </record>
 
-    <!-- Tags Configuration -->
+    <record id="inventory_tag_search_view" model="ir.ui.view">
+        <field name="name">inventory.tag.search.view</field>
+        <field name="model">inventory.tag</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="color"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group expand="1" string="Group By">
+                    <filter name="group_by_color" string="Color" context="{'group_by': 'color'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="inventory_tag_action" model="ir.actions.act_window">
         <field name="name">Tags</field>
         <field name="res_model">inventory.tag</field>
@@ -48,5 +58,6 @@
             Use Tags to manage and track your Opportunities (product structure, sales type, ...)
             </p>
         </field>
+        <field name="search_view_id" ref="inventory_tag_search_view"/>
     </record>
 </odoo>

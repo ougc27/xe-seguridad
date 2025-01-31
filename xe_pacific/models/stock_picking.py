@@ -49,7 +49,7 @@ class StockPicking(models.Model):
     is_loose_construction = fields.Boolean()
 
     tag_ids = fields.Many2many(
-        'inventory.tag', 'inventory_tag_rel', 'picking_id', 'tag_id', string='Tags')
+        'inventory.tag', 'inventory_tag_rel', 'picking_id', 'tag_id', string='Tags', tracking=True)
     
     invoice_ids = fields.Many2many(
         'account.move',
@@ -70,6 +70,8 @@ class StockPicking(models.Model):
     x_task = fields.Many2one(
         'project.task', 'Related task', copy=False)
 
+    x_is_loose = fields.Boolean(string="Liberado CF", copy=False)
+
     @api.depends('location_id', 'move_ids', 'group_id')
     def _compute_shipping_assignment(self):
         for rec in self:
@@ -79,9 +81,11 @@ class StockPicking(models.Model):
                 shipment_channels = ['DISTRIBUIDORES', 'MARKETPLACE', 'SODIMAC HC', 'INTERGRUPO']
                 internal = rec.picking_type_code == 'internal'
                 if distribution_channel in shipment_channels:
-                    rec.is_loose_construction = True
+                    rec.x_is_loose = True
                 if internal:
                     rec.x_is_loose = True
+                    rec.shipping_assignment = 'shipments'
+                    continue
                 if rec.location_id and rec.location_id.warehouse_id.name:
                     if any(keyword in rec.location_id.warehouse_id.name for keyword in ['Amazon', 'MercadoLibre']):
                         rec.shipping_assignment = 'shipments'
