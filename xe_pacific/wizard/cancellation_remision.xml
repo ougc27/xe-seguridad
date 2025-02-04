@@ -11,10 +11,10 @@
                         <field name="team_name" invisible="1"/>
                         <field name="cancelled_reason" 
                             domain="[('team', '=', team_name)]"
-                            options="{'no_create_edit': True}"/>
+                            options="{'no_create_edit': True, 'no_create': True}"/>
                         <field name="tag_ids"
                             widget="many2many_tags"
-                            options="{'color_field': 'color', 'no_create_edit': True}"/>
+                            options="{'color_field': 'color', 'no_create_edit': True, 'no_create': True}"/>
                         <field name="comments"/>
                     </group>
                     <footer>
