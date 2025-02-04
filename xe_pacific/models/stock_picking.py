@@ -195,7 +195,7 @@ class StockPicking(models.Model):
                 continue
     
             door_moves = rec.move_ids.filtered(
-                lambda m: m.product_id.categ_id.complete_name == 'Ventas / XE / Puertas / Puertas' and 
+                lambda m: 'Puertas / Puertas' in m.product_id.categ_id.complete_name and 
                           m.product_id.type == 'product'
             )
             lock_moves = rec.move_ids.filtered(
