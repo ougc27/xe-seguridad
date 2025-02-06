@@ -2,7 +2,7 @@
 {
     'name': 'Commissions',
     'author': 'Xe Brands',
-    'version': '17.20250125',
+    'version': '17.20250203',
     'summary': 'Commissions',
     'description': 'Commissions',
     'category': 'Sales/Sales',
@@ -10,6 +10,7 @@
         'sale_management',
         'hr',
         'contacts',
+        'point_of_sale',
     ],
     'data': [
         'security/security.xml',
