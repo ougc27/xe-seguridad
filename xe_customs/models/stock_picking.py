@@ -18,58 +18,17 @@ class StockPicking(models.Model):
         self.ensure_one()
         if self.state == 'done':
             raise UserError(_('You cannot remission a validated order'))
-        moves = []
+        
         qty = sum(self.move_ids_without_package.mapped('quantity'))
         if qty == 0:
-            self.action_assign()
-            qty = sum(self.move_ids_without_package.mapped('quantity'))
-            if qty == 0:
-                raise UserError(_('There is no reserved stock to transit.'))
+            raise UserError(_('There is no reserved stock to transit.'))
+    
         for move in self.move_ids_without_package:
-
             if move.quantity > move.product_uom_qty:
                 raise UserError(_('You cannot transit more than the ordered quantity.'))
             if move.product_id.detailed_type == 'product' and move.product_id.qty_available < move.quantity:
                 raise UserError(_('Not enough quantity available for product %s.') % move.product_id.display_name)
-            if move.quantity < move.product_uom_qty:
-                moves.append(move)
-        if len(moves) > 0:
-            backorder = self.env['stock.picking'].create({
-                'partner_id': self.partner_id.id,
-                'picking_type_id': self.picking_type_id.id,
-                'location_id': self.location_id.id,
-                'location_dest_id': self.location_dest_id.id,
-                'origin': self.name,
-                'supervisor_id': self.supervisor_id.id,
-                'installer_id': self.installer_id.id,
-                'scheduled_date': self.scheduled_date,
-                'user_id': self.user_id.id,
-                'is_locked': True,
-                'backorder_id': self.id,
-            })
-            for move in moves:
-                backorder.move_ids_without_package.create({
-                    'name': move.name,
-                    'product_id': move.product_id.id,
-                    'product_uom_qty': move.product_uom_qty - move.quantity,
-                    'product_uom': move.product_uom.id,
-                    'picking_id': backorder.id,
-                    'location_id': move.location_id.id,
-                    'location_dest_id': move.location_dest_id.id,
-                    'sale_line_id': move.sale_line_id.id,
-                })
-                move.write({
-                    'product_uom_qty': move.quantity,
-                })
-                if move.quantity == 0:
-                    move.unlink()
-
-            backorder.write({
-                'group_id': self.group_id.id,
-            })
-            backorder.action_assign()
-            self.message_post(body=_('The backorder %s has been created.', backorder._get_html_link()))
-
+    
         self.write({
             'state': 'transit',
             'is_locked': True,

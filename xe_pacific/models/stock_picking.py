@@ -15,6 +15,7 @@ class StockPicking(models.Model):
         ('scheduled', 'PROGRAMADO'),
         ('confirmed', 'CONFIRMAD0'),
         ('shipped', 'EMBARCADO / RUTA'),
+        ('waiting', 'PDTE MODIFICACIÓN'),
         ('finished', 'FINALIZADO'),
         ('exception', 'EXCEPCIÓN')], tracking=True, default='to_scheduled', group_expand='_group_expand_states')
 
