@@ -10,6 +10,7 @@
         'sale_management',
         'stock',
         'account_accountant',
+        'xe_pacific',
     ],
     'data': [
         'views/sale_order_views.xml',
