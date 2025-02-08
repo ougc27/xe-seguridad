@@ -344,6 +344,9 @@ class StockPicking(models.Model):
             return
 
         primary_picking = self[0]
+        first_picking = self.filtered(lambda p: p.create_uid == self.env.ref('base.user_root'))
+        if first_picking:
+            primary_picking = first_picking[0]
 
         picking_state = any(
             move.state not in ('waiting', 'confirmed', 'assigned')
