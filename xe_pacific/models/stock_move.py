@@ -8,8 +8,10 @@ class StockMove(models.Model):
     @api.depends('state', 'picking_id.is_locked')
     def _compute_is_initial_demand_editable(self):
         for move in self:
-            #move.is_initial_demand_editable = not move.picking_id.is_locked or move.state == 'draft'
-            move.is_initial_demand_editable = False
+            if move.picking_id.picking_type_code == 'outgoing':
+                move.is_initial_demand_editable = False
+                continue
+            move.is_initial_demand_editable = not move.picking_id.is_locked or move.state == 'draft'
 
     def write(self, vals):
         for rec in self:
