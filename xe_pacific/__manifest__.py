@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.3",
+    "version": "17.0.0.0.4",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
@@ -46,6 +46,12 @@
         'security/ir.model.access.csv',
         'security/xe_pacific_security.xml'
     ],
+    "assets": {
+        "web.assets_backend": [
+            "xe_pacific/static/src/web/inventory_kanban_header.js",
+            "xe_pacific/static/src/web/kanban_header.xml",
+        ],
+    },
     "demo": [],
     'installable': True,
     'auto_install': False,
