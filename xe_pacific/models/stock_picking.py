@@ -73,6 +73,32 @@ class StockPicking(models.Model):
 
     x_is_loose = fields.Boolean(string="Liberado CF", copy=False)
 
+    contact_address_complete = fields.Char(
+        string="Complete Address",
+        compute="_compute_contact_address_complete",
+        store=True
+    )
+
+    door_count = fields.Integer(
+        compute="_compute_door_count",
+        store=True
+    )
+
+    @api.depends('partner_id')
+    def _compute_contact_address_complete(self):
+        for record in self:
+            record.contact_address_complete = record.partner_id.contact_address_complete if record.partner_id else ""
+
+    @api.depends('move_ids_without_package', 'move_ids_without_package.product_uom_qty')
+    def _compute_door_count(self):
+        for record in self:
+            door_count = 0
+            if record.company_id.id == 4:
+                for line in record.move_ids_without_package:
+                    if 'Puertas / Puertas' in line.product_id.categ_id.complete_name:
+                        door_count += line.product_uom_qty
+            record.door_count = door_count
+
     @api.depends('location_id', 'move_ids', 'group_id')
     def _compute_shipping_assignment(self):
         for rec in self:
