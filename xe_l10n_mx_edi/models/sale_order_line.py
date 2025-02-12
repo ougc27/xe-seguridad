@@ -5,7 +5,7 @@ class SaleOrderLine(models.Model):
     
     _inherit = 'sale.order.line'
 
-    @api.depends('order_partner_id')
+    @api.depends('order_partner_id', 'product_id')
     def _compute_tax_id(self):
         super()._compute_tax_id()
         for line in self:
