@@ -9,10 +9,12 @@ patch(KanbanHeader.prototype, {
     },
 
     get doorCount() {
-        const door_count = this.props.group.aggregates.door_count;
-        if (door_count) {
-            return door_count;
+        if (this.props.group._config.resModel == 'stock.picking') {
+            const door_count = this.props.group.aggregates.door_count;
+            if (door_count) {
+                return door_count;
+            }
+            return 0;
         }
-        return 0;
     }
 });
