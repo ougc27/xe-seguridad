@@ -24,8 +24,9 @@ class StockPicking(models.Model):
             raise UserError(_('There is no reserved stock to transit.'))
     
         for move in self.move_ids_without_package:
-            if move.has_tracking in ('lot', 'serial') and not move.lot_ids:
-                raise UserError(_("The product %s requires a lot or serial number.") % move.product_id.display_name)
+            if move.quantity > 0:
+                if move.has_tracking in ('lot', 'serial') and not move.lot_ids:
+                    raise UserError(_("The product %s requires a lot or serial number.") % move.product_id.display_name)
             if move.quantity > move.product_uom_qty:
                 raise UserError(_('You cannot transit more than the ordered quantity.'))
             if move.product_id.detailed_type == 'product' and move.product_id.qty_available < move.quantity:
