@@ -91,7 +91,7 @@ class XeMassPaymentCommissions(models.Model):
                     'commissions_ids': [(6, 0, commissions_ids.ids)],
                 })
                 commissions_ids.write({
-                    'payment_commissions_id': payment_commissions_id.id,
+                    'payment_commission_id': payment_commissions_id.id,
                 })
                 self.payment_commissions_ids = [(4, payment_commissions_id.id)]
 
@@ -124,7 +124,7 @@ class XeMassPaymentCommissions(models.Model):
         mass_payment_commissions_ids = super(XeMassPaymentCommissions, self).create(vals_list)
         for mass_payment_commissions_id in mass_payment_commissions_ids:
             sequence_id = self.env['ir.sequence'].search([
-                ('code', '=', 'xe.payment.commission'),
+                ('code', '=', 'xe.mass.payment.commission'),
                 ('company_id', '=', mass_payment_commissions_id.company_id.id),
             ])
             if not sequence_id:

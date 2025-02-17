@@ -2,84 +2,80 @@
 <odoo>
     <data noupdate="0">
         <template id="l10n_mx_edi_addenda_home_depot" name="Addenda Home Depot">
-            <Addenda>
-                <requestForPayment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" documentStructureVersion="AMC7.1" documentStatus="ORIGINAL" type="SimpleInvoiceType" contentVersion="1.3.1" t-att-DeliveryDate="record.invoice_date">
-                    <requestForPaymentIdentification>
-                        <entityType>INVOICE</entityType>
-                        <uniqueCreatorIdentification t-raw="record.name"></uniqueCreatorIdentification>
-                    </requestForPaymentIdentification>
-                    <orderIdentification>
-                        <referenceIdentification type="ON" t-raw="record.payment_reference"></referenceIdentification>
-                    </orderIdentification>
-                    <AdditionalInformation>
-                        <referenceIdentification type="AAE">MDC MTY</referenceIdentification>
-                    </AdditionalInformation>
-                    <buyer>
-                        <gln>0007504005499</gln>
-                    </buyer>
-                    <seller>
-                        <gln>0007504005499</gln>
-                        <alternatePartyIdentification type="SELLER_ASSIGNED_IDENTIFIER_FOR_A_PARTY">101481</alternatePartyIdentification>
-                    </seller>
-                    <currency currencyISOCode="MXN">
-                        <currencyFunction>BILLING_CURRENCY</currencyFunction>
-                        <rateOfChange t-raw="list(record.currency_id._get_rates(record.company_id, record.invoice_date).values())[0]"></rateOfChange>
-                    </currency>
-                    <SECCIONDETALLE>
-                        <t t-set="discount" t-value="0"/>
-                        <t t-set="count" t-value="0"/>
-                        <t t-foreach="record.invoice_line_ids" t-as="line">
-                            <t t-set="discount" t-value="discount + line.discount_amount_addenda"/>
-                            <t t-set="count" t-value="count + 1"/>
-                            <lineItem type="SimpleInvoiceLineItemType" t-att-number="count">
-                                <tradeItemIdentification>
-                                    <gtin t-raw="line.product_id.default_code"></gtin>
-                                </tradeItemIdentification>
-                                <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line.product_id.default_code"></alternateTradeItemIdentification>
-                                <tradeItemDescriptionInformation language="ES">
-                                    <longText t-raw="line.name"></longText>
-                                </tradeItemDescriptionInformation>
-                                <invoicedQuantity unitOfMeasure="NMTOKEN" t-raw="line.quantity"></invoicedQuantity>
-                                <grossPrice>
-                                    <Amount t-raw="line.price_unit"></Amount>
-                                </grossPrice>
-                                <palletInformation>
-                                    <palletQuantity t-raw="line.quantity"></palletQuantity>
-                                    <description type="EXCHANGE_PALLETS">CAJA</description>
-                                    <transport>
-                                        <methodOfPayment>PREPAID_BY_SELLER</methodOfPayment>
-                                    </transport>
-                                </palletInformation>
-                                <tradeItemTaxInformation>
-                                    <taxTypeDescription>VAT</taxTypeDescription>
-                                    <tradeItemTaxAmount>
-                                        <taxPercentage t-raw="line.tax_ids[0].amount if line.tax_ids else ''"></taxPercentage>
-                                        <taxAmount t-raw="round(line.price_total - line.price_subtotal, 2)"></taxAmount>
-                                    </tradeItemTaxAmount>
-                                </tradeItemTaxInformation>
-                                <totalLineAmount>
-                                    <netAmount>
-                                        <Amount t-raw="line.price_subtotal"></Amount>
-                                    </netAmount>
-                                </totalLineAmount>
-                            </lineItem>
-                        </t>
-                    </SECCIONDETALLE>
-                    <TotalAllowanceCharge allowanceOrChargeType="ALLOWANCE">
-                        <Amount t-raw="discount"></Amount>
-                    </TotalAllowanceCharge>
-                    <baseAmount>
-                        <Amount t-raw="record.amount_untaxed"></Amount>
-                    </baseAmount>
-                    <tax type="VAT">
-                        <taxPercentage>16.00</taxPercentage>
-                        <taxAmount t-raw="record.amount_tax"></taxAmount>
-                    </tax>
-                    <payableAmount>
-                        <Amount t-raw="record.amount_total"></Amount>
-                    </payableAmount>
-                </requestForPayment>
-            </Addenda>
+            <requestForPayment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" documentStructureVersion="AMC7.1" documentStatus="ORIGINAL" type="SimpleInvoiceType" contentVersion="1.3.1" t-att-DeliveryDate="record.invoice_date">
+                <requestForPaymentIdentification>
+                    <entityType>INVOICE</entityType>
+                    <uniqueCreatorIdentification t-raw="record.name"></uniqueCreatorIdentification>
+                </requestForPaymentIdentification>
+                <orderIdentification>
+                    <referenceIdentification type="ON" t-raw="record.payment_reference"></referenceIdentification>
+                </orderIdentification>
+                <AdditionalInformation>
+                    <referenceIdentification type="AAE">MDC MTY</referenceIdentification>
+                </AdditionalInformation>
+                <buyer>
+                    <gln>0007504005499</gln>
+                </buyer>
+                <seller>
+                    <gln>0007504005499</gln>
+                    <alternatePartyIdentification type="SELLER_ASSIGNED_IDENTIFIER_FOR_A_PARTY" t-raw="record.partner_id.addenda_home_depot_seller_id"/>
+                </seller>
+                <currency currencyISOCode="MXN">
+                    <currencyFunction>BILLING_CURRENCY</currencyFunction>
+                    <rateOfChange t-raw="list(record.currency_id._get_rates(record.company_id, record.invoice_date).values())[0]"></rateOfChange>
+                </currency>
+                <t t-set="discount" t-value="0"/>
+                <t t-set="count" t-value="0"/>
+                <t t-foreach="record.invoice_line_ids" t-as="line">
+                    <t t-set="discount" t-value="discount + line.discount_amount_addenda"/>
+                    <t t-set="count" t-value="count + 1"/>
+                    <lineItem type="SimpleInvoiceLineItemType" t-att-number="count">
+                        <tradeItemIdentification>
+                            <gtin t-raw="line._get_addenda_sku_client()"></gtin>
+                        </tradeItemIdentification>
+                        <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line._get_addenda_sku_client()"></alternateTradeItemIdentification>
+                        <tradeItemDescriptionInformation language="ES">
+                            <longText t-raw="line._get_addenda_product_name_client()"></longText>
+                        </tradeItemDescriptionInformation>
+                        <invoicedQuantity unitOfMeasure="NMTOKEN" t-raw="line.quantity"></invoicedQuantity>
+                        <grossPrice>
+                            <Amount t-raw="line.price_unit"></Amount>
+                        </grossPrice>
+                        <palletInformation>
+                            <palletQuantity t-raw="int(line.quantity)"></palletQuantity>
+                            <description type="EXCHANGE_PALLETS">CAJA</description>
+                            <transport>
+                                <methodOfPayment>PREPAID_BY_SELLER</methodOfPayment>
+                            </transport>
+                        </palletInformation>
+                        <tradeItemTaxInformation>
+                            <taxTypeDescription>VAT</taxTypeDescription>
+                            <tradeItemTaxAmount>
+                                <taxPercentage t-raw="line.tax_ids[0].amount if line.tax_ids else ''"></taxPercentage>
+                                <taxAmount t-raw="round(line.price_total - line.price_subtotal, 2)"></taxAmount>
+                            </tradeItemTaxAmount>
+                        </tradeItemTaxInformation>
+                        <totalLineAmount>
+                            <netAmount>
+                                <Amount t-raw="line.price_subtotal"></Amount>
+                            </netAmount>
+                        </totalLineAmount>
+                    </lineItem>
+                </t>
+                <TotalAllowanceCharge allowanceOrChargeType="ALLOWANCE">
+                    <Amount t-raw="discount"></Amount>
+                </TotalAllowanceCharge>
+                <baseAmount>
+                    <Amount t-raw="record.amount_untaxed"></Amount>
+                </baseAmount>
+                <tax type="VAT">
+                    <taxPercentage>16.00</taxPercentage>
+                    <taxAmount t-raw="record.amount_tax"></taxAmount>
+                </tax>
+                <payableAmount>
+                    <Amount t-raw="record.amount_total"></Amount>
+                </payableAmount>
+            </requestForPayment>
         </template>
         <record id="l10n_mx_edi_addenda_home_depot" model="ir.ui.view">
             <field name="l10n_mx_edi_addenda_flag">True</field>

@@ -15,6 +15,7 @@ class StockPicking(models.Model):
         ('scheduled', 'PROGRAMADO'),
         ('confirmed', 'CONFIRMAD0'),
         ('shipped', 'EMBARCADO / RUTA'),
+        ('waiting', 'PDTE MODIFICACIÓN'),
         ('finished', 'FINALIZADO'),
         ('exception', 'EXCEPCIÓN')], tracking=True, default='to_scheduled', group_expand='_group_expand_states')
 
@@ -49,7 +50,7 @@ class StockPicking(models.Model):
     is_loose_construction = fields.Boolean()
 
     tag_ids = fields.Many2many(
-        'inventory.tag', 'inventory_tag_rel', 'picking_id', 'tag_id', string='Tags')
+        'inventory.tag', 'inventory_tag_rel', 'picking_id', 'tag_id', string='Tags', tracking=True)
     
     invoice_ids = fields.Many2many(
         'account.move',
@@ -67,13 +68,58 @@ class StockPicking(models.Model):
         readonly=True
     )
 
+    x_task = fields.Many2one(
+        'project.task', 'Related task', copy=False)
+
+    x_is_loose = fields.Boolean(string="Liberado CF", copy=False)
+
+    contact_address_complete = fields.Char(
+        string="Complete Address",
+        compute="_compute_contact_address_complete",
+        store=True
+    )
+
+    door_count = fields.Integer(
+        compute="_compute_door_count",
+        store=True
+    )
+
+    group_id = fields.Many2one(
+        'procurement.group', 'Procurement Group',
+        readonly=True, related='move_ids.group_id', store=True, tracking=True)
+
+    initial_date = fields.Datetime(
+        copy=False,
+        readonly=True,
+        help="This field is used to measure productivity.")
+
+    @api.depends('partner_id')
+    def _compute_contact_address_complete(self):
+        for record in self:
+            record.contact_address_complete = record.partner_id.contact_address_complete if record.partner_id else ""
+
+    @api.depends('move_ids_without_package', 'move_ids_without_package.product_uom_qty')
+    def _compute_door_count(self):
+        for record in self:
+            door_count = 0
+            if record.company_id.id == 4:
+                for line in record.move_ids_without_package:
+                    if 'Puertas / Puertas' in line.product_id.categ_id.complete_name:
+                        door_count += line.product_uom_qty
+            record.door_count = door_count
+
     @api.depends('location_id', 'move_ids', 'group_id')
     def _compute_shipping_assignment(self):
         for rec in self:
             if rec.company_id.id == 4:
                 sale_id = rec.group_id.sale_id
                 distribution_channel = sale_id.partner_id.team_id.name
-                if distribution_channel == 'INTERGRUPO':
+                shipment_channels = ['DISTRIBUIDORES', 'MARKETPLACE', 'SODIMAC HC', 'INTERGRUPO']
+                internal = rec.picking_type_code == 'internal'
+                if distribution_channel in shipment_channels:
+                    rec.x_is_loose = True
+                if internal:
+                    rec.x_is_loose = True
                     rec.shipping_assignment = 'shipments'
                     continue
                 if rec.location_id and rec.location_id.warehouse_id.name:
@@ -85,6 +131,9 @@ class StockPicking(models.Model):
                             rec.shipping_assignment = 'shipments'
                             continue
                         if sale_id.order_line.filtered(lambda record: record.product_id.default_code == 'FLTENVIO'):
+                            rec.shipping_assignment = 'shipments'
+                            continue
+                        if rec.picking_type_code == 'internal':
                             rec.shipping_assignment = 'shipments'
                             continue
                 rec.shipping_assignment= 'logistics'
@@ -153,6 +202,8 @@ class StockPicking(models.Model):
                 self.create_notes_in_pickings(sale_order, new_picking)
 
     def separate_remissions(self):
+        if self.filtered(lambda p: p.state in ['transit', 'done']):
+            raise UserError(_("Remissions in transit or done states cannot be separated."))
         for rec in self:
             first_move_id = rec.move_ids[0].id
             sale_order = rec.env['sale.order'].search(
@@ -180,7 +231,7 @@ class StockPicking(models.Model):
                 continue
     
             door_moves = rec.move_ids.filtered(
-                lambda m: m.product_id.categ_id.complete_name == 'Ventas / XE / Puertas / Puertas' and 
+                lambda m: 'Puertas / Puertas' in m.product_id.categ_id.complete_name and 
                           m.product_id.type == 'product'
             )
             lock_moves = rec.move_ids.filtered(
@@ -328,6 +379,9 @@ class StockPicking(models.Model):
             return
 
         primary_picking = self[0]
+        first_picking = self.filtered(lambda p: p.create_uid == self.env.ref('base.user_root'))
+        if first_picking:
+            primary_picking = first_picking[0]
 
         picking_state = any(
             move.state not in ('waiting', 'confirmed', 'assigned')
@@ -416,6 +470,8 @@ class StockPicking(models.Model):
         also impact the state of the picking as it is computed based on move's states.
         @return: True
         """
+        if self.state == 'transit':
+            return
         self.mapped('package_level_ids').filtered(lambda pl: pl.state == 'draft' and not pl.move_ids)._generate_moves()
         self.filtered(lambda picking: picking.state == 'draft').action_confirm()
         moves = self.move_ids.filtered(
@@ -442,4 +498,48 @@ class StockPicking(models.Model):
         for picking in self:
             if picking.x_studio_folio_rem and picking.state not in ['transit', 'done']:
                 picking.write({'state': 'transit'})
+            if picking.shipping_assignment == 'shipments':
+                picking.x_task.sudo().unlink()
+        return res
+
+    def _create_backorder(self):
+        """ This method is called when the user chose to create a backorder. It will create a new
+        picking, the backorder, and move the stock.moves that are not `done` or `cancel` into it.
+        """
+        res = super()._create_backorder()
+        for backorder in res:
+            backorder_id = backorder.backorder_id
+            group_id = backorder_id.group_id
+            if not backorder.group_id and group_id:
+                for move in backorder.move_ids:
+                    if not move.group_id:
+                        move.write({'group_id': group_id})
+                backorder.write({'group_id': group_id})
+            if backorder.picking_type_code == 'outgoing':
+                backorder.write({'initial_date': backorder.sale_id.date_order})
+            if backorder.picking_type_code == 'internal':
+                backorder.write({'initial_date': backorder_id.initial_date})
+        return res
+
+    def set_initial_date(self):
+        if not self.initial_date:
+            date_order = self.env['sale.order'].search([
+                ('name', '=', self.origin),
+                ('company_id', '=', self.env.company.id)
+            ], limit=1).date_order
+            if date_order:
+                self.write({'initial_date': date_order})
+
+    def action_confirm(self):
+        res = super().action_confirm()
+        if self.picking_type_code == 'internal':
+            self.write({'initial_date': fields.Datetime.now()})
+        return res
+
+    @api.model
+    def create(self, vals):
+        res = super().create(vals)
+        for picking in res:
+            if picking.picking_type_code == 'outgoing':
+                picking.set_initial_date()
         return res

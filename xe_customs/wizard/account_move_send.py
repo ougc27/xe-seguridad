@@ -33,6 +33,7 @@ class AccountMoveSend(models.TransientModel):
                         'journal_id': move.journal_id.id,
                         'date': fields.Date.today(),
                         'ref': _('Down Payments of: %s', move.name),
+                        'l10n_mx_edi_usage': 'G02',
                         'l10n_mx_edi_cfdi_origin': origin,
                         'l10n_mx_edi_payment_method_id': self.env.ref('l10n_mx_edi.payment_method_anticipos').id or False,
                         'reversal_reason': self.env['account.reversal.reason'].search([('name', '=', 'AMORTIZACIÓN ANTICIPO')], limit=1).id or False,

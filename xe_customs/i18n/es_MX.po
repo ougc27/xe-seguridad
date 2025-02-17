@@ -916,3 +916,15 @@ msgstr ""
 #: model:ir.model.fields,field_description:xe_customs.field_stock_picking__remission_date
 msgid "Remission Date"
 msgstr "Fecha de remisión"
+
+#. module: xe_customs
+#: model_terms:ir.ui.view,arch_db:xe_customs.view_picking_form_inherit
+msgid "Are you sure you want to validate this transfer?"
+msgstr "¿Estas seguro de que quieres validar este traslado?"
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/stock_picking.py:0
+#, python-format
+msgid "The product %s requires a lot or serial number."
+msgstr "El producto %s requiere un lote o número de serie."

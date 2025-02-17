@@ -72,17 +72,13 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
 
         self.ensure_one()
         product_id = order_id.company_id.sudo().sale_down_payment_product_id
-        tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id.sudo().filtered(lambda x: x.company_id == order_id.company_id)
-        
-        # Create deposit product if necessary
         if not product_id:
+            # Create deposit product if necessary
             self.company_id.sudo().sale_down_payment_product_id = self.env['product.product'].create(
                 self._prepare_down_payment_product_values()
             )
             product_id = order_id.company_id.sudo().sale_down_payment_product_id
-            tax_id = product_id.with_context(company_id=order_id.company_id.id).taxes_id.filtered(lambda x: x.company_id == order_id.company_id)
-        
-        total_tax = sum(tax_id.mapped('amount'))
+        tax_ids = order_id.order_line.mapped('tax_id')
 
         if self.advance_payment_method == 'percentage':
             raise UserError('The percentage method is not supported for down payments.')
@@ -104,7 +100,7 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                 dp = self.env['sale.down.payment'].create({
                     'invoice_id': downpayment.invoice_id.id,
                 })
-                dp._prepare_lines(order_id, downpayment.amount)
+                dp._prepare_lines(order_id, downpayment.amount, tax_ids)
                 dp.order_line_id.invoice_id = invoice
 
             downpayments = self.down_payment_ids.filtered(lambda x: x.amount > 0)
@@ -126,8 +122,8 @@ class SaleMakeInvoiceAdvance(models.TransientModel):
                 'invoice_line_ids': [(0, 0, {
                     'product_id': product_id.id,
                     'quantity': 1.0,
-                    'price_unit': self.fixed_amount / (1 + (total_tax / 100)),
-                    'tax_ids': [(6, 0, tax_id.ids)],
+                    'price_unit': self.fixed_amount / (1 + (sum(tax_ids.mapped('amount')) / 100)),
+                    'tax_ids': [(6, 0, tax_ids.ids)],
                     'is_downpayment': True,
                     'name': _('Down Payment'),
                     'sequence': 10,
