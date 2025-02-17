@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_mx_edi_inh_res_partner_form_addenda" model="ir.ui.view">
+        <field name="name">res.partner.view.form.addenda</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="l10n_mx_edi.l10n_mx_edi_inh_res_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='l10n_mx_edi_addenda']" position="after">
+                <field name="addenda_home_depot_seller_id" invisible="l10n_mx_edi_addenda == False"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

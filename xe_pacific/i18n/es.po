@@ -581,3 +581,57 @@ msgid ""
 msgstr ""
 "No se permiten partidas con precio unitario de $0, favor de modificar a $0.01 "
 "(un centavo)"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__x_task
+msgid "Related task"
+msgstr "Tarea relacionada"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/stock_picking.py:0
+#, python-format
+msgid "Remissions in transit or done states cannot be separated."
+msgstr "Las remisiones en estado de tránsito o completado no pueden ser separadas."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__color
+#: model_terms:ir.ui.view,arch_db:xe_pacific.inventory_tag_search_view
+msgid "Color"
+msgstr "Color"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.inventory_tag_search_view
+msgid "Archived"
+msgstr "Archivado"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/stock_move_line.py:0
+#: code:addons/xe_pacific/models/stock_move.py:0
+#, python-format
+msgid "You cannot update the quantity with a quantity greater than the demand"
+msgstr "No se puede actualizar la cantidad con cantidad mayor a la demanda"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/stock_move_line.py:0
+#: code:addons/xe_pacific/models/stock_move.py:0
+#, python-format
+msgid "You cannot change the demanded quantity in transit state"
+msgstr "No se puede cambiar la cantidad en estado de tránsito"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__initial_date
+msgid "Initial Date"
+msgstr "Fecha inicial"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_stock_picking__initial_date
+msgid "This field is used to measure productivity."
+msgstr "Este campo es usado para medir la productividad"

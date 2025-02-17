@@ -35,7 +35,6 @@ class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
     
     discount_amount_addenda = fields.Float(copy=False, compute='_compute_discount_amount_addenda')
-    sku_vendor_addenda = fields.Char(compute='_compute_addenda_sku_vendor')
     
     def _compute_discount_amount_addenda(self):
         for record in self:
@@ -53,3 +52,29 @@ class AccountMoveLine(models.Model):
                 if prod_suppl_id:
                     sku_vendor = prod_suppl_id.product_code
             return sku_vendor
+
+    def _get_addenda_sku_client(self):
+        for record in self:
+            sku_client = ""
+            if record.product_id and record.partner_id and record.partner_id.l10n_mx_edi_addenda:
+                domain = [
+                    ('product_tmpl_id','=', record.product_id.product_tmpl_id.id),
+                    ('name','=', record.partner_id.id),
+                ]
+                prod_suppl_id = self.env['product.clientinfo'].search(domain, limit=1)
+                if prod_suppl_id:
+                    sku_client = prod_suppl_id.product_code
+            return sku_client
+
+    def _get_addenda_product_name_client(self):
+        for record in self:
+            name_client = ""
+            if record.product_id and record.partner_id and record.partner_id.l10n_mx_edi_addenda:
+                domain = [
+                    ('product_tmpl_id','=', record.product_id.product_tmpl_id.id),
+                    ('name','=', record.partner_id.id),
+                ]
+                prod_suppl_id = self.env['product.clientinfo'].search(domain, limit=1)
+                if prod_suppl_id:
+                    name_client = prod_suppl_id.product_name
+            return name_client
