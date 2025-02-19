@@ -1,9 +1,20 @@
-from odoo import models, api, _
+from odoo import fields, models, api, _
 from odoo.exceptions import UserError
 
 
 class StockMove(models.Model):
     _inherit = 'stock.move'
+
+    def _default_group_id(self):
+        if self.env.context.get('default_picking_id'):
+            return self.env['stock.picking'].browse(self.env.context['default_picking_id']).group_id.id
+        return False
+
+    group_id = fields.Many2one('procurement.group',
+        'Procurement Group',
+        default=_default_group_id, 
+        index=True,
+        tracking=True)
 
     @api.depends('state', 'picking_id.is_locked')
     def _compute_is_initial_demand_editable(self):
