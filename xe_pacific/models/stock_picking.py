@@ -482,7 +482,7 @@ class StockPicking(models.Model):
         also impact the state of the picking as it is computed based on move's states.
         @return: True
         """
-        if self.state == 'transit':
+        if self.filtered(lambda picking: picking.state == 'transit'):
             return
         self.mapped('package_level_ids').filtered(lambda pl: pl.state == 'draft' and not pl.move_ids)._generate_moves()
         self.filtered(lambda picking: picking.state == 'draft').action_confirm()
@@ -544,8 +544,9 @@ class StockPicking(models.Model):
 
     def action_confirm(self):
         res = super().action_confirm()
-        if self.picking_type_code == 'internal':
-            self.write({'initial_date': fields.Datetime.now()})
+        for rec in self: 
+            if rec.picking_type_code == 'internal':
+                rec.write({'initial_date': fields.Datetime.now()})
         return res
 
     @api.model
