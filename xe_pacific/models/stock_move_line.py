@@ -12,7 +12,7 @@ class StockMoveLine(models.Model):
         for rec in self:
             new_quantity = vals.get("quantity", rec.quantity)
             _logger.info("estoy en el write de stock.move.line")
-            _logger.info(vals.get("quantity"))
+            _logger.info(vals)
             _logger.info(new_quantity)
             _logger.info(rec.quantity)
             _logger.info("información padre del traslado")
