@@ -12,8 +12,12 @@ class StockMoveLine(models.Model):
         for rec in self:
             new_quantity = vals.get("quantity", rec.quantity)
             _logger.info("estoy en el write de stock.move.line")
+            _logger.info(vals.get("quantity"))
             _logger.info(new_quantity)
             _logger.info(rec.quantity)
+            _logger.info("información padre del traslado")
+            _logger.info(rec.picking_id)
+            _logger.info(rec.move_id)
             if new_quantity != rec.quantity:
                 if rec.picking_id.state == "transit":
                     raise UserError(_("You cannot change the demanded quantity in transit state"))
