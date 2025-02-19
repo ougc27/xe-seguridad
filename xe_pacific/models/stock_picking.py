@@ -2,6 +2,9 @@ from odoo import api, models, fields, _
 from odoo.osv import expression
 from odoo.exceptions import UserError
 
+import logging
+_logger = logging.getLogger(__name__)
+
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
@@ -508,6 +511,9 @@ class StockPicking(models.Model):
     def write(self, vals):
         res = super().write(vals)
         for picking in self:
+            if not vals.get('tag_ids') and picking.company_id.id == 4:
+                if picking.state == 'done' and picking.kanban_task_status == 'finished' and picking.picking_type_code == 'outgoing':
+                    picking.update_tag_ids_to_pickings()
             if picking.x_studio_folio_rem and picking.state not in ['transit', 'done']:
                 picking.write({'state': 'transit'})
             if picking.shipping_assignment == 'shipments':
@@ -547,6 +553,9 @@ class StockPicking(models.Model):
         for rec in self: 
             if rec.picking_type_code == 'internal':
                 rec.write({'initial_date': fields.Datetime.now()})
+            for move in rec.move_ids:
+                if move.quantity > 0:
+                    move.write({'picked': True})
         return res
 
     @api.model
