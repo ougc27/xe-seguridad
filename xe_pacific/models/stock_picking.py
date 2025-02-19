@@ -553,9 +553,9 @@ class StockPicking(models.Model):
         for rec in self: 
             if rec.picking_type_code == 'internal':
                 rec.write({'initial_date': fields.Datetime.now()})
-            for move in rec.move_ids:
-                if move.quantity > 0:
-                    move.write({'picked': True})
+            #for move in rec.move_ids:
+                #if move.quantity > 0:
+                    #move.write({'picked': True})
         return res
 
     @api.model

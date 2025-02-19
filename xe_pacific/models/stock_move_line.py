@@ -1,6 +1,9 @@
 from odoo import models, _
 from odoo.exceptions import UserError
 
+import logging
+_logger = logging.getLogger(__name__)
+
 
 class StockMoveLine(models.Model):
     _inherit = 'stock.move.line'
@@ -8,6 +11,9 @@ class StockMoveLine(models.Model):
     def write(self, vals):
         for rec in self:
             new_quantity = vals.get("quantity", rec.quantity)
+            _logger.info("estoy en el write de stock.move.line")
+            _logger.info(new_quantity)
+            _logger.info(rec.quantity)
             if new_quantity != rec.quantity:
                 if rec.picking_id.state == "transit":
                     raise UserError(_("You cannot change the demanded quantity in transit state"))
