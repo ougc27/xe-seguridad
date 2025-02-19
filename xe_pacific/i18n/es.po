@@ -625,3 +625,13 @@ msgstr "No se puede actualizar la cantidad con cantidad mayor a la demanda"
 #, python-format
 msgid "You cannot change the demanded quantity in transit state"
 msgstr "No se puede cambiar la cantidad en estado de tránsito"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__initial_date
+msgid "Initial Date"
+msgstr "Fecha inicial"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_stock_picking__initial_date
+msgid "This field is used to measure productivity."
+msgstr "Este campo es usado para medir la productividad"

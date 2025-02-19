@@ -84,6 +84,15 @@ class StockPicking(models.Model):
         store=True
     )
 
+    group_id = fields.Many2one(
+        'procurement.group', 'Procurement Group',
+        readonly=True, related='move_ids.group_id', store=True, tracking=True)
+
+    initial_date = fields.Datetime(
+        copy=False,
+        readonly=True,
+        help="This field is used to measure productivity.")
+
     @api.depends('partner_id')
     def _compute_contact_address_complete(self):
         for record in self:
@@ -171,10 +180,19 @@ class StockPicking(models.Model):
     def single_product_separation(self, move_ids, sale_order, scheduled_date, construction=False):
         for move in move_ids:
             quantity = int(move.product_uom_qty)
-            if move.id == move_ids[0].id and not construction:
-                quantity -= 1
+            product_uom_qty = 1
+            bom_line_id = move.bom_line_id
+            if bom_line_id:
+                product_uom_qty = bom_line_id.product_qty
+                quantity = quantity / product_uom_qty
+            if not bom_line_id and move.id == move_ids[0].id and not construction:
+                quantity -= product_uom_qty
             if quantity >= 1:
-                move.write({'product_uom_qty': 1})
+                move.write({'product_uom_qty': product_uom_qty})
+            if isinstance(quantity, float):
+                quantity = int(quantity)
+                if move.id == move_ids[0].id:
+                    quantity -= 1
             for i in range(quantity):
                 new_picking = self.copy(
                     {
@@ -184,8 +202,7 @@ class StockPicking(models.Model):
                 )
                 for new_move in new_picking.move_ids:
                     if new_move.product_id.id == move.product_id.id:
-                        new_move.write({'product_uom_qty': 1, 'state': 'confirmed'})
-
+                        new_move.write({'product_uom_qty': product_uom_qty, 'state': 'confirmed'})
                         continue
                     new_move.sudo().unlink()
                 new_picking.write({'state': 'confirmed'})
@@ -255,8 +272,12 @@ class StockPicking(models.Model):
                     break
     
                 for move in door_accessory_moves.filtered(lambda m: m.product_uom_qty > 0):
-                    grouped_moves.append((move, 1))
-                    move.write({'product_uom_qty': move.product_uom_qty - 1})
+                    bom_line_id = move.bom_line_id
+                    product_uom_qty = 1
+                    if bom_line_id:
+                        product_uom_qty = bom_line_id.product_qty
+                    grouped_moves.append((move, product_uom_qty))
+                    move.write({'product_uom_qty': move.product_uom_qty - product_uom_qty})
     
                 for move in lock_moves.filtered(lambda m: m.product_uom_qty > 0):
                     grouped_moves.append((move, 1))
@@ -461,6 +482,8 @@ class StockPicking(models.Model):
         also impact the state of the picking as it is computed based on move's states.
         @return: True
         """
+        if self.state == 'transit':
+            return
         self.mapped('package_level_ids').filtered(lambda pl: pl.state == 'draft' and not pl.move_ids)._generate_moves()
         self.filtered(lambda picking: picking.state == 'draft').action_confirm()
         moves = self.move_ids.filtered(
@@ -489,4 +512,46 @@ class StockPicking(models.Model):
                 picking.write({'state': 'transit'})
             if picking.shipping_assignment == 'shipments':
                 picking.x_task.sudo().unlink()
+        return res
+
+    def _create_backorder(self):
+        """ This method is called when the user chose to create a backorder. It will create a new
+        picking, the backorder, and move the stock.moves that are not `done` or `cancel` into it.
+        """
+        res = super()._create_backorder()
+        for backorder in res:
+            backorder_id = backorder.backorder_id
+            group_id = backorder_id.group_id
+            if not backorder.group_id and group_id:
+                for move in backorder.move_ids:
+                    if not move.group_id:
+                        move.write({'group_id': group_id})
+                backorder.write({'group_id': group_id})
+            if backorder.picking_type_code == 'outgoing':
+                backorder.write({'initial_date': backorder.sale_id.date_order})
+            if backorder.picking_type_code == 'internal':
+                backorder.write({'initial_date': backorder_id.initial_date})
+        return res
+
+    def set_initial_date(self):
+        if not self.initial_date:
+            date_order = self.env['sale.order'].search([
+                ('name', '=', self.origin),
+                ('company_id', '=', self.env.company.id)
+            ], limit=1).date_order
+            if date_order:
+                self.write({'initial_date': date_order})
+
+    def action_confirm(self):
+        res = super().action_confirm()
+        if self.picking_type_code == 'internal':
+            self.write({'initial_date': fields.Datetime.now()})
+        return res
+
+    @api.model
+    def create(self, vals):
+        res = super().create(vals)
+        for picking in res:
+            if picking.picking_type_code == 'outgoing':
+                picking.set_initial_date()
         return res
