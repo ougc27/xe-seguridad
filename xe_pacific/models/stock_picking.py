@@ -2,9 +2,6 @@ from odoo import api, models, fields, _
 from odoo.osv import expression
 from odoo.exceptions import UserError
 
-import logging
-_logger = logging.getLogger(__name__)
-
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
@@ -181,7 +178,27 @@ class StockPicking(models.Model):
             subtype_xmlid='mail.mt_note')
     
     def single_product_separation(self, move_ids, sale_order, scheduled_date, construction=False):
+        insfor = move_ids.filtered(lambda m: m.product_id.default_code == 'INSFOR')
         for move in move_ids:
+            if insfor and move.product_id.default_code == 'INSFOR':
+                if len(move_ids) == 1 or move.id == move_ids[0].id:
+                    continue
+                if move.id != move_ids[0].id:
+                    new_picking = self.copy(
+                        {
+                            'is_remission_separated': True,
+                            'scheduled_date': scheduled_date,
+                        }
+                    )
+                    for new_move in new_picking.move_ids:
+                        if new_move.product_id.id == move.product_id.id:
+                            new_move.write({'state': 'confirmed'})
+                            continue
+                        new_move.sudo().unlink()
+                    new_picking.write({'state': 'confirmed'})
+                    new_picking.batch_id.sudo().unlink()
+                    self.create_notes_in_pickings(sale_order, new_picking)
+                    continue
             quantity = int(move.product_uom_qty)
             product_uom_qty = 1
             bom_line_id = move.bom_line_id
@@ -550,9 +567,6 @@ class StockPicking(models.Model):
         for rec in self: 
             if rec.picking_type_code == 'internal':
                 rec.write({'initial_date': fields.Datetime.now()})
-            #for move in rec.move_ids:
-                #if move.quantity > 0:
-                    #move.write({'picked': True})
         return res
 
     @api.model

@@ -1,9 +1,6 @@
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
 
-import logging
-_logger = logging.getLogger(__name__)
-
 
 class StockMove(models.Model):
     _inherit = 'stock.move'
@@ -31,9 +28,6 @@ class StockMove(models.Model):
         for rec in self:
             new_quantity = vals.get("quantity", rec.quantity)
             if new_quantity != rec.quantity:
-                _logger.info("este es el write de stock_move")
-                _logger.info(new_quantity)
-                _logger.info(rec.quantity)
                 if rec.picking_id.state == "transit":
                     raise UserError(_("You cannot change the demanded quantity in transit state"))
                 if new_quantity > rec.product_uom_qty:
