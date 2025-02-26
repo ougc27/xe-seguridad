@@ -190,11 +190,6 @@ msgid "Is Loose Construction"
 msgstr "Liberado CONS"
 
 #. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__color
-msgid "Color"
-msgstr "Color"
-
-#. module: xe_pacific
 #: model_terms:ir.actions.act_window,help:xe_pacific.inventory_tag_action
 msgid "Create Inventory Tags"
 msgstr "Crear etiquetas en inventario"
@@ -601,6 +596,7 @@ msgstr "Activo"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__color
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__color
 #: model_terms:ir.ui.view,arch_db:xe_pacific.inventory_tag_search_view
 msgid "Color"
 msgstr "Color"
@@ -635,3 +631,63 @@ msgstr "Fecha inicial"
 #: model:ir.model.fields,help:xe_pacific.field_stock_picking__initial_date
 msgid "This field is used to measure productivity."
 msgstr "Este campo es usado para medir la productividad"
+
+#. module: xe_pacific
+#: model_terms:ir.actions.act_window,help:xe_pacific.action_picking_tree_all
+msgid "No transfer found. Let's create one!"
+msgstr ""
+
+#. module: xe_pacific
+#: model_terms:ir.actions.act_window,help:xe_pacific.action_picking_tree_all
+msgid "Transfers allow you to move products from one location to another."
+msgstr ""
+
+#. module: xe_pacific
+#: model:ir.actions.act_window,name:xe_pacific.action_picking_tree_all
+msgid "Transfers"
+msgstr "Transferencias"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
+msgid "<strong>State — </strong>"
+msgstr "Estado —"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
+msgid "<strong>Assigned Hours — </strong>"
+msgstr "<strong>Horas Asignadas — </strong>"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
+msgid "<strong>Assignees — </strong>"
+msgstr "<strong>Responsable — </strong>"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
+msgid "<strong>Distribution channel — </strong>"
+msgstr "<strong>Canal de Distribución — </strong>"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
+msgid "<strong>Partner Address — </strong>"
+msgstr "<strong>Dirección del Cliente — </strong>"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
+msgid "<strong>Picking Stage — </strong>"
+msgstr "<strong>Etapa del Traslado — </strong>"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
+msgid "<strong>Remission — </strong>"
+msgstr "<strong>Remisión — </strong>"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
+msgid "<strong>SKUs — </strong>"
+msgstr "<strong>SKUs — </strong>"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
+msgid "<strong>Sale order — </strong>"
+msgstr "<strong>Orden de Venta — </strong>"

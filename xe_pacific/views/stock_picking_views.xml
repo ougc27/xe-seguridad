@@ -108,4 +108,141 @@ if records.filtered(lambda p: p.state in ['transit', 'done']):
 action = records.separate_client_remissions()
         </field>
     </record>
+
+    <!--GANTT-->
+
+    <record id="action_picking_tree_all" model="ir.actions.act_window">
+        <field name="name">Transfers</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">tree,kanban,gantt,form,calendar,activity</field>
+        <field name="domain"></field>
+        <field name="context">{'contact_display': 'partner_address', 'default_company_id': allowed_company_ids[0]}</field>
+        <field name="search_view_id" ref="stock.view_picking_internal_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No transfer found. Let's create one!
+            </p>
+            <p>
+                Transfers allow you to move products from one location to another.
+            </p>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="stock_picking_gantt">
+        <field name="name">stock.picking.gantt</field>
+        <field name="model">stock.picking</field>
+        <field name="priority" eval="3"/>
+        <field name="arch" type="xml">
+            <gantt date_start="scheduled_date"
+                decoration-info="state not in ['cancel', 'transit', 'done']"
+                decoration-danger="state == 'cancel'"
+                decoration-warning="state == 'transit'"
+                decoration-success="state == 'done'"
+                form_view_id="%(stock.view_picking_form)d"
+                date_stop="end_date"
+                default_scale="week"
+                scales="day,week,month,year"
+                string="Responsible"
+                color="color"
+                display_unavailability="1"
+                precision="{'day': 'hour:quarter', 'week': 'day:half', 'month': 'day:half'}"
+                default_group_by="user_id"
+                progress_bar="user_id"
+                create="False"
+                pill_label="True">
+                <templates>
+                    <div t-name="gantt-popover">
+                        <div name="state">
+                            <strong>State — </strong> 
+                            <t t-set="state_mapping" t-value="{
+                                'draft': 'Borrador',
+                                'waiting': 'En espera de otra operación',
+                                'confirmed': 'En espera',
+                                'assigned': 'Listo',
+                                'transit': 'Remisionado',
+                                'done': 'Hecho',
+                                'cancel': 'Cancelado'}"/>
+                            <t t-if="state in state_mapping">
+                                <t t-esc="state_mapping[state]"/>
+                            </t>
+                            <t t-else="">
+                                <t t-esc="state"/>
+                            </t>
+                        </div>
+                        <div name="state">
+                            <strong>Picking Stage — </strong> 
+                            <t t-if="shipping_assignment == 'shipments'">
+                                <t t-set="state_shipping_mapping" t-value="{
+                                    'to_scheduled': 'POR PROGRAMAR',
+                                    'scheduled': 'PROGRAMADO',
+                                    'warehouse': 'ALMACÉN',
+                                    'production': 'PRODUCCIÓN',
+                                    'shipments': 'EMBARQUES',
+                                    'confirmed': 'EMBARCADO',
+                                    'finished': 'FINALIZADO',
+                                    'exception': 'EXCEPCIÓN'}"/>
+                                <t t-if="shipment_task_status in state_shipping_mapping">
+                                    <t t-esc="state_shipping_mapping[shipment_task_status]"/>
+                                </t>
+                                <t t-else="">
+                                    <t t-esc="state"/>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <t t-set="state_logistics_mapping" t-value="{
+                                    'to_scheduled': 'ENT POR PROGRAMAR',
+                                    'scheduled': 'ENT PROGRAMADA',
+                                    'confirmed': 'ENT CONFIRMADA',
+                                    'shipped': 'EMBARCADO / RUTA',
+                                    'finished': 'FINALIZADO',
+                                    'exception': 'ENT EXCEPCIÓN'}"/>
+                                <t t-if="kanban_task_status in state_logistics_mapping">
+                                    <t t-esc="state_logistics_mapping[kanban_task_status]"/>
+                                </t>
+                            </t>
+                        </div>
+                        <div t-if="x_studio_folio_rem">
+                            <strong>Remission — </strong> <span class="text-warning"><t t-esc="x_studio_folio_rem"/></span>
+                        </div>
+                        <div name="skus">
+                            <strong>SKUs — </strong>
+                            <t t-esc="x_skus_t"/>
+                        </div>
+                        <div name="partner_address">
+                            <strong>Partner Address — </strong> <t t-esc="contact_address_complete"/>
+                        </div>
+                        <div t-if="user_id">
+                            <strong>Assignees — </strong> <t t-esc="user_id[1]"/>
+                        </div>
+                        <div t-if="x_studio_canal_de_distribucin">
+                            <strong>Distribution channel — </strong> <t t-esc="x_studio_canal_de_distribucin"/>
+                        </div>
+                        <div t-if="group_id">
+                            <strong>Sale order — </strong> <t t-esc="group_id[1]"/>
+                        </div>
+                        <div name="dates">
+                            <strong>Assigned Hours — </strong>
+                            <t t-esc="scheduled_date.toFormat('f ') + ' - ' + end_date.toFormat('f ')"/>
+                        </div>
+                    </div>
+                </templates>
+               <field name="user_id"/>
+               <field name="color"/>
+               <field name="scheduled_date"/>
+               <field name="end_date"/>
+               <field name="x_skus_t"/>
+               <field name="partner_id"/>
+               <field name="x_studio_canal_de_distribucin"/>
+               <field name="state"/>
+               <field name="shipment_task_status"/>
+               <field name="kanban_task_status"/>
+               <field name="x_studio_folio_rem"/>
+               <field name="group_id"/>
+               <field name="contact_address_complete"/>
+               <field name="shipping_assignment"/>
+           </gantt>
+        </field>
+    </record>
+    <record id="stock.out_picking" model="ir.ui.menu">
+        <field name="action" ref="action_picking_tree_all"/>
+    </record>
 </odoo>
