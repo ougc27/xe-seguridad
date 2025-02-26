@@ -2,6 +2,9 @@ from odoo import api, models, fields, _
 from odoo.osv import expression
 from odoo.exceptions import UserError
 
+import logging
+_logger = logging.getLogger(__name__)
+
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
@@ -92,6 +95,20 @@ class StockPicking(models.Model):
         copy=False,
         readonly=True,
         help="This field is used to measure productivity.")
+
+    color = fields.Integer(
+        compute="_compute_color",
+        store=True
+    )
+
+    @api.depends('tag_ids')
+    def _compute_color(self):
+        for record in self:
+            record.color = False
+            for tag in record.tag_ids:
+                if tag.name in ('Visita técnica', 'Entrega', 'Instalación'):
+                    record.color = tag.color
+                    break
 
     @api.depends('partner_id')
     def _compute_contact_address_complete(self):
@@ -503,6 +520,7 @@ class StockPicking(models.Model):
         @return: True
         """
         if self.filtered(lambda picking: picking.state == 'transit'):
+            _logger.info("retorne sin hacer nada")
             return
         self.mapped('package_level_ids').filtered(lambda pl: pl.state == 'draft' and not pl.move_ids)._generate_moves()
         self.filtered(lambda picking: picking.state == 'draft').action_confirm()
@@ -528,6 +546,11 @@ class StockPicking(models.Model):
     def write(self, vals):
         res = super().write(vals)
         for picking in self:
+            if not vals.get('tag_ids') and picking.company_id.id == 4:
+                if picking.state == 'done' and picking.kanban_task_status == 'finished' and picking.picking_type_code == 'outgoing':
+                    picking.update_tag_ids_to_pickings(True)
+            #if vals('group_id'):
+                #continue
             if picking.x_studio_folio_rem and picking.state not in ['transit', 'done']:
                 picking.write({'state': 'transit'})
             if picking.shipping_assignment == 'shipments':
@@ -576,3 +599,86 @@ class StockPicking(models.Model):
             if picking.picking_type_code == 'outgoing':
                 picking.set_initial_date()
         return res
+
+    def update_tag_ids_to_pickings(self, from_write=False):
+        final_client = False
+        pickings = self.env['sale.order'].search([
+            ('name', '=', self.origin),
+            ('company_id', '=', self.env.company.id)
+        ]).picking_ids
+        _logger.info("update_tag_ids_to_pickings")
+        _logger.info(from_write)
+        if from_write:
+            sale_lines = self.env['sale.order'].search(
+                [('name', '=', self.group_id.name), ('company_id', '=', self.company_id.id)]
+            ).order_line
+            if (
+                self.move_ids.filtered(
+                    lambda m: m.product_id.default_code in ('VISTEC', 'VISTEC_COMPRADA')
+                )
+                and sale_lines.filtered(lambda m: m.product_id.type == 'product')
+            ):
+                final_client = 'delivery'
+            if (
+                self.move_ids.filtered(lambda m: m.product_id.type == 'product')
+                and sale_lines.filtered(
+                    lambda m: m.product_id.type == 'consu' and
+                    'instalación' in m.product_id.name.lower() or
+                    'instalacion' in m.product_id.name.lower()    
+                )
+            ):
+                final_client = 'instalation'
+            if (
+                self.move_ids.filtered(
+                    lambda m: m.product_id.default_code in ('VISREF', 'MTTOPUERTAS')
+                )
+            ):
+                final_client = 'instalation'
+        else:
+            if (
+                self.move_ids.filtered(
+                    lambda m: m.product_id.default_code in ('VISREF', 'MTTOPUERTAS')
+                )
+            ):
+                final_client = 'instalation'
+            elif (
+                self.move_ids.filtered(
+                    lambda m: m.product_id.default_code in ('VISTEC', 'VISTEC_COMPRADA'))
+            ):
+                final_client = 'technical_visit'
+            elif (
+                self.move_ids.filtered(lambda m: m.product_id.type == 'product')
+            ):
+                final_client = 'delivery'
+            elif (
+                self.move_ids.filtered(
+                    lambda m: m.product_id.type == 'consu' and
+                    'instalación' in m.product_id.name.lower() or
+                    'instalacion' in m.product_id.name.lower()    
+                )
+            ):
+                final_client = 'instalation'
+            _logger.info(final_client)
+        for picking in pickings:
+            picking.add_tag_ids_to_pickings(final_client)
+
+    def add_tag_ids_to_pickings(self, final_client):
+        tag_name_map = {
+            'technical_visit': 'Visita técnica',
+            'delivery': 'Entrega',
+            'instalation': 'Instalación',               
+        }
+        tag_name = tag_name_map.get(final_client)
+        
+        if tag_name:
+            tag_to_add = self.env['inventory.tag'].search([('name', '=', tag_name)], limit=1)
+    
+            other_tags = self.env['inventory.tag'].search([
+                ('name', 'in', [v for k, v in tag_name_map.items() if k != final_client])
+            ])
+            
+            self.write({
+                'tag_ids': [
+                    (3, tag.id) for tag in other_tags
+                ] + [(4, tag_to_add.id)] if tag_to_add else []
+            })
