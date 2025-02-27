@@ -178,6 +178,14 @@ class StockPicking(models.Model):
             subtype_xmlid='mail.mt_note')
     
     def single_product_separation(self, move_ids, sale_order, scheduled_date, construction=False):
+        combined_moves = {}
+        for move in move_ids:
+            product_key = (move.product_id.id, move.product_uom.id)
+            if product_key in combined_moves:
+                combined_moves[product_key].write({'product_uom_qty': combined_moves[product_key].product_uom_qty + move.product_uom_qty})
+                move.sudo().unlink()
+            else:
+                combined_moves[product_key] = move
         insfor = move_ids.filtered(lambda m: m.product_id.default_code == 'INSFOR')
         for move in move_ids:
             if insfor and move.product_id.default_code == 'INSFOR':
@@ -257,7 +265,16 @@ class StockPicking(models.Model):
             if len(rec.move_ids) == 1:
                 rec.single_product_separation(rec.move_ids, sale_order, scheduled_date)
                 continue
-    
+
+            combined_moves = {}
+            for move in rec.move_ids:
+                product_key = (move.product_id.id, move.product_uom.id)
+                if product_key in combined_moves:
+                    combined_moves[product_key].write({'product_uom_qty': combined_moves[product_key].product_uom_qty + move.product_uom_qty})
+                    move.sudo().unlink()
+                else:
+                    combined_moves[product_key] = move
+
             door_moves = rec.move_ids.filtered(
                 lambda m: 'Puertas / Puertas' in m.product_id.categ_id.complete_name and 
                           m.product_id.type == 'product'
