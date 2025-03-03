@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Commissions',
-    "author": "Xe Brands",
-    'version': '17.0',
+    'author': 'Xe Brands',
+    'version': '17.20250216',
     'summary': 'Commissions',
     'description': 'Commissions',
     'category': 'Sales/Sales',
@@ -10,6 +10,7 @@
         'sale_management',
         'hr',
         'contacts',
+        'point_of_sale',
     ],
     'data': [
         'security/security.xml',
@@ -18,7 +19,6 @@
         'views/hr_views.xml',
         'views/xe_agent_views.xml',
         'views/res_partner_views.xml',
-        'views/sale_order_views.xml',
         'views/account_move_views.xml',
         'views/account_views.xml',
         'views/xe_commissions_views.xml',
@@ -26,6 +26,9 @@
         'views/xe_mass_payment_commissions_views.xml',
         'report/xe_payment_commissions_report.xml',
         'wizard/commission_recalculation_views.xml',
+        'views/account_payment_views.xml',
+        'views/account_account_views.xml',
+        'views/account_journal_views.xml',
     ],
     'license': 'LGPL-3',
 }

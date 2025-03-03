@@ -103,8 +103,11 @@
                     </group>
                     <field name="commissions_ids" readonly="1">
                         <tree editable="bottom">
-                            <field name="date"/>
-                            <field name="move_id"/>
+<!--                            <field name="date"/>-->
+                            <field name="move_ids" widget="many2many_tags"/>
+                            <field name="sale_order_ids"
+                                   optional="hide"
+                                   widget="many2many_tags"/>
                             <field name="collected_date"/>
                             <field name="customer_id"/>
                             <field name="collected"/>

@@ -6,12 +6,7 @@ from odoo import api, fields, models
 class XeCommissions(models.Model):
     _name = 'xe.commissions'
     _description = 'Commissions'
-    _order = 'customer_id, collected_date'
-
-    @api.depends('sale_order_ids')
-    def _compute_sale_orders(self):
-        for record in self:
-            record.sale_orders = ','.join(record.sale_order_ids.mapped('name'))
+    _order = 'customer_id, collected_date, payment_id desc, pos_order_id, position'
 
     position = fields.Integer(
         string='Position',
@@ -20,12 +15,9 @@ class XeCommissions(models.Model):
         comodel_name='xe.agent',
         string='Agent',
     )
-    date = fields.Date(
-        string='Date',
-    )
-    move_id = fields.Many2one(
+    move_ids = fields.Many2many(
         comodel_name='account.move',
-        string='Number',
+        string='Invoices',
     )
     collected_date = fields.Date(
         string='Collected date',
@@ -55,13 +47,13 @@ class XeCommissions(models.Model):
         comodel_name='sale.order',
         string='Sale orders',
     )
-    sale_orders = fields.Char(
-        string='Sale orders',
-        compute='_compute_sale_orders',
+    pos_order_id = fields.Many2one(
+        comodel_name='pos.order',
+        string='PoS orders',
     )
     payment_id = fields.Many2one(
         comodel_name='account.payment',
-        string='Collection',
+        string='Number',
     )
     agent_per = fields.Float(
         string='Agent percentage',
@@ -80,3 +72,6 @@ class XeCommissions(models.Model):
                     'commissions_ids': [(3, self.id)]
                 })
                 self.payment_commission_id = False
+
+    def get_sales(self):
+        self.sale_order_ids = [(6, 0, self.move_ids.line_ids.sale_line_ids.order_id.ids)]

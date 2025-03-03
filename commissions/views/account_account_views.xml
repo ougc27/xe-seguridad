@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="account_view_account_form_inherit_commissions" model="ir.ui.view">
+        <field name="name">account.view.account.form.inherit.commissions</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='allowed_journal_ids']" position="after">
+                <field name="generates_commission"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
