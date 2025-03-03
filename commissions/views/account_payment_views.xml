@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="account_view_account_payment_form_inherit_commissions" model="ir.ui.view">
+        <field name="name">account.view.account.payment.form.inherit.commissions</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_commissions" type="object" class="oe_stat_button" icon="fa-money" invisible="commission_qty == 0">
+                    <field name="commission_qty" widget="statinfo" string="Commissions"/>
+                </button>
+            </xpath>
+            <xpath expr="//group[@name='group2']" position="inside">
+                <label for="agent1_id" invisible="payment_type != 'inbound'"/>
+                <div>
+                    <field name="agent1_id"
+                           class="oe_inline"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           force_save="1"
+                           domain="[('id', '!=', agent2_id)]"
+                           invisible="payment_type != 'inbound'"
+                           options="{'no_open': True, 'no_create': True}"/>
+                    <span> </span>
+                    <field name="agent1_per"
+                           force_save="1"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           invisible="payment_type != 'inbound'"
+                           class="oe_inline"/>
+                    <span invisible="payment_type != 'inbound'"> %</span>
+                </div>
+                <label for="agent2_id" invisible="payment_type != 'inbound'"/>
+                <div>
+                    <field name="agent2_id"
+                           class="oe_inline"
+                           force_save="1"
+                           domain="[('id', '!=', agent1_id)]"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           invisible="payment_type != 'inbound'"
+                           options="{'no_open': True, 'no_create': True}"/>
+                    <span> </span>
+                    <field name="agent2_per"
+                           force_save="1"
+                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           invisible="payment_type != 'inbound'"
+                           class="oe_inline"/>
+                    <span invisible="payment_type != 'inbound'"> %</span>
+                </div>
+                <field name="exclude_recalculation" readonly="not is_commission_admin"/>
+                <field name="is_advanced_commission_user" invisible="1"/>
+                <field name="is_commission_admin" invisible="1"/>
+                <field name="manual_creation" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="account.action_account_payments" model="ir.actions.act_window">
+        <field name="context">{
+            'default_manual_creation': True,
+            'default_payment_type': 'inbound',
+            'default_partner_type': 'customer',
+            'search_default_inbound_filter': 1,
+            'default_move_journal_types': ('bank', 'cash'),
+            'display_account_trust': True,
+        }</field>
+    </record>
+
+    <record id="account_view_account_payment_tree_inherit_commissions" model="ir.ui.view">
+        <field name="name">account.view.account.payment.tree.inherit.commissions</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_exclude_recalculation" type="object" string="Exclude recalculation"
+                            groups="commissions.commission_admin_group"
+                            invisible="context.get('default_payment_type') not in ('inbound')"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

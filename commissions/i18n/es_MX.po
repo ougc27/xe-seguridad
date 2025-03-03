@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-30 11:35+0000\n"
-"PO-Revision-Date: 2024-12-30 11:35+0000\n"
+"POT-Creation-Date: 2025-02-23 01:54+0000\n"
+"PO-Revision-Date: 2025-02-23 01:54+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -24,6 +24,11 @@ msgstr "'Pago de comisiones {0}'.format(object.name)"
 #: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
 msgid "<span class=\"o_stat_text\">Commissions</span>"
 msgstr "<span class=\"o_stat_text\">Comisiones</span>"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.account_view_account_payment_form_inherit_commissions
+msgid "<span invisible=\"payment_type != 'inbound'\"> %</span>"
+msgstr ""
 
 #. module: commissions
 #: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
@@ -79,6 +84,11 @@ msgid "Accept"
 msgstr "Aceptar"
 
 #. module: commissions
+#: model:ir.model,name:commissions.model_account_account
+msgid "Account"
+msgstr "Cuenta"
+
+#. module: commissions
 #: model:res.groups,name:commissions.commission_admin_group
 msgid "Administrator"
 msgstr "Administrador"
@@ -102,7 +112,6 @@ msgstr "Agente"
 #: model:ir.model.fields,field_description:commissions.field_account_payment__agent1_id
 #: model:ir.model.fields,field_description:commissions.field_res_partner__agent1_id
 #: model:ir.model.fields,field_description:commissions.field_res_users__agent1_id
-#: model:ir.model.fields,field_description:commissions.field_sale_order__agent1_id
 msgid "Agent 1"
 msgstr "Agente 1"
 
@@ -119,7 +128,6 @@ msgstr "El agente 1 y el agente 2 deben ser distintos."
 #: model:ir.model.fields,field_description:commissions.field_account_payment__agent1_per
 #: model:ir.model.fields,field_description:commissions.field_res_partner__agent1_per
 #: model:ir.model.fields,field_description:commissions.field_res_users__agent1_per
-#: model:ir.model.fields,field_description:commissions.field_sale_order__agent1_per
 msgid "Agent 1 percentage"
 msgstr "Porcentaje agent 1"
 
@@ -129,7 +137,6 @@ msgstr "Porcentaje agent 1"
 #: model:ir.model.fields,field_description:commissions.field_account_payment__agent2_id
 #: model:ir.model.fields,field_description:commissions.field_res_partner__agent2_id
 #: model:ir.model.fields,field_description:commissions.field_res_users__agent2_id
-#: model:ir.model.fields,field_description:commissions.field_sale_order__agent2_id
 msgid "Agent 2"
 msgstr "Agente 2"
 
@@ -139,7 +146,6 @@ msgstr "Agente 2"
 #: model:ir.model.fields,field_description:commissions.field_account_payment__agent2_per
 #: model:ir.model.fields,field_description:commissions.field_res_partner__agent2_per
 #: model:ir.model.fields,field_description:commissions.field_res_users__agent2_per
-#: model:ir.model.fields,field_description:commissions.field_sale_order__agent2_per
 msgid "Agent 2 percentage"
 msgstr "Porcentaje de agente 2"
 
@@ -195,6 +201,16 @@ msgid "CUSTOMER"
 msgstr "CLIENTE"
 
 #. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "PAYMENT"
+msgstr "PAGO"
+
+#. module: commissions
+#: model_terms:ir.ui.view,arch_db:commissions.payment_commissions_template
+msgid "POS ORDERS"
+msgstr "PUNTO DE VENTA"
+
+#. module: commissions
 #: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
 #: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
 msgid "Calculate"
@@ -216,9 +232,9 @@ msgid "Collected date"
 msgstr "Fecha cobro"
 
 #. module: commissions
-#: model:ir.model.fields,field_description:commissions.field_xe_commissions__payment_id
-msgid "Collection"
-msgstr "Cobro"
+#: model:ir.model.fields,field_description:commissions.field_account_payment__commission_ids
+msgid "Commission"
+msgstr "Comisiones"
 
 #. module: commissions
 #: model:ir.model.fields,field_description:commissions.field_xe_agent__commission
@@ -230,21 +246,20 @@ msgstr "Comisión (%)"
 #: code:addons/commissions/models/res_company.py:0
 #, python-format
 msgid "Commission payment sequence"
-msgstr ""
+msgstr "Secuencia de pago de commisiones"
 
 #. module: commissions
 #: model:ir.actions.act_window,name:commissions.commission_recalculation_open_action
 #: model:ir.model,name:commissions.model_commission_recalculation
 #: model:ir.ui.menu,name:commissions.commission_recalculation_menuitem
 msgid "Commission recalculation"
-msgstr "Recalculo de comisión"
+msgstr "Recálculo de comisión"
 
 #. module: commissions
 #: model:ir.actions.act_window,name:commissions.commissions_open_action
 #: model:ir.model,name:commissions.model_xe_commissions
 #: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__commission_ids
 #: model:ir.model.fields,field_description:commissions.field_account_move__commission_ids
-#: model:ir.model.fields,field_description:commissions.field_account_payment__commission_ids
 #: model:ir.model.fields,field_description:commissions.field_xe_commissions__commission
 #: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__payment_commissions_ids
 #: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__commissions_ids
@@ -252,6 +267,7 @@ msgstr "Recalculo de comisión"
 #: model:ir.module.category,name:commissions.commissions_module_category
 #: model:ir.ui.menu,name:commissions.account_commissions_menuitem
 #: model:ir.ui.menu,name:commissions.commissions_commissions_menuitem
+#: model_terms:ir.ui.view,arch_db:commissions.account_view_account_payment_form_inherit_commissions
 #: model_terms:ir.ui.view,arch_db:commissions.account_view_move_form_inherit_commissions
 msgid "Commissions"
 msgstr "Comisiones"
@@ -339,11 +355,6 @@ msgid "DATE"
 msgstr "FECHA"
 
 #. module: commissions
-#: model:ir.model.fields,field_description:commissions.field_xe_commissions__date
-msgid "Date"
-msgstr "Fecha"
-
-#. module: commissions
 #: model_terms:ir.ui.view,arch_db:commissions.xe_payment_commissions_form_view
 msgid "Delete"
 msgstr "Eliminar"
@@ -378,6 +389,21 @@ msgid "Error in payment creation."
 msgstr "Error en la creación del pago."
 
 #. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__exclude_recalculation
+#: model:ir.model.fields,field_description:commissions.field_account_move__exclude_recalculation
+#: model:ir.model.fields,field_description:commissions.field_account_payment__exclude_recalculation
+#: model_terms:ir.ui.view,arch_db:commissions.account_view_account_payment_tree_inherit_commissions
+#: model_terms:ir.ui.view,arch_db:commissions.account_view_move_tree_inherit_commissions
+msgid "Exclude recalculation"
+msgstr "Excluir recálculo"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_account_account__generates_commission
+#: model:ir.model.fields,field_description:commissions.field_account_journal__generates_commission
+msgid "Generates commission"
+msgstr "Genera comisiones"
+
+#. module: commissions
 #: model:ir.model.fields,field_description:commissions.field_commission_recalculation__id
 #: model:ir.model.fields,field_description:commissions.field_xe_agent__id
 #: model:ir.model.fields,field_description:commissions.field_xe_commissions__id
@@ -398,12 +424,16 @@ msgid "Invisibles"
 msgstr ""
 
 #. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__move_ids
+msgid "Invoices"
+msgstr "Facturas"
+
+#. module: commissions
 #: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__is_advanced_commission_user
 #: model:ir.model.fields,field_description:commissions.field_account_move__is_advanced_commission_user
 #: model:ir.model.fields,field_description:commissions.field_account_payment__is_advanced_commission_user
 #: model:ir.model.fields,field_description:commissions.field_res_partner__is_advanced_commission_user
 #: model:ir.model.fields,field_description:commissions.field_res_users__is_advanced_commission_user
-#: model:ir.model.fields,field_description:commissions.field_sale_order__is_advanced_commission_user
 msgid "Is advanced commission user"
 msgstr "Es usuario avanzado de comisión"
 
@@ -411,13 +441,8 @@ msgstr "Es usuario avanzado de comisión"
 #: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__is_commission_admin
 #: model:ir.model.fields,field_description:commissions.field_account_move__is_commission_admin
 #: model:ir.model.fields,field_description:commissions.field_account_payment__is_commission_admin
-msgid "Is commission admin"
-msgstr "Es administrador de comisión"
-
-#. module: commissions
 #: model:ir.model.fields,field_description:commissions.field_res_partner__is_commission_admin
 #: model:ir.model.fields,field_description:commissions.field_res_users__is_commission_admin
-#: model:ir.model.fields,field_description:commissions.field_sale_order__is_commission_admin
 msgid "Is commission administrator"
 msgstr "Es administrador de comisión"
 
@@ -426,6 +451,11 @@ msgstr "Es administrador de comisión"
 #: model:ir.model.fields,field_description:commissions.field_res_users__is_commission_user
 msgid "Is commission user"
 msgstr "Es usuario de comisión"
+
+#. module: commissions
+#: model:ir.model,name:commissions.model_account_journal
+msgid "Journal"
+msgstr "Diario"
 
 #. module: commissions
 #: model:ir.model,name:commissions.model_account_move
@@ -451,11 +481,16 @@ msgid "Last Updated on"
 msgstr "Última actualización el"
 
 #. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_account_payment__manual_creation
+msgid "Manual creation"
+msgstr "Creación manual"
+
+#. module: commissions
 #. odoo-python
 #: code:addons/commissions/models/res_company.py:0
 #, python-format
 msgid "Mass commission payment sequence"
-msgstr ""
+msgstr "Secuencia de pago masivo de comisiones"
 
 #. module: commissions
 #: model:ir.actions.act_window,name:commissions.mass_payment_commissions_open_action
@@ -465,7 +500,7 @@ msgid "Mass payment commissions"
 msgstr "Pago masivo de comisiones"
 
 #. module: commissions
-#: model:ir.model.fields,field_description:commissions.field_xe_commissions__move_id
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__payment_id
 #: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__name
 #: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__name
 msgid "Number"
@@ -517,6 +552,23 @@ msgid "Payments"
 msgstr "Pagos"
 
 #. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_xe_commissions__pos_order_id
+msgid "PoS orders"
+msgstr "Punto de venta"
+
+#. module: commissions
+#: model:ir.model,name:commissions.model_pos_order
+msgid "Point of Sale Orders"
+msgstr "Órdenes del punto de venta"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__pos_originated
+#: model:ir.model.fields,field_description:commissions.field_account_move__pos_originated
+#: model:ir.model.fields,field_description:commissions.field_account_payment__pos_originated
+msgid "Pos originated"
+msgstr "Creado desde punto de venta"
+
+#. module: commissions
 #: model:ir.model.fields,field_description:commissions.field_xe_commissions__position
 msgid "Position"
 msgstr "Posición"
@@ -539,14 +591,8 @@ msgstr "ÓRDENES DE VENTA"
 
 #. module: commissions
 #: model:ir.model.fields,field_description:commissions.field_xe_commissions__sale_order_ids
-#: model:ir.model.fields,field_description:commissions.field_xe_commissions__sale_orders
 msgid "Sale orders"
 msgstr "Órdenes de venta"
-
-#. module: commissions
-#: model:ir.model,name:commissions.model_sale_order
-msgid "Sales Order"
-msgstr "Orden de venta"
 
 #. module: commissions
 #: model_terms:ir.ui.view,arch_db:commissions.xe_mass_payment_commissions_form_view
@@ -560,7 +606,7 @@ msgstr "Romper pago"
 #: code:addons/commissions/models/xe_payment_commissions.py:0
 #, python-format
 msgid "Sequence not found"
-msgstr ""
+msgstr "Secuencia no encontrada"
 
 #. module: commissions
 #: model:ir.model.fields,field_description:commissions.field_commission_recalculation__start_date
