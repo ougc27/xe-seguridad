@@ -183,6 +183,7 @@ class StockPicking(models.Model):
             product_key = (move.product_id.id, move.product_uom.id)
             if product_key in combined_moves:
                 combined_moves[product_key].write({'product_uom_qty': combined_moves[product_key].product_uom_qty + move.product_uom_qty})
+                move_ids -= move
                 move.sudo().unlink()
             else:
                 combined_moves[product_key] = move
@@ -360,6 +361,10 @@ class StockPicking(models.Model):
                             new_move.write({'product_uom_qty': qty, 'state': 'confirmed'})
                             break
                     else:
+                        if qty > 0:
+                            rec.single_product_separation(
+                                new_move, sale_order, scheduled_date, True
+                            )
                         new_move.sudo().unlink()
 
                 rec.create_notes_in_pickings(sale_order, new_picking)
@@ -521,6 +526,7 @@ class StockPicking(models.Model):
         """
         if self.filtered(lambda picking: picking.state == 'transit'):
             return
+
         self.mapped('package_level_ids').filtered(lambda pl: pl.state == 'draft' and not pl.move_ids)._generate_moves()
         self.filtered(lambda picking: picking.state == 'draft').action_confirm()
         moves = self.move_ids.filtered(
@@ -545,9 +551,10 @@ class StockPicking(models.Model):
     def write(self, vals):
         res = super().write(vals)
         for picking in self:
-            #if not vals.get('tag_ids') and picking.company_id.id == 4:
-                #if picking.state == 'done' and picking.kanban_task_status == 'finished' and picking.picking_type_code == 'outgoing':
-                    #picking.update_tag_ids_to_pickings(True)
+            if not vals.get('tag_ids') and picking.company_id.id == 4:
+                if vals.get('state') or vals.get('kanban_task_status'):
+                    if picking.state == 'done' and picking.kanban_task_status == 'finished' and picking.picking_type_code == 'outgoing':
+                        picking.update_tag_ids_to_pickings(True)
             if picking.x_studio_folio_rem and picking.state not in ['transit', 'done']:
                 picking.write({'state': 'transit'})
             if picking.shipping_assignment == 'shipments':
