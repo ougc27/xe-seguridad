@@ -551,10 +551,10 @@ class StockPicking(models.Model):
     def write(self, vals):
         res = super().write(vals)
         for picking in self:
-            if not vals.get('tag_ids') and picking.company_id.id == 4:
+            """if not vals.get('tag_ids') and picking.company_id.id == 4:
                 if vals.get('state') or vals.get('kanban_task_status'):
                     if picking.state == 'done' and picking.kanban_task_status == 'finished' and picking.picking_type_code == 'outgoing':
-                        picking.update_tag_ids_to_pickings(True)
+                        picking.update_tag_ids_to_pickings(True)"""
             if picking.x_studio_folio_rem and picking.state not in ['transit', 'done']:
                 picking.write({'state': 'transit'})
             if picking.shipping_assignment == 'shipments':
