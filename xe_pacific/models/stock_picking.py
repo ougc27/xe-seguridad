@@ -551,10 +551,10 @@ class StockPicking(models.Model):
     def write(self, vals):
         res = super().write(vals)
         for picking in self:
-            """if not vals.get('tag_ids') and picking.company_id.id == 4:
+            if not vals.get('tag_ids') and picking.company_id.id == 4:
                 if vals.get('state') or vals.get('kanban_task_status'):
                     if picking.state == 'done' and picking.kanban_task_status == 'finished' and picking.picking_type_code == 'outgoing':
-                        picking.update_tag_ids_to_pickings(True)"""
+                        picking.update_tag_ids_to_pickings(True)
             if picking.x_studio_folio_rem and picking.state not in ['transit', 'done']:
                 picking.write({'state': 'transit'})
             if picking.shipping_assignment == 'shipments':
@@ -592,7 +592,7 @@ class StockPicking(models.Model):
     def action_confirm(self):
         res = super().action_confirm()
         for rec in self: 
-            if rec.picking_type_code == 'internal':
+            if rec.picking_type_code == 'internal' and not rec.initial_date:
                 rec.write({'initial_date': fields.Datetime.now()})
         return res
 
@@ -615,31 +615,38 @@ class StockPicking(models.Model):
             if picking.shipping_assignment == 'shipments' or picking.x_studio_canal_de_distribucin == 'CONSTRUCTORAS':
                 return False
         if from_write:
+            """origin = self.origin
+            if self.return_id:
+                origin = self.return_id.origin
             sale_lines = self.env['sale.order'].search(
-                [('name', '=', self.group_id.name), ('company_id', '=', self.company_id.id)]
-            ).order_line
-            if (
-                self.move_ids.filtered(
-                    lambda m: m.product_id.default_code in ('VISTEC', 'VISTEC_COMPRADA')
-                )
-                and sale_lines.filtered(lambda m: m.product_id.type == 'product')
-            ):
-                final_client = 'delivery'
-            if (
-                self.move_ids.filtered(lambda m: m.product_id.type == 'product')
-                and sale_lines.filtered(
-                    lambda m: m.product_id.type == 'consu' and
-                    'instalación' in m.product_id.name.lower() or
-                    'instalacion' in m.product_id.name.lower()    
-                )
-            ):
-                final_client = 'instalation'
-            if (
-                self.move_ids.filtered(
-                    lambda m: m.product_id.default_code in ('VISREF', 'MTTOPUERTAS')
-                )
-            ):
-                final_client = 'instalation'
+                [('name', '=', origin), ('company_id', '=', self.env.company.id)]
+            ).order_line"""
+            sale_lines = False
+            if self.sale_id:
+                sale_lines = self.sale_id.order_line
+            if sale_lines:
+                if (
+                    self.move_ids.filtered(
+                        lambda m: m.product_id.default_code in ('VISTEC', 'VISTEC_COMPRADA')
+                    )
+                    and sale_lines.filtered(lambda m: m.product_id.type == 'product')
+                ):
+                    final_client = 'delivery'
+                if (
+                    self.move_ids.filtered(lambda m: m.product_id.type == 'product')
+                    and sale_lines.filtered(
+                        lambda m: m.product_id.type == 'consu' and
+                        'instalación' in m.product_id.name.lower() or
+                        'instalacion' in m.product_id.name.lower()    
+                    )
+                ):
+                    final_client = 'instalation'
+                if (
+                    self.move_ids.filtered(
+                        lambda m: m.product_id.default_code in ('VISREF', 'MTTOPUERTAS')
+                    )
+                ):
+                    final_client = 'instalation'
         else:
             if (
                 self.move_ids.filtered(

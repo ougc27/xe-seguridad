@@ -177,6 +177,11 @@ class BaseModel(models.AbstractModel):
         if self == self.env['stock.picking']:
             for element in domain:
                 if element[0] == 'name':
+                    if '|' in element[2]:
+                        search_terms = tuple(element[2].split('|'))  
+                        query = Query(self.env.cr, self._table, self._table_query)
+                        query.add_where('"x_studio_related_field_B0EXH" IN %s', (search_terms,))
+                        return query
                     concat = [('x_studio_related_field_B0EXH', 'ilike', element[2])]
                     domain = expression.OR([domain, concat])
                     break
