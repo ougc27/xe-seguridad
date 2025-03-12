@@ -141,20 +141,21 @@ class L10nMxEdiDocument(models.Model):
 
         # == CFDI values ==
         populate_return = on_populate(cfdi_values)
-        customer = cfdi_values['receptor']['customer']
-        if customer.parent_id:
-            customer = customer.parent_id
-        if cfdi_values.get('document_name', None):
-            invoice_origin = self.env['account.move'].search([
-                ('name', '=', cfdi_values['document_name']),
-                ('company_id', '=', cfdi_values['company'].id)
-            ])
-            if invoice_origin.x_studio_almacen_id.partner_id:
-                customer = invoice_origin.x_studio_almacen_id.partner_id  
-        tz = customer._l10n_mx_edi_get_cfdi_timezone()
-        if datetime.fromisoformat(cfdi_values['fecha']).date() == datetime.now(tz).date():
-            date_fmt = '%Y-%m-%dT%H:%M:%S'
-            cfdi_values["fecha"] = datetime.now(tz).astimezone(tz).strftime(date_fmt)
+        if cfdi_values.get('receptor'):
+            customer = cfdi_values['receptor']['customer']
+            if customer.parent_id:
+                customer = customer.parent_id
+            if cfdi_values.get('document_name', None):
+                invoice_origin = self.env['account.move'].search([
+                    ('name', '=', cfdi_values['document_name']),
+                    ('company_id', '=', cfdi_values['company'].id)
+                ])
+                if invoice_origin.x_studio_almacen_id.partner_id:
+                    customer = invoice_origin.x_studio_almacen_id.partner_id  
+            tz = customer._l10n_mx_edi_get_cfdi_timezone()
+            if datetime.fromisoformat(cfdi_values['fecha']).date() == datetime.now(tz).date():
+                date_fmt = '%Y-%m-%dT%H:%M:%S'
+                cfdi_values["fecha"] = datetime.now(tz).astimezone(tz).strftime(date_fmt)
         if cfdi_values.get('errors'):
             on_failure("\n".join(cfdi_values['errors']))
             return
