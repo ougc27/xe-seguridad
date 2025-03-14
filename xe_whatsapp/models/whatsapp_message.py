@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta  
 from odoo import fields, models, api, Command
 from odoo.addons.whatsapp.tools import phone_validation as wa_phone_validation
 from odoo.tools import groupby, html2plaintext
@@ -8,15 +9,17 @@ from odoo.addons.whatsapp.tools.whatsapp_api import WhatsAppApi
 import markupsafe
 from markupsafe import Markup
 
+import logging
+_logger = logging.getLogger(__name__)
+
 
 class WhatsappMessage(models.Model):
     _inherit = 'whatsapp.message'
 
-    def change_channel_members(self, channel, team_members):
-        wp_partner = channel.channel_member_ids.filtered(lambda rec: not rec.partner_id.user_ids).partner_id
-        team_members = team_members + wp_partner
-        members_to_keep = channel.channel_member_ids.filtered(lambda rec: rec.partner_id in team_members)
-        channel.write({'channel_member_ids': [(6, 0, members_to_keep.ids)]})
+    body = fields.Html(related='mail_message_id.body', string="Body", related_sudo=False, index=True, store=True)
+
+    def assign_member_to_chat(self, channel, user_id):
+        channel.write({'assigned_person': user_id})
 
     @api.model
     def create(self, vals):
@@ -46,10 +49,10 @@ class WhatsappMessage(models.Model):
                     'assigned_to': team,
                     'first_respond_message': datetime.now()
                 })
-                partners = self.env['whatsapp.team.members'].assign_person_to_chat_aleatory(
+                user_id = self.env['whatsapp.team.members'].assign_person_to_chat_aleatory(
                     rec.wa_account_id, team)
-                if partners:
-                    self.change_channel_members(channel, partners)
+                if user_id:
+                    self.assign_member_to_chat(channel, user_id)
                 continue
             
             """channel = self.env['discuss.channel'].search([('whatsapp_number', '=', rec.mobile_number_formatted)])
@@ -253,3 +256,28 @@ class WhatsappMessage(models.Model):
             ('create_date', '<', date_threshold),
             ('state', 'in', ['error', 'cancel'])
         ]).unlink()
+
+    @api.model
+    def get_messages(self, content):
+        today = fields.Date.today()
+        three_months_ago = today - relativedelta(months=3)
+        query = """
+            SELECT mobile_number_formatted 
+            FROM whatsapp_message
+            WHERE create_date >= %s
+            AND body ILIKE %s
+            ORDER BY create_date DESC
+            LIMIT 10
+        """
+        self.env.cr.execute(query, (three_months_ago, f"%{content}%"))
+        mobile_numbers = self.env.cr.fetchall()
+        mobile_numbers_list = [num[0] for num in mobile_numbers]
+        if not mobile_numbers:
+            return []
+
+        channels = self.env['discuss.channel'].search_read(
+            domain=[('whatsapp_number', 'in', mobile_numbers_list)],
+            fields=['name'],
+            limit=10
+        )
+        return channels

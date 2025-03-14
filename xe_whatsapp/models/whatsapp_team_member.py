@@ -32,7 +32,8 @@ class WhatsappTeamMember(models.Model):
     def assign_person_to_chat_aleatory(self, wa_account_id, sales_team):
         records = self.env['whatsapp.team.members'].search([
             ('team', '=', sales_team),
-            ('is_assigned', '=', False)
+            ('is_assigned', '=', False),
+            ('wa_account_id', '=', wa_account_id.id)
         ])
 
         user_ids = records.mapped('user_id.id')
@@ -48,12 +49,6 @@ class WhatsappTeamMember(models.Model):
     
         next_register = active_records.sorted(key=lambda r: r.assignment_count)[0]
         next_register.assignment_count += 1
-    
-        master_ids = self.env['whatsapp.team.members'].search([
-            ('team', '=', sales_team),
-            ('is_assigned', '=', True)
-        ]).mapped('user_id.partner_id')
 
-        partners = next_register.user_id.partner_id + master_ids
+        return next_register.user_id.id
         
-        return partners

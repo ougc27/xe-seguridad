@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="xe_whatsapp.DiscussSidebarCategory" t-inherit="mail.DiscussSidebarCategory" t-inherit-mode="extension">
+        <xpath expr="//i[@class='o-mail-DiscussSidebarCategory-add']" position="before">
+            <i t-if="category.isOpen and category.id == 'whatsapp'" class="o-whatsapp-DiscussSidebarCategory-search-by-term" t-attf-class="fa fa-search {{ hover_class }} ms-1" t-on-click="() => this.searchCategory(category)" t-att-title="category.addTitle" role="img" t-att-data-hotkey="category.addHotkey"/>
+        </xpath>
+        <xpath expr="//t[@t-if='category.isOpen']" position="replace">
+            <t t-if="category.isOpen">
+                <div t-if="state.search === category.id" class="p-2" t-ref="selector">
+                    <ChannelSelector category="category" onValidate.bind="stopEditing" autofocus="true" close.bind="stopEditing" />
+                </div>
+                <div t-if="state.editing === category.id" class="p-2" t-ref="selector">
+                    <ChannelSelector category="category" onValidate.bind="stopEditing" autofocus="true" close.bind="stopEditing"/>
+                </div>
+                <t t-if="category.id === 'whatsapp'">
+                    <t t-foreach="groupedByAssignedPerson(category.threads)" t-as="assigned_group" t-key="assigned_group_index">
+                        <div class="o-mail-DiscussSidebarSubCategory ms-4">
+                            <div class="d-flex align-items-center my-1">
+                                <div t-attf-class="d-flex align-items-baseline mx-1 {{ hover_class }}" t-on-click="() => this.toggleAssignedPerson(assigned_group)">
+                                    <i class="o-mail-DiscussSidebarCategory-icon small me-1" t-att-class="state.openPerson ? 'oi oi-chevron-down' : 'oi oi-chevron-right'"/>
+                                    <span class="btn-sm p-0 fw-bold"><t t-esc="assigned_group.assigned_person_name or 'Sin asignar'"/></span>
+                                </div>
+                            </div>
+                            <t t-if="state.openPerson">
+                                <t t-foreach="assigned_group.threads" t-as="thread" t-key="thread.localId" t-call="mail.DiscussSidebarChannel">
+                                    <t t-set="thread" t-value="thread"/>
+                                </t>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+                <t t-else="">
+                    <t t-foreach="filteredThreads(category)" t-as="thread" t-key="thread.localId" t-call="mail.DiscussSidebarChannel">
+                        <t t-set="thread" t-value="thread"/>
+                    </t>
+                </t>
+            </t>
+        </xpath>
+    </t>
+</templates>

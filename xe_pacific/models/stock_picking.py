@@ -119,10 +119,9 @@ class StockPicking(models.Model):
     def _compute_door_count(self):
         for record in self:
             door_count = 0
-            if record.company_id.id == 4:
-                for line in record.move_ids_without_package:
-                    if 'Puertas / Puertas' in line.product_id.categ_id.complete_name:
-                        door_count += line.product_uom_qty
+            for line in record.move_ids_without_package:
+                if 'Puertas / Puertas' in line.product_id.categ_id.complete_name:
+                    door_count += line.product_uom_qty
             record.door_count = door_count
 
     @api.depends('location_id', 'move_ids', 'group_id')
