@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="discuss.ChannelAssignedPerson">
+        <div class="o-assigned-person">
+            <t t-if="state.assignedPerson">
+                <div class="assigned-avatar">
+                    <t t-esc="state.assignedPerson.name[0]"/>
+                </div>
+                Assigned to: <t t-esc="state.assignedPerson.name"/>
+            </t>
+            <t t-else="">
+                <div class="assigned-avatar">
+                    N/A
+                </div>
+                No person asignned
+            </t>
+        </div>
+
+        <ul class="o-whatsapp-person-list">
+            <t t-foreach="state.availablePersons" t-as="person" t-key="person.id">
+                <li t-on-click="assignPerson.bind(this, person.id)">
+                    <div class="person-avatar">
+                        <t t-esc="person.name[0]"/>
+                    </div>
+                    <span class="person-name"><t t-esc="person.name"/></span>
+                </li>
+            </t>
+        </ul>
+    </t>
+
+</templates>

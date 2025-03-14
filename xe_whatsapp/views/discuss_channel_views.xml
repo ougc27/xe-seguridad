@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="discuss_channel_view_list_whatsapp" model="ir.ui.view">
+        <field name="name">discuss.channel.view.list.whatsapp</field>
+        <field name="model">discuss.channel</field>
+        <field name="arch" type="xml">
+            <tree string="WhatsApp Chats"
+                decoration-muted="not whatsapp_channel_active"
+                default_order="last_wa_mail_message_id asc"
+                js_class="xe_whatsapp.discuss_channel_list"
+            >
+                <field name="whatsapp_channel_active" column_invisible="1" />
+                <field name="create_date" string="Created On" />
+                <field name="name" />
+                <field name="channel_partner_ids" widget="many2many_tags" string="Members" />
+            </tree>
+        </field>
+    </record>
+</odoo>
