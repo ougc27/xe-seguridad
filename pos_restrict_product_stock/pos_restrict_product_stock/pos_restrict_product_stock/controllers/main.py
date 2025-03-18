@@ -70,7 +70,7 @@ class PosControllerInherit(PosController):
             return request.not_found()
 
         is_date_expired = False
-        limit_date = pos_order.date_order + timedelta(days=5)
+        limit_date = pos_order.date_order + timedelta(days=2)
         now = datetime.now().date()
         if now > limit_date.date():
             is_date_expired = True
@@ -115,6 +115,9 @@ class PosControllerInherit(PosController):
             error, error_message = self.extra_details_form_validate(partner_values, additional_partner_fields, error, error_message)
             error, error_message = self.extra_details_form_validate(invoice_values, additional_invoice_fields, error, error_message)
 
+            if request.env['res.partner']._run_vat_test(
+                form_values.get('vat'), pos_order_country, True) is False:
+                error['vat'] = 'error'
             if not error:
                 return self._get_invoice(partner_values, invoice_values, pos_order, additional_invoice_fields, kwargs)
             else:
@@ -157,4 +160,3 @@ class PosControllerInherit(PosController):
             **form_values,
             'is_date_expired': is_date_expired
         })
-
