@@ -3,7 +3,7 @@
     <template id="ticket_validation_screen" inherit_id="point_of_sale.ticket_validation_screen">
         <xpath expr="//t[@t-if='user_is_connected']" position="after">
             <t t-if="is_date_expired">
-                <br/><span class="text-danger">No se puede facturar la órden despues de 5 días</span><br/>
+                <br/><span class="text-danger">No se puede facturar la órden despues de 2 días</span><br/>
             </t>
         </xpath>
 

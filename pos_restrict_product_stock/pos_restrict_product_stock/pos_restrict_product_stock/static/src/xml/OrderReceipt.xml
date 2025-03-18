@@ -4,7 +4,7 @@
         <xpath expr="//div[@t-if='props.data.footer']" position="before">
             <br/>
             <div class="bold-text">
-                Tiene 5 días para generar su factura usando el código QR.
+                Tiene 2 días para generar su factura usando el código QR.
             </div>
         </xpath>
         <xpath expr="//div[@class='pos-receipt-order-data mb-2']" position="attributes">
