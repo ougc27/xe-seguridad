@@ -3,7 +3,7 @@ from typing import Dict, List
 from odoo.fields import Command
 from odoo.models import NewId
 from odoo.tools.misc import OrderedSet
-from odoo import api, models, fields, _
+from odoo import api, models, _
 from odoo.tools import Query
 from odoo.osv import expression
 
@@ -174,16 +174,20 @@ class BaseModel(models.AbstractModel):
 
         is_bulk_search_active = self.env['ir.config_parameter'].sudo().get_param(
             'bulk_search_activate', None)
-        if self == self.env['stock.picking']:
+        if self._name in ['stock.picking', 'sale.order']:
             for element in domain:
-                if element[0] == 'name':
+                if element[0] == 'name' and element[2]:
                     if '|' in element[2]:
                         search_terms = tuple(element[2].split('|'))  
                         query = Query(self.env.cr, self._table, self._table_query)
-                        query.add_where('"x_studio_related_field_B0EXH" IN %s', (search_terms,))
+                        if self._name == 'stock.picking':
+                            query.add_where('"x_studio_related_field_B0EXH" IN %s', (search_terms,))
+                        else:
+                            query.add_where('(name IN %s OR reference IN %s)', (search_terms, search_terms))
                         return query
-                    concat = [('x_studio_related_field_B0EXH', 'ilike', element[2])]
-                    domain = expression.OR([domain, concat])
+                    if self._name == 'stock.picking':
+                        concat = [('x_studio_related_field_B0EXH', 'ilike', element[2])]
+                        domain = expression.OR([domain, concat])
                     break
         if domain:
             if is_bulk_search_active == "1":
@@ -199,7 +203,7 @@ class BaseModel(models.AbstractModel):
                                 for f_name in multi_name:
                                     modified_domain.append([domain_tuple[0],domain_tuple[1],f_name.strip()])
                     modified_domain.append(domain_tuple)
-                return expression.expression(modified_domain, self).query  
+                return expression.expression(modified_domain, self).query
             else:
                 return expression.expression(domain, self).query
         else:
