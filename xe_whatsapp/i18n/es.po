@@ -1,0 +1,328 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* xe_whatsapp
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-03-13 20:55+0000\n"
+"PO-Revision-Date: 2025-03-13 20:55+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_partner_form
+msgid "<span class=\"o_stat_text\">Chats</span>"
+msgstr "<span class=\"o_stat_text\">Chats</span>"
+
+#. module: xe_whatsapp
+#: model_terms:ir.actions.act_window,help:xe_whatsapp.whatsapp_team_members_action
+msgid "Asign person to chat aleatory"
+msgstr "Asignar persona para chatear aleatoriamente"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__assigned_person
+msgid "Assigned Person"
+msgstr "Persona Asignada"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__assigned_to
+msgid "Assigned To"
+msgstr "Asignado A"
+
+#. module: xe_whatsapp
+#. odoo-javascript
+#: code:addons/xe_whatsapp/static/src/js/channel_commands.js:0
+#, python-format
+msgid "Assigned person in the current channel"
+msgstr "Persona asignada en el canal actual"
+
+#. module: xe_whatsapp
+#. odoo-python
+#: code:addons/xe_whatsapp/models/discuss_channel.py:0
+#, python-format
+msgid "Assigned person in this channel: %(person)s"
+msgstr "Persona asignada en este canal: %(person)s"
+
+#. module: xe_whatsapp
+#. odoo-javascript
+#: code:addons/xe_whatsapp/static/src/xml/assigned_person.xml:0
+#, python-format
+msgid "Assigned to:"
+msgstr "Asignado a:"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_message__body
+msgid "Body"
+msgstr "Contenido"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields.selection,name:xe_whatsapp.selection__discuss_channel__assigned_to__closed
+msgid "Closed"
+msgstr "Cerrado"
+
+#. module: xe_whatsapp
+#: model:ir.model,name:xe_whatsapp.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.discuss_channel_view_list_whatsapp
+msgid "Created On"
+msgstr "Creado El"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: xe_whatsapp
+#: model:ir.model,name:xe_whatsapp.model_discuss_channel
+msgid "Discussion Channel"
+msgstr "Canal de Discusión"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__display_name
+msgid "Display Name"
+msgstr "Nombre Mostrado"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__user_respond_in_time
+msgid "El usuario respondio a tiempo"
+msgstr "El usuario respondió a tiempo"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__is_open_for_all_users
+msgid "Esta abierto a todos los usuarios"
+msgstr "Está abierto a todos los usuarios"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__first_assigned_person
+msgid "First Assigned Person"
+msgstr "Primera Persona Asignada"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,help:xe_whatsapp.field_discuss_channel__first_assigned_person
+msgid "First user assigned to the channel"
+msgstr "Primer usuario asignado al canal"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__is_assigned
+msgid "Has assigned equipment"
+msgstr "Tiene equipo asignado"
+
+#. module: xe_whatsapp
+#. odoo-javascript
+#: code:addons/xe_whatsapp/static/src/js/thread_action.js:0
+#, python-format
+msgid "Hide Assigned Person List"
+msgstr "Ocultar Lista de Personas Asignadas"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__id
+msgid "ID"
+msgstr "ID"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__whatsapp_channel_active
+msgid "Is Whatsapp Channel Active"
+msgstr "¿El Canal de WhatsApp está Activo?"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__write_uid
+msgid "Last Updated by"
+msgstr "Última Actualización por"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__write_date
+msgid "Last Updated on"
+msgstr "Última Actualización el"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__last_wa_mail_message_id
+msgid "Last WA Partner Mail Message"
+msgstr "Último Mensaje de Correo del Socio de WA"
+
+#. module: xe_whatsapp
+#. odoo-python
+#: code:addons/xe_whatsapp/controllers/assigned_person.py:0
+#, python-format
+msgid "Last person assigned %s / New person assigned %s"
+msgstr "Última persona asignada %s / Nueva persona asignada %s"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.discuss_channel_view_list_whatsapp
+msgid "Members"
+msgstr "Miembros"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,help:xe_whatsapp.field_discuss_channel__assigned_to
+msgid "Message assigned to"
+msgstr "Mensaje asignado a"
+
+#. module: xe_whatsapp
+#. odoo-javascript
+#: code:addons/xe_whatsapp/static/src/xml/assigned_person.xml:0
+#, python-format
+msgid "N/A"
+msgstr "N/A"
+
+#. module: xe_whatsapp
+#. odoo-javascript
+#: code:addons/xe_whatsapp/static/src/xml/assigned_person.xml:0
+#, python-format
+msgid "No person asignned"
+msgstr "Ninguna persona asignada"
+
+#. module: xe_whatsapp
+#. odoo-python
+#: code:addons/xe_whatsapp/models/discuss_channel.py:0
+#, python-format
+msgid "No person assigned to this channel"
+msgstr "Ninguna persona asignada a este canal"
+
+#. module: xe_whatsapp
+#. odoo-javascript
+#: code:addons/xe_whatsapp/static/src/js/channel_selector_patch.js:0
+#, python-format
+msgid "No results found"
+msgstr "No se encontraron resultados"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__assignment_count
+msgid "Number of conversations assigned"
+msgstr "Número de conversaciones asignadas"
+
+#. module: xe_whatsapp
+#. odoo-python
+#: code:addons/xe_whatsapp/models/res_partner.py:0
+#, python-format
+msgid "Partner created by incoming WhatsApp message."
+msgstr "Contacto creado por un mensaje entrante de WhatsApp."
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,help:xe_whatsapp.field_discuss_channel__assigned_person
+msgid "Person assigned to the channel"
+msgstr "Persona asignada al canal"
+
+#. module: xe_whatsapp
+#. odoo-python
+#: code:addons/xe_whatsapp/models/res_partner.py:0
+#, python-format
+msgid ""
+"Please enter at least 3 characters when searching a Phone/Mobile number."
+msgstr "Por favor, ingrese al menos 3 caracteres al buscar un número de teléfono/móvil."
+
+#. module: xe_whatsapp
+#. odoo-javascript
+#: code:addons/xe_whatsapp/static/src/js/channel_selector_patch.js:0
+#, python-format
+msgid "Press Enter to start"
+msgstr "Presione Enter para comenzar"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__first_respond_message
+msgid "Primer mensaje cliente"
+msgstr "Primer mensaje del cliente"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields.selection,name:xe_whatsapp.selection__discuss_channel__assigned_to__sales_team
+#: model:ir.model.fields.selection,name:xe_whatsapp.selection__whatsapp_team_members__team__sales_team
+msgid "Sales team"
+msgstr "Equipo de ventas"
+
+#. module: xe_whatsapp
+#. odoo-javascript
+#: code:addons/xe_whatsapp/static/src/js/channel_selector_patch.js:0
+#, python-format
+msgid "Search by messages"
+msgstr "Buscar por mensajes"
+
+#. module: xe_whatsapp
+#. odoo-javascript
+#: code:addons/xe_whatsapp/static/src/js/thread_action.js:0
+#, python-format
+msgid "Show Assigned Person List"
+msgstr "Mostrar Lista de Personas Asignadas"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields.selection,name:xe_whatsapp.selection__discuss_channel__assigned_to__spam
+msgid "Spam"
+msgstr "Spam"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields.selection,name:xe_whatsapp.selection__discuss_channel__assigned_to__support_team
+#: model:ir.model.fields.selection,name:xe_whatsapp.selection__whatsapp_team_members__team__support_team
+msgid "Support team"
+msgstr "Equipo de soporte"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__team
+msgid "Team"
+msgstr "Equipo"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,help:xe_whatsapp.field_whatsapp_team_members__team
+msgid "Team where the user is assigned"
+msgstr "Equipo donde está asignado el usuario"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__user_id
+msgid "User"
+msgstr "Usuario"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,help:xe_whatsapp.field_whatsapp_team_members__user_id
+msgid "Users assigned to the whatsapp account"
+msgstr "Usuarios asignados a la cuenta de WhatsApp"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__wa_account_id
+msgid "WhatsApp Business Account"
+msgstr "Cuenta de Negocio de WhatsApp"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_res_partner__wa_channel_count
+#: model:ir.model.fields,field_description:xe_whatsapp.field_res_users__wa_channel_count
+msgid "WhatsApp Channel Count"
+msgstr "Recuento de Canales de WhatsApp"
+
+#. module: xe_whatsapp
+#. odoo-python
+#: code:addons/xe_whatsapp/models/res_partner.py:0
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.discuss_channel_view_list_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_partner_form
+#, python-format
+msgid "WhatsApp Chats"
+msgstr "Chats de WhatsApp"
+
+#. module: xe_whatsapp
+#: model:ir.model,name:xe_whatsapp.model_whatsapp_message
+msgid "WhatsApp Messages"
+msgstr "Mensajes de WhatsApp"
+
+#. module: xe_whatsapp
+#: model:ir.actions.act_window,name:xe_whatsapp.whatsapp_team_members_action
+#: model:ir.model,name:xe_whatsapp.model_whatsapp_team_members
+#: model:ir.ui.menu,name:xe_whatsapp.whatsapp_account_menu
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.whatsapp_team_members_view_form
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.whatsapp_team_members_view_tree
+msgid "WhatsApp Team Members"
+msgstr "Miembros del Equipo de WhatsApp"
+
+#. module: xe_whatsapp
+#. odoo-python
+#: code:addons/xe_whatsapp/models/res_partner.py:0
+#, python-format
+msgid "Partner created by incoming WhatsApp message."
+msgstr "Contacto creado por un mensaje entrante de WhatsApp."
