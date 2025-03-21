@@ -23,10 +23,18 @@
             </t>
         </div>-->
         <div class="o-assigned-person">
-            <div class="assigned-avatar">
-                <t t-esc="state.assignedPerson.name[0]"/>
-            </div>
-            Assigned to: <t t-esc="state.assignedPerson.name"/>
+            <t t-if="state.assignedPerson">
+                <div class="assigned-avatar">
+                    <t t-esc="state.assignedPerson.name[0]"/>
+                </div>
+                Assigned to: <t t-esc="state.assignedPerson.name"/>
+            </t>
+            <t t-else="">
+                <div class="assigned-avatar">
+                    N/A
+                </div>
+                Assigned to: Asignar asesor
+            </t>
         </div>
 
         <ul class="o-whatsapp-person-list">
