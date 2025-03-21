@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="discuss.ChannelAssignedPerson">
+        <!--<div class="o-discuss-ChannelAssignedPerson">
+            <h6 class="mx-3 text-700">Assigned Person</h6>
+            <t t-foreach="state.members" t-as="member" t-key="member.id">
+                <div class="o-discuss-ChannelMember d-flex align-items-center p-2 bg-inherit">
+                    <div class="bg-inherit o-discuss-ChannelAssignedPerson-avatar position-relative d-flex ms-4 flex-shrink-0">
+                        <img class="w-100 h-100 rounded o_object_fit_cover"
+                             t-att-src="threadService.avatarUrl(member.persona, props.thread)"/>
+                    </div>
+                    <span class="ms-2 text-truncate" t-esc="member.persona.display_name"/>
+                    <span class="ms-auto">
+                        <button t-if="!member.persona.eq(state.assignedPerson)" 
+                                class="btn btn-secondary btn-sm" 
+                                t-on-click.stop="() => this.assignPerson(member)">
+                            Assign
+                        </button>
+                        <span t-if="member.persona.eq(state.assignedPerson)" class="p-1 fa fa-check"/>
+                    </span>
+                </div>
+            </t>
+        </div>-->
+        <div class="o-assigned-person">
+            <div class="assigned-avatar">
+                <t t-esc="state.assignedPerson.name[0]"/>
+            </div>
+            Assigned to: <t t-esc="state.assignedPerson.name"/>
+        </div>
+
+        <ul class="o-whatsapp-person-list">
+            <t t-foreach="state.availablePersons" t-as="person" t-key="person.id">
+                <li t-on-click="assignPerson.bind(this, person.id)">
+                    <div class="person-avatar">
+                        <t t-esc="person.name[0]"/>
+                    </div>
+                    <span class="person-name"><t t-esc="person.name"/></span>
+                </li>
+            </t>
+        </ul>
+    </t>
+
+</templates>
