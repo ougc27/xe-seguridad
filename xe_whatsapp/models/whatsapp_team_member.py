@@ -78,5 +78,5 @@ class WhatsappTeamMember(models.Model):
         next_register = active_records.sorted(key=lambda r: r.assignment_count)[0]
         next_register.assignment_count += 1
 
-        return next_register.user_id.id
+        return next_register.user_id
         
