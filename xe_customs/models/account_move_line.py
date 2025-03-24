@@ -30,6 +30,11 @@ class AccountMoveLine(models.Model):
             else:
                 line.client_barcode = False
 
+    def _check_reconciliation(self):
+        for line in self:
+            if line.quantity != 0:
+                super(AccountMoveLine, line)._check_reconciliation()
+
     @api.onchange('price_unit')
     def _onchange_price_unit(self):
         for move in self:
