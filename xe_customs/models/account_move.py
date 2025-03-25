@@ -58,3 +58,14 @@ class AccountMove(models.Model):
             ])
             down_payment_ids.unlink()
         return super(AccountMove, self).button_cancel()
+
+    def _check_fiscalyear_lock_date(self):
+        for move in self:
+            lock_date = move.company_id._get_user_fiscal_lock_date()
+            if move.date <= lock_date:
+                if self.user_has_groups('account.group_account_manager'):
+                    message = _("You cannot add/modify entries prior to and inclusive of the lock date %s.", format_date(self.env, lock_date))
+                else:
+                    message = _("You cannot add/modify entries prior to and inclusive of the lock date %s. Check the company settings or ask someone with the 'Adviser' role", format_date(self.env, lock_date))
+                raise UserError(message)
+        return True
