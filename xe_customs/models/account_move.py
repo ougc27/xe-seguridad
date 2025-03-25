@@ -34,6 +34,7 @@ class AccountMove(models.Model):
     locked = fields.Boolean(default=False)
     auto_credit_note = fields.Boolean(default=False)
     remarks = fields.Char(copy=False)
+    fiscalyear_lock_skip = fields.Boolean(default=False)
     
     @api.depends('invoice_line_ids')
     def _get_source_orders(self):
@@ -61,11 +62,7 @@ class AccountMove(models.Model):
 
     def _check_fiscalyear_lock_date(self):
         for move in self:
-            lock_date = move.company_id._get_user_fiscal_lock_date()
-            if move.date <= lock_date:
-                if self.user_has_groups('account.group_account_manager'):
-                    message = _("You cannot add/modify entries prior to and inclusive of the lock date %s.", format_date(self.env, lock_date))
-                else:
-                    message = _("You cannot add/modify entries prior to and inclusive of the lock date %s. Check the company settings or ask someone with the 'Adviser' role", format_date(self.env, lock_date))
-                raise UserError(message)
-        return True
+            if not move.fiscalyear_lock_skip:
+                return super(AccountMove, move)._check_fiscalyear_lock_date()
+            else:
+                return True
