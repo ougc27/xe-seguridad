@@ -176,7 +176,7 @@ class BaseModel(models.AbstractModel):
             'bulk_search_activate', None)
         if self._name in ['stock.picking', 'sale.order']:
             for element in domain:
-                if element[0] == 'name' and element[2]:
+                if (element[0] == 'name' or element[0] == "reference") and element[2]:
                     if '|' in element[2]:
                         search_terms = tuple(element[2].split('|'))  
                         query = Query(self.env.cr, self._table, self._table_query)

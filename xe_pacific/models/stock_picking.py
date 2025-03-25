@@ -61,7 +61,8 @@ class StockPicking(models.Model):
         'move_id',
         string='Invoices',
         help='Match the invoices with the shipment.',
-        readonly=True
+        readonly=True,
+        copy=False
     )
 
     sale_note = fields.Html(
