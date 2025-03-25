@@ -40,6 +40,13 @@ class AccountMoveLine(models.Model):
             if line.quantity != 0:
                 super(AccountMoveLine, line)._check_tax_lock_date()
 
+    def _check_fiscalyear_lock_date(self):
+        for line in self:
+            if line.quantity != 0:
+                return super(AccountMoveLine, line)._check_fiscalyear_lock_date()
+            else:
+                return True
+
     @api.onchange('price_unit')
     def _onchange_price_unit(self):
         for move in self:
