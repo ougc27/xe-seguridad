@@ -124,7 +124,10 @@ class AccountPayment(models.Model):
                 payment_id.journal_id.generates_commission and
                 payment_id.destination_account_id.generates_commission
             ):
-                collected = payment_id.amount / 1.16
+                if payment_id.partner_id.is_border_zone_iva:
+                    collected = payment_id.amount / 1.08
+                else:
+                    collected = payment_id.amount / 1.16
                 if payment_id.agent1_id and payment_id.agent1_per:
                     commission = collected * payment_id.agent1_per / 100
                     data.append(

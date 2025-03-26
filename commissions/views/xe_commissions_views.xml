@@ -8,13 +8,15 @@
             <tree create="false">
                 <field name="position"/>
                 <field name="agent_id"/>
-                <field name="payment_id" optional="hide"/>
+                <field name="payment_id" optional="show"/>
                 <field name="sale_order_ids"
                        optional="hide"
                        widget="many2many_tags"/>
                 <field name="pos_order_id" optional="hide"/>
                 <field name="collected_date"/>
-                <field name="move_ids" widget="many2many_tags"/>
+                <field name="move_ids"
+                       optional="hide"
+                       widget="many2many_tags"/>
                 <field name="customer_id"/>
                 <field name="collected"/>
                 <field name="commission"/>

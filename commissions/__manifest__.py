@@ -11,6 +11,7 @@
         'hr',
         'contacts',
         'point_of_sale',
+        'xe_l10n_mx_edi',
     ],
     'data': [
         'security/security.xml',
