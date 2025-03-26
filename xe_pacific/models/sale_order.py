@@ -11,6 +11,7 @@ class SaleOrder(models.Model):
     pos_store = fields.Many2one('res.partner', domain="[('is_pos_store', '=', True)]")
 
     def write(self, vals):
+        #generate new build
         if 'order_line' in vals:
             for order in self:
                 if order.picking_ids.filtered(lambda p: p.state == 'transit'): 
