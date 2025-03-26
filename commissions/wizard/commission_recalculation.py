@@ -62,7 +62,10 @@ class CommissionRecalculation(models.TransientModel):
                             if not commission_id.paid:
                                 if payment_id.agent1_id:
                                     if commission_id.agent_id != payment_id.agent1_id or commission_id.agent_per != payment_id.agent1_per:
-                                        collected = payment_id.amount / 1.16
+                                        if payment_id.partner_id.is_border_zone_iva:
+                                            collected = payment_id.amount / 1.08
+                                        else:
+                                            collected = payment_id.amount / 1.16
                                         commission_id.write({
                                             'agent_id': payment_id.agent1_id.id,
                                             'commission': collected * payment_id.agent1_per / 100,
@@ -75,7 +78,10 @@ class CommissionRecalculation(models.TransientModel):
                                 payment_id.journal_id.generates_commission and
                                 payment_id.destination_account_id.generates_commission
                             ):
-                                collected = payment_id.amount / 1.16
+                                if payment_id.partner_id.is_border_zone_iva:
+                                    collected = payment_id.amount / 1.08
+                                else:
+                                    collected = payment_id.amount / 1.16
                                 if payment_id.agent1_id and payment_id.agent1_per:
                                     agent = payment_id.agent1_id.id
                                     commission = collected * payment_id.agent1_per / 100
@@ -98,7 +104,10 @@ class CommissionRecalculation(models.TransientModel):
                             if not commission_id.paid:
                                 if payment_id.agent2_id:
                                     if commission_id.agent_id != payment_id.agent2_id or commission_id.agent_per != payment_id.agent2_per:
-                                        collected = payment_id.amount / 1.16
+                                        if payment_id.partner_id.is_border_zone_iva:
+                                            collected = payment_id.amount / 1.08
+                                        else:
+                                            collected = payment_id.amount / 1.16
                                         commission_id.write({
                                             'agent_id': payment_id.agent2_id.id,
                                             'commission': collected * payment_id.agent2_per / 100,
@@ -111,7 +120,10 @@ class CommissionRecalculation(models.TransientModel):
                                 payment_id.journal_id.generates_commission and
                                 payment_id.destination_account_id.generates_commission
                             ):
-                                collected = payment_id.amount / 1.16
+                                if payment_id.partner_id.is_border_zone_iva:
+                                    collected = payment_id.amount / 1.08
+                                else:
+                                    collected = payment_id.amount / 1.16
                                 if payment_id.agent2_id and payment_id.agent2_per:
                                     agent = payment_id.agent2_id.id
                                     commission = collected * payment_id.agent2_per / 100
