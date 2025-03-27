@@ -6,6 +6,10 @@ class ResPartner(models.Model):
 
     is_pos_store = fields.Boolean()
 
+    shipping_instructions = fields.Char(
+        'Shipping Instructions',
+        copy=False)
+
     @api.depends('street', 'zip', 'city', 'country_id', 'l10n_mx_edi_locality')
     def _compute_complete_address(self):
         for record in self:

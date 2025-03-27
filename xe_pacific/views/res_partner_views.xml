@@ -7,6 +7,14 @@
             <xpath expr="//field[@name='function']" position="after">
                 <field name="is_pos_store"/>
             </xpath>
+            <page name="internal_notes" position="inside">
+                <group>
+                    <group col="2">
+                        <separator string="Shipping Instructions" colspan="2"/>
+                        <field name="shipping_instructions" placeholder="Type the shipping instructions..." colspan="2" nolabel="1"/>
+                    </group>
+                </group>
+            </page>
         </field>
     </record>
 </odoo>
