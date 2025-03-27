@@ -12,7 +12,7 @@
                 <div t-if="state.editing === category.id" class="p-2" t-ref="selector">
                     <ChannelSelector category="category" onValidate.bind="stopEditing" autofocus="true" close.bind="stopEditing" />
                 </div>
-                <t t-if="category.id === 'whatsapp'">
+                <!--<t t-if="category.id === 'whatsapp'">
                     <t t-foreach="groupedByAssignedPerson(category.threads)" t-as="assigned_group" t-key="assigned_group_index">
                         <div class="o-mail-DiscussSidebarSubCategory ms-4">
                             <div class="d-flex align-items-center my-1">
@@ -33,6 +33,9 @@
                     <t t-foreach="filteredThreads(category)" t-as="thread" t-key="thread.localId" t-call="mail.DiscussSidebarChannel">
                         <t t-set="thread" t-value="thread"/>
                     </t>
+                </t>-->
+                <t t-foreach="filteredThreads(category)" t-as="thread" t-key="thread.localId" t-call="mail.DiscussSidebarChannel">
+                    <t t-set="thread" t-value="thread"/>
                 </t>
             </t>
         </xpath>

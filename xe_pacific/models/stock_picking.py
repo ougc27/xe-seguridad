@@ -526,7 +526,7 @@ class StockPicking(models.Model):
         also impact the state of the picking as it is computed based on move's states.
         @return: True
         """
-        if self.filtered(lambda picking: picking.state == 'transit'):
+        if self.filtered(lambda picking: picking.state in ['transit', 'cancel']):
             return
 
         self.mapped('package_level_ids').filtered(lambda pl: pl.state == 'draft' and not pl.move_ids)._generate_moves()
