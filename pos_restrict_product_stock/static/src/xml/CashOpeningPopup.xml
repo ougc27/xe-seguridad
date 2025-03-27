@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_restrict_product_stock.CashOpeningPopup" t-inherit="point_of_sale.CashOpeningPopup" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('opening-cash-section')]" position="replace">
+            <div class="opening-cash-section mb-3">
+                <span class="info-title d-flex flex-grow-1 align-items-start">Opening cash</span>
+                <div class="cash-input-sub-section input-group">
+                    <Input tModel="[state, 'openingCash']"
+                        autofocus="true"/>
+                    <div class="button icon btn btn-secondary">
+                        <i class="fa fa-money fa-2x" role="img"/>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </t>
+</templates>
