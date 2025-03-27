@@ -627,6 +627,18 @@ msgid "Initial Date"
 msgstr "Fecha inicial"
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_res_partner__shipping_instructions
+#: model:ir.model.fields,field_description:xe_pacific.field_res_users__shipping_instructions
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_partner_form_inherit
+msgid "Shipping Instructions"
+msgstr "INDICACIONES PARA EMBARQUES"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_partner_form_inherit
+msgid "Type the shipping instructions..."
+msgstr "Escribe las indicaciones de embarques..."
+
+#. module: xe_pacific
 #: model:ir.model.fields,help:xe_pacific.field_stock_picking__initial_date
 msgid "This field is used to measure productivity."
 msgstr "Este campo es usado para medir la productividad"
