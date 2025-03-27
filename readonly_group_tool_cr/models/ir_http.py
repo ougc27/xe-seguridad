@@ -14,7 +14,7 @@ class IrHttp(models.AbstractModel):
         xml_ids = models.Model._get_external_ids(group_ids)
         for id in xml_ids:
             xml_id = xml_ids.get(id)
-             if xml_id:  
-                 data.append(xml_id[0])
+            if xml_id:  
+                data.append(xml_id[0])
         result['user_has_groups_readonly'] = data
         return result
