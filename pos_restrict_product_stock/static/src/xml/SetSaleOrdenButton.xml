@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_restrict_product_stock.SetSaleOrderButton" t-inherit="pos_sale.SetSaleOrderButton" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o_sale_order_button')]" position="replace">
+            <t t-if="state.isAdvancedUser">
+                <div class="control-button o_sale_order_button btn btn-light rounded-0 fw-bolder" t-on-click="() => this.click()">
+                    <i class="fa fa-link me-1" role="img" aria-label="Set Sale Order"
+                    title="Set Sale Order" /> Quotation/Order
+                </div>
+            </t>
+        </xpath>
+    </t>
+</templates>
