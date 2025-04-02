@@ -12,7 +12,8 @@
         'purchase',
         'sale_margin',
         'account',
-        'hr'
+        'hr',
+        'stock_no_negative'
     ],
     "category": "Accounting",
     "summary": "XE Customs",
@@ -32,6 +33,9 @@
 
         # Wizards
         'wizard/sale_make_invoice_advance_views.xml',
+
+        # Data
+        'data/ir_config_parameter.xml'
     ],
     'assets': {
         'web.assets_backend': [

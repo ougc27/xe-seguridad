@@ -3,7 +3,8 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html).
 
 from odoo import fields, models, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+
 
 class StockPicking(models.Model):
     _inherit = "stock.picking"
@@ -31,7 +32,35 @@ class StockPicking(models.Model):
                 raise UserError(_('You cannot transit more than the ordered quantity.'))
             if move.product_id.detailed_type == 'product' and move.product_id.qty_available < move.quantity:
                 raise UserError(_('Not enough quantity available for product %s.') % move.product_id.display_name)
-    
+        for move_line in self.move_line_ids:
+            restrict_remission_with_no_stock = self.env['ir.config_parameter'].sudo().get_param(
+                'restrict_remission_with_no_stock', None)
+            if restrict_remission_with_no_stock == "1":
+                if move_line.quantity > 0 and move_line.lot_id:
+                    quantity = self.env['stock.quant'].with_context(allow_negative=True)._get_available_quantity(move_line.product_id, move_line.location_id, lot_id=move_line.lot_id, package_id=move_line.package_id, owner_id=move_line.owner_id, strict=False)
+                    not_transit_moves = self.env['stock.move.line'].search([
+                        ('product_id', '=', move_line.product_id.id),
+                        ('lot_id', '=', move_line.lot_id.id),
+                        ('location_id', '=', move_line.location_id.id),
+                        ('picking_id.state', 'not in', ['cancel', 'done', 'transit']),
+                        ('picking_id.picking_type_code', '=', 'outgoing'),
+                        ('id', '!=', move_line.id)
+                    ])              
+                    reserved_in_not_transit = sum(not_transit_moves.mapped('quantity'))
+                    available_qty = quantity + reserved_in_not_transit
+                    if available_qty < 0:
+                        pickings_names = ", ".join(not_transit_moves.mapped("picking_id.name"))
+                        raise ValidationError(
+                            _(
+                                "You cannot reserve the product '{product_name}' because the total "
+                                "available quantity is {qty}, but you are trying to remit "
+                                "{requested_qty}, which exceeds the available stock."
+                            ).format(
+                                product_name=move_line.product_id.display_name,
+                                qty=available_qty,
+                                requested_qty=move_line.quantity,
+                            )
+                        )
         self.write({
             'state': 'transit',
             'is_locked': True,

@@ -928,3 +928,16 @@ msgstr "¿Estas seguro de que quieres validar este traslado?"
 #, python-format
 msgid "The product %s requires a lot or serial number."
 msgstr "El producto %s requiere un lote o número de serie."
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/stock_picking.py:0
+#, python-format
+msgid ""
+"You cannot reserve the product '{product_name}' because the total available "
+"quantity is {qty}, but you are trying to remit {requested_qty}, which "
+"exceeds the available stock."
+msgstr ""
+"No puedes reservar el producto '{product_name}' porque la cantidad total "
+"disponible es {qty}, pero estás intentando remisionar {requested_qty}, lo cual "
+"excede el stock disponible."

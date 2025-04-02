@@ -14,4 +14,6 @@ class StockForecasted(models.AbstractModel):
         move = self.env['stock.move'].browse(move_id)
         if move.is_locked:
             raise UserError(_('You cannot unreserve a move that is locked.'))
+        if move.picking_id.state == 'transit':
+            raise UserError(_('You cannot unreserve a move with remission state.'))
         return super(StockForecasted, self).action_unreserve_linked_picks(move_id)
