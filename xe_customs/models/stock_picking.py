@@ -5,6 +5,9 @@
 from odoo import fields, models, _
 from odoo.exceptions import UserError, ValidationError
 
+import logging
+_logger = logging.getLogger(__name__)
+
 
 class StockPicking(models.Model):
     _inherit = "stock.picking"
@@ -38,6 +41,8 @@ class StockPicking(models.Model):
             if restrict_remission_with_no_stock == "1":
                 if move_line.quantity > 0 and move_line.lot_id:
                     quantity = self.env['stock.quant'].with_context(allow_negative=True)._get_available_quantity(move_line.product_id, move_line.location_id, lot_id=move_line.lot_id, package_id=move_line.package_id, owner_id=move_line.owner_id, strict=False)
+                    _logger.info("esto retorna el _get_available_quantity")
+                    _logger.info(quantity)
                     not_transit_moves = self.env['stock.move.line'].search([
                         ('product_id', '=', move_line.product_id.id),
                         ('lot_id', '=', move_line.lot_id.id),
@@ -45,9 +50,13 @@ class StockPicking(models.Model):
                         ('picking_id.state', 'not in', ['cancel', 'done', 'transit']),
                         ('picking_id.picking_type_code', '=', 'outgoing'),
                         ('id', '!=', move_line.id)
-                    ])              
+                    ])             
+                    _logger.info("estos son los not_transit_moves")
+                    _logger.info(not_transit_moves)
                     reserved_in_not_transit = sum(not_transit_moves.mapped('quantity'))
                     available_qty = quantity + reserved_in_not_transit
+                    _logger.info("este es el available quantity")
+                    _logger.info(available_qty)
                     if available_qty < 0:
                         pickings_names = ", ".join(not_transit_moves.mapped("picking_id.name"))
                         raise ValidationError(
