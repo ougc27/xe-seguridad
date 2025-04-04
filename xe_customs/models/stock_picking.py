@@ -48,7 +48,6 @@ class StockPicking(models.Model):
                         ('lot_id', '=', move_line.lot_id.id),
                         ('location_id', '=', move_line.location_id.id),
                         ('picking_id.state', 'not in', ['cancel', 'done', 'transit']),
-                        ('picking_id.picking_type_code', '=', 'outgoing'),
                         ('id', '!=', move_line.id)
                     ])             
                     _logger.info("estos son los not_transit_moves")
