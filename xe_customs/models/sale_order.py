@@ -238,6 +238,7 @@ class SaleDownPayment(models.Model):
                 )
 
             # Add new down payment line on Invoice
+            payment.invoice_id.fiscalyear_lock_skip = True
             invoice_down_payment = self.env['account.move.line'].create({
                 'move_id': payment.invoice_id.id,
                 'product_id': product_id.id,
@@ -248,6 +249,7 @@ class SaleDownPayment(models.Model):
                 'name': _('Down Payment'),
                 'sequence': payment.invoice_id.invoice_line_ids and payment.invoice_id.invoice_line_ids[-1].sequence + 1 or 10,
             })
+            payment.invoice_id.fiscalyear_lock_skip = False
 
             # Add new down payment line on Sale
             sale_down_payment = order_id.order_line.create({

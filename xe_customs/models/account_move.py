@@ -34,6 +34,7 @@ class AccountMove(models.Model):
     locked = fields.Boolean(default=False)
     auto_credit_note = fields.Boolean(default=False)
     remarks = fields.Char(copy=False)
+    fiscalyear_lock_skip = fields.Boolean(default=False)
     
     @api.depends('invoice_line_ids')
     def _get_source_orders(self):
@@ -58,3 +59,10 @@ class AccountMove(models.Model):
             ])
             down_payment_ids.unlink()
         return super(AccountMove, self).button_cancel()
+
+    def _check_fiscalyear_lock_date(self):
+        for move in self:
+            if not move.fiscalyear_lock_skip:
+                return super(AccountMove, move)._check_fiscalyear_lock_date()
+            else:
+                return True
