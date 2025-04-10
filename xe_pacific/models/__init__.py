@@ -1,5 +1,5 @@
-#from . import helpdesk_call
-#from . import helpdesk_ticket
+from . import helpdesk_call
+from . import helpdesk_ticket
 from . import res_partner
 from . import sale_order
 from . import stock_picking

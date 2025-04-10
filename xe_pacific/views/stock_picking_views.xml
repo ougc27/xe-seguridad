@@ -29,6 +29,16 @@
                     <div class="clearfix"/>
                 </group>
             </xpath>
+            <xpath expr="//button[@name='action_detailed_operations']" position="before">
+                <field name="service_ticket_id" invisible="1"/>
+                <button type="object"
+                    name="action_open_helpdesk_tickets"
+                    class="oe_stat_button"
+                    icon="fa-ticket"
+                    invisible="ticket_count == 0">
+                    <field name="ticket_count" widget="statinfo" string="Tickets"/>
+                </button>
+            </xpath>
         </field>
     </record>
     <record id="stock_picking_tree_inherit" model="ir.ui.view">

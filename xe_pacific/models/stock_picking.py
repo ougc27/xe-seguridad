@@ -1,9 +1,7 @@
 from odoo import api, models, fields, _
 from odoo.osv import expression
 from odoo.exceptions import UserError
-
-import logging
-_logger = logging.getLogger(__name__)
+import math
 
 
 class StockPicking(models.Model):
@@ -34,7 +32,7 @@ class StockPicking(models.Model):
 
     x_studio_canal_de_distribucin = fields.Char(
         string="Nombre del Equipo de Ventas",
-        related='group_id.sale_id.partner_id.team_id.name',
+        compute="_compute_x_studio_canal_de_distribucin",
         store=True,
         readonly=True
     )
@@ -62,7 +60,8 @@ class StockPicking(models.Model):
         'move_id',
         string='Invoices',
         help='Match the invoices with the shipment.',
-        readonly=True
+        readonly=True,
+        copy=False
     )
 
     sale_note = fields.Html(
@@ -100,6 +99,43 @@ class StockPicking(models.Model):
         compute="_compute_color",
         store=True
     )
+
+    x_studio_related_field_B0EXH = fields.Char(
+        string="OC Cliente",
+        related='sale_id.reference',
+        store=True,
+        readonly=True,
+        index=True
+    )
+
+    helpdesk_ticket_ids = fields.One2many('helpdesk.ticket', 'picking_id', string="Helpdesk Tickets")
+
+    ticket_count = fields.Integer(compute='_compute_helpdesk_ticket_ids')
+
+    x_lot = fields.Char(copy=False)
+
+    x_block = fields.Char(copy=False)
+
+    x_subdivision = fields.Char(copy=False)
+
+    service_ticket_id = fields.Many2one('helpdesk.ticket', copy=False)
+
+    @api.depends('group_id', 'helpdesk_ticket_ids')
+    def _compute_x_studio_canal_de_distribucin(self):
+        for record in self:
+            group_id = record.group_id
+            helpdesk_ticket_ids = record.helpdesk_ticket_ids
+            if group_id and group_id.sale_id:
+                record.x_studio_canal_de_distribucin = group_id.sale_id.partner_id.team_id.name
+            elif helpdesk_ticket_ids:
+                record.x_studio_canal_de_distribucin = helpdesk_ticket_ids[0].crm_team_id.name
+            else:
+                record.x_studio_canal_de_distribucin = False
+
+    @api.depends('helpdesk_ticket_ids', 'service_ticket_id')
+    def _compute_helpdesk_ticket_ids(self):
+        for ticket in self:
+            ticket.ticket_count = len(ticket.helpdesk_ticket_ids) + len(ticket.service_ticket_id)
 
     @api.depends('tag_ids')
     def _compute_color(self):
@@ -194,6 +230,16 @@ class StockPicking(models.Model):
             subtype_xmlid='mail.mt_note')
     
     def single_product_separation(self, move_ids, sale_order, scheduled_date, construction=False):
+        combined_moves = {}
+        first_picking = None
+        first_move =self.move_ids[0]
+        for move in move_ids:
+            product_key = (move.product_id.id, move.product_uom.id, move.bom_line_id.id if move.bom_line_id else None)
+            if product_key in combined_moves:
+                combined_moves[product_key].write({'product_uom_qty': combined_moves[product_key].product_uom_qty + move.product_uom_qty})
+                move.sudo().unlink()
+            else:
+                combined_moves[product_key] = move
         insfor = move_ids.filtered(lambda m: m.product_id.default_code == 'INSFOR')
         for move in move_ids:
             if insfor and move.product_id.default_code == 'INSFOR':
@@ -215,7 +261,7 @@ class StockPicking(models.Model):
                     new_picking.batch_id.sudo().unlink()
                     self.create_notes_in_pickings(sale_order, new_picking)
                     continue
-            quantity = int(move.product_uom_qty)
+            quantity = move.product_uom_qty
             product_uom_qty = 1
             bom_line_id = move.bom_line_id
             if bom_line_id:
@@ -225,10 +271,7 @@ class StockPicking(models.Model):
                 quantity -= product_uom_qty
             if quantity >= 1:
                 move.write({'product_uom_qty': product_uom_qty})
-            if isinstance(quantity, float):
-                quantity = int(quantity)
-                if move.id == move_ids[0].id:
-                    quantity -= 1
+            quantity = int(quantity) if quantity.is_integer() else math.floor(quantity)
             for i in range(quantity):
                 new_picking = self.copy(
                     {
@@ -236,14 +279,19 @@ class StockPicking(models.Model):
                         'scheduled_date': scheduled_date,
                     }
                 )
+                if first_picking is None:
+                    first_picking = new_picking
                 for new_move in new_picking.move_ids:
-                    if new_move.product_id.id == move.product_id.id:
+                    if (new_move.product_id.id, new_move.bom_line_id.id) == (move.product_id.id, move.bom_line_id.id):
                         new_move.write({'product_uom_qty': product_uom_qty, 'state': 'confirmed'})
-                        continue
-                    new_move.sudo().unlink()
+                    else:
+                        new_move.sudo().unlink()
+
                 new_picking.write({'state': 'confirmed'})
                 new_picking.batch_id.sudo().unlink()
                 self.create_notes_in_pickings(sale_order, new_picking)
+        if first_picking and first_move.bom_line_id:
+            first_picking.sudo().unlink()
 
     def separate_remissions(self):
         if self.filtered(lambda p: p.state in ['transit', 'done']):
@@ -273,7 +321,16 @@ class StockPicking(models.Model):
             if len(rec.move_ids) == 1:
                 rec.single_product_separation(rec.move_ids, sale_order, scheduled_date)
                 continue
-    
+
+            combined_moves = {}
+            for move in rec.move_ids:
+                product_key = (move.product_id.id, move.product_uom.id, move.bom_line_id.id if move.bom_line_id else move.id)
+                if product_key in combined_moves:
+                    combined_moves[product_key].write({'product_uom_qty': combined_moves[product_key].product_uom_qty + move.product_uom_qty})
+                    move.sudo().unlink()
+                else:
+                    combined_moves[product_key] = move
+
             door_moves = rec.move_ids.filtered(
                 lambda m: 'Puertas / Puertas' in m.product_id.categ_id.complete_name and 
                           m.product_id.type == 'product'
@@ -295,37 +352,35 @@ class StockPicking(models.Model):
 
             while sum(m.product_uom_qty for m in door_moves) > 0 or sum(m.product_uom_qty for m in lock_moves) > 0 or sum(m.product_uom_qty for m in door_accessory_moves) > 0:
                 grouped_moves = []
-    
+
                 for move in door_moves.filtered(lambda m: m.product_uom_qty > 0):
                     grouped_moves.append((move, 1))
                     move.write({'product_uom_qty': move.product_uom_qty - 1})
-    
+  
                     if door_installation_moves:
                         installation_move = door_installation_moves.filtered(lambda m: m.product_uom_qty > 0)
                         if installation_move:
                             grouped_moves.append((installation_move[0], 1))
                             installation_move[0].write({'product_uom_qty': installation_move[0].product_uom_qty - 1})
                     break
-    
+
                 for move in door_accessory_moves.filtered(lambda m: m.product_uom_qty > 0):
                     bom_line_id = move.bom_line_id
-                    product_uom_qty = 1
-                    if bom_line_id:
-                        product_uom_qty = bom_line_id.product_qty
+                    product_uom_qty = bom_line_id.product_qty if bom_line_id else 1
                     grouped_moves.append((move, product_uom_qty))
                     move.write({'product_uom_qty': move.product_uom_qty - product_uom_qty})
-    
+                
                 for move in lock_moves.filtered(lambda m: m.product_uom_qty > 0):
                     grouped_moves.append((move, 1))
                     move.write({'product_uom_qty': move.product_uom_qty - 1})
-    
+             
                     if lock_installation_moves:
                         installation_move = lock_installation_moves.filtered(lambda m: m.product_uom_qty > 0)
                         if installation_move:
                             grouped_moves.append((installation_move[0], 1))
                             installation_move[0].write({'product_uom_qty': installation_move[0].product_uom_qty - 1})
                     break
-    
+
                 new_picking = rec.copy({
                     'is_remission_separated': True,
                     'scheduled_date': scheduled_date,
@@ -334,14 +389,15 @@ class StockPicking(models.Model):
 
                 for new_move in new_picking.move_ids:
                     for original_move, qty in grouped_moves:
-                        if new_move.product_id.id == original_move.product_id.id:
+                        if (new_move.product_id.id == original_move.product_id.id and 
+                            new_move.bom_line_id.id == original_move.bom_line_id.id):
                             new_move.write({'product_uom_qty': qty, 'state': 'confirmed'})
                             break
                     else:
                         new_move.sudo().unlink()
-    
-                rec.create_notes_in_pickings(sale_order, new_picking)
 
+                rec.create_notes_in_pickings(sale_order, new_picking)
+ 
             remaining_moves = rec.move_ids - (door_moves + lock_moves + door_accessory_moves + door_installation_moves + lock_installation_moves)
 
             if remaining_moves:
@@ -355,28 +411,28 @@ class StockPicking(models.Model):
 
                 for new_move in new_picking.move_ids:
                     for original_move, qty in grouped_moves:
-                        if new_move.product_id.id == original_move.product_id.id:
+                        if (new_move.product_id.id == original_move.product_id.id and
+                            new_move.bom_line_id.id == original_move.bom_line_id.id):
                             new_move.write({'product_uom_qty': qty, 'state': 'confirmed'})
                             break
                     else:
+                        if qty > 0:
+                            rec.single_product_separation(new_move, sale_order, scheduled_date, True)
                         new_move.sudo().unlink()
-
+                
                 rec.create_notes_in_pickings(sale_order, new_picking)
-        
+            
                 if not door_moves and not lock_moves:
                     if door_installation_moves:
-                        rec.single_product_separation(
-                            door_installation_moves, sale_order, scheduled_date, True
-                        )
+                        rec.single_product_separation(door_installation_moves, sale_order, scheduled_date, True)
                     if lock_installation_moves:
-                        rec.single_product_separation(
-                            lock_installation_moves, sale_order, scheduled_date, True
-                        )
+                        rec.single_product_separation(lock_installation_moves, sale_order, scheduled_date, True)
                 rec.sudo().unlink()
                 continue
             elif not rec.move_ids.filtered(lambda m: m.product_uom_qty > 0):
                 rec.sudo().unlink()
                 continue
+            
             for line in rec.move_ids.filtered(lambda m: m.product_uom_qty <= 0):
                 line.sudo().unlink()
 
@@ -448,13 +504,15 @@ class StockPicking(models.Model):
         for picking in self - primary_picking:
             for move in picking.move_ids:
                 existing_move = primary_picking.move_ids.filtered(
-                    lambda m: m.product_id == move.product_id and m.product_uom == move.product_uom
+                    lambda m: m.product_id == move.product_id and 
+                            m.product_uom == move.product_uom and 
+                            m.bom_line_id == move.bom_line_id
                 )
                 if existing_move:
                     existing_move.product_uom_qty += move.product_uom_qty
                 else:
                     move.write({'picking_id': primary_picking.id})
-            
+
             picking.action_cancel()
             picking.sudo().unlink()
 
@@ -518,9 +576,9 @@ class StockPicking(models.Model):
         also impact the state of the picking as it is computed based on move's states.
         @return: True
         """
-        if self.filtered(lambda picking: picking.state == 'transit'):
-            _logger.info("retorne sin hacer nada")
+        if self.filtered(lambda picking: picking.state in ['transit', 'cancel']):
             return
+
         self.mapped('package_level_ids').filtered(lambda pl: pl.state == 'draft' and not pl.move_ids)._generate_moves()
         self.filtered(lambda picking: picking.state == 'draft').action_confirm()
         moves = self.move_ids.filtered(
@@ -545,11 +603,10 @@ class StockPicking(models.Model):
     def write(self, vals):
         res = super().write(vals)
         for picking in self:
-            if not vals.get('tag_ids') and picking.company_id.id == 4:
-                if picking.state == 'done' and picking.kanban_task_status == 'finished' and picking.picking_type_code == 'outgoing':
-                    picking.update_tag_ids_to_pickings(True)
-            #if vals('group_id'):
-                #continue
+            """if not vals.get('tag_ids') and picking.company_id.id == 4:
+                if vals.get('state') or vals.get('kanban_task_status'):
+                    if picking.state == 'done' and picking.kanban_task_status == 'finished' and picking.picking_type_code == 'outgoing':
+                        picking.update_tag_ids_to_pickings(True)"""
             if picking.x_studio_folio_rem and picking.state not in ['transit', 'done']:
                 picking.write({'state': 'transit'})
             if picking.shipping_assignment == 'shipments':
@@ -587,7 +644,7 @@ class StockPicking(models.Model):
     def action_confirm(self):
         res = super().action_confirm()
         for rec in self: 
-            if rec.picking_type_code == 'internal':
+            if rec.picking_type_code == 'internal' and not rec.initial_date:
                 rec.write({'initial_date': fields.Datetime.now()})
         return res
 
@@ -605,34 +662,43 @@ class StockPicking(models.Model):
             ('name', '=', self.origin),
             ('company_id', '=', self.env.company.id)
         ]).picking_ids
-        _logger.info("update_tag_ids_to_pickings")
-        _logger.info(from_write)
+        if pickings:
+            picking = pickings[0]
+            if picking.shipping_assignment == 'shipments' or picking.x_studio_canal_de_distribucin == 'CONSTRUCTORAS':
+                return False
         if from_write:
+            """origin = self.origin
+            if self.return_id:
+                origin = self.return_id.origin
             sale_lines = self.env['sale.order'].search(
-                [('name', '=', self.group_id.name), ('company_id', '=', self.company_id.id)]
-            ).order_line
-            if (
-                self.move_ids.filtered(
-                    lambda m: m.product_id.default_code in ('VISTEC', 'VISTEC_COMPRADA')
-                )
-                and sale_lines.filtered(lambda m: m.product_id.type == 'product')
-            ):
-                final_client = 'delivery'
-            if (
-                self.move_ids.filtered(lambda m: m.product_id.type == 'product')
-                and sale_lines.filtered(
-                    lambda m: m.product_id.type == 'consu' and
-                    'instalación' in m.product_id.name.lower() or
-                    'instalacion' in m.product_id.name.lower()    
-                )
-            ):
-                final_client = 'instalation'
-            if (
-                self.move_ids.filtered(
-                    lambda m: m.product_id.default_code in ('VISREF', 'MTTOPUERTAS')
-                )
-            ):
-                final_client = 'instalation'
+                [('name', '=', origin), ('company_id', '=', self.env.company.id)]
+            ).order_line"""
+            sale_lines = False
+            if self.sale_id:
+                sale_lines = self.sale_id.order_line
+            if sale_lines:
+                if (
+                    self.move_ids.filtered(
+                        lambda m: m.product_id.default_code in ('VISTEC', 'VISTEC_COMPRADA')
+                    )
+                    and sale_lines.filtered(lambda m: m.product_id.type == 'product')
+                ):
+                    final_client = 'delivery'
+                if (
+                    self.move_ids.filtered(lambda m: m.product_id.type == 'product')
+                    and sale_lines.filtered(
+                        lambda m: m.product_id.type == 'consu' and
+                        'instalación' in m.product_id.name.lower() or
+                        'instalacion' in m.product_id.name.lower()    
+                    )
+                ):
+                    final_client = 'instalation'
+                if (
+                    self.move_ids.filtered(
+                        lambda m: m.product_id.default_code in ('VISREF', 'MTTOPUERTAS')
+                    )
+                ):
+                    final_client = 'instalation'
         else:
             if (
                 self.move_ids.filtered(
@@ -657,7 +723,6 @@ class StockPicking(models.Model):
                 )
             ):
                 final_client = 'instalation'
-            _logger.info(final_client)
         for picking in pickings:
             picking.add_tag_ids_to_pickings(final_client)
 
@@ -681,3 +746,28 @@ class StockPicking(models.Model):
                     (3, tag.id) for tag in other_tags
                 ] + [(4, tag_to_add.id)] if tag_to_add else []
             })
+
+    def action_open_helpdesk_tickets(self):
+        self.ensure_one()
+        tickets = self.helpdesk_ticket_ids
+
+        if not tickets:
+            tickets = self.service_ticket_id
+
+        if len(tickets) == 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'helpdesk.ticket',
+                'view_mode': 'form',
+                'res_id': tickets[0].id,
+                'target': 'current',
+            }
+        else:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Related Tickets'),
+                'res_model': 'helpdesk.ticket',
+                'view_mode': 'tree,form',
+                'domain': [('id', 'in', tickets.ids)],
+                'target': 'current',
+            }
