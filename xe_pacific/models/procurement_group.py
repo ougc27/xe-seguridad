@@ -10,6 +10,7 @@ class ProcurementGroup(models.Model):
         moves_domain = [
             ('state', 'in', ['confirmed', 'partially_available']),
             ('product_uom_qty', '!=', 0.0),
+            ('picking_id.state', '!=', 'transit'),
             '|',
                 ('reservation_date', '<=', fields.Date.today()),
                 ('picking_type_id.reservation_method', '=', 'at_confirm'),

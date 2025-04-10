@@ -21,6 +21,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -30,6 +31,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -39,6 +41,7 @@ msgstr "Creado el"
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -88,6 +91,7 @@ msgstr "Excepción"
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__id
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__id
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__id
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__id
 msgid "ID"
 msgstr "ID"
 
@@ -112,6 +116,7 @@ msgstr "Estado de la tarea Kanban"
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -121,6 +126,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_date
 msgid "Last Updated on"
 msgstr "Última actualización el"
 
@@ -212,6 +218,7 @@ msgstr "Nombre de la etiqueta ya existe!"
 #: model_terms:ir.ui.view,arch_db:xe_pacific.inventory_tag_view_tree
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__tag_ids
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__tag_ids
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__tag_ids
 msgid "Tags"
 msgstr "Etiquetas"
 
@@ -249,9 +256,9 @@ msgstr "Número de lote no automático"
 #. module: xe_pacific
 #: model_terms:ir.ui.view,arch_db:xe_pacific.base_copy_user_access_view_form
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_wizard
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_ticket_transfer_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
-
 #. module: xe_pacific
 #: model_terms:ir.ui.view,arch_db:xe_pacific.base_copy_user_access_view_form
 msgid "Copy"
@@ -269,6 +276,8 @@ msgstr "Copiar accesos del usuario"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__user_id
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__user_id
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__user_id
 msgid "User"
 msgstr "Usuario"
 
@@ -361,6 +370,7 @@ msgstr "Comentarios"
 
 #. module: xe_pacific
 #: model:ir.model.fields.selection,name:xe_pacific.selection__cancelled_remission_reason__team__construction
+#: model_terms:ir.ui.view,arch_db:xe_pacific.custom_helpdesk_ticket_view_form
 msgid "Construction"
 msgstr "Constructoras"
 
@@ -513,6 +523,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:xe_pacific.field_account_bank_statement_line__x_studio_almacen_id
 #: model:ir.model.fields,field_description:xe_pacific.field_account_move__x_studio_almacen_id
 #: model:ir.model.fields,field_description:xe_pacific.field_account_payment__x_studio_almacen_id
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__warehouse_id
 msgid "Warehouse"
 msgstr "Almacén"
 
@@ -628,66 +639,535 @@ msgid "Initial Date"
 msgstr "Fecha inicial"
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_res_partner__shipping_instructions
+#: model:ir.model.fields,field_description:xe_pacific.field_res_users__shipping_instructions
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_partner_form_inherit
+msgid "Shipping Instructions"
+msgstr "INDICACIONES PARA EMBARQUES"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_partner_form_inherit
+msgid "Type the shipping instructions..."
+msgstr "Escribe las indicaciones de embarques..."
+
+#. module: xe_pacific
 #: model:ir.model.fields,help:xe_pacific.field_stock_picking__initial_date
 msgid "This field is used to measure productivity."
 msgstr "Este campo es usado para medir la productividad"
 
 #. module: xe_pacific
-#: model_terms:ir.actions.act_window,help:xe_pacific.action_picking_tree_all
-msgid "No transfer found. Let's create one!"
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__accessory_delivery_pending
+msgid "Accessory or spare part pending delivery"
+msgstr "Accesorio o refacción pendiente de entrega"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__accessory_install_pending
+msgid "Accessory or spare part pending installation"
+msgstr "Accesorio o refacción pendiente de instalar"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__block
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__block
+#, python-format
+msgid "Block"
+msgstr "Manzana"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__architect
+#, python-format
+msgid "Architect"
+msgstr "Arquitecto"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__missing_caps
+#, python-format
+msgid "Missing Caps"
+msgstr "Tapones faltantes"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__complete_address
+msgid "Complete Address"
+msgstr "Dirección del cliente"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__damaged_interior_profile
+#, python-format
+msgid "Damaged Interior Profile"
+msgstr "Perfil interior dañado"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__deficient_masonry
+msgid "Poor masonry work"
+msgstr "Trabajo de albañilería deficiente"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__door_dent
+msgid "Dent or bump on the door"
+msgstr "Golpe o abolladura en puerta"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__door_installation
+#, python-format
+msgid "Door Installation"
+msgstr "Instalación de puerta"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__door_reinstallation
+#, python-format
+msgid "Door Reinstallation"
+msgstr "Re-instalación de puerta"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__door_replacement
+#, python-format
+msgid "Door Replacement"
+msgstr "Cambio de puerta"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__paint_factory_defect
+msgid "Paint with a factory defect"
+msgstr "Pintura con defecto de fábrica"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__door_faded_paint
+msgid "Paint changed tone or door is faded"
+msgstr "Pintura cambió de tono o puerta despintada"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__housing_type
+msgid "Housing Type"
+msgstr "Tipo de vivienda"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__helpdesk_ticket__housing_type__final_client
+msgid "Final client"
+msgstr "Cliente final"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__helpdesk_ticket__housing_type__for_delivery
+msgid "For delivery"
+msgstr "Para entrega"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__helpdesk_ticket__housing_type__in_construction
+msgid "In construction"
+msgstr "En obra"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__helpdesk_ticket__housing_type__post_sale
+msgid "Post Sale"
+msgstr "Post-venta"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__remission_incident
+#, python-format
+msgid "Incident in remission"
+msgstr "Incidencia en remisión"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__customer_locked
+msgid "Locked customer"
+msgstr "Cliente encerrado"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__loose_door_frame
+msgid "Loose frame"
+msgstr "Marco flojo"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__loose_broken_gaskets
+#, python-format
+msgid "Loose or broken gaskets"
+msgstr "Empaques sueltos o rotos"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__lot
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__lot
+msgid "Lot"
+msgstr "Lote"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__mechanism_review
+#, python-format
+msgid "Mechanism Review"
+msgstr "Revisión mecanismo"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_helpdesk_ticket__crm_team_id
+msgid ""
+"If set, this Sales Team will be used for sales and assignments related to "
+"this partner"
 msgstr ""
+"Canal de distribución asignado al "
+"cliente"
 
 #. module: xe_pacific
-#: model_terms:ir.actions.act_window,help:xe_pacific.action_picking_tree_all
-msgid "Transfers allow you to move products from one location to another."
-msgstr ""
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__crm_team_id
+msgid "Sales Team"
+msgstr "Canal"
 
 #. module: xe_pacific
-#: model:ir.actions.act_window,name:xe_pacific.action_picking_tree_all
-msgid "Transfers"
-msgstr "Transferencias"
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__picking_id
+msgid "Picking"
+msgstr "Traslado"
 
 #. module: xe_pacific
-#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
-msgid "<strong>State — </strong>"
-msgstr "Estado —"
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model,name:xe_pacific.model_product_template
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__product_id
+#, python-format
+msgid "Product"
+msgstr "Producto"
 
 #. module: xe_pacific
-#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
-msgid "<strong>Assigned Hours — </strong>"
-msgstr "<strong>Horas Asignadas — </strong>"
+#: model:ir.model.fields,help:xe_pacific.field_helpdesk_ticket__remission_date
+msgid "Date at which the transfer has been processed or cancelled."
+msgstr "Fecha en la que la remisión ha sido procesada o cancelada."
 
 #. module: xe_pacific
-#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
-msgid "<strong>Assignees — </strong>"
-msgstr "<strong>Responsable — </strong>"
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__remission_date
+msgid "Remission Date"
+msgstr "Fecha de remisión"
 
 #. module: xe_pacific
-#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
-msgid "<strong>Distribution channel — </strong>"
-msgstr "<strong>Canal de Distribución — </strong>"
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__rusty_paint
+#, python-format
+msgid "Rusty Paint"
+msgstr "Pintura con óxido"
 
 #. module: xe_pacific
-#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
-msgid "<strong>Partner Address — </strong>"
-msgstr "<strong>Dirección del Cliente — </strong>"
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__service_warehouse_id
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__service_warehouse_id
+msgid "Service Warehouse"
+msgstr "Almacén de servicio"
 
 #. module: xe_pacific
-#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
-msgid "<strong>Picking Stage — </strong>"
-msgstr "<strong>Etapa del Traslado — </strong>"
+#: model:ir.model.fields,help:xe_pacific.field_helpdesk_ticket__service_warehouse_id
+msgid "Service warehouse assigned to the registered ticket"
+msgstr "Almacén de servicio asignado al ticket registrado."
 
 #. module: xe_pacific
-#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
-msgid "<strong>Remission — </strong>"
-msgstr "<strong>Remisión — </strong>"
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__smart_lock_inspection
+#, python-format
+msgid "Smart Lock Inspection"
+msgstr "Revisión de cerradura inteligente"
 
 #. module: xe_pacific
-#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
-msgid "<strong>SKUs — </strong>"
-msgstr "<strong>SKUs — </strong>"
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__smart_lock_replacement
+#, python-format
+msgid "Smart Lock Replacement"
+msgstr "Cambio de cerradura inteligente"
 
 #. module: xe_pacific
-#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_gantt
-msgid "<strong>Sale order — </strong>"
-msgstr "<strong>Orden de Venta — </strong>"
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__spare_part_replacement
+#, python-format
+msgid "Spare Part Replacement"
+msgstr "Cambio de refacción"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__subdivision
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__subdivision
+#, python-format
+msgid "Subdivision"
+msgstr "Fraccionamiento"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__phone_number
+msgid "Phone Number"
+msgstr "Teléfono de contacto"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__sale_id
+msgid "Sale Orden"
+msgstr "Orden de venta"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_sale_order__helpdesk_ticket_ids
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__helpdesk_ticket_ids
+msgid "Helpdesk Tickets"
+msgstr "Tickets de Soporte"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_order_form_inherit_information_tab
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_picking_form_inherit
+msgid "Tickets"
+msgstr "Tickets"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_sale_order__ticket_count
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__ticket_count
+msgid "Ticket Count"
+msgstr "Conteo de tickets"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__name
+msgid "Description"
+msgstr "Comentarios"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__interaction_date
+msgid "Interaction Date"
+msgstr "Fecha de Interacción"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__ticket_id
+msgid "Ticket"
+msgstr "Ticket"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_helpdesk_call
+msgid "Ticket calls"
+msgstr "Seguimiento del ticket"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.custom_helpdesk_ticket_view_form
+msgid "Follow-up"
+msgstr "Seguimientos"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_ticket_view_form_button_inherit
+msgid "Service Delivery"
+msgstr "Traslado de Servicio"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__service_picking_ids
+msgid "Service Picking"
+msgstr "Traslados de Servicio"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__partner_id
+msgid "Partner"
+msgstr "Contacto"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__crm_team_id
+msgid "Crm Team"
+msgstr "Canal"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__ticket_id
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__ticket_id
+msgid "Ticket"
+msgstr "Ticket"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_ticket_transfer_wizard_form
+msgid "Validate"
+msgstr "Validar"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/helpdesk_ticket.py:0
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_ticket_view_form_button_inherit
+#, python-format
+msgid "Generate Transfer"
+msgstr "Generar Entrega"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_ticket_transfer_wizard_form
+msgid "Are you sure this is the information you want to pass to the delivery?"
+msgstr "¿Está seguro de que esta es la información que quiere pasar a la entrega?"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/helpdesk_ticket.py:0
+#, python-format
+msgid "Sales order or transfer fields are needed to get the information."
+msgstr "Se necesitan los campos de orden de venta o traslado para obtener la información."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_ticket_view_form_button_inherit
+msgid "Autofill Information"
+msgstr "Autocompletar información"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "Client"
+msgstr "Cliente"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__lot
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__lot
+#, python-format
+msgid "Lot"
+msgstr "Lote"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__x_lot
+msgid "X Lot"
+msgstr "Lote"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__x_subdivision
+msgid "X Subdivision"
+msgstr "Fraccionamiento"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__x_block
+msgid "X Block"
+msgstr "Manzana"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "Client Address"
+msgstr "Dirección del cliente"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "Contact Phone"
+msgstr "Teléfono de contacto"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "Description"
+msgstr "Descripción"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "Accessories Pending Installation"
+msgstr "Accesorio o refacción pendiente de instalar"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "Accessories Pending Delivery"
+msgstr "Accesorio o refacción pendiente de entrega"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "Client Did Not Provide Access"
+msgstr "Cliente encerrado"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "Deficient Masonry"
+msgstr "Trabajo de albañilería deficiente"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "Loose Door Frame"
+msgstr "Marco flojo"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "Door Dent"
+msgstr "Golpe o abolladura en puerta"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "Factory Paint Defect"
+msgstr "Pintura con defecto de fábrica"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "Faded Door Paint"
+msgstr "Pintura cambió de tono o puerta despintada"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "Details"
+msgstr "Detalles"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#, python-format
+msgid "The service warehouse is needed to generate the transfer."
+msgstr "El almacén de servicios es necesario para generar la transferencia."
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/helpdesk_ticket.py:0
+#, python-format
+msgid "Related Pickings"
+msgstr "Entregas Relacionadas"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__show_transfer_button
+msgid "Show Transfer Button"
+msgstr "Mostrar botón para generar traslados"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__is_type_paint_or_function
+msgid "Is Type Paint Or Function"
+msgstr "El tipo del ticket es de pintura o de funcionalidad"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/stock_picking.py:0
+#, python-format
+msgid "Related Tickets"
+msgstr "Tickets Relacionados"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__service_ticket_id
+msgid "Service Ticket"
+msgstr "Ticket de servicio"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/helpdesk_ticket.py:0
+#, python-format
+msgid ""
+"The following fields are required: Client Address, Contact Phone, and "
+"Product."
+msgstr "Los siguientes campos son requeridos: Dirección del cliente, Teléfono de contacto y "
+"Producto."

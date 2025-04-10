@@ -1,5 +1,4 @@
-from collections import defaultdict
-from odoo import models, api, fields, Command, _
+from odoo import models, api, fields, _
 from odoo.exceptions import UserError
 
 
@@ -10,8 +9,23 @@ class SaleOrder(models.Model):
 
     pos_store = fields.Many2one('res.partner', domain="[('is_pos_store', '=', True)]")
 
+    reference = fields.Char(
+        string="OC Cliente",
+        help="The payment communication of this sale order.",
+        copy=False,
+        index=True
+    )
+
+    helpdesk_ticket_ids = fields.One2many('helpdesk.ticket', 'sale_id', string="Helpdesk Tickets")
+
+    ticket_count = fields.Integer(compute='_compute_helpdesk_ticket_ids')
+
+    @api.depends('helpdesk_ticket_ids')
+    def _compute_helpdesk_ticket_ids(self):
+        for order in self:
+            order.ticket_count = len(order.helpdesk_ticket_ids)
+
     def write(self, vals):
-        #generate new build
         if 'order_line' in vals:
             for order in self:
                 if order.picking_ids.filtered(lambda p: p.state == 'transit'): 
@@ -57,3 +71,25 @@ class SaleOrder(models.Model):
                     picking.do_unreserve()
                     picking.action_assign()
         return result
+
+    def action_open_helpdesk_tickets(self):
+        self.ensure_one()
+        tickets = self.helpdesk_ticket_ids
+
+        if len(tickets) == 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'helpdesk.ticket',
+                'view_mode': 'form',
+                'res_id': tickets[0].id,
+                'target': 'current',
+            }
+        else:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Tickets Relacionados',
+                'res_model': 'helpdesk.ticket',
+                'view_mode': 'tree,form',
+                'domain': [('id', 'in', tickets.ids)],
+                'target': 'current',
+            }

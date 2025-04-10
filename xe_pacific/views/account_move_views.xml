@@ -12,7 +12,8 @@
                     domain="[
                         ('state', '=', 'done'),
                         ('picking_type_code', '=', 'outgoing'),
-                        ('sale_id', 'in', order_ids)
+                        ('sale_id', 'in', order_ids),
+                        ('return_ids', '=', False)
                     ]"
                     options="{'no_create': True, 'no_create_edit': True}"
                     widget="many2many_tags"/>
