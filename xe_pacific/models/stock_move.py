@@ -16,6 +16,20 @@ class StockMove(models.Model):
         index=True,
         tracking=True)
 
+    can_edit_moves_in_transit = fields.Boolean(
+        compute='_compute_can_edit_moves_in_transit', store=False
+    )
+
+    @api.depends('picking_id.state')
+    @api.depends_context('uid')
+    def _compute_can_edit_moves_in_transit(self):
+        user = self.env.user
+        for move in self:
+            move.can_edit_moves_in_transit = not (
+                move.picking_id.state == 'transit'
+                and not user.has_group('base.group_system')
+            )
+
     @api.depends('state', 'picking_id.is_locked')
     def _compute_is_initial_demand_editable(self):
         for move in self:
