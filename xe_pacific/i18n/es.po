@@ -642,3 +642,8 @@ msgstr "Escribe las indicaciones de embarques..."
 #: model:ir.model.fields,help:xe_pacific.field_stock_picking__initial_date
 msgid "This field is used to measure productivity."
 msgstr "Este campo es usado para medir la productividad"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_move__can_edit_moves_in_transit
+msgid "Can Edit Moves In Transit"
+msgstr "Puede editar movimientos en tránsito"

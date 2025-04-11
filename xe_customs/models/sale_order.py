@@ -166,9 +166,6 @@ class SaleOrderLine(models.Model):
                 else:
                     name += line.product_id.name
                 line.name = name
-            else:
-                line.price_unit = line.product_id.lst_price
-                line.name = line.product_id.name
 
 
 class SaleDownPayment(models.Model):
