@@ -37,18 +37,29 @@ class StockPicking(models.Model):
                 'restrict_remission_with_no_stock', None)
             if restrict_remission_with_no_stock == "1":
                 if move_line.quantity > 0 and move_line.lot_id:
-                    quantity = self.env['stock.quant'].search([
+                    quants = self.env['stock.quant'].search([
                         ('product_id', '=', move_line.product_id.id),
                         ('lot_id', '=', move_line.lot_id.id),
                         ('location_id', '=', move_line.location_id.id),
-                    ]).available_quantity
+                        ('company_id', '=', move_line.company_id.id),
+                        ('owner_id', '=', move_line.owner_id.id),
+                        ('package_id', '=', move_line.package_id.id)
+                    ])
+
+                    if not quants:
+                        continue
+
+                    quantity = sum(quants.mapped('available_quantity'))
 
                     not_transit_moves = self.env['stock.move.line'].search([
                         ('product_id', '=', move_line.product_id.id),
                         ('lot_id', '=', move_line.lot_id.id),
                         ('location_id', '=', move_line.location_id.id),
                         ('picking_id.state', 'not in', ['cancel', 'done', 'transit']),
-                        ('id', '!=', move_line.id)
+                        ('id', '!=', move_line.id),
+                        ('company_id', '=', move_line.company_id.id),
+                        ('owner_id', '=', move_line.owner_id.id),
+                        ('package_id', '=', move_line.package_id.id)
                     ])
 
                     reserved_in_not_transit = sum(not_transit_moves.mapped('quantity'))
