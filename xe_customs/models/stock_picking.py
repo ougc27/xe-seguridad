@@ -5,9 +5,6 @@
 from odoo import fields, models, _
 from odoo.exceptions import UserError, ValidationError
 
-import logging
-_logger = logging.getLogger(__name__)
-
 
 class StockPicking(models.Model):
     _inherit = "stock.picking"
@@ -22,7 +19,7 @@ class StockPicking(models.Model):
         self.ensure_one()
         if self.state == 'done':
             raise UserError(_('You cannot remission a validated order'))
-        
+
         qty = sum(self.move_ids_without_package.mapped('quantity'))
         if qty == 0:
             raise UserError(_('There is no reserved stock to transit.'))
@@ -40,33 +37,34 @@ class StockPicking(models.Model):
                 'restrict_remission_with_no_stock', None)
             if restrict_remission_with_no_stock == "1":
                 if move_line.quantity > 0 and move_line.lot_id:
-                    quantity = self.env['stock.quant'].with_context(allow_negative=True)._get_available_quantity(move_line.product_id, move_line.location_id, lot_id=move_line.lot_id, package_id=move_line.package_id, owner_id=move_line.owner_id, strict=False)
-                    _logger.info("esto retorna el _get_available_quantity")
-                    _logger.info(quantity)
+                    quantity = self.env['stock.quant'].search([
+                        ('product_id', '=', move_line.product_id.id),
+                        ('lot_id', '=', move_line.lot_id.id),
+                        ('location_id', '=', move_line.location_id.id),
+                    ]).available_quantity
+
                     not_transit_moves = self.env['stock.move.line'].search([
                         ('product_id', '=', move_line.product_id.id),
                         ('lot_id', '=', move_line.lot_id.id),
                         ('location_id', '=', move_line.location_id.id),
                         ('picking_id.state', 'not in', ['cancel', 'done', 'transit']),
                         ('id', '!=', move_line.id)
-                    ])             
-                    _logger.info("estos son los not_transit_moves")
-                    _logger.info(not_transit_moves)
+                    ])
+
                     reserved_in_not_transit = sum(not_transit_moves.mapped('quantity'))
                     available_qty = quantity + reserved_in_not_transit
-                    _logger.info("este es el available quantity")
-                    _logger.info(available_qty)
                     if available_qty < 0:
-                        pickings_names = ", ".join(not_transit_moves.mapped("picking_id.name"))
+                        move_line_qty = move_line.quantity
                         raise ValidationError(
                             _(
-                                "You cannot reserve the product '{product_name}' because the total "
-                                "available quantity is {qty}, but you are trying to remit "
+                                "You cannot reserve the product {product_name} with lot {lot_name} "
+                                "because the total available quantity is {qty}, but you are trying to remit "
                                 "{requested_qty}, which exceeds the available stock."
                             ).format(
                                 product_name=move_line.product_id.display_name,
-                                qty=available_qty,
-                                requested_qty=move_line.quantity,
+                                lot_name=move_line.lot_id.name,
+                                qty=available_qty + move_line_qty,
+                                requested_qty=move_line_qty,
                             )
                         )
         self.write({
