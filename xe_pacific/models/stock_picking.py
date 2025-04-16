@@ -771,3 +771,20 @@ class StockPicking(models.Model):
                 'domain': [('id', 'in', tickets.ids)],
                 'target': 'current',
             }
+
+    def action_open_ticket_wizard(self):
+        self.ensure_one()
+        warehouse_id = self.location_id.warehouse_id.id
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Generate Ticket'),
+            'res_model': 'generate.ticket.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_picking_id': self.id,
+                'default_user_id': self.user_id.id,
+                'default_warehouse_id': warehouse_id,
+                'default_partner_id': self.partner_id.id,
+            },
+        }

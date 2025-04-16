@@ -1,10 +1,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
-import logging
-_logger = logging.getLogger(__name__)
-
-
 
 class HelpdeskTicket(models.Model):
     _inherit = 'helpdesk.ticket'
@@ -130,6 +126,34 @@ class HelpdeskTicket(models.Model):
 
     show_transfer_button = fields.Boolean(compute="_compute_show_transfer_button")
 
+    is_locked = fields.Boolean(help='When the ticket have an active service transfer the value is setted to true')
+
+    salesperson_id = fields.Many2one(
+        'xe.agent',
+        string='Salesperson',
+        related='partner_id.agent1_id',
+        readonly=True
+    )
+
+    pos_store_id = fields.Many2one(
+        'res.partner',
+        related='sale_id.pos_store',
+        readonly=True
+    )
+
+    attribution_ids = fields.Many2many(
+        'helpdesk.attribution',
+        string='Attributable To'
+    )
+    
+    name = fields.Char(
+        readonly=True,
+        copy=False,
+        index=True,
+        tracking=True,
+        default='New'
+    )
+
     @api.depends('ticket_type_id')
     def _compute_is_type_paint_or_function(self):
         for rec in self:
@@ -142,7 +166,9 @@ class HelpdeskTicket(models.Model):
             if not pickings:
                 ticket.show_transfer_button = True
             else:
-                ticket.show_transfer_button = all(p.state == 'cancel' for p in pickings)
+                is_all_pickings_cancelled = all(p.state == 'cancel' for p in pickings)
+                ticket.show_transfer_button = is_all_pickings_cancelled
+                ticket.is_locked = not is_all_pickings_cancelled
 
     def action_open_transfer_wizard(self):
         self.ensure_one()
@@ -189,10 +215,6 @@ class HelpdeskTicket(models.Model):
                 'target': 'current',
             }
 
-    #@api.onchange('picking_id', 'sale_id')
-    #def _onchange_fill_fields_from_related(self):
-        #pass
-
     def is_door_product(self, move):
         return (
             'Puertas / Puertas' in move.product_id.categ_id.complete_name and
@@ -219,7 +241,7 @@ class HelpdeskTicket(models.Model):
             'service_warehouse_id': self.service_warehouse_id or sale_id.warehouse_id,
             'lot': self.lot or picking_id.x_lot,
             'block': self.block or picking_id.x_block,
-            'subdivision': self.subdivision or picking_id.x_subdivision
+            'subdivision': self.subdivision or picking_id.x_subdivision,
         })        
 
     def autofill_from_sale(self):
@@ -238,7 +260,7 @@ class HelpdeskTicket(models.Model):
         else:
             partner_id = self.partner_id or sale_id.partner_id
             self.write({
-                'partner_id': partner_id,
+                'partner_id': partner_id.id,
                 'complete_address': partner_id.contact_address_complete,
                 'phone_number': self.phone_number or partner_id.mobile or partner_id.phone,
                 'service_warehouse_id': self.service_warehouse_id or sale_id.warehouse_id,
@@ -252,3 +274,19 @@ class HelpdeskTicket(models.Model):
             self.autofill_from_sale()
         else:
             raise UserError(_("Sales order or transfer fields are needed to get the information."))
+
+    @api.model
+    def create(self, vals):
+        if vals.get('name', 'New') == 'New':
+            company = self.env.company
+            vals['name'] = self.env['ir.sequence'].with_company(company).next_by_code('helpdesk.ticket.name')
+        return super().create(vals)
+
+    @api.depends('ticket_ref', 'partner_name')
+    @api.depends_context('with_partner')
+    def _compute_display_name(self):
+        display_partner_name = self._context.get('with_partner', False)
+        ticket_with_name = self.filtered('name')
+        for ticket in ticket_with_name:
+            ticket.display_name = ticket.name
+        return super(HelpdeskTicket, self - ticket_with_name)._compute_display_name()

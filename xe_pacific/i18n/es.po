@@ -22,6 +22,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -32,6 +33,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -42,6 +44,7 @@ msgstr "Creado el"
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -92,6 +95,7 @@ msgstr "Excepción"
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__id
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__id
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__id
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__id
 msgid "ID"
 msgstr "ID"
 
@@ -117,6 +121,7 @@ msgstr "Estado de la tarea Kanban"
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -127,6 +132,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__write_date
 msgid "Last Updated on"
 msgstr "Última actualización el"
 
@@ -243,6 +249,7 @@ msgstr "Es punto de venta"
 #: model:ir.model.fields,field_description:xe_pacific.field_account_invoice_report__pos_store
 #: model:ir.model.fields,field_description:xe_pacific.field_account_move__pos_store
 #: model:ir.model.fields,field_description:xe_pacific.field_account_payment__pos_store
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__pos_store_id
 #: model:ir.model.fields,field_description:xe_pacific.field_sale_order__pos_store
 msgid "Pos Store"
 msgstr "Tienda punto de venta"
@@ -654,6 +661,11 @@ msgstr "Escribe las indicaciones de embarques..."
 #: model:ir.model.fields,help:xe_pacific.field_stock_picking__initial_date
 msgid "This field is used to measure productivity."
 msgstr "Este campo es usado para medir la productividad"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_move__can_edit_moves_in_transit
+msgid "Can Edit Moves In Transit"
+msgstr "Puede editar movimientos en tránsito"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__accessory_delivery_pending
@@ -1171,3 +1183,65 @@ msgid ""
 "Product."
 msgstr "Los siguientes campos son requeridos: Dirección del cliente, Teléfono de contacto y "
 "Producto."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_sale_order__x_studio_pedido_fisico
+msgid "Physical order"
+msgstr "Pedido fisico"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__salesperson_id
+msgid "Salesperson"
+msgstr "Vendedor"
+
+#. module: xe_pacific
+#: model:ir.model.constraint,message:xe_pacific.constraint_helpdesk_attribution_name_uniq
+msgid "A type with the same name already exists."
+msgstr "Ya existe un tipo con el mismo nombre."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__attribution_ids
+msgid "Attributable To"
+msgstr "Atribuible a"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_attribution_view_form
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_attribution_view_tree
+msgid "Attribution"
+msgstr "Atribución"
+
+#. module: xe_pacific
+#: model:ir.actions.act_window,name:xe_pacific.helpdesk_attribution_action
+#: model:ir.ui.menu,name:xe_pacific.attributions
+msgid "Attributions"
+msgstr "Atribuciones"
+
+#. module: xe_pacific
+#: model_terms:ir.actions.act_window,help:xe_pacific.helpdesk_attribution_action
+msgid "Attributions are perfect for categorizing your tickets."
+msgstr "Las atribuciones son ideales para categorizar tus tickets."
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_helpdesk_attribution
+msgid "Helpdesk Attribution"
+msgstr "Atribución de Mesa de Ayuda"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: xe_pacific
+#: model_terms:ir.actions.act_window,help:xe_pacific.helpdesk_attribution_action
+msgid "No attributions found. Let's create one!"
+msgstr "No se encontraron atribuciones. ¡Crea una nueva!"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.custom_helpdesk_ticket_view_form
+msgid "Select attributions..."
+msgstr "Selecciona atribuciones..."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_attribution_view_tree
+msgid "e.g. Sales"
+msgstr "Por ejemplo, ventas"

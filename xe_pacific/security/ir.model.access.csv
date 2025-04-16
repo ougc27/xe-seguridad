@@ -6,3 +6,5 @@ access_cancelled_remission,access.cancelled.remission,model_cancelled_remission,
 access_cancelled_remission_wizard,access.cancelled.remission.wizard,model_cancelled_remission_wizard,base.group_user,1,1,1,1
 access_helpdesk_call,access.helpdesk.call,model_helpdesk_call,base.group_user,1,1,1,1
 access_ticket_transfer_wizard,access.ticket.transfer.wizard,model_ticket_transfer_wizard,base.group_user,1,1,1,1
+access_generate_ticket_wizard,access.generate.ticket.wizard,model_generate_ticket_wizard,base.group_user,1,1,1,1
+access_helpdesk_attribution,access.helpdesk.attribution,model_helpdesk_attribution,base.group_user,1,1,1,1
