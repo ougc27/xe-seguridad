@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_generate_ticket_wizard_form" model="ir.ui.view">
+            <field name="name">tgenerate.ticket.wizard.form</field>
+            <field name="model">generate.ticket.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Generate Ticket">
+                    <group>
+                        <field name="ticket_name"/>
+                        <field name="ticket_type"/>
+                        <field name="user_id"/>
+                        <field name="warehouse_id"/>
+                        <field name="partner_id"/>
+                    </group>
+                    <footer>
+                        <button name="action_validate_ticket" type="object" string="Validate" class="btn-primary" confirm="Are you sure this is the information you want to pass to the ticket?"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

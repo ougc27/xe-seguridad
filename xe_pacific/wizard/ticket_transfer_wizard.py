@@ -119,6 +119,8 @@ class TicketTransferWizard(models.TransientModel):
 
         picking.action_assign()
 
+        ticket_id.write({'is_locked': True})
+
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'stock.picking',
