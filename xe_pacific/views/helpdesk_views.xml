@@ -60,7 +60,6 @@
             <xpath expr="//page[@name='extra_info']/group[1]" position="after">
                 <group name="inspection_and_corrections_group">
                     <group name="hardware_and_mechanism_issues">
-                        <field name="salesperson_id"/>
                         <field name="mechanism_review"/>
                         <field name="accessory_install_pending"/>
                         <field name="accessory_delivery_pending"/>

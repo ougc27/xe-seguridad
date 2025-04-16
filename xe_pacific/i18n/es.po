@@ -1190,11 +1190,6 @@ msgid "Physical order"
 msgstr "Pedido fisico"
 
 #. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__salesperson_id
-msgid "Salesperson"
-msgstr "Vendedor"
-
-#. module: xe_pacific
 #: model:ir.model.constraint,message:xe_pacific.constraint_helpdesk_attribution_name_uniq
 msgid "A type with the same name already exists."
 msgstr "Ya existe un tipo con el mismo nombre."
@@ -1245,8 +1240,3 @@ msgstr "Selecciona atribuciones..."
 #: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_attribution_view_tree
 msgid "e.g. Sales"
 msgstr "Por ejemplo, ventas"
-
-#. module: commissions
-#: model:ir.model.fields,field_description:commissions.field_res_partner__agent1_id
-msgid "Agent 1"
-msgstr "Agente 1"

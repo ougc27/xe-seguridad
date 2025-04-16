@@ -2,7 +2,7 @@
 {
     'name': 'Commissions',
     'author': 'Xe Brands',
-    'version': '17.20250416',
+    'version': '17.20250417',
     'summary': 'Commissions',
     'description': 'Commissions',
     'category': 'Sales/Sales',
@@ -17,6 +17,7 @@
         'security/security.xml',
         'security/ir.model.access.csv',
         'data/ir_cron.xml',
+        'views/helpdesk_views.xml',
         'views/hr_views.xml',
         'views/xe_agent_views.xml',
         'views/res_partner_views.xml',

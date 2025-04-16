@@ -10,11 +10,6 @@ class ResPartner(models.Model):
         'Shipping Instructions',
         copy=False)
 
-    agent1_id = fields.Many2one(
-        comodel_name='xe.agent',
-        string='Agent 1',
-    )
-
     @api.depends('street', 'zip', 'city', 'country_id', 'l10n_mx_edi_locality')
     def _compute_complete_address(self):
         for record in self:

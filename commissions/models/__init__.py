@@ -11,3 +11,4 @@ from . import res_company
 from . import pos_order
 from . import account_journal
 from . import account_account
+from . import helpdesk_ticket
