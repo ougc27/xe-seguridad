@@ -1245,3 +1245,8 @@ msgstr "Selecciona atribuciones..."
 #: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_attribution_view_tree
 msgid "e.g. Sales"
 msgstr "Por ejemplo, ventas"
+
+#. module: commissions
+#: model:ir.model.fields,field_description:commissions.field_res_partner__agent1_id
+msgid "Agent 1"
+msgstr "Agente 1"
