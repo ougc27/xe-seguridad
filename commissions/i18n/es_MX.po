@@ -110,7 +110,6 @@ msgstr "Agente"
 #: model:ir.model.fields,field_description:commissions.field_account_bank_statement_line__agent1_id
 #: model:ir.model.fields,field_description:commissions.field_account_move__agent1_id
 #: model:ir.model.fields,field_description:commissions.field_account_payment__agent1_id
-#: model:ir.model.fields,field_description:commissions.field_res_partner__agent1_id
 #: model:ir.model.fields,field_description:commissions.field_res_users__agent1_id
 msgid "Agent 1"
 msgstr "Agente 1"
