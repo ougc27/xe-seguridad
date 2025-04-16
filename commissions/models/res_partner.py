@@ -25,10 +25,6 @@ class ResPartner(models.Model):
     def _default_is_commission_admin(self):
         return self.env.user.has_group('commissions.commission_admin_group')
 
-    agent1_id = fields.Many2one(
-        comodel_name='xe.agent',
-        string='Agent 1',
-    )
     agent1_per = fields.Float(
         string='Agent 1 percentage',
         copy=False,

@@ -18,7 +18,6 @@
         'sale_management',
         'mail',
         'sale_stock',
-        'commissions',
     ],
     "category": "Accounting",
     "summary": "MX-EDI XE Brands",
