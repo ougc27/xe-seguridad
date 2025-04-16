@@ -128,13 +128,6 @@ class HelpdeskTicket(models.Model):
 
     is_locked = fields.Boolean(help='When the ticket have an active service transfer the value is setted to true')
 
-    salesperson_id = fields.Many2one(
-        'xe.agent',
-        string='Salesperson',
-        related='partner_id.agent1_id',
-        readonly=True
-    )
-
     pos_store_id = fields.Many2one(
         'res.partner',
         related='sale_id.pos_store',
