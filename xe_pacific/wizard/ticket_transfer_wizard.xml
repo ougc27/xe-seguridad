@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_ticket_transfer_wizard_form" model="ir.ui.view">
+            <field name="name">ticket.transfer.wizard.form</field>
+            <field name="model">ticket.transfer.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Confirm Delivery">
+                    <group>
+                        <field name="user_id"/>
+                        <field name="service_warehouse_id"/>
+                        <field name="partner_id"/>
+                        <field name="crm_team_id"/>
+                        <field name="lot"/>
+                        <field name="block"/>
+                        <field name="subdivision"/>
+                    </group>
+                    <footer>
+                        <button name="action_validate_transfer" type="object" string="Validate" class="btn-primary" confirm="Are you sure this is the information you want to pass to the delivery?"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

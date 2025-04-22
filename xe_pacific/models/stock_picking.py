@@ -32,7 +32,7 @@ class StockPicking(models.Model):
 
     x_studio_canal_de_distribucin = fields.Char(
         string="Nombre del Equipo de Ventas",
-        related='group_id.sale_id.partner_id.team_id.name',
+        compute="_compute_x_studio_canal_de_distribucin",
         store=True,
         readonly=True
     )
@@ -94,6 +94,35 @@ class StockPicking(models.Model):
         copy=False,
         readonly=True,
         help="This field is used to measure productivity.")
+
+    helpdesk_ticket_ids = fields.One2many('helpdesk.ticket', 'picking_id', string="Helpdesk Tickets")
+
+    ticket_count = fields.Integer(compute='_compute_helpdesk_ticket_ids')
+
+    x_lot = fields.Char(copy=False)
+
+    x_block = fields.Char(copy=False)
+
+    x_subdivision = fields.Char(copy=False)
+
+    service_ticket_id = fields.Many2one('helpdesk.ticket', copy=False)
+
+    @api.depends('group_id', 'helpdesk_ticket_ids')
+    def _compute_x_studio_canal_de_distribucin(self):
+        for record in self:
+            group_id = record.group_id
+            helpdesk_ticket_ids = record.helpdesk_ticket_ids
+            if group_id and group_id.sale_id:
+                record.x_studio_canal_de_distribucin = group_id.sale_id.partner_id.team_id.name
+            elif helpdesk_ticket_ids:
+                record.x_studio_canal_de_distribucin = helpdesk_ticket_ids[0].crm_team_id.name
+            else:
+                record.x_studio_canal_de_distribucin = False
+
+    @api.depends('helpdesk_ticket_ids', 'service_ticket_id')
+    def _compute_helpdesk_ticket_ids(self):
+        for ticket in self:
+            ticket.ticket_count = len(ticket.helpdesk_ticket_ids) + len(ticket.service_ticket_id)
 
     @api.depends('partner_id')
     def _compute_contact_address_complete(self):
@@ -695,3 +724,45 @@ class StockPicking(models.Model):
                     (3, tag.id) for tag in other_tags
                 ] + [(4, tag_to_add.id)] if tag_to_add else []
             })
+
+    def action_open_helpdesk_tickets(self):
+        self.ensure_one()
+        tickets = self.helpdesk_ticket_ids
+
+        if not tickets:
+            tickets = self.service_ticket_id
+
+        if len(tickets) == 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'helpdesk.ticket',
+                'view_mode': 'form',
+                'res_id': tickets[0].id,
+                'target': 'current',
+            }
+        else:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Related Tickets'),
+                'res_model': 'helpdesk.ticket',
+                'view_mode': 'tree,form',
+                'domain': [('id', 'in', tickets.ids)],
+                'target': 'current',
+            }
+
+    def action_open_ticket_wizard(self):
+        self.ensure_one()
+        warehouse_id = self.location_id.warehouse_id.id
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Generate Ticket'),
+            'res_model': 'generate.ticket.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_picking_id': self.id,
+                'default_user_id': self.user_id.id,
+                'default_warehouse_id': warehouse_id,
+                'default_partner_id': self.partner_id.id,
+            },
+        }
