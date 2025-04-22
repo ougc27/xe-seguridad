@@ -121,10 +121,6 @@ class SaleOrder(models.Model):
                     )
                     AND
                         company_id = %s
-                    AND
-	                    TRIM(name) != ''
-                    AND 
-                        TRIM(x_studio_pedido_fisico) != ''
                     LIMIT %s
             """
             self.env.cr.execute(
