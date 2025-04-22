@@ -1,5 +1,5 @@
-#from . import helpdesk_call
-#from . import helpdesk_ticket
+from . import helpdesk_call
+from . import helpdesk_ticket
 from . import res_partner
 from . import sale_order
 from . import stock_picking
@@ -21,3 +21,4 @@ from . import mail_followers
 #from . import stock_move_line
 from . import stock_move
 from . import procurement_group
+from . import helpdesk_attribution

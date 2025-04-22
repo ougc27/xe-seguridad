@@ -33,6 +33,15 @@
                     invisible="team_id not in [19, 5]"
                     required="team_id == 19"/>
             </xpath>
+            <xpath expr="//button[@name='action_view_delivery']" position="before">
+                <button type="object"
+                    name="action_open_helpdesk_tickets"
+                    class="oe_stat_button"
+                    icon="fa-ticket"
+                    invisible="ticket_count == 0">
+                    <field name="ticket_count" widget="statinfo" string="Tickets"/>
+                </button>
+            </xpath>
         </field>
     </record>
 </odoo>
