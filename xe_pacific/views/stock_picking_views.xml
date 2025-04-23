@@ -39,7 +39,7 @@
                     <field name="ticket_count" widget="statinfo" string="Tickets"/>
                 </button>
             </xpath>
-            <xpath expr="//button[@name='action_open_label_type']" position="before">
+            <!--<xpath expr="//button[@name='action_open_label_type']" position="before">
                 <field name="service_ticket_id" invisible="1"/>
                 <button name="action_open_ticket_wizard"
                         type="object"
@@ -47,7 +47,7 @@
                         class="oe_highlight"
                         invisible="service_ticket_id or state != 'done' or picking_type_code != 'outgoing'"
                         icon="fa-ticket"/>
-            </xpath>
+            </xpath>-->
         </field>
     </record>
     <record id="stock_picking_tree_inherit" model="ir.ui.view">
