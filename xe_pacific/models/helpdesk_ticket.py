@@ -215,8 +215,8 @@ class HelpdeskTicket(models.Model):
         )
 
     def autofill_from_picking(self, picking_id):
-        sale_id = self.sale_id or picking_id.sale_id
-        partner_id = self.partner_id or picking_id.partner_id
+        sale_id = picking_id.sale_id
+        partner_id = picking_id.partner_id
         product_id = next(
             (m.product_id for m in picking_id.move_ids 
             if 'Puertas / Puertas' in m.product_id.categ_id.complete_name 
@@ -229,20 +229,20 @@ class HelpdeskTicket(models.Model):
             'partner_id': partner_id.id,
             'complete_address': partner_id.contact_address_complete,
             'sale_id': sale_id,
-            'phone_number': self.phone_number or partner_id.mobile or partner_id.phone,
-            'product_id': self.product_id or product_id,
-            'service_warehouse_id': self.service_warehouse_id or sale_id.warehouse_id,
-            'lot': self.lot or picking_id.x_lot,
-            'block': self.block or picking_id.x_block,
-            'subdivision': self.subdivision or picking_id.x_subdivision,
+            'phone_number': partner_id.mobile or partner_id.phone,
+            'product_id': product_id,
+            'service_warehouse_id': sale_id.warehouse_id,
+            'lot': picking_id.x_lot,
+            'block': picking_id.x_block,
+            'subdivision': picking_id.x_subdivision,
         })        
 
     def autofill_from_sale(self):
         sale_id = self.sale_id
         picking_ids = sale_id.picking_ids
         picking_id = False
-        if picking_ids:
-            pickings = picking_ids.filtered(lambda p: p.state != 'cancel')
+        pickings = picking_ids.filtered(lambda p: p.state != 'cancel')
+        if pickings:
             pickings = sorted(pickings, key=lambda p: p.state != 'done')
             for picking in pickings:
                 if any(self.is_door_product(m) for m in picking.move_ids):
@@ -251,15 +251,17 @@ class HelpdeskTicket(models.Model):
             picking_id = picking_id or pickings[0]
             self.autofill_from_picking(picking_id)
         else:
-            partner_id = self.partner_id or sale_id.partner_id
+            partner_id = sale_id.partner_id
             self.write({
                 'partner_id': partner_id.id,
                 'complete_address': partner_id.contact_address_complete,
-                'phone_number': self.phone_number or partner_id.mobile or partner_id.phone,
-                'service_warehouse_id': self.service_warehouse_id or sale_id.warehouse_id,
+                'phone_number': partner_id.mobile or partner_id.phone,
+                'service_warehouse_id': sale_id.warehouse_id,
             })
 
     def autofill_from_picking_or_sale(self):
+        if self.service_warehouse_id or self.phone_number or self.partner_id or self.product_id or self.complete_address:
+            raise UserError(_("You need to erase the following fields: Service Warehouse, Phone Number, Product, Partner, Complete Address"))
         picking_id = self.picking_id
         if picking_id:
             self.autofill_from_picking(picking_id)

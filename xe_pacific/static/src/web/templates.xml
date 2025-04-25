@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="xe_pacific.mail_message_actions_inherit" t-inherit="mail.Message.actions" t-inherit-mode="extension">
+        <xpath expr="//Dropdown" position="replace"/>
+    </t>
+</templates>

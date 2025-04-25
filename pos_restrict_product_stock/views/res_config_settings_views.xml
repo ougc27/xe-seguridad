@@ -64,17 +64,17 @@
                                 Warehouse from which it is supplied.
                             </div>
                         </div>
-                        <!--<br/>
+                        <br/>
                         <div>
                             <div class="o_setting_right_pane">
-                                <label for="pos_delivery_partner_id"/>
+                                <label for="user_ids"/>
                                 <br/>
-                                <field name="pos_delivery_partner_id" readonly="False"/>
+                                <field name="user_ids" widget="many2many_tags" readonly="False"/>
                                 <div class="text-muted">
-                                    Partner assigned to the stock move when shipping later option is selected.
+                                    Users with access to view the records of this point of sale
                                 </div>
                             </div>
-                        </div>-->
+                        </div>
                     </div>
                 </div>                
             </xpath>
