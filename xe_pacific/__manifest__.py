@@ -2,12 +2,13 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.13",
+    "version": "17.0.0.0.14",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
     "depends": [
         'base',
+        'survey',
         'xe_customs',
         'sale_project',
         'helpdesk_fsm',
@@ -54,7 +55,9 @@
     "assets": {
         "web.assets_backend": [
             "xe_pacific/static/src/web/inventory_kanban_header.js",
+            "xe_pacific/static/src/web/attachment_list.js",
             "xe_pacific/static/src/web/kanban_header.xml",
+            "xe_pacific/static/src/web/templates.xml",
         ],
     },
     "demo": [],

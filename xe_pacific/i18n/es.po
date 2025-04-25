@@ -1189,6 +1189,11 @@ msgid "Physical order"
 msgstr "Pedido fisico"
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__salesperson_id
+msgid "Salesperson"
+msgstr "Vendedor"
+
+#. module: xe_pacific
 #: model:ir.model.constraint,message:xe_pacific.constraint_helpdesk_attribution_name_uniq
 msgid "A type with the same name already exists."
 msgstr "Ya existe un tipo con el mismo nombre."
@@ -1239,3 +1244,13 @@ msgstr "Selecciona atribuciones..."
 #: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_attribution_view_tree
 msgid "e.g. Sales"
 msgstr "Por ejemplo, ventas"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/helpdesk_ticket.py:0
+#, python-format
+msgid ""
+"You need to erase the following fields: Service Warehouse, Phone Number, "
+"Product, Partner, Complete Address"
+msgstr "Se necesita borrar los siguientes campos: Almacén de Servicio, Teléfono del contacto, "
+"Producto, Cliente y Dirección del cliente"
