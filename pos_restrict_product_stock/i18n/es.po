@@ -537,3 +537,83 @@ msgstr "Usuarios con acceso de ver los registros de este punto de venta"
 #: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__user_ids
 msgid "Users"
 msgstr "Usuarios"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid "Order No.:"
+msgstr "Orden No."
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid "Order date:"
+msgstr "Fecha de orden:"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid "Phone:"
+msgstr "Teléfono"
+
+#. module: pos_restrict_product_stock
+#: model:ir.actions.report,name:pos_restrict_product_stock.action_report_ticket_acceptance_document
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_picking_form_inherit
+msgid "Print Acceptance Ticket"
+msgstr "Imprimir ticket de aceptación"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid "Product"
+msgstr "Producto"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid "Quantity"
+msgstr "Cantidad"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid "Receipt date:"
+msgstr "Fecha de recepción:"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid "Signature:"
+msgstr "Firma"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid ""
+"<strong style=\"text-align: center; display: block; margin-bottom: 2px; "
+"font-size: 20px;\">Acceptance Ticket</strong>"
+msgstr ""
+"<strong style=\"text-align: center; display: block; margin-bottom: 2px; "
+"font-size: 20px;\">Ticket de Aceptación</strong>"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid "<strong>Product(s):</strong>"
+msgstr "<strong>Producto(s):</strong>"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid "<strong>Received by:</strong>"
+msgstr "<strong>Recibido por:</strong>"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid "Client:"
+msgstr "Cliente:"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid "Estimated delivery date:"
+msgstr "Fecha estimada de entrega:"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid "I confirm the receipt and acceptance of the delivered products"
+msgstr "Confirmo la recepción y conformidad de los productos entregados."
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+msgid "Name:"
+msgstr "Nombre:"

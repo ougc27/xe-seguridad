@@ -12,10 +12,10 @@
        color:white
 }
 .not-available{
-     background: #e4411e;
+    background: #e4411e !important;
 }
 .display_virtual{
-       background:#017e84;
+       background:#714B67;
        position:absolute;
        top:0;
        right:0;
