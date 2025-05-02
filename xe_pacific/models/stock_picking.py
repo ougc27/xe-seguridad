@@ -487,6 +487,7 @@ class StockPicking(models.Model):
                             m.bom_line_id == move.bom_line_id
                 )
                 if existing_move:
+                    existing_move = existing_move[0]
                     existing_move.product_uom_qty += move.product_uom_qty
                 else:
                     move.write({'picking_id': primary_picking.id})
