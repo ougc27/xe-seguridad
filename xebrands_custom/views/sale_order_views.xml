@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="sale_view_order_form_inherit_xebrands_custom" model="ir.ui.view">
+        <field name="name">sale.view.order.form.inherit.xebrands.custom</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='sale_info']" position="inside">
+                <field name="amount_to_billing" invisible="1"/>
+                <field name="picking_date_to_billing" invisible="1"/>
+                <field name="billing_pending" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sale_sale_order_tree_inherit_xebrands_custom" model="ir.ui.view">
+        <field name="name">sale.sale.order.tree.inherit.xebrands.custom</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.sale_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount_to_invoice']" position="after">
+                <field name="amount_to_billing" optional="hide"/>
+                <field name="picking_date_to_billing" optional="hide"/>
+                <field name="billing_pending" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sale_view_quotation_tree_inherit_xebrands_custom" model="ir.ui.view">
+        <field name="name">sale.view.quotation.tree.inherit.xebrands.custom</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount_to_billing']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='picking_date_to_billing']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
