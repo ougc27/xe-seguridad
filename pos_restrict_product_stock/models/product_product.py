@@ -44,9 +44,19 @@ class ProductProduct(models.Model):
             if config.general_warehouse_id:
                 warehouses = config.warehouse_id + config.general_warehouse_id
         
+        transit_moves = self.env['stock.move.line'].search([
+            ('product_id', '=', self.id),
+            ('lot_id', '!=', False),
+            ('location_id', '=', config.warehouse_id.lot_stock_id.id),
+            ('picking_id.state', '=', 'transit'),
+            ('company_id', '=', config.warehouse_id.company_id.id),
+        ])
+
+        reserved_in_transit = sum(transit_moves.mapped('quantity'))
+        
         warehouse_list = [
             {'name': w.name,
-            'available_quantity': self.with_context({'warehouse': w.id}).qty_available,
+            'available_quantity': self.with_context({'warehouse': w.id}).qty_available - reserved_in_transit,
             'forecasted_quantity': self.with_context({'warehouse': w.id}).virtual_available,
             'uom': self.uom_name}
             for w in warehouses]
@@ -79,9 +89,17 @@ class ProductProduct(models.Model):
 
     @api.model
     def get_product_quantity(self, picking_id, product_id):
-        warehouse_id = self.env['stock.picking.type'].browse(picking_id).warehouse_id.id
+        warehouse_id = self.env['stock.picking.type'].browse(picking_id).warehouse_id
+        transit_moves = self.env['stock.move.line'].search([
+            ('product_id', '=', product_id),
+            ('lot_id', '!=', False),
+            ('location_id', '=', warehouse_id.lot_stock_id.id),
+            ('picking_id.state', '=', 'transit'),
+            ('company_id', '=', warehouse_id.company_id.id),
+        ])
+        reserved_in_transit = sum(transit_moves.mapped('quantity'))
         qty_available = self.browse(product_id).with_context(
-            {'warehouse': warehouse_id}).qty_available
+            {'warehouse': warehouse_id.id}).qty_available - reserved_in_transit
         virtual_available = self.browse(product_id).with_context(
-            {'warehouse': warehouse_id}).virtual_available
+            {'warehouse': warehouse_id.id}).virtual_available
         return qty_available, virtual_available

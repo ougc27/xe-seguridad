@@ -13,6 +13,7 @@ class RestrictStockPopup extends AbstractAwaitablePopup {
         const orderlines = this.env.services.pos.selectedOrder.orderlines;
         orderlines.forEach(line => {
             if (line.product.id === productId) {
+                line.qty_available = 0;
                 line.no_stock = true;
             }
         });
