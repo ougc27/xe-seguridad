@@ -25,3 +25,4 @@ from . import product_product
 from . import pos_order
 from . import res_users
 from . import stock_picking
+from . import pos_order_line

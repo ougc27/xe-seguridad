@@ -22,7 +22,6 @@ msgstr "Ambos"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
 #: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
 #, python-format
 msgid "Cancel"
@@ -30,7 +29,6 @@ msgstr "Cancelar"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
 #: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
 #, python-format
 msgid "Click order, if you still want to add this product."
@@ -43,7 +41,6 @@ msgstr "Ajustes de configuración"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PayOrder.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PayOrder.js:0
 #, python-format
 msgid "Deny Order"
@@ -98,7 +95,6 @@ msgstr "¿En qué tipo de cantidad tienes que restringir y mostrar en POS?"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
 #: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
 #, python-format
 msgid "Order"
@@ -116,7 +112,6 @@ msgstr "Sesión del punto de venta"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
 #: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
 #, python-format
 msgid "Product Out of Stock"
@@ -170,8 +165,6 @@ msgstr "Cantidad Virtual"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PayOrder.js:0
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PayOrder.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
 #, python-format
@@ -180,7 +173,6 @@ msgstr "Cero cantidad en stock no esta permitido"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid "? Clicking \"Confirm\" will validate the payment."
@@ -193,7 +185,6 @@ msgstr "Configuración adicional"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid "Are you sure that the customer wants to  pay"
@@ -201,7 +192,6 @@ msgstr "¿Está seguro de que el cliente quiere pagar?"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid "Cannot return change without a cash payment method"
@@ -210,11 +200,6 @@ msgstr ""
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/ActionPad.xml:0
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/ActionPad.xml:0
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/ActionPad.xml:0
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/PaymentScreen.xml:0
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/PaymentScreen.xml:0
 #: code:addons/pos_restrict_product_stock/static/src/xml/ActionPad.xml:0
 #: code:addons/pos_restrict_product_stock/static/src/xml/ActionPad.xml:0
 #: code:addons/pos_restrict_product_stock/static/src/xml/ActionPad.xml:0
@@ -227,7 +212,6 @@ msgstr "Cliente"
 #. module: pos_restrict_product_stock
 #. odoo-python
 #: code:addons/pos_restrict_product_stock/models/pos_order.py:0
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/models/pos_order.py:0
 #, python-format
 msgid "Customer Invoice"
 msgstr "Factura del cliente"
@@ -240,7 +224,6 @@ msgstr "Contacto para entregas"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid "Empty Order"
@@ -254,7 +237,6 @@ msgstr "Almacén General"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid "Incorrect address for shipping"
@@ -262,7 +244,6 @@ msgstr "Dirección de envío incorrecta"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid "Incorrect rounding"
@@ -270,7 +251,6 @@ msgstr "Redondeo incorrecto"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/PaymentScreen.xml:0
 #: code:addons/pos_restrict_product_stock/static/src/xml/PaymentScreen.xml:0
 #, python-format
 msgid "Invoice"
@@ -279,7 +259,6 @@ msgstr "Factura"
 #. module: pos_restrict_product_stock
 #. odoo-python
 #: code:addons/pos_restrict_product_stock/controllers/main.py:0
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/controllers/main.py:0
 #, python-format
 msgid "No sale order found."
 msgstr "No se encontró ninguna orden de venta."
@@ -292,7 +271,6 @@ msgstr "Contacto asignado al movimiento de stock cuando se selecciona la opción
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid "Please Confirm Large Amount"
@@ -301,7 +279,6 @@ msgstr "Confirme el importe grande"
 #. module: pos_restrict_product_stock
 #. odoo-python
 #: code:addons/pos_restrict_product_stock/controllers/main.py:0
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/controllers/main.py:0
 #, python-format
 msgid "Please fill all the required fields."
 msgstr "Complete todos los campos requeridos."
@@ -309,14 +286,12 @@ msgstr "Complete todos los campos requeridos."
 #. module: pos_restrict_product_stock
 #. odoo-python
 #: code:addons/pos_restrict_product_stock/models/pos_order.py:0
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/models/pos_order.py:0
 #, python-format
 msgid "Please provide a partner for the sale."
 msgstr "Seleccione un contacto para la venta."
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid "Please select the Customer"
@@ -347,7 +322,6 @@ msgstr "Variante del producto"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid "Select a payment method to validate the order."
@@ -356,7 +330,6 @@ msgstr "Seleccione un método de pago para validar la orden."
 #. module: pos_restrict_product_stock
 #. odoo-python
 #: code:addons/pos_restrict_product_stock/controllers/main.py:0
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/controllers/main.py:0
 #, python-format
 msgid "The %s must be filled in your details."
 msgstr "Debe completar %s en sus detalles."
@@ -364,14 +337,12 @@ msgstr "Debe completar %s en sus detalles."
 #. module: pos_restrict_product_stock
 #. odoo-python
 #: code:addons/pos_restrict_product_stock/controllers/main.py:0
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/controllers/main.py:0
 #, python-format
 msgid "The Ticket Number should be at least 14 characters long."
 msgstr "El número de ticket debe tener al menos 14 caracteres. "
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid "The selected customer needs an address."
@@ -379,7 +350,6 @@ msgstr "El cliente seleccionado necesita una dirección."
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid ""
@@ -393,7 +363,6 @@ msgstr ""
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid ""
@@ -410,7 +379,6 @@ msgstr "Almacén desde donde se abastece."
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid "You have to round your payments lines. is not rounded."
@@ -418,7 +386,6 @@ msgstr "Debe redondear sus líneas de pago. No está redondeado."
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid ""
@@ -428,7 +395,6 @@ msgstr ""
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
 #, python-format
 msgid "for an order of"
@@ -436,7 +402,6 @@ msgstr "una orden de"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
-#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
 #: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
 #, python-format
 msgid "is out of stock."
@@ -483,17 +448,6 @@ msgstr "Hace falta seleccionar cantidad en uno o más productos."
 #, python-format
 msgid "Check quantities"
 msgstr "Revisar cantidades"
-
-#. module: pos_restrict_product_stock
-#. odoo-javascript
-#: code:addons/pos_restrict_product_stock/static/src/js/CashOpeningPopup.js:0
-#, python-format
-msgid ""
-"The cash at the end of the previous day was ${closingCash}, but you are "
-"opening with ${openingCash} in cash."
-msgstr ""
-"El efectivo al cierre del día anterior es ${closingCash}, y está "
-"aperturando con ${openingCash} de efectivo."
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
@@ -617,3 +571,274 @@ msgstr "Confirmo la recepción y conformidad de los productos entregados."
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
 msgid "Name:"
 msgstr "Nombre:"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Cash Mismatch"
+msgstr "Descuadre de efectivo"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/CashMovePopup.xml:0
+#, python-format
+msgid "Cash Out"
+msgstr "Salida de efectivo"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Cash in/out of %s is ignored."
+msgstr "La entrada/salida de efectivo de %s se ignora."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/OrderReceipt.xml:0
+#, python-format
+msgid "Cliente:"
+msgstr "Cliente:"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Could not retrieve the current cash."
+msgstr "No se pudo obtener el efectivo actual."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Please set a positive amount."
+msgstr "Por favor, ingrese una cantidad positiva."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Cash Move"
+msgstr "Movimiento de efectivo"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Cash Moves"
+msgstr "Movimientos de efectivo"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Cash Input"
+msgstr "Entrada de efectivo"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Cash Output"
+msgstr "Salida de efectivo"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Cash moves recorded successfully."
+msgstr "Movimientos de efectivo registrados con éxito."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Failed to record cash move."
+msgstr "Error al registrar el movimiento de efectivo."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Enter amount"
+msgstr "Ingrese la cantidad"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Enter reason"
+msgstr "Ingrese el motivo"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_session.py:0
+#, python-format
+msgid "There is no cash payment method for this PoS Session"
+msgstr "No hay un método de pago en efectivo para esta sesión de PoS"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/OrderReceipt.xml:0
+#, python-format
+msgid "Tiene 2 días para generar su factura usando el código QR."
+msgstr "Tiene 2 días para generar su factura usando el código QR."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/OrderReceipt.xml:0
+#, python-format
+msgid "VENTA ENTREGADA"
+msgstr "VENTA ENTREGADA"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashOpeningPopup.js:0
+#, python-format
+msgid ""
+"El efectivo al cierre del día anterior es ${closingCash}, y está aperturando"
+" con ${openingCash} de efectivo."
+msgstr ""
+"El efectivo al cierre del día anterior es ${closingCash}, y está aperturando"
+" con ${openingCash} de efectivo."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/OrderReceipt.xml:0
+#, python-format
+msgid "Fecha estimada:"
+msgstr "Fecha estimada:"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/OrderReceipt.xml:0
+#, python-format
+msgid "Firma:"
+msgstr "Firma:"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Insufficient Stock for Immediate Delivery"
+msgstr "Stock insuficiente para entrega inmediata"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Invalid Amount"
+msgstr "Cantidad inválida"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/ReceiptHeader.xml:0
+#, python-format
+msgid "NO SE ACEPTAN CAMBIOS NI DEVOLUCIONES"
+msgstr "NO SE ACEPTAN CAMBIOS NI DEVOLUCIONES"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/ClosingPopup.xml:0
+#, python-format
+msgid "Opening"
+msgstr "Apertura"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/CashOpeningPopup.xml:0
+#, python-format
+msgid "Opening cash"
+msgstr "Apertura de efectivo"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/OrderReceipt.xml:0
+#, python-format
+msgid "PENDIENTE DE ENTREGA"
+msgstr "PENDIENTE DE ENTREGA"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/ClosingPopup.xml:0
+#, python-format
+msgid "Payments in"
+msgstr "Pagos entrantes"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/SetSaleOrdenButton.xml:0
+#, python-format
+msgid "Quotation/Order"
+msgstr "Cotización/Pedido"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/RefundButton.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/RefundButton.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/RefundButton.xml:0
+#, python-format
+msgid "Refund"
+msgstr "Reembolso"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/ReceiptHeader.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/ReceiptHeader.xml:0
+#, python-format
+msgid "Served by"
+msgstr "Atendido por"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/SetSaleOrdenButton.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/SetSaleOrdenButton.xml:0
+#, python-format
+msgid "Set Sale Order"
+msgstr "Asignar pedido de venta"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "Successfully made a cash %s of %s."
+msgstr "Se realizó correctamente un movimiento de efectivo %s por %s."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/pos_restrict_product_stock/pos_restrict_product_stock/static/src/xml/ReceiptHeader.xml:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/ReceiptHeader.xml:0
+#, python-format
+msgid "Tel:"
+msgstr "Tel:"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid "The cash out amount must be a positive value."
+msgstr "El monto de salida de efectivo debe ser un valor positivo."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid ""
+"The following products do not have enough stock for immediate delivery:\n"
+"\n"
+"%s"
+msgstr ""
+"Los siguientes productos no tienen suficiente stock para una entrega inmediata:\n"
+"\n"
+"%s"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/CashMovePopup.js:0
+#, python-format
+msgid ""
+"The withdrawal amount must match the available cash in the register.\n"
+"Current available cash: %s"
+msgstr ""
+"La cantidad de retiro debe coincidir con el efectivo disponible en la caja.\n"
+"Efectivo disponible actual: %s"
