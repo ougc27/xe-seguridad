@@ -27,6 +27,9 @@ patch(PaymentScreen.prototype, {
             const insufficientProducts = [];
 
             order.orderlines.forEach(line => {
+                if (line.coupon_id) {
+                    return;
+                }
                 const qtyOrdered = line.quantity;
                 const qtyAvailable = line.qty_available || 0;
                 if (qtyAvailable < qtyOrdered) {
