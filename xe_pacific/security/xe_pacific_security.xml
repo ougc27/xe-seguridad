@@ -8,4 +8,8 @@
             ['|',('company_id','=',False),('company_id', 'in', company_ids)]
         </field>
     </record>
+    <record id="can_merge_contacts_group" model="res.groups">
+        <field name="name">Can merge contacts</field>
+        <field name="category_id" ref="base.module_category_usability"/>
+    </record>
 </odoo>
