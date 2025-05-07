@@ -1254,3 +1254,8 @@ msgid ""
 "Product, Partner, Complete Address"
 msgstr "Se necesita borrar los siguientes campos: Almacén de Servicio, Teléfono del contacto, "
 "Producto, Cliente y Dirección del cliente"
+
+#. module: xe_pacific
+#: model:res.groups,name:xe_pacific.can_merge_contacts_group
+msgid "Can merge contacts"
+msgstr "Puede fusionar contactos"

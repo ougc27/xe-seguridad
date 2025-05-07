@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="base.action_partner_merge" model="ir.actions.act_window">
+        <field name="name">Merge</field>
+        <field name="groups_id" eval="[(4, ref('xe_pacific.can_merge_contacts_group')),
+            (4, ref('base.group_erp_manager'))]"/>
+    </record>
+</odoo>
