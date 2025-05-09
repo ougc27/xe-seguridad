@@ -13,12 +13,12 @@ patch(DiscussSidebarCategories.prototype, {
             editing: false,
             search: false,
             quickSearchVal: "",
-            openPerson: false,
+            openPerson: null,
             groups: [],
         });
         onExternalClick("selector", () => {
             this.state.search = false;
-            this.state.openPerson = false;
+            this.state.openPerson = null;
         });
     },
 
@@ -40,17 +40,21 @@ patch(DiscussSidebarCategories.prototype, {
     groupedByAssignedPerson(threads) {
         const groups = {};
         for (const thread of threads) {
-            const assignedPerson = thread.assigned_person ? thread.assigned_person[1] : 'Sin asignar';
+            const assignedPerson = thread.assigned_person ? thread.assigned_person[1] : "Sin asignar";
             if (!groups[assignedPerson]) {
-                groups[assignedPerson] = { assigned_person_name: assignedPerson, isOpen: false, threads: [] };
+                groups[assignedPerson] = {
+                    assigned_person_name: assignedPerson,
+                    isOpen: this.state.openPerson === assignedPerson, // Solo se abre el seleccionado
+                    threads: []
+                };
             }
             groups[assignedPerson].threads.push(thread);
         }
-        this.state.groups = Object.values(groups)
+        this.state.groups = Object.values(groups);
         return this.state.groups;
     },
 
-    toggleAssignedPerson() {
-        this.state.openPerson = !this.state.openPerson;
+    toggleAssignedPerson(person) {
+        this.state.openPerson = this.state.openPerson === person ? null : person;
     }
 });
