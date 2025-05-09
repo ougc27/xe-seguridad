@@ -5,32 +5,6 @@ from odoo import api, models
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'
 
-    def _get_available_qty_for_move(self, move):
-        quants = self.env['stock.quant'].search([
-            ('product_id', '=', move.product_id.id),
-            ('location_id', '=', move.location_id.id),
-            ('quantity', '>', 0)
-        ])
-
-        if not quants:
-            return 0
-
-        available_qty = 0
-        qty_needed = move.product_uom_qty
-
-        for quant in quants:
-            if qty_needed <= 0:
-                break
-
-            qty_in_quant = quant.quantity
-            qty_to_assign = min(qty_in_quant, qty_needed)
-
-            available_qty += qty_to_assign
-
-            qty_needed -= qty_to_assign
-
-        return available_qty
-
 
     def _launch_stock_rule_from_pos_order_lines(self):
         procurements = []
