@@ -12,4 +12,8 @@
         <field name="name">Can merge contacts</field>
         <field name="category_id" ref="base.module_category_usability"/>
     </record>
+    <record id="can_see_assistance_button_group" model="res.groups">
+        <field name="name">Can see assistance button</field>
+        <field name="category_id" ref="base.module_category_usability"/>
+    </record>
 </odoo>
