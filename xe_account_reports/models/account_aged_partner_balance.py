@@ -3,15 +3,11 @@ from odoo import models, fields
 from dateutil.relativedelta import relativedelta
 from itertools import chain
 
-import logging
-_logger = logging.getLogger(__name__)
-
 
 class AgedPartnerBalanceCustomHandler(models.AbstractModel):
     _inherit = 'account.aged.partner.balance.report.handler'
 
     def _aged_partner_report_custom_engine_common(self, options, internal_type, current_groupby, next_groupby, offset=0, limit=None):
-        _logger.info("entre aca _aged_partner_report_custom_engine_common")
         report = self.env['account.report'].browse(options['report_id'])
         report._check_groupby_fields((next_groupby.split(',') if next_groupby else []) + ([current_groupby] if current_groupby else []))
 
@@ -38,8 +34,6 @@ class AgedPartnerBalanceCustomHandler(models.AbstractModel):
 
             if current_groupby == 'id':
                 query_res = query_res_lines[0]
-                _logger.info("este es el query_res")
-                _logger.info(query_res)
                 currency = self.env['res.currency'].browse(query_res['currency_id'][0]) if len(query_res['currency_id']) == 1 else None
                 expected_date = len(query_res['expected_date']) == 1 and query_res['expected_date'][0] or len(query_res['due_date']) == 1 and query_res['due_date'][0]
                 rslt.update({
@@ -68,9 +62,6 @@ class AgedPartnerBalanceCustomHandler(models.AbstractModel):
                     'has_sublines': False,
                     'x_studio_canal_d': None,
                 })
-
-            _logger.info("este es el primer return")
-            _logger.info(rslt)
 
             return rslt
 
@@ -198,9 +189,6 @@ class AgedPartnerBalanceCustomHandler(models.AbstractModel):
         self._cr.execute(query, params)
         query_res_lines = self._cr.dictfetchall()
 
-        _logger.info("este es el query_res_lines")
-        _logger.info(query_res_lines)
-
         if not current_groupby:
             return build_result_dict(report, query_res_lines)
         else:
@@ -212,10 +200,6 @@ class AgedPartnerBalanceCustomHandler(models.AbstractModel):
 
             for grouping_key, query_res_lines in all_res_per_grouping_key.items():
                 rslt.append((grouping_key, build_result_dict(report, query_res_lines)))
-
-            _logger.info("este es el ultimo return")
-            _logger.info(rslt)
-
             return rslt
 
     def _prepare_partner_values(self):

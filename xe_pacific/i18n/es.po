@@ -919,11 +919,6 @@ msgid "Phone Number"
 msgstr "Teléfono de contacto"
 
 #. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__sale_id
-msgid "Sale Orden"
-msgstr "Orden de venta"
-
-#. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_sale_order__helpdesk_ticket_ids
 #: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__helpdesk_ticket_ids
 msgid "Helpdesk Tickets"
@@ -1259,3 +1254,13 @@ msgstr "Se necesita borrar los siguientes campos: Almacén de Servicio, Teléfon
 #: model:res.groups,name:xe_pacific.can_merge_contacts_group
 msgid "Can merge contacts"
 msgstr "Puede fusionar contactos"
+
+#. module: xe_pacific
+#: model:res.groups,name:xe_pacific.can_see_assistance_button_group
+msgid "Can see assistance button"
+msgstr "Puede ver el botón de asistencia"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__sale_id
+msgid "Sale Orden"
+msgstr "Orden de venta"

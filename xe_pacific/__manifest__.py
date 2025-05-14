@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.16",
+    "version": "17.0.0.0.17",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
@@ -14,11 +14,11 @@
         'helpdesk_fsm',
         'helpdesk_sale',
         'mrp',
-        #'hr',
         'industry_fsm',
         'sale_management',
         'mail',
         'sale_stock',
+        'hr_attendance',
     ],
     "category": "Accounting",
     "summary": "MX-EDI XE Brands",
