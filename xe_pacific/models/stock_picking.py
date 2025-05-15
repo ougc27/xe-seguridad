@@ -156,7 +156,7 @@ class StockPicking(models.Model):
                     if any(keyword in rec.location_id.warehouse_id.name for keyword in ['Amazon', 'MercadoLibre']):
                         rec.shipping_assignment = 'shipments'
                         continue
-                    if rec.location_id.warehouse_id.name == 'Monterrey PR': 
+                    if 'monterrey pr' in rec.location_id.warehouse_id.name.lower():
                         if distribution_channel in ['DISTRIBUIDORES', 'MARKETPLACE']:
                             rec.shipping_assignment = 'shipments'
                             continue
