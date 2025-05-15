@@ -27,6 +27,16 @@
             <xpath expr="//page[@name='other_information']//field[@name='require_payment']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+            <xpath expr="//field[@name='date_order']" position="before">
+                <field name="survey_id" invisible="state != 'sale'" options="{'no_create':True, 'no_create_edit': True}"/>
+            </xpath>
+            <xpath expr="//button[@name='action_quotation_send']" position="before">
+                <button name="action_send_survey"
+                    invisible="state != 'sale'"
+                    string="Share"
+                    type="object"
+                    class="oe_highlight"/>
+            </xpath>
             <xpath expr="//field[@name='partner_shipping_id']" position="after">
                 <field name="team_id" invisible="1"/>
                 <field name="pos_store" 

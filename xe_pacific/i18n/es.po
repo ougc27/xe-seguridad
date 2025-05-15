@@ -614,7 +614,6 @@ msgstr "Activo"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__color
-#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__color
 #: model_terms:ir.ui.view,arch_db:xe_pacific.inventory_tag_search_view
 msgid "Color"
 msgstr "Color"
@@ -920,11 +919,6 @@ msgid "Phone Number"
 msgstr "Teléfono de contacto"
 
 #. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__sale_id
-msgid "Sale Orden"
-msgstr "Orden de venta"
-
-#. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_sale_order__helpdesk_ticket_ids
 #: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__helpdesk_ticket_ids
 msgid "Helpdesk Tickets"
@@ -1190,6 +1184,11 @@ msgid "Physical order"
 msgstr "Pedido fisico"
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__salesperson_id
+msgid "Salesperson"
+msgstr "Vendedor"
+
+#. module: xe_pacific
 #: model:ir.model.constraint,message:xe_pacific.constraint_helpdesk_attribution_name_uniq
 msgid "A type with the same name already exists."
 msgstr "Ya existe un tipo con el mismo nombre."
@@ -1240,3 +1239,53 @@ msgstr "Selecciona atribuciones..."
 #: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_attribution_view_tree
 msgid "e.g. Sales"
 msgstr "Por ejemplo, ventas"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/helpdesk_ticket.py:0
+#, python-format
+msgid ""
+"You need to erase the following fields: Service Warehouse, Phone Number, "
+"Product, Partner, Complete Address"
+msgstr "Se necesita borrar los siguientes campos: Almacén de Servicio, Teléfono del contacto, "
+"Producto, Cliente y Dirección del cliente"
+
+#. module: xe_pacific
+#: model:res.groups,name:xe_pacific.can_merge_contacts_group
+msgid "Can merge contacts"
+msgstr "Puede fusionar contactos"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__sale_id
+#: model:ir.model.fields,field_description:xe_pacific.field_survey_user_input__sale_order_id
+msgid "Sale Order"
+msgstr "Orden de venta"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_order_form_inherit_information_tab
+msgid "Share"
+msgstr "Enviar encuesta"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/survey_survey.py:0
+#, python-format
+msgid "Share a Survey"
+msgstr "Enviar encuesta"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_sale_order__user_input_id
+msgid "User Input"
+msgstr "Respuesta de la encuesta"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/sale_order.py:0
+#, python-format
+msgid "A survey response already exists for this sales order."
+msgstr "Ya existe una respuesta de encuesta para esta orden de venta."
+
+#. module: xe_pacific
+#: model:res.groups,name:xe_pacific.can_see_assistance_button_group
+msgid "Can see assistance button"
+msgstr "Puede ver el botón de asistencia"
