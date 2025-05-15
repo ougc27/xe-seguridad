@@ -57,6 +57,9 @@
             <xpath expr="//div[@class='o_row o_row_readonly']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+            <xpath expr="//page[@name='extra_info']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
             <xpath expr="//page[@name='extra_info']/group[1]" position="after">
                 <group name="inspection_and_corrections_group">
                     <group name="hardware_and_mechanism_issues">

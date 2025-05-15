@@ -2,22 +2,23 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.14",
+    "version": "17.0.0.0.15",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
     "depends": [
         'base',
+        'survey',
         'xe_customs',
         'sale_project',
         'helpdesk_fsm',
         'helpdesk_sale',
         'mrp',
-        #'hr',
         'industry_fsm',
         'sale_management',
         'mail',
         'sale_stock',
+        'hr_attendance',
     ],
     "category": "Accounting",
     "summary": "MX-EDI XE Brands",
@@ -49,12 +50,15 @@
         'views/stock_move_views.xml',
         'views/stock_account_views.xml',
         'security/ir.model.access.csv',
-        'security/xe_pacific_security.xml'
+        'security/xe_pacific_security.xml',
+        'views/base_partner_merge_views.xml',
     ],
     "assets": {
         "web.assets_backend": [
             "xe_pacific/static/src/web/inventory_kanban_header.js",
+            "xe_pacific/static/src/web/attachment_list.js",
             "xe_pacific/static/src/web/kanban_header.xml",
+            "xe_pacific/static/src/web/templates.xml",
         ],
     },
     "demo": [],

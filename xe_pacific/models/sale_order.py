@@ -7,7 +7,7 @@ class SaleOrder(models.Model):
 
     is_exception = fields.Boolean(string="Excepción")
 
-    pos_store = fields.Many2one('res.partner', domain="[('is_pos_store', '=', True)]")
+    pos_store = fields.Many2one('res.partner', domain="[('is_pos_store', '=', True)]", copy=False)
 
     reference = fields.Char(
         string="OC Cliente",
@@ -16,11 +16,18 @@ class SaleOrder(models.Model):
         index=True
     )
 
-    helpdesk_ticket_ids = fields.One2many('helpdesk.ticket', 'sale_id', string="Helpdesk Tickets")
+    helpdesk_ticket_ids = fields.One2many('helpdesk.ticket',
+        'sale_id',
+        string="Helpdesk Tickets",
+        copy=False)
 
-    ticket_count = fields.Integer(compute='_compute_helpdesk_ticket_ids')
+    ticket_count = fields.Integer(compute='_compute_helpdesk_ticket_ids', copy=False)
 
-    x_studio_pedido_fisico = fields.Char(string="Physical order")
+    x_studio_pedido_fisico = fields.Char(string="Physical order", copy=False)
+
+    survey_id = fields.Many2one('survey.survey', copy=False)
+
+    user_input_id = fields.Many2one('survey.user_input', copy=False)
 
     @api.depends('name', 'x_studio_pedido_fisico')
     @api.depends_context('from_helpdesk_ticket')
@@ -121,10 +128,6 @@ class SaleOrder(models.Model):
                     )
                     AND
                         company_id = %s
-                    AND
-	                    TRIM(name) != ''
-                    AND 
-                        TRIM(x_studio_pedido_fisico) != ''
                     LIMIT %s
             """
             self.env.cr.execute(
@@ -137,3 +140,21 @@ class SaleOrder(models.Model):
             )
             return [row[0] for row in self.env.cr.fetchall()]
         return super()._name_search(name, domain, operator, limit, order)
+
+    def action_send_survey(self):
+        """ Open a window to compose an email, pre-filled with the survey message """
+        self.ensure_one()
+        if self.user_input_id:
+            raise UserError(_('A survey response already exists for this sales order.'))
+        return self.survey_id.with_context(
+            **{
+                k: v.id
+                for k, v in {
+                    'partner_id': self.partner_id,
+                    'partner_invoice_id': self.partner_invoice_id,
+                    'partner_shipping_id': self.partner_shipping_id,
+                }.items()
+                if v and v.email
+            },
+            existing_mode='new'
+        ).action_send_survey()
