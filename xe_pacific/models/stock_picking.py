@@ -1,3 +1,4 @@
+from collections import defaultdict
 from odoo import api, models, fields, _
 from odoo.osv import expression
 from odoo.exceptions import UserError
