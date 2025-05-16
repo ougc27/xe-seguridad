@@ -16,6 +16,7 @@
             </xpath>
             <xpath expr="//field[@name='picking_type_id']" position="after">
                 <field name="x_studio_canal_de_distribucin" invisible="1"/>
+                <field name="is_full_returned" invisible="1"/>
                 <field name="invoice_ids"
                     widget="many2many_tags"
                     invisible="x_studio_canal_de_distribucin != 'CONSTRUCTORAS'"/>
@@ -87,7 +88,7 @@
                     domain="[('invoice_ids', '!=', False), ('x_studio_canal_de_distribucin', 'ilike', 'CONSTRUCTORAS')]"/>
                 <filter name="remission_not_invoice"
                      string="Remission without invoice" 
-                    domain="[('x_studio_folio_rem', '!=', False), ('invoice_ids', '=', False), ('x_studio_canal_de_distribucin', 'ilike', 'CONSTRUCTORAS')]"/>
+                    domain="[('x_studio_folio_rem', '!=', False), ('invoice_ids', '=', False), ('x_studio_canal_de_distribucin', 'ilike', 'CONSTRUCTORAS'), ('is_full_returned', '=', False)]"/>
             </xpath>
         </field>
     </record>

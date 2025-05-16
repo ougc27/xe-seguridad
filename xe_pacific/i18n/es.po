@@ -1264,3 +1264,8 @@ msgstr "Puede ver el botón de asistencia"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__sale_id
 msgid "Sale Orden"
 msgstr "Orden de venta"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__is_full_returned
+msgid "Is Full Returned"
+msgstr "Esta retornado totalmente"
