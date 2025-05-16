@@ -21,8 +21,7 @@ class SaleOrder(models.Model):
                     ])
                     totals = list(tax_results['totals'].values())[0]
                     amount_untaxed = totals['amount_untaxed']
-                    amount_tax = totals['amount_tax']
-                    amount_to_billing += amount_untaxed + amount_tax
+                    amount_to_billing += amount_untaxed
 
                     if record.team_id == record.env.ref('__export__.crm_team_6_c580c7a3'):
                         invoice_picking_ids = record.invoice_ids.picking_ids

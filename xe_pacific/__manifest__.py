@@ -49,6 +49,7 @@
         'views/analytic_distribution_model.xml',
         'views/stock_move_views.xml',
         'views/stock_account_views.xml',
+        'views/survey_user_views.xml',
         'security/ir.model.access.csv',
         'security/xe_pacific_security.xml',
         'views/base_partner_merge_views.xml',
