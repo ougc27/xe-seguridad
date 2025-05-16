@@ -107,6 +107,33 @@ class StockPicking(models.Model):
 
     service_ticket_id = fields.Many2one('helpdesk.ticket', copy=False)
 
+    is_full_returned = fields.Boolean(compute='_compute_is_full_returned', copy=False, store=True)
+
+    @api.depends('return_ids.state')
+    def _compute_is_full_returned(self):
+        for record in self:
+            done_returns = record.return_ids.filtered(lambda r: r.state == 'done')
+
+            if not done_returns:
+                record.is_full_returned = False
+                continue
+
+            original_quantities = defaultdict(float)
+            for move in record.move_line_ids:
+                original_quantities[move.product_id] += move.quantity
+
+            returned_quantities = defaultdict(float)
+            for ret in done_returns:
+                for move in ret.move_line_ids:
+                    returned_quantities[move.product_id] += move.quantity
+            
+            all_returned = all(
+                returned_quantities.get(product, 0.0) == qty
+                for product, qty in original_quantities.items()
+            )
+
+            record.is_full_returned = all_returned
+
     @api.depends('group_id', 'helpdesk_ticket_ids')
     def _compute_x_studio_canal_de_distribucin(self):
         for record in self:
