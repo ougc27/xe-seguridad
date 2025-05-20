@@ -37,7 +37,7 @@ class SaleOrder(models.Model):
                         ).sorted(lambda o: o.date_done)
                         for picking_id in picking_ids:
                             move_id = picking_id.move_ids_without_package.filtered(
-                                lambda o: o.product_id == line.product_id
+                                lambda o: o.product_id == line.product_id and o.sale_line_id.id == line.id
                             )
                             if move_id:
                                 qty_delivered += move_id.quantity
