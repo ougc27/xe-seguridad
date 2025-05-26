@@ -124,7 +124,7 @@ class AgedPartnerBalanceCustomHandler(models.AbstractModel):
             JOIN account_journal journal ON journal.id = account_move_line.journal_id
             JOIN account_account account ON account.id = account_move_line.account_id
             JOIN account_move move ON move.id = account_move_line.move_id
-            JOIN crm_team team ON team.id = move.x_studio_canal_d
+            LEFT JOIN crm_team team ON team.id = move.x_studio_canal_d
             JOIN {currency_table} ON currency_table.company_id = account_move_line.company_id
 
             LEFT JOIN LATERAL (
