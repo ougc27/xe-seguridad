@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--<data>-->
+        <!--<record id="account_reports.aged_receivable_report" model="account.report">
+            <field name="column_ids">
+                <record id="aged_receivable_report_team_id" model="account.report.column">
+                    <field name="name">Sales Team</field>
+                    <field name="expression_label">team_id</field>
+                    <field name="figure_type">string</field>
+                </record>
+            </field>
+        </record>-->
+        <!--<record id="aged_receivable_report_x_studio_canal_d" model="account.report.column">
+            <field name="report_id" ref="account_reports.aged_receivable_report"/>
+            <field name="name">Sales Team</field>
+            <field name="expression_label">x_studio_canal_d</field>
+            <field name="figure_type">string</field>
+            <field name="sequence">0</field>
+        </record>
+        <record id="aged_receivable_line_x_studio_canal_d" model="account.report.expression">
+            <field name="report_line_id" ref="account_reports.aged_receivable_report"/>
+            <field name="label">x_studio_canal_d</field>
+            <field name="engine">custom</field>
+            <field name="formula">_report_custom_engine_aged_receivable</field>
+            <field name="subformula">x_studio_canal_d</field>
+            <field name="auditable" eval="False"/>
+        </record>-->
+        <record id="aged_receivable_report_custom" model="account.report.column">
+            <field name="name">Sales Team</field>
+            <field name="report_id" ref="account_reports.aged_receivable_report"/>
+            <field name="expression_label">x_studio_canal_d</field>
+            <field name="figure_type">string</field>
+            <field name="sequence">0</field>
+        </record>
+
+        <record id="aged_receivable_line_x_studio_canal_d" model="account.report.expression">
+            <field name="label">x_studio_canal_d</field>
+            <field name="report_line_id" ref="account_reports.aged_receivable_line"/>
+            <field name="engine">custom</field>
+            <field name="formula">_report_custom_engine_aged_receivable</field>
+            <field name="subformula">x_studio_canal_d</field>
+            <field name="auditable" eval="False"/>
+        </record>
+
+    <!--</data>-->
+</odoo>
