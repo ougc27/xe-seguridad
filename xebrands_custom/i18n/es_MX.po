@@ -39,3 +39,9 @@ msgstr "Orden de venta"
 #: model:ir.model,name:xebrands_custom.model_sale_order_line
 msgid "Sales Order Line"
 msgstr "Línea de la orden de venta"
+
+#. module: xebrands_custom
+#: model:ir.model.fields,field_description:xebrands_custom.field_product_product__not_calculate_for_billing
+#: model:ir.model.fields,field_description:xebrands_custom.field_product_template__not_calculate_for_billing
+msgid "Not calculate for billing"
+msgstr "No calcular por facturar"

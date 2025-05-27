@@ -15,6 +15,7 @@
     'data': [
         'views/sale_order_views.xml',
         'views/bank_rec_widget_views.xml',
+        'views/product_views.xml',
     ],
     'license': 'LGPL-3',
 }

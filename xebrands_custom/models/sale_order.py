@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 from odoo import api, fields, models
 
@@ -11,7 +11,9 @@ class SaleOrder(models.Model):
         for record in self:
             amount_to_billing = 0
             dates = []
-            for line in record.order_line:
+            for line in record.order_line.filtered(
+                lambda o: not o.product_id.not_calculate_for_billing
+            ):
                 qty = line.qty_delivered - line.qty_invoiced
                 qty_pending = qty if qty > 0 else 0
                 qty_delivered = 0
@@ -37,7 +39,7 @@ class SaleOrder(models.Model):
                         ).sorted(lambda o: o.date_done)
                         for picking_id in picking_ids:
                             move_id = picking_id.move_ids_without_package.filtered(
-                                lambda o: o.product_id == line.product_id
+                                lambda o: o.product_id == line.product_id and o.sale_line_id.id == line.id
                             )
                             if move_id:
                                 qty_delivered += move_id.quantity

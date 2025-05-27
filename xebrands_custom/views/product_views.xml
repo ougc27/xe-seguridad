@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="product_product_template_form_view_inherit_xebrands_custom" model="ir.ui.view">
+        <field name="name">product.product.template.form.view.inherit.xebrands.custom</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='group_standard_price']" position="inside">
+                <field name="not_calculate_for_billing"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
