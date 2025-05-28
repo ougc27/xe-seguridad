@@ -2,7 +2,7 @@
 {
     'name': 'Commissions',
     'author': 'Xe Brands',
-    'version': '17.20250417',
+    'version': '17.20250418',
     'summary': 'Commissions',
     'description': 'Commissions',
     'category': 'Sales/Sales',

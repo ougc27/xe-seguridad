@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'XE Brands custom',
-    'version': '17.0',
+    'version': '17.1',
     'summary': 'XE Brands custom',
     'description': 'XE Brands custom',
     'author': 'Xe Brands',

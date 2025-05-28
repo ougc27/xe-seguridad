@@ -12,11 +12,13 @@ class AccountMove(models.Model):
     source_orders = fields.Many2many(
         comodel_name='sale.order',
         string="Invoices",
-        compute='_get_source_orders'
+        compute='_get_source_orders',
+        store=True
     )
     reconciled_amount = fields.Monetary(
         string="Reconciled Amount",
-        compute='_get_source_orders'
+        compute='_get_source_orders',
+        store=True
     )
     reconcile_balance = fields.Monetary(
         string="Reconcile Balance",
