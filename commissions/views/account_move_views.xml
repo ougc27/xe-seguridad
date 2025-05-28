@@ -12,19 +12,15 @@
                 </button>
             </xpath>
             <xpath expr="//field[@name='invoice_user_id']" position="after">
-                <field name="is_advanced_commission_user" invisible="1"/>
-                <field name="is_commission_admin" invisible="1"/>
                 <field name="pos_originated" invisible="1"/>
                 <label for="agent1_id" invisible="not pos_originated"/>
                 <div invisible="not pos_originated">
                     <field name="agent1_id"
                            class="oe_inline"
-                           readonly="not is_advanced_commission_user and not is_commission_admin"
                            force_save="1"
                            options="{'no_open': True, 'no_create': True}"/>
                     <span> </span>
                     <field name="agent1_per"
-                           readonly="not is_advanced_commission_user and not is_commission_admin"
                            force_save="1"
                            class="oe_inline"/> %
                 </div>
@@ -32,12 +28,10 @@
                 <div invisible="not pos_originated">
                     <field name="agent2_id"
                            class="oe_inline"
-                           readonly="not is_advanced_commission_user and not is_commission_admin"
                            force_save="1"
                            options="{'no_open': True, 'no_create': True}"/>
                     <span> </span>
                     <field name="agent2_per"
-                           readonly="not is_advanced_commission_user and not is_commission_admin"
                            force_save="1"
                            class="oe_inline"/> %
                 </div>
