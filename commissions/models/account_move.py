@@ -7,18 +7,6 @@ from odoo.exceptions import UserError
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    def _compute_is_advanced_commission_user(self):
-        self.is_advanced_commission_user = self.env.user.has_group('commissions.advanced_user_commissions_group') and not self.env.user.has_group('commissions.commissions_payment_group')
-
-    def _compute_is_commission_admin(self):
-        self.is_commission_admin = self.env.user.has_group('commissions.commission_admin_group')
-
-    def _default_is_advanced_commission_user(self):
-        return self.env.user.has_group('commissions.advanced_user_commissions_group') and not self.env.user.has_group('commissions.commissions_payment_group')
-
-    def _default_is_commission_admin(self):
-        return self.env.user.has_group('commissions.commission_admin_group')
-
     @api.depends('commission_ids')
     def _compute_commission_qty(self):
         for record in self:
@@ -40,16 +28,7 @@ class AccountMove(models.Model):
         string='Agent 2 percentage',
         copy=False,
     )
-    is_advanced_commission_user = fields.Boolean(
-        string='Is advanced commission user',
-        compute='_compute_is_advanced_commission_user',
-        default=_default_is_advanced_commission_user,
-    )
-    is_commission_admin = fields.Boolean(
-        string='Is commission admin',
-        compute='_compute_is_commission_admin',
-        default=_default_is_commission_admin,
-    )
+
     commission_ids = fields.Many2many(
         comodel_name='xe.commissions',
         string='Commissions',
