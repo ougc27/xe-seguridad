@@ -56,6 +56,7 @@ class SaleOrder(models.Model):
     billing_pending = fields.Boolean(
         string='Pending billing',
         compute='_compute_to_billing',
+        store=True
     )
     amount_to_billing = fields.Monetary(
         string='Amount to billing',
