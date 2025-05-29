@@ -17,7 +17,6 @@ class AccountMove(models.Model):
     reconciled_amount = fields.Monetary(
         string="Reconciled Amount",
         compute='_get_source_orders',
-        store=True
     )
     reconcile_balance = fields.Monetary(
         string="Reconcile Balance",
