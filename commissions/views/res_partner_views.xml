@@ -7,21 +7,18 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <xpath expr="//page[@name='sales_purchases']//field[@name='user_id']" position="after">
-                <field name="is_commission_user" invisible="1"/>
-                <field name="is_advanced_commission_user" invisible="1"/>
-                <field name="is_commission_admin" invisible="1"/>
                 <label for="agent1_id"/>
                 <div>
                     <field name="agent1_id"
                            class="oe_inline"
-                           readonly="not is_commission_user and not is_advanced_commission_user and not is_commission_admin"
+                           groups_readonly="commissions.commissions_user_group"
                            force_save="1"
                            domain="[('id', '!=', agent2_id)]"
                            options="{'no_open': True, 'no_create': True}"/>
                     <span> </span>
                     <field name="agent1_per"
                            force_save="1"
-                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           groups_readonly="commissions.advanced_user_commissions_group"
                            class="oe_inline"/> %
                 </div>
                 <label for="agent2_id"/>
@@ -30,12 +27,12 @@
                            class="oe_inline"
                            force_save="1"
                            domain="[('id', '!=', agent1_id)]"
-                           readonly="not is_commission_user and not is_advanced_commission_user and not is_commission_admin"
+                           groups_readonly="commissions.commissions_user_group"
                            options="{'no_open': True, 'no_create': True}"/>
                     <span> </span>
                     <field name="agent2_per"
                            force_save="1"
-                           readonly="not is_advanced_commission_user and not is_commission_admin"
+                           groups_readonly="commissions.advanced_user_commissions_group"
                            class="oe_inline"/> %
                 </div>
             </xpath>
