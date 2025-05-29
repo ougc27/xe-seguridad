@@ -11,9 +11,9 @@ class AccountMove(models.Model):
 
     source_orders = fields.Many2many(
         comodel_name='sale.order',
-        'account_move_sale_order_rel',
-        'move_id',
-        'sale_order_id ',
+        relation='account_move_sale_order_rel',
+        column1='move_id',
+        column2='sale_order_id',
         string="Invoices",
         compute='_get_source_orders',
         store=True
