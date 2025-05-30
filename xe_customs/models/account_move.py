@@ -64,7 +64,7 @@ class AccountMove(models.Model):
             move.reconciled_amount = sum(source_orders.mapped('down_payment_context'))
             move.reconcile_balance = sum(move.invoice_line_ids.filtered(lambda x: x.product_id.id == x.company_id.sale_down_payment_product_id.id).mapped('price_total')) - move.reconciled_amount
             move.has_down_payment = move.reconcile_balance > 0
-            move.source_orders = source_orders
+            move.source_orders = [(6, 0, source_orders.ids)]
 
     def button_cancel(self):
         for move in self:
