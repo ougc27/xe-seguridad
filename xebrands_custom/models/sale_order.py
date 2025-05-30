@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from odoo import api, fields, models
+from odoo.tools.sql import column_exists, create_column
 
 
 class SaleOrder(models.Model):
