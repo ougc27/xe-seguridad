@@ -12,7 +12,12 @@ class SaleOrder(models.Model):
             create_column(self.env.cr, "sale_order", "billing_pending", "bool")
         return super()._auto_init()
 
-    @api.depends('order_line')
+    @api.depends(
+        'order_line',
+        'order_line.qty_delivered',
+        'order_line.qty_invoiced',
+        'order_line.product_id',
+    )
     def _compute_to_billing(self):
         for record in self:
             amount_to_billing = 0
