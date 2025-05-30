@@ -5,6 +5,8 @@
 from odoo import api, fields, models, _
 
 from odoo.exceptions import UserError
+from odoo.tools.sql import column_exists, create_column
+
 
 class AccountMove(models.Model):
     _inherit = "account.move"
