@@ -4,7 +4,7 @@
 
 {
     "name": "XE Customs",
-    "version": "17.0.0.0.6",
+    "version": "17.0.0.0.7",
     "license": "LGPL-3",
     "author": "XE Customs",
     'sequence': 1,

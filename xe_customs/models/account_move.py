@@ -19,7 +19,6 @@ class AccountMove(models.Model):
     source_orders = fields.Many2many(
         comodel_name='sale.order',
         string="Invoices",
-        compute='_get_source_orders'
     )
     reconciled_amount = fields.Monetary(
         string="Reconciled Amount",
@@ -44,7 +43,15 @@ class AccountMove(models.Model):
     remarks = fields.Char(copy=False)
     fiscalyear_lock_skip = fields.Boolean(default=False)
     
-    @api.depends('invoice_line_ids')
+    @api.depends(
+        'invoice_line_ids',
+        'invoice_line_ids.sale_line_ids',
+        'invoice_line_ids.sale_line_ids.order_id',
+        'invoice_line_ids.sale_line_ids.tax_id',
+        'invoice_line_ids.sale_line_ids.price_unit',
+        'invoice_line_ids.product_id',
+        'invoice_line_ids.price_total',
+    )
     def _get_source_orders(self):
         for move in self:
             source_orders = move.invoice_line_ids.sale_line_ids.order_id
