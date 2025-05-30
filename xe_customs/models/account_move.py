@@ -19,6 +19,7 @@ class AccountMove(models.Model):
     source_orders = fields.Many2many(
         comodel_name='sale.order',
         string="Invoices",
+        compute='_get_source_orders',
     )
     reconciled_amount = fields.Monetary(
         string="Reconciled Amount",
@@ -64,7 +65,7 @@ class AccountMove(models.Model):
             move.reconciled_amount = sum(source_orders.mapped('down_payment_context'))
             move.reconcile_balance = sum(move.invoice_line_ids.filtered(lambda x: x.product_id.id == x.company_id.sale_down_payment_product_id.id).mapped('price_total')) - move.reconciled_amount
             move.has_down_payment = move.reconcile_balance > 0
-            move.source_orders = [(6, 0, source_orders.ids)]
+            move.source_orders = source_orders
 
     def button_cancel(self):
         for move in self:
