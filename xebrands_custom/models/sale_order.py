@@ -6,6 +6,12 @@ from odoo import api, fields, models
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    def _auto_init(self):
+        # Skip the computation of the fields `billing_pending` at the module installation
+        if not column_exists(self.env.cr, "sale_order", "billing_pending"):
+            create_column(self.env.cr, "sale_order", "billing_pending", "bool")
+        return super()._auto_init()
+
     @api.depends('order_line')
     def _compute_to_billing(self):
         for record in self:
@@ -56,6 +62,7 @@ class SaleOrder(models.Model):
     billing_pending = fields.Boolean(
         string='Pending billing',
         compute='_compute_to_billing',
+        store=True
     )
     amount_to_billing = fields.Monetary(
         string='Amount to billing',
