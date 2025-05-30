@@ -36,7 +36,7 @@
                            class="oe_inline"/> %
                 </div>
                 <field name="exclude_recalculation"
-                       readonly="not is_advanced_commission_user and not is_commission_admin"
+                       groups_readonly="advanced_user_commissions_group"
                        invisible="not pos_originated"/>
             </xpath>
         </field>
