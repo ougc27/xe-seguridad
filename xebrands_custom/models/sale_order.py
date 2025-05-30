@@ -13,10 +13,9 @@ class SaleOrder(models.Model):
         return super()._auto_init()
 
     @api.depends(
-        'order_line',
-        'order_line.qty_delivered',
+        'order_line.price_unit',
         'order_line.qty_invoiced',
-        'order_line.product_id',
+        'invoice_status',
     )
     def _compute_to_billing(self):
         for record in self:
