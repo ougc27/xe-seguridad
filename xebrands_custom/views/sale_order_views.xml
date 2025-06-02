@@ -8,8 +8,6 @@
         <field name="arch" type="xml">
             <xpath expr="//group[@name='sale_info']" position="inside">
                 <field name="amount_to_billing" invisible="1"/>
-                <field name="picking_date_to_billing" invisible="1"/>
-                <field name="billing_pending" invisible="1"/>
             </xpath>
         </field>
     </record>
@@ -21,8 +19,6 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='amount_to_invoice']" position="after">
                 <field name="amount_to_billing" optional="hide"/>
-                <field name="picking_date_to_billing" optional="hide"/>
-                <field name="billing_pending" optional="hide"/>
             </xpath>
         </field>
     </record>
@@ -33,9 +29,6 @@
         <field name="inherit_id" ref="sale.view_quotation_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='amount_to_billing']" position="attributes">
-                <attribute name="column_invisible">1</attribute>
-            </xpath>
-            <xpath expr="//field[@name='picking_date_to_billing']" position="attributes">
                 <attribute name="column_invisible">1</attribute>
             </xpath>
         </field>
