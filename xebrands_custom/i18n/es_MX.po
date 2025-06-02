@@ -16,19 +16,9 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: xebrands_custom
-#: model:ir.model.fields,field_description:xebrands_custom.field_sale_order__billing_pending
-msgid "Pending billing"
-msgstr "Pendiente de facturación"
-
-#. module: xebrands_custom
 #: model:ir.model.fields,field_description:xebrands_custom.field_sale_order__amount_to_billing
 msgid "Amount to billing"
 msgstr "Importe pendiente de facturación"
-
-#. module: xebrands_custom
-#: model:ir.model.fields,field_description:xebrands_custom.field_sale_order__picking_date_to_billing
-msgid "Picking date to billing"
-msgstr "Fecha efectiva pendiente de facturación"
 
 #. module: xebrands_custom
 #: model:ir.model,name:xebrands_custom.model_sale_order
