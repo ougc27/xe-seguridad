@@ -477,6 +477,7 @@ msgstr "Remisiones sin factura"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__company_id
+#: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__company_id
 msgid "Company"
 msgstr "Empresa"
 
@@ -1426,3 +1427,9 @@ msgstr "Pintura"
 #: model:res.groups,name:xe_pacific.can_create_ticket_from_picking
 msgid "Can create ticket in stock picking"
 msgstr "Puede crear tickets desde traslados"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_helpdesk_team
+#: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__team_id
+msgid "Helpdesk Team"
+msgstr "Equipo de soporte al cliente"
