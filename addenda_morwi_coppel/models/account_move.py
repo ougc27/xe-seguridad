@@ -65,6 +65,7 @@ class AccountMove(models.Model):
         ('30023', 'GUADALUPE'),
         ('30024', 'TEXCOCO'),
         ('30025', 'TIJUANA'),
+        ('30026', 'CHIHUAHUA'),
         ('30030', 'TECAMAC II'),
         ('30031', 'PUEBLA II'),
     ], string='C.D. for Reception')
