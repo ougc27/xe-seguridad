@@ -17,23 +17,29 @@ msgstr ""
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__create_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__create_date
-#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_date
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -157,11 +163,6 @@ msgid "Shipping Assignment"
 msgstr "Asignación de envío"
 
 #. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_project_task__supervisor_id
-msgid "Supervisor"
-msgstr "Supervisor"
-
-#. module: xe_pacific
 #: model:ir.model,name:xe_pacific.model_project_task
 msgid "Task"
 msgstr "Tarea"
@@ -263,9 +264,11 @@ msgstr "Número de lote no automático"
 #. module: xe_pacific
 #: model_terms:ir.ui.view,arch_db:xe_pacific.base_copy_user_access_view_form
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_wizard
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_generate_ticket_wizard_form
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_ticket_transfer_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
+
 #. module: xe_pacific
 #: model_terms:ir.ui.view,arch_db:xe_pacific.base_copy_user_access_view_form
 msgid "Copy"
@@ -283,6 +286,7 @@ msgstr "Copiar accesos del usuario"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__user_id
+#: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__user_id
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__user_id
 #: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__user_id
 msgid "User"
@@ -527,9 +531,13 @@ msgstr ""
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_account_analytic_distribution_model__warehouse_id
+#: model:ir.model.fields,field_description:xe_pacific.field_account_bank_statement_line__warehouse_id
 #: model:ir.model.fields,field_description:xe_pacific.field_account_bank_statement_line__x_studio_almacen_id
+#: model:ir.model.fields,field_description:xe_pacific.field_account_move__warehouse_id
 #: model:ir.model.fields,field_description:xe_pacific.field_account_move__x_studio_almacen_id
+#: model:ir.model.fields,field_description:xe_pacific.field_account_payment__warehouse_id
 #: model:ir.model.fields,field_description:xe_pacific.field_account_payment__x_studio_almacen_id
+#: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__warehouse_id
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__warehouse_id
 msgid "Warehouse"
 msgstr "Almacén"
@@ -988,6 +996,7 @@ msgid "Ticket"
 msgstr "Ticket"
 
 #. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_generate_ticket_wizard_form
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_ticket_transfer_wizard_form
 msgid "Validate"
 msgstr "Validar"
@@ -1289,3 +1298,131 @@ msgstr "Ya existe una respuesta de encuesta para esta orden de venta."
 #: model:res.groups,name:xe_pacific.can_see_assistance_button_group
 msgid "Can see assistance button"
 msgstr "Puede ver el botón de asistencia"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__sale_id
+msgid "Sale Orden"
+msgstr "Orden de venta"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__is_full_returned
+msgid "Is Full Returned"
+msgstr "Esta retornado totalmente"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_team_view_kanban_inherit
+msgid "<span class=\"text-muted\">Active Tickets</span>"
+msgstr "<span class=\"text-muted\">Tickets Activos</span>"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_team_view_kanban_inherit
+msgid "<span class=\"text-muted\">Inactive Tickets</span>"
+msgstr "<span class=\"text-muted\">Tickets Inactivos</span>"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_team_view_kanban_inherit
+msgid "<span>Tickets Closed</span>"
+msgstr "<span>Tickets Cerrados</span>"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_team_view_kanban_inherit
+msgid "<span>Total Tickets</span>"
+msgstr "<span>Total de tickets</span>"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_team__active_tickets
+msgid "Active Tickets"
+msgstr "Tickets Activos"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_team__inactive_tickets
+msgid "Inactive Tickets"
+msgstr "Tickets Inactivos"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_helpdesk_ticket__installer_id
+msgid "Installer of the picking."
+msgstr "Instalador del traslado."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__is_locked
+msgid "Is Locked"
+msgstr "Está bloqueado"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_team_view_kanban_inherit
+msgid "Number of tickets closed in the past 7 days."
+msgstr "Número de tickets cerrados en los últimos 7 días."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__scheduled_date
+msgid "Scheduled Date"
+msgstr "Fecha programada"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_helpdesk_ticket__scheduled_date
+msgid "Scheduled date of the picking."
+msgstr "Fecha programada del traslado."
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_helpdesk_ticket__supervisor_id
+msgid "Supervisor of the picking."
+msgstr "Supervisor del traslado."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__ticket_id
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__ticket_id
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__ticket_id
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_ticket_view_tree_inherit
+msgid "Ticket"
+msgstr "Ticket"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_team__total_tickets
+msgid "Total Tickets"
+msgstr "Total de tickets"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_generate_ticket_wizard
+#: model:ir.model,name:xe_pacific.model_ticket_transfer_wizard
+msgid "Transfer Wizard desde Helpdesk"
+msgstr "Asistente de transferencia desde Helpdesk"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_generate_ticket_wizard_form
+msgid "Are you sure this is the information you want to pass to the ticket?"
+msgstr "¿Estás seguro de que esta es la información que deseas pasar al ticket?"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__ticket_name
+msgid "Ticket Name"
+msgstr "Nombre del ticket"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__ticket_type
+msgid "Ticket Type"
+msgstr "Tipo de ticket"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__generate_ticket_wizard__ticket_type__functionality
+msgid "Functionality"
+msgstr "Funcionalidad"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/stock_picking.py:0
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_generate_ticket_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_picking_form_inherit
+#, python-format
+msgid "Generate Ticket"
+msgstr "Generar ticket"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__generate_ticket_wizard__ticket_type__paint
+msgid "Paint"
+msgstr "Pintura"
+
+#. module: xe_pacific
+#: model:res.groups,name:xe_pacific.can_create_ticket_from_picking
+msgid "Can create ticket in stock picking"
+msgstr "Puede crear tickets desde traslados"

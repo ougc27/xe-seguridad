@@ -321,10 +321,30 @@ class StockPicking(models.Model):
         if first_picking and first_move.bom_line_id:
             first_picking.sudo().unlink()
 
+    def combine_lines(self):
+        product_map = {}
+        for move in self.move_ids:
+            product_id = move.product_id.id
+            if product_id in product_map:
+                product_map[product_id].append(move)
+            else:
+                product_map[product_id] = [move]
+        
+        for product_id, moves in product_map.items():
+            if len(moves) > 1:
+                total_qty = sum(m.product_uom_qty for m in moves)
+        
+                main_move = moves[0]
+                main_move.write({'product_uom_qty': total_qty})
+        
+                for move in moves[1:]:
+                    move.unlink()
+
     def separate_remissions(self):
         if self.filtered(lambda p: p.state in ['transit', 'done']):
             raise UserError(_("Remissions in transit or done states cannot be separated."))
         for rec in self:
+            rec.combine_lines()
             first_move_id = rec.move_ids[0].id
             sale_order = rec.env['sale.order'].search(
                 [('name', '=', rec.group_id.name), ('company_id', '=', rec.env.company.id)])
@@ -632,10 +652,19 @@ class StockPicking(models.Model):
     def write(self, vals):
         res = super().write(vals)
         for picking in self:
-            """if not vals.get('tag_ids') and picking.company_id.id == 4:
-                if vals.get('state') or vals.get('kanban_task_status'):
-                    if picking.state == 'done' and picking.kanban_task_status == 'finished' and picking.picking_type_code == 'outgoing':
-                        picking.update_tag_ids_to_pickings(True)"""
+            service_ticket_id = picking.service_ticket_id
+            if service_ticket_id:
+                if picking.state == 'done' and (
+                    picking.shipment_task_status == 'finished' or picking.kanban_task_status == 'finished'
+                ):
+                    stage = self.env['helpdesk.stage'].search([
+                        ('team_ids', 'in', [service_ticket_id.team_id.id]),
+                        ('name', 'ilike', 'Finalizado')
+                    ], limit=1)
+                    if stage:
+                        service_ticket_id.write({'stage_id': stage.id})
+                if vals.get('scheduled_date') and picking.scheduled_date != picking.create_date:
+                    service_ticket_id.write({'scheduled_date': picking.scheduled_date})
             if picking.x_studio_folio_rem and picking.state not in ['transit', 'done']:
                 picking.write({'state': 'transit'})
             if picking.shipping_assignment == 'shipments':
