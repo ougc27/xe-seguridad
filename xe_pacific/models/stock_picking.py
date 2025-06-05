@@ -299,10 +299,30 @@ class StockPicking(models.Model):
         if first_picking and first_move.bom_line_id:
             first_picking.sudo().unlink()
 
+    def combine_lines(self):
+        product_map = {}
+        for move in self.move_ids:
+            product_id = move.product_id.id
+            if product_id in product_map:
+                product_map[product_id].append(move)
+            else:
+                product_map[product_id] = [move]
+        
+        for product_id, moves in product_map.items():
+            if len(moves) > 1:
+                total_qty = sum(m.product_uom_qty for m in moves)
+        
+                main_move = moves[0]
+                main_move.write({'product_uom_qty': total_qty})
+        
+                for move in moves[1:]:
+                    move.unlink()
+
     def separate_remissions(self):
         if self.filtered(lambda p: p.state in ['transit', 'done']):
             raise UserError(_("Remissions in transit or done states cannot be separated."))
         for rec in self:
+            rec.combine_lines()
             first_move_id = rec.move_ids[0].id
             sale_order = rec.env['sale.order'].search(
                 [('name', '=', rec.group_id.name), ('company_id', '=', rec.env.company.id)])
