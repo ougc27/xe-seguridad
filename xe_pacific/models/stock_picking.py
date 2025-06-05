@@ -657,14 +657,20 @@ class StockPicking(models.Model):
                 if picking.state == 'done' and (
                     picking.shipment_task_status == 'finished' or picking.kanban_task_status == 'finished'
                 ):
-                    stage = self.env['helpdesk.stage'].search([
+                    finished_stage = self.env['helpdesk.stage'].search([
                         ('team_ids', 'in', [service_ticket_id.team_id.id]),
                         ('name', 'ilike', 'Finalizado')
                     ], limit=1)
-                    if stage:
-                        service_ticket_id.write({'stage_id': stage.id})
+                    if finished_stage:
+                        service_ticket_id.write({'stage_id': finished_stage.id})
                 if vals.get('scheduled_date') and picking.scheduled_date != picking.create_date:
                     service_ticket_id.write({'scheduled_date': picking.scheduled_date})
+                    programed_stage = self.env['helpdesk.stage'].search([
+                        ('team_ids', 'in', [service_ticket_id.team_id.id]),
+                        ('name', 'ilike', 'Programado')
+                    ], limit=1)
+                    if programed_stage:
+                        service_ticket_id.write({'stage_id': programed_stage.id})
             if picking.x_studio_folio_rem and picking.state not in ['transit', 'done']:
                 picking.write({'state': 'transit'})
             if picking.shipping_assignment == 'shipments':
