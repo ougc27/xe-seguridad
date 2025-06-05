@@ -1,0 +1,15 @@
+<odoo>
+    <record id="mrp_production_view_form_inherit_disabled_buttons" model="ir.ui.view">
+        <field name="name">mrp.production.view.form.inherit.disable.buttons</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <button name="button_scrap" position="attributes">
+                <attribute name="groups">mrp.group_mrp_manager</attribute>
+            </button>
+            <button name="button_unbuild" position="attributes">
+                <attribute name="groups">mrp.group_mrp_manager</attribute>
+            </button>
+        </field>
+    </record>
+</odoo>

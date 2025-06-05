@@ -10,9 +10,10 @@ class SurveyInvite(models.TransientModel):
         for invite in self:
             sale_id = self.env.context.get('active_id')
             model_name = self.env.context.get('active_model')
-            if model_name == 'sale.order' and sale_id:
-                if invite.survey_id:
-                    url = werkzeug.urls.url_join(invite.survey_id.get_base_url(), invite.survey_id.get_start_url())
-                    invite.survey_start_url = url + f'?sale_id={sale_id}'
-                    continue
+            if invite.survey_id:
+                url = werkzeug.urls.url_join(invite.survey_id.get_base_url(), invite.survey_id.get_start_url())
+                if model_name == 'sale.order' and sale_id:
+                    url = url + f'?sale_id={sale_id}'
+                invite.survey_start_url = url
+                continue
             invite.survey_start_url = False

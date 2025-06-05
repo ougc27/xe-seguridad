@@ -24,3 +24,4 @@ from . import procurement_group
 from . import helpdesk_attribution
 from . import survey_survey
 from . import survey_user_input
+from . import helpdesk_team

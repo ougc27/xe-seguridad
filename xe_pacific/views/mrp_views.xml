@@ -1,0 +1,15 @@
+<odoo>
+  <data>
+    <record id="mrp.menu_mrp_unbuild" model="ir.ui.menu">
+      <field name="groups_id" eval="[
+          (6, 0, [ref('mrp.group_mrp_manager')])
+      ]"/>
+    </record>
+
+    <record id="mrp.menu_mrp_scrap" model="ir.ui.menu">
+      <field name="groups_id" eval="[
+          (6, 0, [ref('mrp.group_mrp_manager')])
+      ]"/>
+    </record>
+  </data>
+</odoo>

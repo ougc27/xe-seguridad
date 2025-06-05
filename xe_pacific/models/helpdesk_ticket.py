@@ -147,6 +147,27 @@ class HelpdeskTicket(models.Model):
         default='New'
     )
 
+    supervisor_id = fields.Many2one(
+        'supervisor.installer',
+        'Supervisor',
+        related='picking_id.supervisor_id',
+        readonly=True,
+        help="Supervisor of the picking."
+    )
+
+    installer_id = fields.Many2one(
+        'supervisor.installer',
+        'Installer',
+        related='picking_id.installer_id',
+        readonly=True,
+        help="Installer of the picking."
+    )
+
+    scheduled_date = fields.Datetime(
+        readonly=True,
+        help="Scheduled date of the picking."
+    )
+
     @api.depends('ticket_type_id')
     def _compute_is_type_paint_or_function(self):
         for rec in self:
