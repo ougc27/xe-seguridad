@@ -1,0 +1,330 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* addenda_morwi_coppel
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-06 21:52+0000\n"
+"PO-Revision-Date: 2025-06-06 21:52+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: addenda_morwi_coppel
+#: model_terms:ir.ui.view,arch_db:addenda_morwi_coppel.l10n_mx_edi_addenda_coppel
+msgid "25933"
+msgstr "25933"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_discount_type__aa
+msgid "Abono por Publicidad"
+msgstr "Abono por Publicidad"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model,name:addenda_morwi_coppel.model_account_move_send
+msgid "Account Move Send"
+msgstr "Enviar movimiento de cuenta"
+
+#. module: addenda_morwi_coppel
+#: model:ir.ui.menu,name:addenda_morwi_coppel.menu_coppel_addenda_configuration
+msgid "Addenda Coppel"
+msgstr "Addenda Coppel"
+
+#. module: addenda_morwi_coppel
+#: model_terms:ir.ui.view,arch_db:addenda_morwi_coppel.l10n_mx_edi_addenda_coppel
+msgid "BILLING_CURRENCY"
+msgstr "BILLING_CURRENCY"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_coppel_store__name
+msgid "Branch Name"
+msgstr "Nombre Sucursal"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_packing__seller_provided
+msgid "Caja Propia"
+msgstr "Caja Propia"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_packing__buyer_provided
+msgid "Caja de Coppel"
+msgstr "Caja de Coppel"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_discount_charge__charge_global
+msgid "Cargo Global"
+msgstr "Cargo Global"
+
+#. module: addenda_morwi_coppel
+#: model_terms:ir.ui.view,arch_db:addenda_morwi_coppel.account_move_view_form_addenda_coppel
+msgid "Coppel"
+msgstr "Coppel"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_coppel_store__coppel_branch_number
+msgid "Coppel Branch Number"
+msgstr "Número de tienda Coppel"
+
+#. module: addenda_morwi_coppel
+#: model:ir.actions.act_window,name:addenda_morwi_coppel.action_coppel_store
+#: model:ir.model,name:addenda_morwi_coppel.model_coppel_store
+msgid "Coppel Store"
+msgstr "Tienda Coppel"
+
+#. module: addenda_morwi_coppel
+#: model:ir.ui.menu,name:addenda_morwi_coppel.menu_coppel_store
+msgid "Coppel Stores"
+msgstr "Tiendas Coppel"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_coppel_store__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_coppel_store__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_region__2
+msgid "Culiacán, Hermosillo, Los Mochis"
+msgstr "Culiacán, Hermosillo, Los Mochis"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_bank_statement_line__addenda_coppel_currency_function
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_move__addenda_coppel_currency_function
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_payment__addenda_coppel_currency_function
+msgid "Currency Function"
+msgstr "Currency Function"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_discount_charge__allowance_global
+msgid "Descuento Global"
+msgstr "Descuento Global"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_discount_type__dxdist
+msgid "Descuento por distribuir la mercancía de bodega a tienda"
+msgstr "Descuento por distribuir la mercancía de bodega a tienda"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_discount_type__dxecen
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_discount_type__xecen
+msgid "Descuento por entregar en una sola bodega"
+msgstr "Descuento por entregar en una sola bodega"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_discount_type__eab
+msgid "Descuento por pronto pago"
+msgstr "Descuento por pronto pago"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_discount_type__dxalm
+msgid "Descuento por resguardar la mercancía"
+msgstr "Descuento por resguardar la mercancía"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_bank_statement_line__addenda_coppel_discount_type
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_move__addenda_coppel_discount_type
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_payment__addenda_coppel_discount_type
+msgid "Discount Type"
+msgstr "Discount Type"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_bank_statement_line__addenda_coppel_discount_charge
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_move__addenda_coppel_discount_charge
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_payment__addenda_coppel_discount_charge
+msgid "Discount or Charge"
+msgstr "Discount or Charge"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_bank_statement_line__addenda_coppel_discount_charge_imputation
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_move__addenda_coppel_discount_charge_imputation
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_payment__addenda_coppel_discount_charge_imputation
+msgid "Discount or Charge Imputation"
+msgstr "Discount or Charge Imputation"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_coppel_store__display_name
+msgid "Display Name"
+msgstr "Nombre a mostrar"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_currency_function__billing_currency
+msgid "Divisa de facturación"
+msgstr "Divisa de facturación"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_currency_function__payment_currency
+msgid "Divisa de pago"
+msgstr "Divisa de pago"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_currency_function__price_currency
+msgid "Divisa del precio"
+msgstr "Divisa del precio"
+
+#. module: addenda_morwi_coppel
+#: model_terms:ir.ui.view,arch_db:addenda_morwi_coppel.l10n_mx_edi_addenda_coppel
+msgid "EAB"
+msgstr "EAB"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_discount_charge_imputation__off_invoice
+msgid "Fuera de factura"
+msgstr "Fuera de factura"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_region__5
+msgid "Guadalajara"
+msgstr "Guadalajara"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_coppel_store__id
+msgid "ID"
+msgstr "ID"
+
+#. module: addenda_morwi_coppel
+#: model_terms:ir.ui.view,arch_db:addenda_morwi_coppel.l10n_mx_edi_addenda_coppel
+msgid "INVOICE"
+msgstr "INVOICE"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model,name:addenda_morwi_coppel.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento contable"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model,name:addenda_morwi_coppel.model_account_move_line
+msgid "Journal Item"
+msgstr "Apunte contable"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_region__1
+msgid "La Paz, Tijuana, Mexicali"
+msgstr "La Paz, Tijuana, Mexicali"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_region__3
+msgid "Laguna"
+msgstr "Laguna"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_coppel_store__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_coppel_store__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_region__6
+msgid "León, Izcalli"
+msgstr "León, Izcalli"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_region__4
+msgid "Monterrey"
+msgstr "Monterrey"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_region__9
+msgid "México, Iztapalapa, Izcalli, Ixtapaluca, Tecamac"
+msgstr "México, Iztapalapa, Izcalli, Ixtapaluca, Tecamac"
+
+#. module: addenda_morwi_coppel
+#: model_terms:ir.ui.view,arch_db:addenda_morwi_coppel.l10n_mx_edi_addenda_coppel
+msgid "PAD"
+msgstr "PAD"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_bank_statement_line__addenda_coppel_po_date
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_move__addenda_coppel_po_date
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_payment__addenda_coppel_po_date
+msgid "PO Date"
+msgstr "PO Date"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_bank_statement_line__addenda_coppel_po_date_delivery
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_move__addenda_coppel_po_date_delivery
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_payment__addenda_coppel_po_date_delivery
+msgid "PO Date Delivery"
+msgstr "PO Date Delivery"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_bank_statement_line__addenda_coppel_packing
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_move__addenda_coppel_packing
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_payment__addenda_coppel_packing
+msgid "Packing"
+msgstr "Packing"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_region__7
+msgid "Puebla"
+msgstr "Puebla"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_discount_charge_imputation__bill_back
+msgid "Reclamación"
+msgstr "Reclamación"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_bank_statement_line__addenda_coppel_region
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_move__addenda_coppel_region
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_payment__addenda_coppel_region
+msgid "Region ID"
+msgstr "Region ID"
+
+#. module: addenda_morwi_coppel
+#: model_terms:ir.ui.view,arch_db:addenda_morwi_coppel.view_coppel_store_tree
+msgid "Stores"
+msgstr "Tiendas"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_bank_statement_line__addenda_coppel_supplier_type
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_move__addenda_coppel_supplier_type
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_payment__addenda_coppel_supplier_type
+msgid "Supplier Type"
+msgstr "Supplier Type"
+
+#. module: addenda_morwi_coppel
+#: model_terms:ir.ui.view,arch_db:addenda_morwi_coppel.l10n_mx_edi_addenda_coppel
+msgid "TD"
+msgstr "TD"
+
+#. module: addenda_morwi_coppel
+#: model_terms:ir.ui.view,arch_db:addenda_morwi_coppel.l10n_mx_edi_addenda_coppel
+msgid "TRANSFERIDO"
+msgstr "TRANSFERIDO"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_bank_statement_line__addenda_coppel_transaction_type
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_move__addenda_coppel_transaction_type
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_payment__addenda_coppel_transaction_type
+msgid "Transaction Type"
+msgstr "Transaction Type"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_bank_statement_line__addenda_coppel_transporter
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_move__addenda_coppel_transporter
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_payment__addenda_coppel_transporter
+msgid "Transporter"
+msgstr "Transporter"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields,field_description:addenda_morwi_coppel.field_account_move_line__addenda_coppel_vendor_id
+msgid "Vendor"
+msgstr "Vendor"
+
+#. module: addenda_morwi_coppel
+#: model:ir.model.fields.selection,name:addenda_morwi_coppel.selection__account_move__addenda_coppel_region__8
+msgid "Villahermosa, Merida"
+msgstr "Villahermosa, Merida"
