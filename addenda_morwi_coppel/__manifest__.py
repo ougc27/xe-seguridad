@@ -17,7 +17,7 @@
     'sequence': 50,
     'summary': "Addenda Coppel",
     'website': 'https://www.morwi.com',
-    'version': '1.0',
+    'version': '1.1',
     'description': """
 Addendas Coppel
 ===============================================================
@@ -33,8 +33,11 @@ Also a template is added for render the addenda.
         'addenda_morwi'
     ],
     'data': [
+        'security/ir.model.access.csv',
         'data/4.0/addenda.xml',
+        'data/coppel_store_data.xml',
         'views/account_move_view.xml',
+        'views/coppel_store_views.xml',
     ],
     'demo': [],
     'qweb': [],
