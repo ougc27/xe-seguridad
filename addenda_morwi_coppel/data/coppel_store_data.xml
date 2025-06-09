@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="coppel_store_30001" model="coppel.store">
+            <field name="name">CULIACAN</field>
+            <field name="coppel_branch_number">30001</field>
+        </record>
+        <record id="coppel_store_30002" model="coppel.store">
+            <field name="name">LEON</field>
+            <field name="coppel_branch_number">30002</field>
+        </record>
+        <record id="coppel_store_30003" model="coppel.store">
+            <field name="name">HERMOSILLO</field>
+            <field name="coppel_branch_number">30003</field>
+        </record>
+        <record id="coppel_store_30004" model="coppel.store">
+            <field name="name">LAGUNA</field>
+            <field name="coppel_branch_number">30004</field>
+        </record>
+        <record id="coppel_store_30006" model="coppel.store">
+            <field name="name">MONTERREY</field>
+            <field name="coppel_branch_number">30006</field>
+        </record>
+        <record id="coppel_store_30007" model="coppel.store">
+            <field name="name">GUADALAJARA</field>
+            <field name="coppel_branch_number">30007</field>
+        </record>
+        <record id="coppel_store_30008" model="coppel.store">
+            <field name="name">AZCAPOTZALCO</field>
+            <field name="coppel_branch_number">30008</field>
+        </record>
+        <record id="coppel_store_30009" model="coppel.store">
+            <field name="name">PUEBLA</field>
+            <field name="coppel_branch_number">30009</field>
+        </record>
+        <record id="coppel_store_30010" model="coppel.store">
+            <field name="name">VILLA HERMOSA</field>
+            <field name="coppel_branch_number">30010</field>
+        </record>
+        <record id="coppel_store_30011" model="coppel.store">
+            <field name="name">IZTAPALAPA</field>
+            <field name="coppel_branch_number">30011</field>
+        </record>
+        <record id="coppel_store_30012" model="coppel.store">
+            <field name="name">IMP_MXL2</field>
+            <field name="coppel_branch_number">30012</field>
+        </record>
+        <record id="coppel_store_30013" model="coppel.store">
+            <field name="name">MEXICALI</field>
+            <field name="coppel_branch_number">30013</field>
+        </record>
+        <record id="coppel_store_30014" model="coppel.store">
+            <field name="name">IZCALLI</field>
+            <field name="coppel_branch_number">30014</field>
+        </record>
+        <record id="coppel_store_30015" model="coppel.store">
+            <field name="name">IXTAPALUCA</field>
+            <field name="coppel_branch_number">30015</field>
+        </record>
+        <record id="coppel_store_30016" model="coppel.store">
+            <field name="name">TECAMAC</field>
+            <field name="coppel_branch_number">30016</field>
+        </record>
+        <record id="coppel_store_30017" model="coppel.store">
+            <field name="name">MERIDA</field>
+            <field name="coppel_branch_number">30017</field>
+        </record>
+        <record id="coppel_store_30018" model="coppel.store">
+            <field name="name">LOS MOCHIS</field>
+            <field name="coppel_branch_number">30018</field>
+        </record>
+        <record id="coppel_store_30019" model="coppel.store">
+            <field name="name">VERACRUZ</field>
+            <field name="coppel_branch_number">30019</field>
+        </record>
+        <record id="coppel_store_30020" model="coppel.store">
+            <field name="name">GUADALAJARA II</field>
+            <field name="coppel_branch_number">30020</field>
+        </record>
+        <record id="coppel_store_30021" model="coppel.store">
+            <field name="name">IXTAPALUCA IMP</field>
+            <field name="coppel_branch_number">30021</field>
+        </record>
+        <record id="coppel_store_30022" model="coppel.store">
+            <field name="name">TOLUCA</field>
+            <field name="coppel_branch_number">30022</field>
+        </record>
+        <record id="coppel_store_30023" model="coppel.store">
+            <field name="name">GUADALUPE</field>
+            <field name="coppel_branch_number">30023</field>
+        </record>
+        <record id="coppel_store_30024" model="coppel.store">
+            <field name="name">TEXCOCO</field>
+            <field name="coppel_branch_number">30024</field>
+        </record>
+        <record id="coppel_store_30025" model="coppel.store">
+            <field name="name">TIJUANA</field>
+            <field name="coppel_branch_number">30025</field>
+        </record>
+        <record id="coppel_store_30026" model="coppel.store">
+            <field name="name">CHIHUAHUA</field>
+            <field name="coppel_branch_number">30026</field>
+        </record>
+        <record id="coppel_store_30030" model="coppel.store">
+            <field name="name">TECAMAC II</field>
+            <field name="coppel_branch_number">30030</field>
+        </record>
+        <record id="coppel_store_30031" model="coppel.store">
+            <field name="name">PUEBLA II</field>
+            <field name="coppel_branch_number">30031</field>
+        </record>
+    </data>
+</odoo>
