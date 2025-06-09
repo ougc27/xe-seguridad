@@ -14,8 +14,8 @@
                     <group>
                         <field name="addenda_coppel_transaction_type"/>
                         <field name="addenda_coppel_supplier_type"/>
-                        <field name="addenda_coppel_dc"/>
-                        <field name="addenda_coppel_reception_dc"/>
+                        <field name="addenda_coppel_store_dc_id" options="{'no_open': True, 'no_create': True}"/>
+                        <field name="addenda_coppel_store_reception_dc_id" options="{'no_open': True, 'no_create': True}"/>
                     </group>
                     <group>
                         <field name="addenda_coppel_region"/>

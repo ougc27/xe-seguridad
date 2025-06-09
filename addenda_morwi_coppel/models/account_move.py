@@ -11,6 +11,15 @@ class AccountMove(models.Model):
     addenda_coppel_po_date_delivery = fields.Date(string='PO Date Delivery')
     addenda_coppel_transaction_type = fields.Char(string='Transaction Type')
     addenda_coppel_supplier_type = fields.Char(default='1', string='Supplier Type', readonly=True)
+    addenda_coppel_store_dc_id = fields.Many2one(
+        'coppel.store',
+        'Final C.D. for Delivery',
+    )
+    addenda_coppel_store_reception_dc_id = fields.Many2one(
+        'coppel.store',
+        'Final C.D. for Reception',
+    )
+    #Remove fields
     addenda_coppel_dc = fields.Selection([
         ('30001', 'CULIACAN'),
         ('30002', 'LEON'),

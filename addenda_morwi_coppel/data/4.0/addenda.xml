@@ -30,8 +30,8 @@
                             <streetAddressOne t-raw="record.partner_id.contact_address_complete"></streetAddressOne>
                             <city t-raw="record.partner_id.city_id.name"></city>
                             <postalCode t-raw="record.partner_id.zip"></postalCode>
-                            <BodegaDestino t-raw="record.addenda_coppel_dc"></BodegaDestino>
-                            <BodegaReceptora t-raw="record.addenda_coppel_reception_dc"></BodegaReceptora>
+                            <BodegaDestino t-raw="record.addenda_coppel_store_dc_id.coppel_branch_number"></BodegaDestino>
+                            <BodegaReceptora t-raw="record.addenda_coppel_store_reception_dc_id.coppel_branch_number"></BodegaReceptora>
                         </nameAndAddress>
                     </shipTo>
                     <currency currencyISOCode="record.currency_id.name">
