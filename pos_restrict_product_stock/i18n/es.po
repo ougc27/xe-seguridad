@@ -537,7 +537,7 @@ msgstr "Firma"
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
 msgid ""
 "<strong style=\"text-align: center; display: block; margin-bottom: 2px; "
-"font-size: 20px;\">Partial delivery order</strong>"
+"font-size: 20px;\">Partial Delivery Order</strong>"
 msgstr ""
 "<strong style=\"text-align: center; display: block; margin-bottom: 2px; "
 "font-size: 20px;\">Orden de entrega parcial</strong>"
