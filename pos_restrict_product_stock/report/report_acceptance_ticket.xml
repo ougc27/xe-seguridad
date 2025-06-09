@@ -11,7 +11,7 @@
                     </div>
                     <div style="border-bottom: 1px dashed #888; width: 100%; margin: 8px 0;"></div>
                     <div>
-                        <strong style="text-align: center; display: block; margin-bottom: 2px; font-size: 20px;">Acceptance Ticket</strong>
+                        <strong style="text-align: center; display: block; margin-bottom: 2px; font-size: 20px;">Partial Delivery Order</strong>
                         <p style="margin: 2px 0;">Order No.: <t t-esc="picking.pos_order_id.pos_reference"/></p>
                         <p style="margin: 2px 0;">Order date: <t t-esc="picking.pos_order_id.date_order.strftime('%Y-%m-%d')"/></p>
                         <t t-if="picking.pos_order_id.shipping_date">
