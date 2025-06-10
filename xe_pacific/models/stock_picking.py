@@ -191,7 +191,10 @@ class StockPicking(models.Model):
     @api.depends('location_id', 'move_ids', 'group_id')
     def _compute_shipping_assignment(self):
         for rec in self:
-            if rec.company_id.id == 4:
+            if rec.service_ticket_id:
+                shipping_assignment = rec.shipping_assignment
+                rec.shipping_assignment = shipping_assignment
+            elif rec.company_id.id == 4:
                 sale_id = rec.group_id.sale_id
                 distribution_channel = sale_id.partner_id.team_id.name
                 shipment_channels = ['DISTRIBUIDORES', 'MARKETPLACE', 'SODIMAC HC', 'INTERGRUPO']

@@ -1,9 +1,6 @@
 from odoo import models, fields, _
 from odoo.exceptions import UserError
 
-import logging
-_logger = logging.getLogger(__name__)
-
 
 class TicketTransferWizard(models.TransientModel):
     _name = 'ticket.transfer.wizard'
@@ -17,6 +14,9 @@ class TicketTransferWizard(models.TransientModel):
     lot = fields.Char(readonly=True)
     block = fields.Char(readonly=True)
     subdivision = fields.Char(readonly=True)
+    shipping_assignment = fields.Selection([
+        ('logistics', 'Logistics'),
+        ('shipments', 'Shipments')], required=True)
 
     def add_notes_to_transfer(self, ticket_id, picking_id):
         fields_to_include = [
@@ -99,6 +99,7 @@ class TicketTransferWizard(models.TransientModel):
             'x_subdivision': self.subdivision,
             'origin': ticket_id.name,
             'service_ticket_id': ticket_id.id,
+            'shipping_assignment': self.shipping_assignment
             #'is_from_helpdesk': True,
         }
 
