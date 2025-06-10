@@ -158,11 +158,6 @@ msgid "Sales Order"
 msgstr "Orden de venta"
 
 #. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__shipping_assignment
-msgid "Shipping Assignment"
-msgstr "Asignación de envío"
-
-#. module: xe_pacific
 #: model:ir.model,name:xe_pacific.model_project_task
 msgid "Task"
 msgstr "Tarea"
@@ -1433,3 +1428,19 @@ msgstr "Puede crear tickets desde traslados"
 #: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__team_id
 msgid "Helpdesk Team"
 msgstr "Equipo de soporte al cliente"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__ticket_transfer_wizard__shipping_assignment__logistics
+msgid "Logistics"
+msgstr "Logística"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__ticket_transfer_wizard__shipping_assignment__shipments
+msgid "Shipments"
+msgstr "Embarques"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__shipping_assignment
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__shipping_assignment
+msgid "Shipping Assignment"
+msgstr "Asignación de envío"
