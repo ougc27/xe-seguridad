@@ -16,4 +16,8 @@
         <field name="name">Can see assistance button</field>
         <field name="category_id" ref="base.module_category_usability"/>
     </record>
+    <record id="can_create_ticket_from_picking" model="res.groups">
+        <field name="name">Can create ticket in stock picking</field>
+        <field name="category_id" ref="base.module_category_usability"/>
+    </record>
 </odoo>

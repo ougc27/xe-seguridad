@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="helpdesk_team_view_kanban_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.team.dashboard.inherit</field>
+        <field name="model">helpdesk.team</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_team_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//a[@name='action_view_closed_ticket']" position="replace">
+                <div class="mb4">
+                    <div class="justify-content-between flex-nowrap d-inline-flex w-100">
+                        <span>Total Tickets</span>
+                        <span class="ms-3">
+                            <field name="total_tickets"/>
+                        </span>
+                    </div>
+                </div>
+                <a name="action_view_closed_ticket" type="object" title="Number of tickets closed in the past 7 days." class="justify-content-between flex-nowrap d-inline-flex w-100">
+                    <span>Tickets Closed</span>
+                    <span class="ms-3">
+                        <field name="ticket_closed"/>
+                    </span>
+                </a>
+            </xpath>
+            <xpath expr="//a[@name='action_view_open_ticket']" position="replace">
+                <a name="action_view_active_tickets" type="object" class="d-flex flex-column align-items-center">
+                    <span class="fw-bold"><field name="active_tickets"/></span>
+                    <span class="text-muted">Active Tickets</span>
+                </a>
+            </xpath>
+            <xpath expr="//a[@name='%(helpdesk.helpdesk_ticket_action_unassigned)d']" position="replace">
+                <field name="inactive_tickets" invisible="1"/>
+                <a name="action_view_inactive_ticket" type="object" class="d-flex flex-column align-items-center">
+                    <span class="fw-bold"><field name="inactive_tickets"/></span>
+                    <span class="text-muted">Inactive Tickets</span>
+                </a>
+            </xpath>
+        </field>
+    </record>
+</odoo>

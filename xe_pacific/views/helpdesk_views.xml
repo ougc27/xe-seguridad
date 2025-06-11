@@ -5,7 +5,7 @@
         <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='team_id']" position="after">
-                <field name="source_id"/>
+                <field name="source_id" options="{'no_create':True, 'no_create_edit': True}" required="1"/>
                 <field name="attribution_ids" 
                     widget="many2many_tags"
                     placeholder="Select attributions..."
@@ -23,11 +23,14 @@
                     options="{'no_create':True, 'no_create_edit': True}"
                     context="{'from_helpdesk_ticket': True}"
                     domain="['|', (not commercial_partner_id, '=', 1), ('partner_id', 'child_of', commercial_partner_id or []), ('company_id', '=', company_id)]"/>
+                <field name="scheduled_date" invisible="not scheduled_date"/>
                 <field name="remission_date" invisible="not remission_date"/>
                 <field name="remission_incident" invisible="not picking_id"/>
                 <field name="complete_address" readonly="is_locked"/>
                 <field name="phone_number" widget="phone" readonly="is_locked"/>
                 <field name="product_id" domain="[('detailed_type', '=', 'product'), ('sale_ok', '=', True)]" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked"/>
+                <field name="supervisor_id" invisible="not supervisor_id"/>
+                <field name="installer_id" invisible="not installer_id" />
             </xpath>
             <xpath expr="//field[@name='tag_ids']" position="after">
                 <field name="crm_team_id" invisible="not crm_team_id"/>
@@ -35,9 +38,19 @@
                 <field name="service_warehouse_id" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked"/>
             </xpath>
 
+            <xpath expr="//field[@name='tag_ids']" position="attributes">
+                <attribute name="readonly">is_locked</attribute>
+                <attribute name="options">{'no_create': True, 'no_create_edit': True}</attribute>
+            </xpath>
+
             <xpath expr="//field[@name='partner_id']" position="attributes">
                 <attribute name="readonly">is_locked</attribute>
                 <attribute name="widget">many2one</attribute>
+                <attribute name="options">{'no_create': True, 'no_create_edit': True}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="readonly">is_locked</attribute>
                 <attribute name="options">{'no_create': True, 'no_create_edit': True}</attribute>
             </xpath>
             
@@ -92,8 +105,8 @@
                 <page string="Construction" name="builder_filling_page">
                     <group name="builder_details_group" col="2">
                         <field name="housing_type" required="crm_team_id == 6" readonly="is_locked"/>
-                        <field name="lot" readonly="is_locked"/>
-                        <field name="block" readonly="is_locked"/>
+                        <field name="lot" required="crm_team_id == 6" readonly="is_locked"/>
+                        <field name="block" required="crm_team_id == 6" readonly="is_locked"/>
                         <field name="subdivision" readonly="is_locked"/>
                         <field name="architect" readonly="is_locked"/>
                     </group>
@@ -153,6 +166,43 @@
                 <strong class="o_kanban_record_title">
                     <field name="name"/>
                 </strong>
+            </xpath>
+        </field>
+    </record>
+    <record id="helpdesk_ticket_view_tree_inherit" model="ir.ui.view">
+        <field name='name'>helpdesk.ticket.tree.inherit</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_tickets_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='ticket_ref']" position="replace"/>
+            <xpath expr="//field[@name='sla_status_ids']" position="replace"/>
+            <xpath expr="//field[@name='my_activity_date_deadline']" position="replace"/>
+            <xpath expr="//field[@name='sla_deadline']" position="replace"/>
+            <xpath expr="//field[@name='write_date']" position="replace"/>
+            <xpath expr="//field[@name='rating_avg_text']" position="replace"/>
+            <field name="name" position="replace">
+                <field name="name" string="Ticket" optional="show"/>
+                <field name="create_uid" optional="show"/>
+            </field>
+            <field name="partner_id" position="after">
+                <field name="lot" optional="show"/>
+                <field name="block" optional="show"/>
+                <field name="subdivision" optional="show"/>
+                <field name="crm_team_id" optional="show"/>
+                <field name="picking_id" optional="show"/>             
+                <field name="scheduled_date" optional="show"/>
+            </field>
+        </field>
+    </record>
+    <record id="helpdesk_tickets_view_search_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.search.inherit</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_tickets_view_search_base"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="sale_id"/>
+                <field name="lot"/>
+                <field name="block"/>
             </xpath>
         </field>
     </record>
