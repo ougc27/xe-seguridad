@@ -169,7 +169,10 @@ class StockPicking(models.Model):
     @api.depends('location_id', 'move_ids', 'group_id')
     def _compute_shipping_assignment(self):
         for rec in self:
-            if rec.company_id.id == 4:
+            if rec.service_ticket_id:
+                shipping_assignment = rec.shipping_assignment
+                rec.shipping_assignment = shipping_assignment
+            elif rec.company_id.id == 4:
                 sale_id = rec.group_id.sale_id
                 distribution_channel = sale_id.partner_id.team_id.name
                 shipment_channels = ['DISTRIBUIDORES', 'MARKETPLACE', 'SODIMAC HC', 'INTERGRUPO']
@@ -630,10 +633,25 @@ class StockPicking(models.Model):
     def write(self, vals):
         res = super().write(vals)
         for picking in self:
-            """if not vals.get('tag_ids') and picking.company_id.id == 4:
-                if vals.get('state') or vals.get('kanban_task_status'):
-                    if picking.state == 'done' and picking.kanban_task_status == 'finished' and picking.picking_type_code == 'outgoing':
-                        picking.update_tag_ids_to_pickings(True)"""
+            service_ticket_id = picking.service_ticket_id
+            if service_ticket_id:
+                if picking.state == 'done' and (
+                    picking.shipment_task_status == 'finished' or picking.kanban_task_status == 'finished'
+                ):
+                    finished_stage = self.env['helpdesk.stage'].search([
+                        ('team_ids', 'in', [service_ticket_id.team_id.id]),
+                        ('name', 'ilike', 'Finalizado')
+                    ], limit=1)
+                    if finished_stage:
+                        service_ticket_id.write({'stage_id': finished_stage.id})
+                if vals.get('scheduled_date') and picking.scheduled_date != picking.create_date:
+                    service_ticket_id.write({'scheduled_date': picking.scheduled_date})
+                    programed_stage = self.env['helpdesk.stage'].search([
+                        ('team_ids', 'in', [service_ticket_id.team_id.id]),
+                        ('name', 'ilike', 'Programado')
+                    ], limit=1)
+                    if programed_stage:
+                        service_ticket_id.write({'stage_id': programed_stage.id})
             if picking.x_studio_folio_rem and picking.state not in ['transit', 'done']:
                 picking.write({'state': 'transit'})
             if picking.shipping_assignment == 'shipments':
