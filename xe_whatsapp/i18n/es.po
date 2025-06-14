@@ -326,3 +326,13 @@ msgstr "Miembros del Equipo de WhatsApp"
 #, python-format
 msgid "Partner created by incoming WhatsApp message."
 msgstr "Contacto creado por un mensaje entrante de WhatsApp."
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_res_users__is_available
+msgid "If true the system assign conversations to the user"
+msgstr "Si es verdado el sistema asigna conversaciones de whatsapp al usuario"
+
+#. module: xe_pacific
+#: model:res.groups,name:xe_pacific.can_see_available_button_group
+msgid "Can see available button"
+msgstr "Puede ver el botón disponible/no disponible (Para asignar conversaciones whatsapp)"
