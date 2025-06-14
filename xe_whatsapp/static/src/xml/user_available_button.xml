@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="xe_whatsapp.user_available_button">
+        <t t-if="state.canShowButton">
+            <div class="o_user_available_button_systray" t-att-title="tooltip" t-on-click="toggleStatus" style="cursor: pointer;">
+                <!--<i class="fa fa-whatsapp" t-att-style="'color: ' + iconColor"/>-->
+                <i class="fa fa-circle" t-att-style="'color: ' + iconColor" />
+            </div>
+        </t>
+    </t>
+</templates>
