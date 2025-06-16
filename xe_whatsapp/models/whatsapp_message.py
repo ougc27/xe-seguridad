@@ -53,7 +53,7 @@ class WhatsappMessage(models.Model):
                     'assigned_to': team,
                     'first_respond_message': datetime.now()
                 })
-                user_id = self.env['whatsapp.team.members'].assign_person_to_chat_aleatory(
+                user_id = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(
                     rec.wa_account_id, team)
                 if user_id:
                     assigned_person_id = self.assign_member_to_chat(channel, user_id)
