@@ -8,6 +8,8 @@ class HelpdeskTeam(models.Model):
     total_tickets = fields.Integer(string='Total Tickets', compute='_compute_total_tickets')
     active_tickets = fields.Integer(compute='_compute_active_tickets')
     inactive_tickets = fields.Integer(compute='_compute_inactive_tickets')
+    ticket_type_ids = fields.Many2many(
+        'helpdesk.ticket.type', string='Ticket types')
 
     def _compute_ticket_closed(self):
         ticket_data = self.env['helpdesk.ticket']._read_group([

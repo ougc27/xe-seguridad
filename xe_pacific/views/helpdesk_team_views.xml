@@ -36,4 +36,17 @@
             </xpath>
         </field>
     </record>
+    <record id="helpdesk_team_view_form_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.team.view.form.inherit</field>
+        <field name="model">helpdesk.team</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_team_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <group>
+                    <label for="ticket_type_ids"/>
+                    <field name="ticket_type_ids" widget="many2many_tags" options="{'no_create_edit': True, 'no_create': True}" nolabel="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
 </odoo>
