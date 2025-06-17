@@ -167,6 +167,16 @@ class HelpdeskTicket(models.Model):
         readonly=True,
         help="Scheduled date of the picking."
     )
+    
+    ticket_type_id_domain = fields.Binary(compute="_compute_ticket_type_id_domain")
+
+    @api.depends('team_id')
+    def _compute_ticket_type_id_domain(self):
+        for rec in self:
+            if rec.team_id and rec.team_id.ticket_type_ids:
+                rec.ticket_type_id_domain = [('id', 'in', self.team_id.ticket_type_ids.ids)]
+            else:
+                rec.ticket_type_id_domain = []
 
     @api.depends('ticket_type_id')
     def _compute_is_type_paint_or_function(self):

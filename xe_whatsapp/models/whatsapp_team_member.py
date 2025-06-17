@@ -24,6 +24,13 @@ class WhatsappTeamMember(models.Model):
     assignment_count = fields.Integer(string="Number of conversations assigned")
 
     is_assigned = fields.Boolean(string="Has assigned equipment", default=False)
+    
+    is_available = fields.Boolean(compute="_compute_is_available")
+
+    @api.depends('user_id')
+    def _compute_is_available(self):
+        for rec in self:
+            rec.is_available = rec.user_id.is_available
 
     def assign_person_to_chat_round_robin(self, wa_account_id, team):
         Config = self.env['ir.config_parameter'].sudo()

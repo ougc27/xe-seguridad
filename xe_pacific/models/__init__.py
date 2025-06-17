@@ -23,3 +23,4 @@ from . import stock_move
 from . import procurement_group
 from . import helpdesk_attribution
 from . import helpdesk_team
+from . import helpdesk_ticket_type

@@ -13,6 +13,7 @@
                             <field name="wa_account_id"/>
                             <field name="assignment_count"/>
                             <field name="is_assigned"/>
+                            <field name="is_available"/>
                         </group>
                     </group>
                 </sheet>
@@ -30,6 +31,7 @@
                 <field name="wa_account_id"/>
                 <field name="assignment_count"/>
                 <field name="is_assigned"/>
+                <field name="is_available"/>
             </tree>
         </field>
     </record>

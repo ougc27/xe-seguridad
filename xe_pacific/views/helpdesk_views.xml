@@ -33,6 +33,7 @@
                 <field name="installer_id" invisible="not installer_id" />
             </xpath>
             <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="ticket_type_id_domain" invisible="1"/>
                 <field name="crm_team_id" invisible="not crm_team_id"/>
                 <field name="warehouse_id" invisible="not warehouse_id"/>
                 <field name="service_warehouse_id" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked"/>
@@ -55,6 +56,7 @@
             </xpath>
             
             <xpath expr="//field[@name='ticket_type_id']" position="attributes">
+                <attribute name="domain">ticket_type_id_domain</attribute>
                 <attribute name="options">{'no_create': True, 'no_create_edit': True}</attribute>
                 <attribute name="readonly">is_locked</attribute>
                 <attribute name="required">1</attribute>
@@ -76,28 +78,28 @@
             <xpath expr="//page[@name='extra_info']/group[1]" position="after">
                 <group name="inspection_and_corrections_group">
                     <group name="hardware_and_mechanism_issues">
-                        <field name="mechanism_review"/>
-                        <field name="accessory_install_pending"/>
-                        <field name="accessory_delivery_pending"/>
-                        <field name="spare_part_replacement"/>
-                        <field name="loose_broken_gaskets"/>
-                        <field name="damaged_interior_profile"/>
-                        <field name="missing_caps"/>
-                        <field name="customer_locked"/>
-                        <field name="smart_lock_inspection"/>
-                        <field name="smart_lock_replacement"/>
+                        <field name="mechanism_review" readonly="ticket_type_id != 3"/>
+                        <field name="accessory_install_pending" readonly="ticket_type_id != 3"/>
+                        <field name="accessory_delivery_pending" readonly="ticket_type_id != 3"/>
+                        <field name="spare_part_replacement" readonly="ticket_type_id != 3"/>
+                        <field name="loose_broken_gaskets" readonly="ticket_type_id != 3"/>
+                        <field name="damaged_interior_profile" readonly="ticket_type_id != 3"/>
+                        <field name="missing_caps" readonly="ticket_type_id != 3"/>
+                        <field name="customer_locked" readonly="ticket_type_id != 3"/>
+                        <field name="smart_lock_inspection" readonly="ticket_type_id != 3"/>
+                        <field name="smart_lock_replacement" readonly="ticket_type_id != 3"/>
                     </group>
                     <group name="structural_and_finish_issues">
-                        <field name="pos_store_id"/>
-                        <field name="deficient_masonry"/>
-                        <field name="loose_door_frame"/>
-                        <field name="door_installation"/>
-                        <field name="door_reinstallation"/>
-                        <field name="door_replacement"/>
-                        <field name="door_dent"/>
-                        <field name="paint_factory_defect"/>
-                        <field name="door_faded_paint"/>
-                        <field name="rusty_paint"/>
+                        <field name="pos_store_id" invisible="not pos_store_id"/>
+                        <field name="deficient_masonry" readonly="ticket_type_id != 3"/>
+                        <field name="loose_door_frame" readonly="ticket_type_id != 3"/>
+                        <field name="door_installation" readonly="ticket_type_id != 3"/>
+                        <field name="door_reinstallation" readonly="ticket_type_id != 3"/>
+                        <field name="door_replacement" readonly="ticket_type_id != 3"/>
+                        <field name="door_dent" readonly="ticket_type_id != 4"/>
+                        <field name="paint_factory_defect" readonly="ticket_type_id != 4"/>
+                        <field name="door_faded_paint" readonly="ticket_type_id != 4"/>
+                        <field name="rusty_paint" readonly="ticket_type_id != 4"/>
                     </group>
                 </group>
             </xpath>
