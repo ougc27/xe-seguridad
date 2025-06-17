@@ -1470,3 +1470,8 @@ msgstr "Dominio de tipo de ticket"
 #: model:ir.model.fields.selection,name:xe_pacific.selection__helpdesk_ticket_type__issue_category__functionality
 msgid "Functionality"
 msgstr "Funcionalidad"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_type__issue_category
+msgid "Issue Category"
+msgstr "Categoría de problema"
