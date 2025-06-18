@@ -27,7 +27,7 @@ class TicketTransferWizard(models.TransientModel):
             ('subdivision', _('Subdivision')),
             ('complete_address', _('Client Address')),
             ('phone', _('Contact Phone')),
-            ('product_id.display_name', _('Product')),
+            ('product_id.display_name', _('Service for')),
             ('description', _('Description')),
         ]
 
