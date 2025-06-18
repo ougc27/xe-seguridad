@@ -23,6 +23,9 @@ class StockPicking(models.Model):
         qty = sum(self.move_ids_without_package.mapped('quantity'))
         if qty == 0:
             raise UserError(_('There is no reserved stock to transit.'))
+
+        restrict_remission_with_no_stock = self.env['ir.config_parameter'].sudo().get_param(
+            'restrict_remission_with_no_stock', None)
     
         for move in self.move_ids_without_package:
             if move.quantity > 0:
@@ -30,13 +33,10 @@ class StockPicking(models.Model):
                     raise UserError(_("The product %s requires a lot or serial number.") % move.product_id.display_name)
             if move.quantity > move.product_uom_qty:
                 raise UserError(_('You cannot transit more than the ordered quantity.'))
-            if move.product_id.detailed_type == 'product' and move.product_id.qty_available < move.quantity:
-                raise UserError(_('Not enough quantity available for product %s.') % move.product_id.display_name)
+
         for move_line in self.move_line_ids:
-            restrict_remission_with_no_stock = self.env['ir.config_parameter'].sudo().get_param(
-                'restrict_remission_with_no_stock', None)
             if restrict_remission_with_no_stock == "1":
-                if move_line.quantity > 0 and move_line.lot_id:
+                if move_line.quantity > 0:
                     quants = self.env['stock.quant'].search([
                         ('product_id', '=', move_line.product_id.id),
                         ('lot_id', '=', move_line.lot_id.id),
