@@ -26,6 +26,7 @@ class StockPicking(models.Model):
         ('scheduled', 'PROGRAMADO'),
         ('warehouse', 'ALMACÉN'),
         ('production', 'PRODUCCIÓN'),
+        ('quality', 'CALIDAD'),
         ('shipments', 'EMBARQUES'),
         ('confirmed', 'EMBARCADO'),
         ('finished', 'FINALIZADO'),
