@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_company_form_inherit" model="ir.ui.view">
+        <field name="name">view.company.form.inherit</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='branches']" position="after">
+                <page string="HEB" name="heb">
+                    <label for="heb_seller"/>
+                    <field name="heb_seller" nolabel="1"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

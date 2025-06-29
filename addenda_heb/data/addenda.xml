@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <template id="l10n_mx_edi_addenda_heb" name="Addenda HEB">
+            <t t-set="discount" t-value="0"/>
+            <t t-foreach="record.invoice_line_ids" t-as="line">
+                <t t-set="discount" t-value="discount + line.discount_amount_addenda"/>
+            </t>
+            <Addenda>
+                <requestForPayment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" documentStructureVersion="AMC7.1" documentStatus="ORIGINAL" type="SimpleInvoiceType" contentVersion="1.3.1" t-att-DeliveryDate="record.invoice_date">
+                <!--<requestForPayment type="SimpleInvoiceType" contentVersion="1.3.1" documentStructureVersion="AMC7.1" documentStatus="ORIGINAL" t-att-DeliveryDate="record.invoice_date">-->
+                    <requestForPaymentIdentification>
+                        <entityType>INVOICE</entityType>
+                        <uniqueCreatorIdentification t-raw="record.name"></uniqueCreatorIdentification>
+                    </requestForPaymentIdentification>
+                    <!--VER SI HACER ESTO NO COMO ESTATICO-->
+                    <specialInstruction code="ZZZ">
+                        <text t-raw="record.amount_total_words"></text>
+                    </specialInstruction>
+
+                    <orderIdentification>
+                        <referenceIdentification type="ON" t-raw="record.payment_reference"></referenceIdentification>
+                        <ReferenceDate t-raw="record.addenda_coppel_po_date"></ReferenceDate>
+                    </orderIdentification>
+                    <AdditionalInformation>
+                        <!--VER SI NO HACER ESTO COMO ESTATICO-->
+                        <!--Y TENGO DUDA CON EL T-RAW ELLOS PUSIERON 10-->
+                        <!--Que es lo que esperan aqui-->
+                        <referenceIdentification type="ATZ">10</referenceIdentification>
+                        <!--<referenceIdentification type="ATZ" t-raw="record.purchase_order_reference"></referenceIdentification>-->
+                    </AdditionalInformation>
+                    <buyer>
+                        <gln>7504000225003</gln>
+                    </buyer>
+                    <seller>
+                        <gln t-raw="record.company_id.heb_seller"></gln>
+                        <!--  Campo asignado para el GLN del proveedor si no te lo sabes puedes poner tu # de proveedor Ejem  #de Prove 1234   GLN 0000000001234   -->
+                        <alternatePartyIdentification type="SELLER_ASSIGNED_IDENTIFIER_FOR_A_PARTY">1234</alternatePartyIdentification>
+                        <!--  Campo asignado para tu # de proveedor  -->
+                    </seller>
+                    <shipTo>
+                        <gln t-raw="record.addenda_heb_store_id.gln"></gln>
+                    </shipTo>
+                    <currency t-att-currencyISOCode="record.currency_id.name">
+                        <currencyFunction>BILLING_CURRENCY</currencyFunction>
+                        <rateOfChange t-raw="list(record.currency_id._get_rates(record.company_id, record.invoice_date).values())[0]"></rateOfChange>
+                    </currency>
+                    <t t-set="count" t-value="0"/>
+                    <t t-foreach="record.invoice_line_ids" t-as="line">
+                        <t t-set="count" t-value="count + 1"/>
+                        <lineItem type="SimpleInvoiceLineItemType" t-att-number="count">
+                            <tradeItemIdentification>
+                                <gtin t-raw="line.product_id.client_ids.filtered(lambda c: c.name == record.partner_id and c.company_id == record.company_id).product_code"/>
+                            </tradeItemIdentification>
+                            <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line.product_id.client_ids.filtered(lambda c: c.name == record.partner_id and c.company_id == record.company_id).product_code"/>
+                            <tradeItemDescriptionInformation language="ES">
+                                <longText t-raw="line.product_id.name"/>
+                            </tradeItemDescriptionInformation>
+                            <!--LINEA DE ELLOS-->
+                            <!--<invoicedQuantity unitOfMeasure="CJA">4</invoicedQuantity>-->
+                            <invoicedQuantity unitOfMeasure="CJA" t-raw="line.quantity"/>
+                            <!--Viene como requerido pero su xml no lo tiene-->
+                            <!--aditionalQuantitY-->
+                            <!--quantity type-->
+                            <grossPrice>
+                                <!--Precio Bruto del artículo sin incluir descuento ni cargos -->
+                                <Amount t-raw="line.price_unit"></Amount>
+                            </grossPrice>
+                            <netPrice>
+                                <!--Precio neto de cada artículo -->
+                                <Amount t-raw="line.price_unit"></Amount>
+                            </netPrice>
+                            <!--TENGO DUDAS CON TODO ESTO-->
+                            <tradeItemTaxInformation>
+                                <taxTypeDescription>VAT</taxTypeDescription>
+                                <tradeItemTaxAmount>
+                                    <taxPercentage>0</taxPercentage>
+                                    <taxAmount>0</taxAmount>
+                                </tradeItemTaxAmount>
+                            </tradeItemTaxInformation>
+                            <tradeItemTaxInformation>
+                                <taxTypeDescription>GST</taxTypeDescription>
+                                <tradeItemTaxAmount>
+                                    <taxPercentage>8</taxPercentage>
+                                    <taxAmount>172.2</taxAmount>
+                                </tradeItemTaxAmount>
+                            </tradeItemTaxInformation>
+                            <!--Hasta aqui-->
+                            <totalLineAmount>
+                                <grossAmount>
+                                    <Amount t-raw="line.price_subtotal"/>
+                                </grossAmount>
+                                <netAmount>
+                                    <Amount t-raw="line.price_total"/>
+                                </netAmount>
+                            </totalLineAmount>
+                        </lineItem>
+                    </t>
+                    <totalAmount>
+                        <Amount t-raw="record.amount_untaxed"></Amount>
+                    </totalAmount>
+                    <TotalAllowanceCharge allowanceOrChargeType="ALLOWANCE">
+                        <!--VER SI EL TD ES DINAMICO-->
+                        <specialServicesType>TD</specialServicesType>
+                        <Amount t-raw="discount"></Amount>
+                    </TotalAllowanceCharge>
+                </requestForPayment>
+            </Addenda>
+        </template>
+        <record id="l10n_mx_edi_addenda_heb" model="ir.ui.view">
+            <field name="l10n_mx_edi_addenda_flag">True</field>
+        </record>
+    </data>
+</odoo>

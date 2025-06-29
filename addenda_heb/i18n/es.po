@@ -1,0 +1,109 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* addenda_heb
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-23 17:56+0000\n"
+"PO-Revision-Date: 2025-06-23 17:56+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: addenda_heb
+#: model:ir.ui.menu,name:addenda_heb.menu_heb_addenda_configuration
+msgid "Addenda HEB"
+msgstr "Addenda HEB"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_store__branch_number
+msgid "Branch Number"
+msgstr "Número de sucursal"
+
+#. module: addenda_heb
+#: model:ir.model,name:addenda_heb.model_res_company
+msgid "Companies"
+msgstr "Empresas"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_store__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_store__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_store__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_store__gln
+msgid "Gln"
+msgstr "GLN"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_company_form_inherit
+msgid "HEB"
+msgstr "HEB"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_account_bank_statement_line__addenda_heb_store_id
+#: model:ir.model.fields,field_description:addenda_heb.field_account_move__addenda_heb_store_id
+#: model:ir.model.fields,field_description:addenda_heb.field_account_payment__addenda_heb_store_id
+msgid "HEB Ship to"
+msgstr "HEB Enviar a"
+
+#. module: addenda_heb
+#: model:ir.actions.act_window,name:addenda_heb.action_heb_store
+#: model:ir.model,name:addenda_heb.model_heb_store
+msgid "HEB Store"
+msgstr "Tienda HEB"
+
+#. module: addenda_heb
+#: model:ir.ui.menu,name:addenda_heb.menu_heb_store
+msgid "HEB Stores"
+msgstr "Tiendas HEB"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_store__id
+msgid "ID"
+msgstr "ID"
+
+#. module: addenda_heb
+#: model:ir.model,name:addenda_heb.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento contable"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_store__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_store__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_store__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_res_company__heb_seller
+msgid "Seller"
+msgstr "Número Vendedor"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_store_tree
+msgid "Stores"
+msgstr "Tiendas"

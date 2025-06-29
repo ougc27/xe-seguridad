@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_move_view_form_addenda_coppel" model="ir.ui.view">
+        <field name="name">account.move.view.form.addenda</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="addenda_morwi.account_move_view_form_addenda"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vendor_number_addenda']" position="after">
+                <field name="addenda_heb_store_id" options="{'no_open': True, 'no_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
