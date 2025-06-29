@@ -78,9 +78,9 @@
                         <br/>
                         <div>
                             <div class="o_setting_right_pane">
-                                <label for="delivery_partner_id"/>
+                                <label for="pos_delivery_partner_id"/>
                                 <br/>
-                                <field name="delivery_partner_id" readonly="False"/>
+                                <field name="pos_delivery_partner_id" readonly="False"/>
                                 <div class="text-muted">
                                     Partner shipping assigned to the stock move when shipping later option is selected.
                                 </div>
