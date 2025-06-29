@@ -13,12 +13,12 @@ class ResPartner(models.Model):
     commercial_name = fields.Char(copy=False)
 
     x_cop = fields.Selection([
-        ('prospecto ', 'Prospecto'),
+        ('prospecto', 'Prospecto'),
         ('cliente', 'Cliente'),
         ('proveedor', 'Proveedor'),
         ('cliente_proveedor', 'Cliente y proveedor'),
         ('otro', 'Otro'),
-    ], string="Tipo", required=True)
+    ], string="Tipo")
 
     @api.depends('street', 'zip', 'city', 'country_id', 'l10n_mx_edi_locality')
     def _compute_complete_address(self):
