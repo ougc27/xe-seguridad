@@ -15,6 +15,10 @@
                     </group>
                 </group>
             </page>
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="x_cop" invisible="1"/>
+                <field name="commercial_name" invisible="not x_cop == 'cliente' or not company_type == 'company' or not team_id == 6"/>
+            </xpath>
         </field>
     </record>
 </odoo>

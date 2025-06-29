@@ -8,7 +8,8 @@ import { _t } from "@web/core/l10n/translation";
 
 patch(PaymentScreen.prototype, {
     async _isOrderValid(isForceValidate) {
-        if (this.currentOrder.get_orderlines().length === 0 && this.currentOrder.is_to_invoice()) {
+        const order = this.currentOrder;
+        if (order.get_orderlines().length === 0 && order.is_to_invoice()) {
             this.popup.add(ErrorPopup, {
                 title: _t("Empty Order"),
                 body: _t(
@@ -22,33 +23,53 @@ patch(PaymentScreen.prototype, {
             return false;
         }
 
-        if (!this.currentOrder.getShippingDate()) {
-            const hasNoStock = this.currentOrder.orderlines.some(line => line.no_stock === true);
-            if (hasNoStock) {
-                this.popup.add(ErrorPopup, {
-                    title: _t("Please select the option to send later"),
-                    body: _t(
-                        "One or more products are out of stock for immediate delivery."
-                    ),
-                });
-                return false;
-            }
-            else {
-                const { confirmed } = await this.popup.add(ConfirmPopup, {
-                    title: _t("Delivery Method"),
-                    body: _t(
-                        "Are you sure the customer is taking the product right now?"
-                    ),
-                });
-                if (!confirmed) {
-                    return false;
+        if (!order.getShippingDate()) {
+            const insufficientProducts = [];
+
+            order.orderlines.forEach(line => {
+                if (line.coupon_id) {
+                    return;
                 }
+                const qtyOrdered = line.quantity;
+                const qtyAvailable = line.qty_available || 0;
+                if (qtyAvailable < qtyOrdered) {
+                    insufficientProducts.push({
+                        productName: line.product.display_name,
+                        qtyOrdered: qtyOrdered,
+                        qtyAvailable: qtyAvailable,
+                    });
+                }
+            });
+
+            if (insufficientProducts.length > 0) {
+                const msg = insufficientProducts.map(p =>
+                    `${p.productName}: ordenado ${p.qtyOrdered}, cantidad disponible ${p.qtyAvailable}`
+                ).join('\n');
+
+                this.popup.add(ErrorPopup, {
+                    title: _t("Insufficient Stock for Immediate Delivery"),
+                    body: _t(
+                        "The following products do not have enough stock for immediate delivery:\n\n%s",
+                        msg
+                    ),
+                });
+
+                return;
+            }
+            const { confirmed } = await this.popup.add(ConfirmPopup, {
+                title: _t("Delivery Method"),
+                body: _t(
+                    "Are you sure the customer is taking the product right now?"
+                ),
+            });
+            if (!confirmed) {
+                return false;
             }
         }
 
         if (
-            (this.currentOrder.is_to_invoice() || this.currentOrder.getShippingDate()) &&
-            !this.currentOrder.get_partner()
+            (order.is_to_invoice() || order.getShippingDate()) &&
+            !order.get_partner()
         ) {
             const { confirmed } = await this.popup.add(ConfirmPopup, {
                 title: _t("Please select the Customer"),
@@ -62,9 +83,9 @@ patch(PaymentScreen.prototype, {
             return false;
         }
 
-        const partner = this.currentOrder.get_partner();
+        const partner = order.get_partner();
         if (
-            this.currentOrder.getShippingDate() &&
+            order.getShippingDate() &&
             !(partner.name && partner.street && partner.city && partner.country_id)
         ) {
             this.popup.add(ErrorPopup, {
@@ -75,19 +96,19 @@ patch(PaymentScreen.prototype, {
         }
 
         if (
-            this.currentOrder.get_total_with_tax() != 0 &&
-            this.currentOrder.get_paymentlines().length === 0
+            order.get_total_with_tax() != 0 &&
+            order.get_paymentlines().length === 0
         ) {
             this.notification.add(_t("Select a payment method to validate the order."));
             return false;
         }
 
-        if (!this.currentOrder.is_paid() || this.invoicing) {
+        if (!order.is_paid() || this.invoicing) {
             return false;
         }
 
-        if (this.currentOrder.has_not_valid_rounding()) {
-            var line = this.currentOrder.has_not_valid_rounding();
+        if (order.has_not_valid_rounding()) {
+            var line = order.has_not_valid_rounding();
             this.popup.add(ErrorPopup, {
                 title: _t("Incorrect rounding"),
                 body: _t(
@@ -100,9 +121,9 @@ patch(PaymentScreen.prototype, {
         // The exact amount must be paid if there is no cash payment method defined.
         if (
             Math.abs(
-                this.currentOrder.get_total_with_tax() -
-                    this.currentOrder.get_total_paid() +
-                    this.currentOrder.get_rounding_applied()
+                order.get_total_with_tax() -
+                    order.get_total_paid() +
+                    order.get_rounding_applied()
             ) > 0.00001
         ) {
             if (!this.pos.payment_methods.some((pm) => pm.is_cash_count)) {
@@ -119,8 +140,8 @@ patch(PaymentScreen.prototype, {
         // if the change is too large, it's probably an input error, make the user confirm.
         if (
             !isForceValidate &&
-            this.currentOrder.get_total_with_tax() > 0 &&
-            this.currentOrder.get_total_with_tax() * 1000 < this.currentOrder.get_total_paid()
+            order.get_total_with_tax() > 0 &&
+            order.get_total_with_tax() * 1000 < order.get_total_paid()
         ) {
             this.popup
                 .add(ConfirmPopup, {
@@ -128,11 +149,11 @@ patch(PaymentScreen.prototype, {
                     body:
                         _t("Are you sure that the customer wants to  pay") +
                         " " +
-                        this.env.utils.formatCurrency(this.currentOrder.get_total_paid()) +
+                        this.env.utils.formatCurrency(order.get_total_paid()) +
                         " " +
                         _t("for an order of") +
                         " " +
-                        this.env.utils.formatCurrency(this.currentOrder.get_total_with_tax()) +
+                        this.env.utils.formatCurrency(order.get_total_with_tax()) +
                         " " +
                         _t('? Clicking "Confirm" will validate the payment.'),
                 })
@@ -144,7 +165,7 @@ patch(PaymentScreen.prototype, {
             return false;
         }
 
-        if (!this.currentOrder._isValidEmptyOrder()) {
+        if (!order._isValidEmptyOrder()) {
             return false;
         }
 

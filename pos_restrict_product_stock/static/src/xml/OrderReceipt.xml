@@ -10,5 +10,46 @@
         <xpath expr="//div[@class='pos-receipt-order-data mb-2']" position="attributes">
             <attribute name="class">bold-text pos-receipt-order-data mb-2</attribute>
         </xpath>
+        <xpath expr="//div[@class='pos-receipt-order-data']//p" position="replace"/>
+        <xpath expr="//t[@t-if='props.data.shippingDate']" position="replace">
+            <t t-if="props.data.shippingDate">
+                <div class="pos-receipt-order-data bold-text">
+                    PENDIENTE DE ENTREGA
+                </div>
+                <div class="pos-receipt-order-data">
+                    Fecha estimada: <div><t t-esc="props.data.shippingDate" /></div>
+                </div>
+            </t>
+            <t t-else="">
+                <div class="pos-receipt-order-data bold-text">
+                    VENTA ENTREGADA
+                </div>
+            </t>
+            <br/>
+            <div>
+                <strong>Cliente: </strong>
+                <t t-if="props.data.partner">
+                    <t t-esc="props.data.partner.name"/>
+                </t>
+                <t t-else="">
+                    <div style="border-bottom: 1px solid black; width: 100%;">
+                        <br/>
+                        &#160;
+                    </div>
+                </t>
+            </div>
+            <br/>
+            <div>
+                <strong>Firma:</strong>
+                <br/>
+                <div style="border-bottom: 1px solid black; width: 100%;">
+                    <br/>
+                    &#160;
+                </div>
+            </div>
+        </xpath>
     </t>
+    <!--<t t-name="pos_restrict_product_stock.OrderReceipt" t-inherit="pos_coupon.OrderReceipt" t-inherit-mode="extension">
+        <xpath expr="//t[@t-if='props.data.partner']" position="replace"/>
+    </t>-->
 </templates>

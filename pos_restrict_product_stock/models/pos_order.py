@@ -6,6 +6,24 @@ class PosOrder(models.Model):
 
     reference = fields.Char(string='Physical Order', copy=False, readonly=True)
 
+    @api.model
+    def _process_order(self, order, draft, existing_order):
+        """Create or update an pos.order from a given dictionary.
+
+        :param dict order: dictionary representing the order.
+        :param bool draft: Indicate that the pos_order is not validated yet.
+        :param existing_order: order to be updated or False.
+        :type existing_order: pos.order.
+        :returns: id of created/updated pos.order
+        :rtype: int
+        """
+        order_id = super(PosOrder, self)._process_order(order, draft, existing_order)
+        order = self.browse(order_id)
+        delivery_partner_id = order.session_id.config_id.delivery_partner_id
+        for picking in order.picking_ids:
+            if delivery_partner_id:
+                picking.write({'partner_id': delivery_partner_id.id})
+
     def get_res_partner_by_id(self):
         partner = self.env['res.partner'].browse(self.id)
         return [partner.name, partner.street, partner.city, partner.country_id.name]

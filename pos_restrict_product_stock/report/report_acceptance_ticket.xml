@@ -1,0 +1,84 @@
+<odoo>
+    <template id="report_ticket_acceptance_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="picking">
+                <div style="width: 512px; font-size: 14px; color: #000000;">
+                    <div style="text-align: center; font-weight: bold; font-size: 20px;">
+                        <t t-esc="picking.company_id.name"/> | <t t-esc="picking.pos_order_id.config_id.name"/>
+                    </div>
+                    <div style="text-align: center;">
+                        <t t-esc="picking.company_id.vat"/> | <t t-esc="picking.company_id.phone"/>
+                    </div>
+                    <div style="border-bottom: 1px dashed #888; width: 100%; margin: 8px 0;"></div>
+                    <div>
+                        <strong style="text-align: center; display: block; margin-bottom: 2px; font-size: 20px;">Acceptance Ticket</strong>
+                        <p style="margin: 2px 0;">Order No.: <t t-esc="picking.pos_order_id.pos_reference"/></p>
+                        <p style="margin: 2px 0;">Order date: <t t-esc="picking.pos_order_id.date_order.strftime('%Y-%m-%d')"/></p>
+                        <t t-if="picking.pos_order_id.shipping_date">
+                            <p style="margin: 2px 0;">Estimated delivery date: <t t-esc="picking.pos_order_id.shipping_date.strftime('%Y-%m-%d')"/></p>
+                        </t>
+                    </div>
+                    <div t-if="picking.partner_id">
+                        <p style="margin: 2px 0;">Client: <t t-esc="picking.partner_id.name"/></p>
+                        <t t-if="picking.partner_id.phone or picking.partner_id.mobile">
+                            <p style="margin: 2px 0;">Phone: 
+                                <t t-if="picking.partner_id.phone">
+                                    <t t-esc="picking.partner_id.phone"/>
+                                </t>
+                                <t t-else="">
+                                    <t t-esc="picking.partner_id.mobile"/>
+                                </t>
+                            </p>
+                        </t>
+                    </div>
+                    <div style="border-bottom: 1px dashed #888; width: 100%; margin: 8px 0;"></div>
+                    <div>
+                        <p style="text-align: center; display: block; margin-bottom: 2px;"><strong>Product(s):</strong></p>
+                        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                            <thead>
+                                <tr>
+                                    <th style="border-bottom: 1px solid black; padding: 5px;">Product</th>
+                                    <th style="border-bottom: 1px solid black; padding: 5px;">Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="picking.move_ids_without_package" t-as="move">
+                                    <tr>
+                                        <td style="padding: 5px;"><t t-esc="move.product_id.display_name"/></td>
+                                        <td style="padding: 5px;"><t t-esc="move.product_uom_qty"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="border-bottom: 1px dashed #888; width: 100%; margin: 8px 0;"></div>
+                    <div style="text-align: center;">
+                        I confirm the receipt and acceptance of the delivered products
+                    </div>
+                    <div style="border-bottom: 1px dashed #888; width: 100%; margin: 8px 0;"></div>
+                    <div>
+                        <p style="text-align: center; display: block; margin-bottom: 2px;"><strong>Received by:</strong></p>
+                        <p style="display: block; margin-bottom: 1px;">Name:</p>
+                        <div style="border-bottom: 1px solid black; width: 100%;">
+                            &#160;
+                        </div>
+                        <p style="display: block; margin-bottom: 1px;">Signature:</p>
+                        <div style="border-bottom: 1px solid black; width: 100%;">
+                            &#160;
+                        </div>
+                        <p style="display: block; margin-top: 5px;">Receipt date: <t t-esc="picking.date_done.strftime('%Y-%m-%d')"/></p>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_ticket_acceptance_document" model="ir.actions.report">
+        <field name="name">Print Acceptance Ticket</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_file">pos_restrict_product_stock.report_ticket_acceptance_document</field>
+        <field name="report_name">pos_restrict_product_stock.report_ticket_acceptance_document</field>
+        <field name="paperformat_id" ref="pos_restrict_product_stock.paperformat_acceptance_ticket"/>
+    </record>
+</odoo>
