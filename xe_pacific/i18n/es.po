@@ -1475,3 +1475,9 @@ msgstr "Funcionalidad"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_type__issue_category
 msgid "Issue Category"
 msgstr "Categoría de problema"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_res_partner__commercial_name
+#: model:ir.model.fields,field_description:xe_pacific.field_res_users__commercial_name
+msgid "Commercial Name"
+msgstr "Nombre Comercial"

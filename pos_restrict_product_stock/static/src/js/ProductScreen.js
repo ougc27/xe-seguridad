@@ -23,6 +23,7 @@ patch(PosStore.prototype, {
             const orderlines = this.env.services.pos.selectedOrder.orderlines;
             orderlines.forEach(line => {
                 if (line.product.id === product_id) {
+                    line.qty_available = qty_available;
                     line.no_stock = false;
                 }
             });

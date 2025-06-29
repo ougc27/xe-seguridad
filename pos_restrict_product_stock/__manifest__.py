@@ -20,7 +20,7 @@
 #############################################################################
 {
     'name': 'Display Stock in POS | Restrict Out-of-Stock Products in POS',
-    'version': '17.0.1.0.17',
+    'version': '17.0.1.0.32',
     'category': 'Point of Sale',
     'summary': """Enhance your Point of Sale experience by preventing the 
     ordering of out-of-stock products during your session""",
@@ -31,11 +31,14 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': 'https://www.cybrosys.com',
-    'depends': ['point_of_sale', 'sale', 'base_vat', 'base'],
+    'depends': ['pos_loyalty', 'xe_customs', 'base_vat'],
     'data': [
+        'data/report_paperformat.xml',
+        'report/report_acceptance_ticket.xml',
         'views/res_config_settings_views.xml',
         'views/pos_ticket_view.xml',
         'views/pos_order_views.xml',
+        'views/stock_picking_views.xml',
         'security/point_of_sale_security.xml',
         'security/ir_rules.xml',
     ],
@@ -49,6 +52,8 @@
             '/pos_restrict_product_stock/static/src/js/CashOpeningPopup.js',
             '/pos_restrict_product_stock/static/src/js/SetSaleOrdenButton.js',
             '/pos_restrict_product_stock/static/src/js/RefundButton.js',
+            '/pos_restrict_product_stock/static/src/js/CashMovePopup.js',
+            '/pos_restrict_product_stock/static/src/js/ClosingPopup.js',
             '/pos_restrict_product_stock/static/src/css/display_stock.css',
             '/pos_restrict_product_stock/static/src/css/payment_screens.css',
             '/pos_restrict_product_stock/static/src/xml/ProductItem.xml',
@@ -59,8 +64,11 @@
             '/pos_restrict_product_stock/static/src/xml/ActionPad.xml',
             '/pos_restrict_product_stock/static/src/xml/ReceiptHeader.xml',
             '/pos_restrict_product_stock/static/src/xml/SetSaleOrdenButton.xml',
-            '/pos_restrict_product_stock/static/src/xml/RefundButton.xml'
-            #cash opening no se necesita
+            '/pos_restrict_product_stock/static/src/xml/RefundButton.xml',
+            '/pos_restrict_product_stock/static/src/xml/CashMovePopup.xml',
+            '/pos_restrict_product_stock/static/src/xml/ClosingPopup.xml',
+            '/pos_restrict_product_stock/static/src/xml/ResetProgramsButton.xml',
+            '/pos_restrict_product_stock/static/src/xml/RewardButton.xml',
         ],
     },
     #'images': ['static/description/banner.jpg'],

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_restrict_product_stock.CashMovePopup" t-inherit="point_of_sale.CashMovePopup" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('input-group')]" position="replace">
+            <div class="input-group">
+                <button t-on-click="() => this.onClickButton('out')" class="input-type btn btn-secondary flex-fill py-2 fw-bolder" t-att-class="{ 'red-highlight btn-danger': state.type === 'out' }">
+                    Cash Out
+                </button>
+            </div>
+        </xpath>
+    </t>
+</templates>
