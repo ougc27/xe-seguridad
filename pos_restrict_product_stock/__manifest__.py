@@ -31,7 +31,7 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': 'https://www.cybrosys.com',
-    'depends': ['xe_loyalty_fix', 'pos_loyalty', 'xe_customs', 'base_vat'],
+    'depends': ['xe_customs', 'base_vat'],
     'data': [
         'data/report_paperformat.xml',
         'report/report_acceptance_ticket.xml',
