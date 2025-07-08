@@ -1,6 +1,6 @@
 {
     "name": "Accounting Reports",
-    "version": "17.0.0.0.1",
+    "version": "17.0.0.0.2",
     'license': 'LGPL-3',
     "author": "XE BRANDS",
     'sequence': 1,
