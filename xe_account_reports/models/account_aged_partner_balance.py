@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import models, fields, _
 
 from dateutil.relativedelta import relativedelta
 from itertools import chain
@@ -36,6 +36,13 @@ class AgedPartnerBalanceCustomHandler(models.AbstractModel):
                 query_res = query_res_lines[0]
                 currency = self.env['res.currency'].browse(query_res['currency_id'][0]) if len(query_res['currency_id']) == 1 else None
                 expected_date = len(query_res['expected_date']) == 1 and query_res['expected_date'][0] or len(query_res['due_date']) == 1 and query_res['due_date'][0]
+
+                move_type_label = None
+                if query_res.get('move_type'):
+                    move_type = query_res['move_type'][0]
+                    selection_dict = dict(self.env['account.move']._fields['move_type']._description_selection(self.env))
+                    move_type_label = _(selection_dict.get(move_type, move_type))
+
                 rslt.update({
                     'invoice_date': query_res['invoice_date'][0] if len(query_res['invoice_date']) == 1 else None,
                     'due_date': query_res['due_date'][0] if len(query_res['due_date']) == 1 else None,
@@ -48,6 +55,7 @@ class AgedPartnerBalanceCustomHandler(models.AbstractModel):
                     'has_sublines': query_res['aml_count'] > 0,
                     'partner_id': query_res['partner_id'][0] if query_res['partner_id'] else None,
                     'x_studio_canal_d': query_res['x_studio_canal_d'][0] if query_res.get('x_studio_canal_d') else None,
+                    'move_type': move_type_label,
                 })
             else:
                 rslt.update({
@@ -61,6 +69,7 @@ class AgedPartnerBalanceCustomHandler(models.AbstractModel):
                     'total': sum(rslt[f'period{i}'] for i in range(len(periods))),
                     'has_sublines': False,
                     'x_studio_canal_d': None,
+                    'move_type': None,
                 })
 
             return rslt
@@ -115,6 +124,7 @@ class AgedPartnerBalanceCustomHandler(models.AbstractModel):
                 ARRAY_AGG(DISTINCT COALESCE(account_move_line.date_maturity, account_move_line.date)) AS due_date,
                 ARRAY_AGG(DISTINCT account_move_line.currency_id) AS currency_id,
                 ARRAY_AGG(DISTINCT COALESCE(team.name->>'es_MX','') ) AS x_studio_canal_d,
+                ARRAY_AGG(DISTINCT move.move_type) AS move_type,
                 COUNT(account_move_line.id) AS aml_count,
                 ARRAY_AGG(account.code) AS account_code,
                 {select_period_query}

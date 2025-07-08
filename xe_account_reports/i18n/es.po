@@ -24,3 +24,8 @@ msgstr "Gestor personalizado de los balances antiguos del contacto"
 #: model:account.report.column,name:xe_account_reports.aged_receivable_report_custom
 msgid "Sales Team"
 msgstr "Equipo de ventas"
+
+#. module: xe_account_reports
+#: model:account.report.column,name:xe_account_reports.aged_receivable_report_column_move_type
+msgid "Move Type"
+msgstr "Tipo"
