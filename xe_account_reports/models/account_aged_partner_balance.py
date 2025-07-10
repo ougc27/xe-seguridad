@@ -214,6 +214,7 @@ class AgedPartnerBalanceCustomHandler(models.AbstractModel):
 
     def _prepare_partner_values(self):
         return {
+            'move_type': None,
             'x_studio_canal_d': None,
             'invoice_date': None,
             'due_date': None,
