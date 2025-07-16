@@ -19,10 +19,12 @@ class PosOrder(models.Model):
         """
         order_id = super(PosOrder, self)._process_order(order, draft, existing_order)
         order = self.browse(order_id)
-        delivery_partner_id = order.session_id.config_id.delivery_partner_id
-        for picking in order.picking_ids:
-            if delivery_partner_id:
-                picking.write({'partner_id': delivery_partner_id.id})
+        delivery_partner_id = order.session_id.config_id.delivery_partner_id.id
+        if delivery_partner_id:
+            if not order.shipping_date:
+                order.write({'partner_id': delivery_partner_id})
+            for picking in order.picking_ids:
+                picking.write({'partner_id': delivery_partner_id})
 
     def get_res_partner_by_id(self):
         partner = self.env['res.partner'].browse(self.id)
