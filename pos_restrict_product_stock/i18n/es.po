@@ -842,3 +842,12 @@ msgid ""
 msgstr ""
 "La cantidad de retiro debe coincidir con el efectivo disponible en la caja.\n"
 "Efectivo disponible actual: %s"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
+msgid ""
+"Partner shipping assigned to the stock move when shipping later option is "
+"selected."
+msgstr ""
+"Contacto de envío asignado al movimiento de inventario cuando se selecciona la "
+"opción de enviar después."

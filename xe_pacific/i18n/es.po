@@ -1481,3 +1481,8 @@ msgstr "Categoría de problema"
 #: model:ir.model.fields,field_description:xe_pacific.field_res_users__commercial_name
 msgid "Commercial Name"
 msgstr "Nombre Comercial"
+
+#. module: xe_pacific
+#: model:res.groups,name:xe_pacific.group_can_view_documents_from_foreign_suppliers
+msgid "Can view documents from foreign suppliers"
+msgstr "Puede ver documentos de proveedores extranjeros"
