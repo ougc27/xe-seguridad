@@ -12,3 +12,4 @@ from . import sale_report
 from . import stock_picking
 from . import account_move
 from . import supervisor_installer
+from . import models
