@@ -505,7 +505,7 @@ msgstr "Fecha de orden:"
 #. module: pos_restrict_product_stock
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
 msgid "Phone:"
-msgstr "Teléfono"
+msgstr "Telefono"
 
 #. module: pos_restrict_product_stock
 #: model:ir.actions.report,name:pos_restrict_product_stock.action_report_ticket_acceptance_document
@@ -526,7 +526,7 @@ msgstr "Cantidad"
 #. module: pos_restrict_product_stock
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
 msgid "Receipt date:"
-msgstr "Fecha de recepción:"
+msgstr "Fecha de recepcion:"
 
 #. module: pos_restrict_product_stock
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
@@ -537,10 +537,10 @@ msgstr "Firma"
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
 msgid ""
 "<strong style=\"text-align: center; display: block; margin-bottom: 2px; "
-"font-size: 20px;\">Acceptance Ticket</strong>"
+"font-size: 48px;\">Acceptance Ticket</strong>"
 msgstr ""
 "<strong style=\"text-align: center; display: block; margin-bottom: 2px; "
-"font-size: 20px;\">Ticket de Aceptación</strong>"
+"font-size: 48px;\">Ticket de Aceptacion</strong>"
 
 #. module: pos_restrict_product_stock
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
@@ -565,7 +565,7 @@ msgstr "Fecha estimada de entrega:"
 #. module: pos_restrict_product_stock
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
 msgid "I confirm the receipt and acceptance of the delivered products"
-msgstr "Confirmo la recepción y conformidad de los productos entregados."
+msgstr "Confirmo la recepcion y conformidad de los productos entregados."
 
 #. module: pos_restrict_product_stock
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document

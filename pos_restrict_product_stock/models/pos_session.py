@@ -65,7 +65,7 @@ class PosSession(models.Model):
                     "Current available cash: %.2f"
                 ) % current_cash)
 
-        self.env['account.bank.statement.line'].create([
+        self.env['account.bank.statement.line'].sudo().create([
             {
                 'pos_session_id': session.id,
                 'journal_id': session.cash_journal_id.id,
