@@ -24,3 +24,6 @@ from . import procurement_group
 from . import helpdesk_attribution
 from . import helpdesk_team
 from . import helpdesk_ticket_type
+from . import stock_scrap
+from . import mrp_production
+from . import mrp_bom

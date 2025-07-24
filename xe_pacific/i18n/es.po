@@ -1477,12 +1477,34 @@ msgid "Issue Category"
 msgstr "Categoría de problema"
 
 #. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_res_partner__commercial_name
-#: model:ir.model.fields,field_description:xe_pacific.field_res_users__commercial_name
-msgid "Commercial Name"
-msgstr "Nombre Comercial"
+#. odoo-python
+#: code:addons/xe_pacific/models/stock_scrap.py:0
+#, python-format
+msgid ""
+"Insufficient Quantity To Scrap the {product_name} with lot {lot_name} "
+"because the total available quantity is {qty}, but you are trying to remit "
+"{requested_qty}, which exceeds the available stock."
+msgstr ""
+"Cantidad insuficiente para desechar el {product_name} con lote {lot_name} "
+"porque la cantidad disponible total es {qty}, pero estás intentando remitir "
+"{requested_qty}, lo cual excede el stock disponible."
 
 #. module: xe_pacific
-#: model:res.groups,name:xe_pacific.group_can_view_documents_from_foreign_suppliers
-msgid "Can view documents from foreign suppliers"
-msgstr "Puede ver documentos de proveedores extranjeros"
+#. odoo-python
+#: code:addons/xe_pacific/models/stock_scrap.py:0
+#, python-format
+msgid ": Insufficient Quantity To Scrap"
+msgstr ": Cantidad insuficiente para desechar"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/mrp_production.py:0
+#, python-format
+msgid ""
+"You cannot reserve the component {product_name} with lot {lot_name} because "
+"the total available quantity is {qty}, but you are trying to remit "
+"{requested_qty}, which exceeds the available stock."
+msgstr ""
+"No puedes reservar el componente {product_name} con lote {lot_name} porque "
+"la cantidad total disponible es {qty}, pero estás intentando remisionar "
+"{requested_qty}, lo cual excede el stock disponible."

@@ -21,8 +21,8 @@ class PosOrder(models.Model):
         order = self.browse(order_id)
         delivery_partner_id = order.session_id.config_id.delivery_partner_id.id
         if delivery_partner_id:
-            if not order.shipping_date:
-                order.write({'partner_id': delivery_partner_id})
+            #if not order.shipping_date:
+                #order.write({'partner_id': delivery_partner_id})
             for picking in order.picking_ids:
                 picking.write({'partner_id': delivery_partner_id})
 
