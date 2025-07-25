@@ -1,10 +1,18 @@
 from odoo import models, fields, api, _
+from datetime import timedelta, datetime
 
 
 class PosOrder(models.Model):
     _inherit = 'pos.order'
 
     reference = fields.Char(string='Physical Order', copy=False, readonly=True)
+
+    payment_proof_attachments = fields.Many2many(
+        'ir.attachment',
+        'pos_order_payment_proof_attachment_rel',
+        'pos_order_id',
+        'attachment_id',
+    )
 
     @api.model
     def _process_order(self, order, draft, existing_order):
@@ -93,3 +101,19 @@ class PosOrder(models.Model):
         order_fields = super(PosOrder, self)._order_fields(ui_order)
         order_fields['reference'] = ui_order.get('reference', False)
         return order_fields
+
+    def action_open_available_to_invoice_orders(self):
+        three_days_ago = fields.Datetime.to_string(datetime.now() - timedelta(days=3))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Orders Available for Invoicing',
+            'res_model': 'pos.order',
+            'view_mode': 'tree,form',
+            'domain': [
+                ('to_invoice', '=', False),
+                ('date_order', '<=', three_days_ago),
+            ],
+            'context': {
+                'limit': 20,
+            },
+        }
