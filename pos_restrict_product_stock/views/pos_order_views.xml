@@ -8,6 +8,11 @@
             <xpath expr="//field[@name='name']" position="after">
                 <field name="reference"/>
             </xpath>
+            <xpath expr="//page[@name='payments']" position="after">
+                <page string="Payment Proof" name="payment_proof">
+                    <field name="payment_proof_attachments" widget="many2many_binary_preview"/>
+                </page>
+            </xpath>
         </field>
     </record>
 
@@ -21,4 +26,21 @@
             </xpath>
         </field>
     </record>
+    <record id="action_open_pos_orders_available_to_invoice" model="ir.actions.server">
+        <field name="name">Open Orders Available for Invoicing</field>
+        <field name="model_id" ref="point_of_sale.model_pos_order"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = env['pos.order'].action_open_available_to_invoice_orders()
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_pos_orders_available_to_invoice"
+        name="Orders Available for Invoicing"
+        parent="point_of_sale.menu_point_of_sale"
+        action="action_open_pos_orders_available_to_invoice"
+        groups="pos_restrict_product_stock.group_pos_advanced_user"
+        sequence="2"
+    />
 </odoo>

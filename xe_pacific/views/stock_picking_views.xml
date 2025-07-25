@@ -43,6 +43,7 @@
             <xpath expr="//button[@name='action_open_label_type']" position="before">
                 <field name="service_ticket_id" invisible="1"/>
                 <button name="action_open_ticket_wizard"
+                        groups="xe_pacific.can_create_ticket_from_picking"
                         type="object"
                         string="Generate Ticket"
                         class="oe_highlight"
@@ -100,14 +101,15 @@
         <field name="code">action = records.combine_remissions()</field>
     </record>
     <record id="action_separate_remissions" model="ir.actions.server">
-        <field name="name">Separar remisiones individuales</field>
+        <field name="name">Separar partidas individuales</field>
         <field name="model_id" ref="stock.model_stock_picking"/>
         <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="group_ids" eval="[(6, 0, [ref('base.group_system')])]"/>
         <field name="state">code</field>
         <field name="code">action = records.separate_remissions()</field>
     </record>
     <record id="action_separate_construction_remissions" model="ir.actions.server">
-        <field name="name">Separar remisiones (CONSTRUCTORAS)</field>
+        <field name="name">Separar partidas (CONSTRUCTORAS)</field>
         <field name="model_id" ref="stock.model_stock_picking"/>
         <field name="binding_model_id" ref="stock.model_stock_picking"/>
         <field name="state">code</field>
@@ -118,7 +120,7 @@ action = records.separate_construction_remissions()
         </field>
     </record>
     <record id="action_separate_final_client_remissions" model="ir.actions.server">
-        <field name="name">Separar remisiones (CLIENTE FINAL)</field>
+        <field name="name">Separar partidas (CLIENTE FINAL)</field>
         <field name="model_id" ref="stock.model_stock_picking"/>
         <field name="binding_model_id" ref="stock.model_stock_picking"/>
         <field name="state">code</field>

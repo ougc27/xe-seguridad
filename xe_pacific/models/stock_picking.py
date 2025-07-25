@@ -25,8 +25,8 @@ class StockPicking(models.Model):
         ('to_scheduled', 'POR PROGRAMAR'),
         ('scheduled', 'PROGRAMADO'),
         ('warehouse', 'ALMACÉN'),
-        ('production', 'PRODUCCIÓN'),
         ('quality', 'CALIDAD'),
+        ('production', 'PRODUCCIÓN'),
         ('shipments', 'EMBARQUES'),
         ('confirmed', 'EMBARCADO'),
         ('finished', 'FINALIZADO'),
@@ -644,7 +644,7 @@ class StockPicking(models.Model):
                         ('name', 'ilike', 'Finalizado')
                     ], limit=1)
                     if finished_stage:
-                        service_ticket_id.write({'stage_id': finished_stage.id})
+                        service_ticket_id.write({'stage_id': finished_stage.id, 'kanban_state': 'done'})
                 if vals.get('scheduled_date') and picking.scheduled_date != picking.create_date:
                     service_ticket_id.write({'scheduled_date': picking.scheduled_date})
                     programed_stage = self.env['helpdesk.stage'].search([
