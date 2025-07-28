@@ -4,7 +4,7 @@
 
 {
     "name": "XE Customs",
-    "version": "17.0.0.0.3",
+    "version": "17.0.0.0.4",
     "license": "LGPL-3",
     "author": "XE Customs",
     'sequence': 1,
@@ -22,7 +22,7 @@
         'security/ir.model.access.csv',
 
         # Reports
-        'reports/report_remissions.xml',
+        #'reports/report_remissions.xml',
 
         # Views
         'views/account_views.xml',
