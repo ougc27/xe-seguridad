@@ -117,3 +117,13 @@ class PosOrder(models.Model):
                 'limit': 20,
             },
         }
+
+    def action_receipt_to_customer(self, name, client, ticket):
+        self = self.search([('pos_reference', '=', name), ('company_id', '=', self.env.company.id)], limit=1)
+        if not self:
+            return False
+        if not client.get('email'):
+            return False
+
+        mail = self.env['mail.mail'].sudo().create(self._prepare_mail_values(name, client, ticket))
+        mail.send()
