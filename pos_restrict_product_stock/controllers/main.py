@@ -160,3 +160,31 @@ class PosControllerInherit(PosController):
             **form_values,
             'is_date_expired': is_date_expired
         })
+
+    def _get_invoice(self, partner_values, invoice_values, pos_order, additional_invoice_fields, kwargs):
+        # If the user is not connected, then we will simply create a new partner with the form values.
+        # Matching with existing partner was tried, but we then can't update the values, and it would force the user to use the ones from the first invoicing.
+        if request.env.user._is_public() and not pos_order.partner_id.id:
+            partner_values.update({key: kwargs[key] for key in self._get_mandatory_fields()})
+            partner_values.update({key: kwargs[key] for key in self._get_optional_fields() if key in kwargs})
+            for field in {'country_id', 'state_id'} & set(partner_values.keys()):
+                try:
+                    partner_values[field] = int(partner_values[field])
+                except Exception:
+                    partner_values[field] = False
+            partner_values.update({'zip': partner_values.pop('zipcode', '')})
+            partner = request.env['res.partner'].sudo().create(partner_values)  # In this case, partner_values contains the whole partner info form.
+        # If the user is connected, then we can update if needed its fields with the additional localized fields if any, then proceed.
+        else:
+            partner = pos_order.partner_id or (not request.env.user._is_public() and request.env.user.partner_id)
+            partner.write(partner_values)  # In this case, partner_values only contains the additional fields that can be updated.
+
+        pos_order.partner_id = partner
+        # Get the required fields for the invoice and add them to the context as default values.
+        with_context = {}
+        for field in additional_invoice_fields:
+            with_context.update({f'default_{field.name}': invoice_values.get(field.name)})
+        # Allowing default values for moves is important for some localizations that would need specific fields to be set on the invoice, such as Mexico.
+        with_context.update({'from_portal': True})
+        pos_order.with_context(with_context).action_pos_order_invoice()
+        return request.redirect('/my/invoices/%s?access_token=%s' % (pos_order.account_move.id, pos_order.account_move._portal_ensure_token()))

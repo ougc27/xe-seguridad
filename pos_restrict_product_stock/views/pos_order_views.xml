@@ -13,6 +13,10 @@
                     <field name="payment_proof_attachments" widget="many2many_binary_preview"/>
                 </page>
             </xpath>
+            <xpath expr="//button[@name='action_view_invoice']" position="replace">
+                <field name="account_move" invisible="1"/>
+                <button name="action_view_invoice" string="Invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o" invisible="not account_move"/>
+            </xpath>
         </field>
     </record>
 
