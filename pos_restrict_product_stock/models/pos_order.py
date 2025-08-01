@@ -1,5 +1,6 @@
 from odoo import models, fields, api, _
 from datetime import timedelta, datetime
+from odoo.exceptions import UserError
 
 
 class PosOrder(models.Model):
@@ -13,6 +14,22 @@ class PosOrder(models.Model):
         'pos_order_id',
         'attachment_id',
     )
+
+    to_invoice = fields.Boolean('To invoice', copy=False, compute="_compute_to_invoice", store=True)
+
+    @api.depends('account_move.state')
+    def _compute_to_invoice(self):
+        for record in self:
+            account_move = record.account_move
+            if account_move:
+                if account_move.state == 'posted':
+                    record.to_invoice = True
+                    record.state = 'invoiced'
+                    continue
+            record.to_invoice = False
+            if record.state in ('draft', 'cancel'):
+                continue
+            record.state = 'done'
 
     @api.model
     def _process_order(self, order, draft, existing_order):
@@ -38,6 +55,16 @@ class PosOrder(models.Model):
         partner = self.env['res.partner'].browse(self.id)
         return [partner.name, partner.street, partner.city, partner.country_id.name]
 
+    def action_pos_order_invoice(self):
+        if len(self.company_id) > 1:
+            raise UserError(_("You cannot invoice orders belonging to different companies."))
+        self.write({'to_invoice': True})
+        if self.company_id.anglo_saxon_accounting and self.session_id.update_stock_at_closing and self.session_id.state != 'closed':
+            self._create_order_picking()
+        with_context = self.env.context.copy()
+        with_context.update({'from_portal': True})
+        return self.with_context(**with_context)._generate_pos_order_invoice()
+
     def _generate_pos_order_invoice(self):
         moves = self.env['account.move']
 
@@ -53,7 +80,7 @@ class PosOrder(models.Model):
             move_vals = order._prepare_invoice_vals()
             new_move = order._create_invoice(move_vals)
 
-            order.write({'account_move': new_move.id, 'state': 'invoiced'})
+            order.write({'account_move': new_move.id})
             new_move.sudo().with_company(order.company_id).with_context(skip_invoice_sync=True)._post()
 
             payment_moves = order._apply_invoice_payments(order.session_id.state == 'closed')
@@ -74,6 +101,15 @@ class PosOrder(models.Model):
         if not moves:
             return {}
 
+        if self.env.context.get('from_portal'):
+            group = self.env.ref('pos_restrict_product_stock.group_portal_invoice_auto_followers', raise_if_not_found=False)
+            if group:
+                users = group.users
+                if users:
+                    for move in moves:
+                        partner_ids = users.mapped('partner_id').ids
+                        move.sudo().message_subscribe(partner_ids)
+            
         return {
             'name': _('Customer Invoice'),
             'view_mode': 'form',
