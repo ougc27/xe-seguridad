@@ -60,6 +60,10 @@ class AccountMove(models.Model):
                 record['x_studio_almacen_id'] = order_id.warehouse_id.id
             if record.purchase_order_count >= 1:
                 record['x_studio_almacen_id'] = record.line_ids[0].purchase_order_id.picking_type_id.warehouse_id.id
+            if record.pos_order_ids:
+                pos_warehouse_id = record.pos_order_ids[0].config_id.picking_type_id.warehouse_id.id
+                record['x_studio_almacen_id'] = pos_warehouse_id
+                record['warehouse_id'] = pos_warehouse_id
 
     @api.depends('invoice_origin')
     def _compute_order_ids(self):
