@@ -889,3 +889,22 @@ msgstr "Seguidores automáticos de facturas del portal"
 #, python-format
 msgid "You cannot invoice orders belonging to different companies."
 msgstr "No puedes facturar órdenes que pertenecen a diferentes compañías."
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.pos_order_form_inherit_pos_restrict_product_stock
+msgid "Return Products"
+msgstr "Devolver productos"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/RewardButton.xml:0
+#, python-format
+msgid "Reward"
+msgstr "Recompensa"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/ResetProgramsButton.xml:0
+#, python-format
+msgid "Reset Programs"
+msgstr "Restablecer programas"
