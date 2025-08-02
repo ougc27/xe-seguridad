@@ -17,6 +17,12 @@
                 <field name="account_move" invisible="1"/>
                 <button name="action_view_invoice" string="Invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o" invisible="not account_move"/>
             </xpath>
+             <xpath expr="//button[@name='refund']" position="replace">
+                <button name="refund" string="Return Products" type="object" invisible="state == 'draft' or not has_refundable_lines" groups="pos_restrict_product_stock.group_pos_advanced_user"/>
+            </xpath>
+            <xpath expr="//button[@name='action_pos_order_invoice']" position="replace">
+                <button name="action_pos_order_invoice" string="Invoice" type="object" invisible="state not in ('paid', 'done')" groups="pos_restrict_product_stock.group_pos_advanced_user"/>
+            </xpath>
         </field>
     </record>
 
