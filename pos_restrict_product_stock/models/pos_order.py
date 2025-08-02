@@ -17,6 +17,10 @@ class PosOrder(models.Model):
 
     to_invoice = fields.Boolean('To invoice', copy=False, compute="_compute_to_invoice", store=True)
 
+    is_refunded = fields.Boolean(compute='_compute_refund_related_fields', store=True)
+
+    refund_orders_count = fields.Integer('Number of Refund Orders', compute='_compute_refund_related_fields', store=True)
+
     @api.depends('account_move.state')
     def _compute_to_invoice(self):
         for record in self:
@@ -142,12 +146,15 @@ class PosOrder(models.Model):
         three_days_ago = fields.Datetime.to_string(datetime.now() - timedelta(days=3))
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Orders Available for Invoicing',
+            'name': 'Órdenes Disponibles para Facturar',
             'res_model': 'pos.order',
             'view_mode': 'tree,form',
             'domain': [
                 ('to_invoice', '=', False),
                 ('date_order', '<=', three_days_ago),
+                '|',
+                ('is_refunded', '=', False),
+                ('refund_orders_count', '=', 0),
             ],
             'context': {
                 'limit': 20,
