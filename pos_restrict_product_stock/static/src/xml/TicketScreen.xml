@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_restrict_product_stock.TicketScreen" t-inherit="point_of_sale.TicketScreen" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('subpads')]" position="replace">
+            <div class="subpads d-flex d-none">
+                <ActionpadWidget
+                    partner="getSelectedPartner()"
+                    actionName="constructor.numpadActionName"
+                    actionType="'refund'"
+                    actionToTrigger.bind="onDoRefund"
+                    isActionButtonHighlighted="getHasItemsToRefund()" />
+                <Numpad buttons="getNumpadButtons()" class="'max-width-325px'"/>
+            </div>
+        </xpath>
+    </t>
+
+</templates>
