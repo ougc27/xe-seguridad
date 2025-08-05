@@ -20,7 +20,7 @@
 #############################################################################
 {
     'name': 'Display Stock in POS | Restrict Out-of-Stock Products in POS',
-    'version': '17.0.1.0.42',
+    'version': '17.0.1.0.43',
     'category': 'Point of Sale',
     'summary': """Enhance your Point of Sale experience by preventing the 
     ordering of out-of-stock products during your session""",
@@ -71,6 +71,8 @@
             '/pos_restrict_product_stock/static/src/xml/RefundButton.xml',
             '/pos_restrict_product_stock/static/src/xml/CashMovePopup.xml',
             '/pos_restrict_product_stock/static/src/xml/ClosingPopup.xml',
+            '/pos_restrict_product_stock/static/src/xml/InvoiceButton.xml',
+            '/pos_restrict_product_stock/static/src/xml/TicketScreen.xml',
             #'/pos_restrict_product_stock/static/src/xml/ResetProgramsButton.xml',
             #'/pos_restrict_product_stock/static/src/xml/RewardButton.xml',
         ],
