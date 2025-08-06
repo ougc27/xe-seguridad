@@ -100,7 +100,10 @@ class PosOrder(models.Model):
                 order._create_misc_reversal_move(payment_moves)
 
             moves += new_move
-            new_move.write({'payment_state': 'in_payment'})
+            new_move.write({
+                'payment_state': 'in_payment',
+                'pos_session_id': order.session_id,
+            })
 
         if not moves:
             return {}

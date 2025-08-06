@@ -908,3 +908,8 @@ msgstr "Recompensa"
 #, python-format
 msgid "Reset Programs"
 msgstr "Restablecer programas"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_account_move__pos_session_id
+msgid "Pos Session"
+msgstr "Sesión del Punto de Venta"

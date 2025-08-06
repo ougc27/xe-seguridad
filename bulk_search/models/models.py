@@ -178,7 +178,7 @@ class BaseModel(models.AbstractModel):
             for element in domain:
                 if (element[0] == 'name' or element[0] == "reference") and element[2]:
                     if '|' in element[2]:
-                        search_terms = tuple(element[2].split('|'))  
+                        search_terms = tuple(term.strip() for term in element[2].split('|')) 
                         query = Query(self.env.cr, self._table, self._table_query)
                         if self._name == 'stock.picking':
                             query.add_where('"x_studio_related_field_B0EXH" IN %s', (search_terms,))
