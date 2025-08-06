@@ -20,7 +20,7 @@
 #############################################################################
 {
     'name': 'Display Stock in POS | Restrict Out-of-Stock Products in POS',
-    'version': '17.0.1.0.43',
+    'version': '17.0.1.0.44',
     'category': 'Point of Sale',
     'summary': """Enhance your Point of Sale experience by preventing the 
     ordering of out-of-stock products during your session""",
@@ -40,6 +40,7 @@
         'views/pos_ticket_view.xml',
         'views/pos_order_views.xml',
         'views/stock_picking_views.xml',
+        'views/account_move_views.xml',
         'security/point_of_sale_security.xml',
         'security/ir_rules.xml',
     ],
