@@ -68,7 +68,7 @@ class StockPicking(models.Model):
 
     sale_note = fields.Html(
         string="Terms and Conditions",
-        related='sale_id.note',
+        related='sale_id.description',
         readonly=True
     )
 
