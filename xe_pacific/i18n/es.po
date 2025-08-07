@@ -588,11 +588,6 @@ msgstr "No se puede modificar las lineas de la orden de venta porque hay una ent
 " en estado de remisión"
 
 #. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__sale_note
-msgid "Terms and Conditions"
-msgstr "Términos y condiciones"
-
-#. module: xe_pacific
 #. odoo-python
 #: code:addons/xe_pacific/models/sale_order_line.py:0
 #: code:addons/xe_pacific/models/sale_order_line.py:0
@@ -950,11 +945,6 @@ msgstr "Tickets"
 #: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__ticket_count
 msgid "Ticket Count"
 msgstr "Conteo de tickets"
-
-#. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__name
-msgid "Description"
-msgstr "Comentarios"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__interaction_date
@@ -1508,3 +1498,23 @@ msgstr ""
 "No puedes reservar el componente {product_name} con lote {lot_name} porque "
 "la cantidad total disponible es {qty}, pero estás intentando remisionar "
 "{requested_qty}, lo cual excede el stock disponible."
+
+#. module: xe_pacific
+#. odoo-python
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__name
+#: model:ir.model.fields,field_description:xe_pacific.field_sale_order__description
+#, python-format
+msgid "Description"
+msgstr "Comentarios"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_order_form_inherit_information_tab
+msgid "Notes"
+msgstr "Notas"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__sale_note
+#: model_terms:ir.ui.view,arch_db:xe_pacific.crm_team_view_form_inherit
+#: model:ir.model.fields,field_description:xe_pacific.field_crm_team__terms_and_conditions
+msgid "Terms and Conditions"
+msgstr "Términos y condiciones"

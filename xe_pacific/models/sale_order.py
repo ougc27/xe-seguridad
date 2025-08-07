@@ -22,6 +22,15 @@ class SaleOrder(models.Model):
 
     x_studio_pedido_fisico = fields.Char(string="Physical order")
 
+    description = fields.Html()
+
+    @api.depends('team_id')
+    def _compute_note(self):
+        for order in self:
+            if not order.team_id:
+                return
+            order.note = order.team_id.terms_and_conditions
+
     @api.depends('name', 'x_studio_pedido_fisico')
     @api.depends_context('from_helpdesk_ticket')
     def _compute_display_name(self):
