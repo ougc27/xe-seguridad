@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="crm_team_view_form_inherit" model="ir.ui.view">
+        <field name="name">crm.team.view.form.inherit</field>
+        <field name="model">crm.team</field>
+        <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='members_users']" position="after">
+                <page string="Terms and Conditions" name="terms_conditions">
+                    <field colspan="2" name="terms_and_conditions" nolabel="1" placeholder="Terms and Conditions"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

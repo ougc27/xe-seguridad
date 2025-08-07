@@ -27,3 +27,4 @@ from . import helpdesk_ticket_type
 from . import stock_scrap
 from . import mrp_production
 from . import mrp_bom
+from . import crm_team
