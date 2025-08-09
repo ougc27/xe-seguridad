@@ -65,6 +65,11 @@ class SaleOrder(models.Model):
 
     def action_cancel(self):
         for rec in self:
+            shipping_line = rec.order_line.filtered(
+                lambda l: l.product_id.default_code == 'SHIPPING-VA' and l.product_id.type == 'service'
+            )
+            for line in shipping_line:
+                line.qty_delivered = 0
             delivered = rec.order_line.filtered(lambda line: line.qty_delivered > 0)
             transit_pickings = rec.picking_ids.filtered(lambda picking: picking.state == 'transit')
             if delivered or transit_pickings:

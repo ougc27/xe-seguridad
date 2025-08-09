@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.26",
+    "version": "17.0.0.0.27",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
@@ -59,6 +59,9 @@
         'views/base_partner_merge_views.xml',
     ],
     "assets": {
+        "hr_attendance.assets_public_attendance": [
+            "xe_pacific/static/src/xml/public_kiosk_app.xml",
+        ],
         "web.assets_backend": [
             "xe_pacific/static/src/web/inventory_kanban_header.js",
             "xe_pacific/static/src/web/attachment_list.js",

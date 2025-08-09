@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="xe_pacific.public_kiosk_app" t-inherit="hr_attendance.public_kiosk_app" t-inherit-mode="extension">
+        <xpath expr="//t[@t-if=&quot;this.props.kioskMode !== 'barcode'&quot;]" position="replace"/>
+    </t>
+</templates>
