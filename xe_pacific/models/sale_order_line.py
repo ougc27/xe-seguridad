@@ -2,6 +2,7 @@ from odoo import models, api, _
 from odoo.fields import Command
 from odoo.exceptions import UserError
 
+
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
@@ -41,3 +42,16 @@ class SaleOrderLine(models.Model):
                     "team_id": line.order_id.team_id.id,
                 })
                 line.analytic_distribution = distribution or line.analytic_distribution
+
+    @api.depends('move_ids.state', 'move_ids.picking_id.state', 'move_ids.quantity', 'move_ids.product_uom')
+    def _compute_qty_delivered(self):
+        super()._compute_qty_delivered()
+        for sale_line in self:
+            order = sale_line.order_id
+
+            if sale_line.product_id.type != 'service' and sale_line.qty_delivered > 0:
+                shipping_line = order.order_line.filtered(
+                    lambda l: l.product_id.default_code == 'SHIPPING-VA' and l.product_id.type == 'service'
+                )
+                for line in shipping_line:
+                    line.qty_delivered = line.product_uom_qty
