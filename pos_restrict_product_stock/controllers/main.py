@@ -83,7 +83,6 @@ class PosControllerInherit(PosController):
         if pos_order.account_move and pos_order.account_move.is_sale_document():
             return request.redirect('/my/invoices/%s?access_token=%s' % (pos_order.account_move.id, pos_order.account_move._portal_ensure_token()))
 
-        # Get the optional extra fields that could be required for a localisation.
         pos_order_country = pos_order.company_id.account_fiscal_country_id
         additional_partner_fields = request.env['res.partner'].get_partner_localisation_fields_required_to_invoice(pos_order_country)
         additional_invoice_fields = request.env['account.move'].get_invoice_localisation_fields_required_to_invoice(pos_order_country)
@@ -123,9 +122,6 @@ class PosControllerInherit(PosController):
             else:
                 form_values.update({'error': error, 'error_message': error_message})
 
-        elif user_is_connected:
-            return self._get_invoice({}, {}, pos_order, additional_invoice_fields, kwargs)
-
         # Most of the time, the country of the customer will be the same as the order. We can prefill it by default with the country of the company.
         if 'country_id' not in form_values:
             form_values['country_id'] = pos_order_country.id
@@ -164,7 +160,9 @@ class PosControllerInherit(PosController):
     def _get_invoice(self, partner_values, invoice_values, pos_order, additional_invoice_fields, kwargs):
         # If the user is not connected, then we will simply create a new partner with the form values.
         # Matching with existing partner was tried, but we then can't update the values, and it would force the user to use the ones from the first invoicing.
-        if request.env.user._is_public() and not pos_order.partner_id.id:
+        move_partner = False
+        pos_partner_id = pos_order.partner_id
+        if request.env.user._is_public() and not pos_partner_id.id:
             partner_values.update({key: kwargs[key] for key in self._get_mandatory_fields()})
             partner_values.update({key: kwargs[key] for key in self._get_optional_fields() if key in kwargs})
             for field in {'country_id', 'state_id'} & set(partner_values.keys()):
@@ -176,9 +174,35 @@ class PosControllerInherit(PosController):
             partner = request.env['res.partner'].sudo().create(partner_values)  # In this case, partner_values contains the whole partner info form.
         # If the user is connected, then we can update if needed its fields with the additional localized fields if any, then proceed.
         else:
-            partner = pos_order.partner_id or (not request.env.user._is_public() and request.env.user.partner_id)
+            partner = pos_partner_id or (not request.env.user._is_public() and request.env.user.partner_id)
             partner.write(partner_values)  # In this case, partner_values only contains the additional fields that can be updated.
+            partner_values.update({key: kwargs[key] for key in self._get_mandatory_fields()})
+            partner_values.update({key: kwargs[key] for key in self._get_optional_fields() if key in kwargs})
+            for field in {'country_id', 'state_id'} & set(partner_values.keys()):
+                try:
+                    partner_values[field] = int(partner_values[field])
+                except Exception:
+                    partner_values[field] = False
+            partner_values.update({'zip': partner_values.pop('zipcode', '')})
 
+            partner_values.update({
+                'parent_id': pos_partner_id.id,
+                'type': 'invoice'
+            })
+            vat = partner_values.pop('vat', '')
+
+            existing_invoice_contact = request.env['res.partner'].sudo().search([
+                ('parent_id', '=', pos_order.partner_id.id),
+                ('type', '=', 'invoice'),
+                ('vat', '=', vat)
+            ], limit=1)
+
+            if existing_invoice_contact:
+                existing_invoice_contact.write(partner_values)
+                move_partner = existing_invoice_contact
+            else:
+                move_partner = request.env['res.partner'].sudo().create(partner_values)
+                move_partner.sudo().write({'vat': vat})
         pos_order.partner_id = partner
         # Get the required fields for the invoice and add them to the context as default values.
         with_context = {}
@@ -186,5 +210,5 @@ class PosControllerInherit(PosController):
             with_context.update({f'default_{field.name}': invoice_values.get(field.name)})
         # Allowing default values for moves is important for some localizations that would need specific fields to be set on the invoice, such as Mexico.
         with_context.update({'from_portal': True})
-        pos_order.with_context(with_context).action_pos_order_invoice()
+        pos_order.with_context(with_context).action_pos_order_invoice(move_partner)
         return request.redirect('/my/invoices/%s?access_token=%s' % (pos_order.account_move.id, pos_order.account_move._portal_ensure_token()))

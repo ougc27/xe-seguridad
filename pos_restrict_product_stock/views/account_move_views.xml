@@ -7,6 +7,12 @@
             <xpath expr="//field[@name='l10n_mx_edi_usage']" position="after">
                 <field name="pos_session_id" invisible="not pos_session_id"/>
             </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_view_bank_payments" type="object" invisible="not pos_session_id"
+                        class="oe_stat_button" icon="fa-credit-card">
+                    Bank Payments
+                </button>
+            </xpath>
         </field>
     </record>
 </odoo>

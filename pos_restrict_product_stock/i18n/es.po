@@ -913,3 +913,46 @@ msgstr "Restablecer programas"
 #: model:ir.model.fields,field_description:pos_restrict_product_stock.field_account_move__pos_session_id
 msgid "Pos Session"
 msgstr "Sesión del Punto de Venta"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__sequence_id
+msgid "Order IDs Sequence"
+msgstr "Secuencia de ID de la orden"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_config__sequence_id
+msgid ""
+"This sequence is automatically created by Odoo but you can change it to "
+"customize the reference numbers of your orders."
+msgstr ""
+"Odoo crea automáticamente la secuencia, pero puede cambiarla para "
+"personalizar los números de referencia de sus órdenes."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__sequence_line_id
+msgid "Order Line IDs Sequence"
+msgstr "Secuencia de los IDs de la línea de orden"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_config__sequence_line_id
+msgid ""
+"This sequence is automatically created by Odoo but you can change it to "
+"customize the reference numbers of your orders lines."
+msgstr ""
+"Odoo crea esta secuencia de manera automática pero puede cambiarla para "
+"personalizar los números de referencia de sus líneas de orden."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/account_move.py:0
+#, python-format
+msgid "Bank Payment"
+msgstr "Pagos bancarios"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.account_move_form_inherit_l10n_mx_edi_pos_session
+#, python-format
+msgid "Bank Payments"
+msgstr "Pagos bancarios"
