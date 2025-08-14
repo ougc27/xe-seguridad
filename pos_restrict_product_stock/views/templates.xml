@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<odoo>
+    <template id="pos_restrict_product_stock.portal_my_details_fields" inherit_id="portal.portal_my_details_fields">
+        <xpath expr="//div[label[@for='company_name']]" position="replace"/>
+    </template>
+</odoo>

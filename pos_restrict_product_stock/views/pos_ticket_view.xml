@@ -6,6 +6,5 @@
                 <br/><span class="text-danger">No se puede facturar la órden despues de 2 días</span><br/>
             </t>
         </xpath>
-
     </template>
 </odoo>
