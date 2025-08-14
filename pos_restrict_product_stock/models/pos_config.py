@@ -48,3 +48,10 @@ class PosConfig(models.Model):
     delivery_partner_id = fields.Many2one('res.partner', ondelete='restrict')
 
     res_user_ids = fields.Many2many('res.users', string="Users")
+
+    sequence_id = fields.Many2one('ir.sequence', string='Order IDs Sequence',
+        help="This sequence is automatically created by Odoo but you can change it "
+        "to customize the reference numbers of your orders.", copy=False, ondelete='restrict')
+    sequence_line_id = fields.Many2one('ir.sequence', string='Order Line IDs Sequence',
+        help="This sequence is automatically created by Odoo but you can change it "
+        "to customize the reference numbers of your orders lines.", copy=False)

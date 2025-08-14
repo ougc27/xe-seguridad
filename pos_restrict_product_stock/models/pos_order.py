@@ -59,7 +59,7 @@ class PosOrder(models.Model):
         partner = self.env['res.partner'].browse(self.id)
         return [partner.name, partner.street, partner.city, partner.country_id.name]
 
-    def action_pos_order_invoice(self):
+    def action_pos_order_invoice(self, partner_id=False):
         if len(self.company_id) > 1:
             raise UserError(_("You cannot invoice orders belonging to different companies."))
         self.write({'to_invoice': True})
@@ -67,9 +67,9 @@ class PosOrder(models.Model):
             self._create_order_picking()
         with_context = self.env.context.copy()
         with_context.update({'from_portal': True})
-        return self.with_context(**with_context)._generate_pos_order_invoice()
+        return self.with_context(**with_context)._generate_pos_order_invoice(partner_id)
 
-    def _generate_pos_order_invoice(self):
+    def _generate_pos_order_invoice(self, partner_id=False):
         moves = self.env['account.move']
 
         for order in self:
@@ -81,7 +81,7 @@ class PosOrder(models.Model):
             if not order.partner_id:
                 raise UserError(_('Please provide a partner for the sale.'))
 
-            move_vals = order._prepare_invoice_vals()
+            move_vals = order._prepare_invoice_vals(partner_id)
             new_move = order._create_invoice(move_vals)
 
             order.write({'account_move': new_move.id})
@@ -102,7 +102,7 @@ class PosOrder(models.Model):
             moves += new_move
             new_move.write({
                 'payment_state': 'in_payment',
-                'pos_session_id': order.session_id,
+                'pos_session_id': order.session_id.id,
             })
 
         if not moves:
@@ -116,7 +116,7 @@ class PosOrder(models.Model):
                     for move in moves:
                         partner_ids = users.mapped('partner_id').ids
                         move.sudo().message_subscribe(partner_ids)
-            
+
         return {
             'name': _('Customer Invoice'),
             'view_mode': 'form',
@@ -173,3 +173,37 @@ class PosOrder(models.Model):
 
         mail = self.env['mail.mail'].sudo().create(self._prepare_mail_values(name, client, ticket))
         mail.send()
+
+    def _prepare_invoice_vals(self, partner_id=False):
+        self.ensure_one()
+        partner_id = partner_id or self.partner_id
+        timezone = pytz.timezone(self._context.get('tz') or self.env.user.tz or 'UTC')
+        invoice_date = fields.Datetime.now() if self.session_id.state == 'closed' else self.date_order
+        pos_refunded_invoice_ids = []
+        for orderline in self.lines:
+            if orderline.refunded_orderline_id and orderline.refunded_orderline_id.order_id.account_move:
+                pos_refunded_invoice_ids.append(orderline.refunded_orderline_id.order_id.account_move.id)
+        vals = {
+            'invoice_origin': self.name,
+            'pos_refunded_invoice_ids': pos_refunded_invoice_ids,
+            'journal_id': self.session_id.config_id.invoice_journal_id.id,
+            'move_type': 'out_invoice' if self.amount_total >= 0 else 'out_refund',
+            'ref': self.name,
+            'partner_id': partner_id.address_get(['invoice'])['invoice'],
+            'partner_bank_id': self._get_partner_bank_id(),
+            'currency_id': self.currency_id.id,
+            'invoice_user_id': self.user_id.id,
+            'invoice_date': invoice_date.astimezone(timezone).date(),
+            'fiscal_position_id': self.fiscal_position_id.id,
+            'invoice_line_ids': self._prepare_invoice_lines(),
+            'invoice_payment_term_id': False,
+            'invoice_cash_rounding_id': self.config_id.rounding_method.id
+            if self.config_id.cash_rounding and (not self.config_id.only_round_cash_method or any(p.payment_method_id.is_cash_count for p in self.payment_ids))
+            else False
+        }
+        if self.refunded_order_ids.account_move:
+            vals['ref'] = _('Reversal of: %s', self.refunded_order_ids.account_move.name)
+            vals['reversed_entry_id'] = self.refunded_order_ids.account_move.id
+        if self.note:
+            vals.update({'narration': self.note})
+        return vals
