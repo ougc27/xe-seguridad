@@ -956,3 +956,13 @@ msgstr "Pagos bancarios"
 #, python-format
 msgid "Bank Payments"
 msgstr "Pagos bancarios"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order__paid_commission
+msgid "Paid Commission"
+msgstr "Comisión pagada"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order__amount_untaxed
+msgid "Untaxed Amount"
+msgstr "Importe sin impuestos"
