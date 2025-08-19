@@ -23,6 +23,19 @@ class PosOrder(models.Model):
 
     refund_orders_count = fields.Integer('Number of Refund Orders', compute='_compute_refund_related_fields', store=True)
 
+    paid_commission = fields.Boolean(copy=False)
+
+    amount_untaxed = fields.Float(compute='_compute_amount_untaxed', string='Untaxed Amount', store=True)
+
+    @api.depends('payment_ids', 'lines')
+    def _compute_amount_untaxed(self):
+        for order in self:
+            if not order.currency_id:
+                raise UserError(_("You can't: create a pos order from the backend interface, or unset the pricelist, or create a pos.order in a python test with Form tool, or edit the form view in studio if no PoS order exist"))
+            currency = order.currency_id
+            amount_untaxed = currency.round(sum(line.price_subtotal for line in order.lines))
+            order.amount_untaxed = amount_untaxed
+
     @api.depends('account_move.state')
     def _compute_to_invoice(self):
         for record in self:
