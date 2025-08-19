@@ -33,6 +33,8 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
                 <field name="reference" optional="show"/>
+                <field name="paid_commission" optional="hide"/>
+                <field name="amount_untaxed" optional="hide"/>
             </xpath>
         </field>
     </record>
@@ -53,4 +55,19 @@
         groups="pos_restrict_product_stock.group_pos_advanced_user"
         sequence="2"
     />
+
+    <record id="action_paid_comission" model="ir.actions.server">
+        <field name="name">Marcar como comisión pagada</field>
+        <field name="model_id" ref="point_of_sale.model_pos_order"/>
+        <field name="binding_model_id" ref="point_of_sale.model_pos_order"/>
+        <field name="groups_id" eval="[(4, ref('account.group_account_manager')), (4, ref('base.group_erp_manager'))]"/>
+        <field name="state">code</field>
+        <field name="code">
+for rec in records:
+    paid_commission = True
+    if rec.paid_commission:
+        paid_commission = False
+    rec.write({'paid_commission': paid_commission})
+        </field>
+    </record>
 </odoo>
