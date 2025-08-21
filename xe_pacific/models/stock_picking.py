@@ -188,8 +188,8 @@ class StockPicking(models.Model):
                     if any(keyword in rec.location_id.warehouse_id.name for keyword in ['Amazon', 'MercadoLibre']):
                         rec.shipping_assignment = 'shipments'
                         continue
-                    if 'monterrey pr' in rec.location_id.warehouse_id.name.lower():
-                        if distribution_channel in ['DISTRIBUIDORES', 'MARKETPLACE']:
+                    if 'monterrey pr1' in rec.location_id.warehouse_id.name.lower():
+                        if distribution_channel in ['DISTRIBUIDORES', 'MARKETPLACE', 'VENTA DIRECTA']:
                             rec.shipping_assignment = 'shipments'
                             continue
                         if sale_id.order_line.filtered(lambda record: record.product_id.default_code == 'FLTENVIO'):

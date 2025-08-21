@@ -20,6 +20,10 @@ class StockMove(models.Model):
         compute='_compute_can_edit_moves_in_transit', store=False
     )
 
+    shipment_kanban_status = fields.Selection(related="picking_id.shipment_task_status")
+
+    picking_scheduled_date = fields.Datetime(related="picking_id.scheduled_date")
+
     @api.depends('picking_id.state')
     @api.depends_context('uid')
     def _compute_can_edit_moves_in_transit(self):

@@ -221,8 +221,11 @@ msgstr "Nombre de la etiqueta ya existe!"
 #: model:ir.actions.act_window,name:xe_pacific.inventory_tag_action
 #: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__tag_ids
 #: model:ir.ui.menu,name:xe_pacific.menu_inventory_tag
+#: model:ir.ui.menu,name:xe_pacific.calendar_menu_tags
 #: model_terms:ir.ui.view,arch_db:xe_pacific.inventory_tag_view_form
 #: model_terms:ir.ui.view,arch_db:xe_pacific.inventory_tag_view_tree
+#: model_terms:ir.ui.view,arch_db:xe_pacific.calendar_event_type_view_form
+#: model_terms:ir.ui.view,arch_db:xe_pacific.calendar_event_type_view_tree
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__tag_ids
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__tag_ids
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__tag_ids
@@ -1352,6 +1355,7 @@ msgstr "Número de tickets cerrados en los últimos 7 días."
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__scheduled_date
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_move__picking_scheduled_date
 msgid "Scheduled Date"
 msgstr "Fecha programada"
 
@@ -1451,6 +1455,7 @@ msgid "Paintwork"
 msgstr "Pintura"
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__ticket_type_id_domain
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__ticket_type_id_domain
 msgid "Ticket Type Id Domain"
 msgstr "Dominio de tipo de ticket"
@@ -1501,6 +1506,7 @@ msgstr ""
 
 #. module: xe_pacific
 #. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__name
 #: model:ir.model.fields,field_description:xe_pacific.field_sale_order__description
 #, python-format
@@ -1518,3 +1524,30 @@ msgstr "Notas"
 #: model:ir.model.fields,field_description:xe_pacific.field_crm_team__terms_and_conditions
 msgid "Terms and Conditions"
 msgstr "Términos y condiciones"
+
+#. module: xe_pacific
+#: model_terms:ir.actions.act_window,help:xe_pacific.inventory_tag_action
+msgid "Create CRM Tags"
+msgstr "Crear Etiquetas de CRM"
+
+#. module: xe_pacific
+#: model_terms:ir.actions.act_window,help:xe_pacific.calendar_tag_action
+msgid "Create Calendar Tags"
+msgstr "Crear Etiquetas de Calendario"
+
+#. module: xe_pacific
+#: model_terms:ir.actions.act_window,help:xe_pacific.calendar_tag_action
+msgid "Use Tags to manage and track your Calendar Events"
+msgstr "Usa Etiquetas para gestionar y dar seguimiento a tus Eventos de Calendario"
+
+#. module: xe_pacific
+#: model_terms:ir.actions.act_window,help:xe_pacific.inventory_tag_action
+msgid ""
+"Use Tags to manage and track your Opportunities (product structure, sales "
+"type, ...)"
+msgstr "Usa Etiquetas para gestionar y dar seguimiento a tus Oportunidades (estructura de producto, tipo de ventas, ...)"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_move__shipment_kanban_status
+msgid "Shipment Kanban Status"
+msgstr "Estado Kanban"

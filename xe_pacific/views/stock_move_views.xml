@@ -14,4 +14,21 @@
                 </field>
         </field>
     </record>
+
+    <record id="view_stock_move_tree_shipping_schedule" model="ir.ui.view">
+        <field name="name">stock.move.tree.shipping.schedule</field>
+        <field name="model">stock.move</field>
+        <field name="arch" type="xml">
+            <tree string="Shipping Schedule">
+                <field name="origin"/>
+                <field name="picking_id" widget="many2one"/>
+                <field name="picking_scheduled_date"/>
+                <field name="product_id"/>
+                <field name="product_uom_qty"/>
+                <field name="product_uom" string="Unit of Measure"/>
+                <field name="state"/>
+                <field name="shipment_kanban_status"/>
+            </tree>
+        </field>
+    </record>
 </odoo>
