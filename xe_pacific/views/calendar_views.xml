@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="calendar_event_type_view_form" model="ir.ui.view">
+        <field name="name">calendar.event.type.view.form</field>
+        <field name="model">calendar.event.type</field>
+        <field name="arch" type="xml">
+            <form string="Tags">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Services"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="color" required="True" widget="color_picker"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="calendar_event_type_view_tree" model="ir.ui.view">
+        <field name="name">calendar.event.type.view.tree</field>
+        <field name="model">calendar.event.type</field>
+        <field name="arch" type="xml">
+            <tree string="Tags" editable="bottom" sample="1">
+                <field name="name"/>
+                <field name="color" widget="color_picker" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="calendar_event_type_search_view" model="ir.ui.view">
+        <field name="name">calendar.event.type.search.view</field>
+        <field name="model">calendar.event.type</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="color"/>
+                <group expand="1" string="Group By">
+                    <filter name="group_by_color" string="Color" context="{'group_by': 'color'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="calendar_tag_action" model="ir.actions.act_window">
+        <field name="name">Tags</field>
+        <field name="res_model">calendar.event.type</field>
+        <field name="view_id" ref="calendar_event_type_view_tree"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+            Create Calendar Tags
+            </p><p>
+            Use Tags to manage and track your Calendar Events
+            </p>
+        </field>
+        <field name="search_view_id" ref="inventory_tag_search_view"/>
+    </record>
+
+    <menuitem
+        id="calendar_menu_tags"
+        parent="calendar.mail_menu_calendar"
+        name="Tags"
+        sequence="2"
+        action="xe_pacific.calendar_tag_action"
+        />
+</odoo>
