@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="xe_pacific.ForecastedButtons" t-inherit="stock.ForecastedButtons" t-inherit-mode="extension">
+        <xpath expr="//button[@title='Replenish']" position="replace">
+            <t t-if="this.state.canShowReplenish">
+                <button title="Replenish" t-on-click="_onClickReplenish"
+                    class="o_forecasted_replenish_btn btn btn-primary">
+                    Replenish
+                </button>
+            </t>
+        </xpath>
+        <xpath expr="//button[@title='Update Quantity']" position="replace">
+            <t t-if="this.state.canShowReplenish">
+                <button title="Update Quantity" t-on-click="_onClickUpdateQuantity"
+                    class="o_forecasted_update_qty_btn btn btn-secondary">
+                    Update Quantity
+                </button>
+            </t>
+        </xpath>
+    </t>
+</templates>

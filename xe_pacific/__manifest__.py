@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.28",
+    "version": "17.0.0.0.29",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
@@ -67,8 +67,10 @@
         "web.assets_backend": [
             "xe_pacific/static/src/web/inventory_kanban_header.js",
             "xe_pacific/static/src/web/attachment_list.js",
+            "xe_pacific/static/src/js/forecasted_buttons.js",
             "xe_pacific/static/src/web/kanban_header.xml",
             "xe_pacific/static/src/web/templates.xml",
+            "xe_pacific/static/src/xml/forecasted_buttons.xml",
         ],
     },
     "demo": [],
