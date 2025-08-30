@@ -28,3 +28,4 @@ from . import stock_scrap
 from . import mrp_production
 from . import mrp_bom
 from . import crm_team
+from . import stock_forecasted
