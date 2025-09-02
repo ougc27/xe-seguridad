@@ -478,11 +478,6 @@ msgid "Physical Order"
 msgstr "Pedido físico"
 
 #. module: pos_restrict_product_stock
-#: model:res.groups,name:pos_restrict_product_stock.group_pos_access_all
-msgid "Can see all point of sale records"
-msgstr "Tiene acceso a los registros de cajas y de ordenes del punto de venta"
-
-#. module: pos_restrict_product_stock
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
 msgid "Users with access to view the records of this point of sale"
 msgstr "Usuarios con acceso de ver los registros de este punto de venta"
@@ -966,3 +961,8 @@ msgstr "Comisión pagada"
 #: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order__amount_untaxed
 msgid "Untaxed Amount"
 msgstr "Importe sin impuestos"
+
+#. module: pos_restrict_product_stock
+#: model:res.groups,name:pos_restrict_product_stock.group_pos_access_limited
+msgid "Cannot see all point of sale records"
+msgstr "No tiene acceso a todos los registros de puntos de venta"
