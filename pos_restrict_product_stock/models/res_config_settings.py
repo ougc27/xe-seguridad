@@ -46,3 +46,11 @@ class ResConfigSettings(models.TransientModel):
     pos_delivery_partner_id = fields.Many2one(related='pos_config_id.delivery_partner_id')
 
     user_ids =  fields.Many2many(related='pos_config_id.res_user_ids', readonly=False)
+
+    pos_tax_id = fields.Many2one(
+        'account.tax',
+        related='pos_config_id.tax_id',
+        readonly=False,
+        check_company=True,
+        help="Enter the sales tax for the Point of Sale."
+    )

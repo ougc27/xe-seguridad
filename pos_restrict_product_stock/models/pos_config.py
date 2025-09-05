@@ -55,3 +55,10 @@ class PosConfig(models.Model):
     sequence_line_id = fields.Many2one('ir.sequence', string='Order Line IDs Sequence',
         help="This sequence is automatically created by Odoo but you can change it "
         "to customize the reference numbers of your orders lines.", copy=False)
+
+    tax_id = fields.Many2one(
+        'account.tax',
+        string="Sale Tax",
+        readonly=False,
+        check_company=True,
+    )
