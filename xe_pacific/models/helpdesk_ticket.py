@@ -116,6 +116,13 @@ class HelpdeskTicket(models.Model):
         tracking=True
     )
 
+    pos_order_id = fields.Many2one(
+        'pos.order',
+        string="Pos Order",
+        copy=False,
+        tracking=True
+    )
+
     call_ids = fields.One2many('helpdesk.call', 'ticket_id', string='Calls')
 
     service_picking_ids = fields.One2many(
@@ -247,6 +254,7 @@ class HelpdeskTicket(models.Model):
 
     def autofill_from_picking(self, picking_id):
         sale_id = picking_id.sale_id
+        pos_order_id = picking_id.pos_order_id
         partner_id = picking_id.partner_id
         product_id = next(
             (m.product_id for m in picking_id.move_ids 
@@ -259,10 +267,11 @@ class HelpdeskTicket(models.Model):
             'picking_id': picking_id,
             'partner_id': partner_id.id,
             'complete_address': partner_id.contact_address_complete,
-            'sale_id': sale_id,
+            'sale_id': sale_id.id,
+            'pos_order_id': pos_order_id.id,
             'phone_number': partner_id.mobile or partner_id.phone,
             'product_id': product_id,
-            'service_warehouse_id': sale_id.warehouse_id,
+            'service_warehouse_id': sale_id.warehouse_id.id or pos_order_id.picking_type_id.warehouse_id.id,
             'lot': picking_id.x_lot,
             'block': picking_id.x_block,
             'subdivision': picking_id.x_subdivision,
@@ -287,7 +296,29 @@ class HelpdeskTicket(models.Model):
                 'partner_id': partner_id.id,
                 'complete_address': partner_id.contact_address_complete,
                 'phone_number': partner_id.mobile or partner_id.phone,
-                'service_warehouse_id': sale_id.warehouse_id,
+                'service_warehouse_id': sale_id.warehouse_id.id,
+            })
+
+    def autofill_from_pos_order(self):
+        pos_order = self.pos_order_id
+        picking_ids = pos_order.picking_ids
+        picking_id = False
+        pickings = picking_ids.filtered(lambda p: p.state != 'cancel')
+        if pickings:
+            pickings = sorted(pickings, key=lambda p: p.state != 'done')
+            for picking in pickings:
+                if any(self.is_door_product(m) for m in picking.move_ids):
+                    picking_id = picking
+                    break
+            picking_id = picking_id or pickings[0]
+            self.autofill_from_picking(picking_id)
+        else:
+            partner_id = pos_order.partner_id
+            self.write({
+                'partner_id': partner_id.id,
+                'complete_address': partner_id.contact_address_complete,
+                'phone_number': partner_id.mobile or partner_id.phone,
+                'service_warehouse_id': pos_order.picking_type_id.warehouse_id.id,
             })
 
     def autofill_from_picking_or_sale(self):
@@ -298,6 +329,8 @@ class HelpdeskTicket(models.Model):
             self.autofill_from_picking(picking_id)
         elif self.sale_id:
             self.autofill_from_sale()
+        elif self.pos_order_id:
+            self.autofill_from_pos_order()
         else:
             raise UserError(_("Sales order or transfer fields are needed to get the information."))
 

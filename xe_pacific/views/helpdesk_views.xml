@@ -18,6 +18,10 @@
                     context="{'from_helpdesk_ticket': True}"
                     options="{'no_create':True, 'no_create_edit': True}" 
                     readonly="is_locked"/>
+                <field name="pos_order_id"
+                    context="{'from_helpdesk_ticket': True}"
+                    options="{'no_create':True, 'no_create_edit': True}" 
+                    readonly="is_locked"/>
                 <field name="picking_id"
                     readonly="is_locked"
                     options="{'no_create':True, 'no_create_edit': True}"
