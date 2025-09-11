@@ -222,3 +222,41 @@ class PosOrder(models.Model):
         if self.note:
             vals.update({'narration': self.note})
         return vals
+
+    @api.depends('name', 'reference')
+    @api.depends_context('from_helpdesk_ticket')
+    def _compute_display_name(self):
+        if not self._context.get('from_helpdesk_ticket'):
+            return super()._compute_display_name()
+        for rec in self:
+            name = rec.name
+            if rec.reference:
+                name = f'{name} - {rec.reference}'
+            rec.display_name = name
+
+    @api.model
+    def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
+        if self.env.context.get('from_helpdesk_ticket'):
+            query = """
+                SELECT id
+                    FROM pos_order
+                    WHERE
+                    (
+                        name ilike %s
+                    OR
+                        reference ilike %s
+                    )
+                    AND
+                        company_id = %s
+                    LIMIT %s
+            """
+            self.env.cr.execute(
+                query, (
+                    '%' + name + '%',
+                    '%' + name + '%',
+                    self.env.company.id,
+                    limit
+                )
+            )
+            return [row[0] for row in self.env.cr.fetchall()]
+        return super()._name_search(name, domain, operator, limit, order)

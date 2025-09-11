@@ -1551,3 +1551,8 @@ msgstr "Usa Etiquetas para gestionar y dar seguimiento a tus Oportunidades (estr
 #: model:ir.model.fields,field_description:xe_pacific.field_stock_move__shipment_kanban_status
 msgid "Shipment Kanban Status"
 msgstr "Estado Kanban"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__pos_order_id
+msgid "Pos Order"
+msgstr "Orden del punto de venta"
