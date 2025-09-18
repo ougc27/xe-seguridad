@@ -114,10 +114,16 @@ class PosOrder(models.Model):
                 # If a client requires the invoice later, we need to revers the amount from the closing entry, by making a new entry for that.
                 order._create_misc_reversal_move(payment_moves)
 
+            new_move.partner_id.write({
+                'team_id': order.config_id.crm_team_id.id,
+                'user_id': order.user_id.id
+            })
             moves += new_move
             new_move.write({
                 'payment_state': 'in_payment',
                 'pos_session_id': order.session_id.id,
+                'team_id': order.config_id.crm_team_id.id,
+                'invoice_user_id': order.user_id.id
             })
 
         if not moves:

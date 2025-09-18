@@ -22,7 +22,10 @@ class WhatsappMessage(models.Model):
         channel.write({'channel_member_ids': [(6, 0, members_to_keep.ids)]})"""
 
     def assign_member_to_chat(self, channel, user_id):
-        channel.write({'assigned_person': user_id})
+        channel.write({
+            'assigned_person': user_id,
+            'first_assigned_person': user_id
+        })
         return user_id.id
 
     @api.model
