@@ -973,3 +973,21 @@ msgstr "Ingresa el impuesto de ventas para el Punto de Venta."
 #: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__pos_tax_id
 msgid "Sale Tax"
 msgstr "Impuesto de Venta"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid ""
+"You cannot cancel this order because its accounting entry (invoice) is not "
+"cancelled."
+msgstr "No puedes cancelar esta orden porque su asiento contable (factura) no está cancelado."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid ""
+"You cannot cancel this order. The product %s has %s units delivered and %s "
+"units returned."
+msgstr "No puedes cancelar esta orden. El producto %s tiene %s unidades entregadas y %s unidades retornadas."
