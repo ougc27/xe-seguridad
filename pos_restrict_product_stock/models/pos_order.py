@@ -115,12 +115,15 @@ class PosOrder(models.Model):
                 order._create_misc_reversal_move(payment_moves)
 
             new_move.partner_id.write({
-                'team_id': order.config_id.crm_team_id.id
+                'team_id': order.config_id.crm_team_id.id,
+                'user_id': order.user_id.id
             })
             moves += new_move
             new_move.write({
                 'payment_state': 'in_payment',
                 'pos_session_id': order.session_id.id,
+                'team_id': order.config_id.crm_team_id.id,
+                'invoice_user_id': order.user_id.id
             })
 
         if not moves:
@@ -225,3 +228,40 @@ class PosOrder(models.Model):
         if self.note:
             vals.update({'narration': self.note})
         return vals
+
+    def check_moves(self):
+        """Checks that the order cannot be cancelled if there are undelivered or unreturned products."""
+
+        qty_out = {}
+        for picking in self.picking_ids.filtered(lambda p: p.picking_type_code == 'outgoing' and p.state == 'done'):
+            for line in picking.move_line_ids:
+                qty_out[line.product_id] = qty_out.get(line.product_id, 0) + line.qty_done
+
+        qty_returned = {}
+        for picking in self.picking_ids.filtered(lambda p: p.picking_type_code == 'incoming' and p.state == 'done'):
+            if picking.origin and self.name in picking.origin:
+                for line in picking.move_line_ids:
+                    if line.location_dest_id.usage in ('internal', 'customer'):
+                        qty_returned[line.product_id] = qty_returned.get(line.product_id, 0) + line.qty_done
+
+        for product, qty_delivered in qty_out.items():
+            qty_ret = qty_returned.get(product, 0)
+            if qty_ret != qty_delivered:
+                raise UserError(_(
+                    "You cannot cancel this order. The product %s has %s units delivered and %s units returned."
+                ) % (product.display_name, qty_delivered, qty_ret))
+        
+    def check_invoice(self):
+        if self.to_invoice:
+            raise UserError(_("You cannot cancel this order because its accounting entry (invoice) is not cancelled."))
+
+    def action_pos_order_cancel(self):
+        for rec in self:
+            rec.check_moves()
+            rec.check_invoice()
+            rec.write({'state': 'cancel'})
+            if self.account_move and self.account_move.state == 'draft':
+                self.account_move.button_cancel()
+            self.picking_ids.filtered(lambda p: p.state not in ('done', 'cancel')).action_cancel()
+            rec.mapped('payment_ids').sudo().unlink()
+            return rec
