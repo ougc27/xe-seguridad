@@ -1,0 +1,24 @@
+.damage-buttons .form-check-input {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: #fff;
+    border: 2px solid #6c757d;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    margin-right: 6px;
+    position: relative;
+}
+
+.damage-buttons .form-check-input:checked {
+    background-color: #6f42c1;
+    border-color: #6f42c1;
+    box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.3);
+}
+
+.damage-buttons .form-check-label {
+    cursor: pointer;
+    font-weight: 500;
+}

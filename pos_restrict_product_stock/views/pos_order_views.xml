@@ -8,6 +8,9 @@
             <xpath expr="//field[@name='name']" position="after">
                 <field name="reference"/>
             </xpath>
+            <xpath expr="//field[@name='pricelist_id']" position="after">
+                <field name="payment_plan"/>
+            </xpath>
             <xpath expr="//page[@name='payments']" position="after">
                 <page string="Payment Proof" name="payment_proof">
                     <field name="payment_proof_attachments" widget="many2many_binary_preview"/>
@@ -34,6 +37,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
                 <field name="reference" optional="show"/>
+                <field name="payment_plan" optional="hide"/>
                 <field name="paid_commission" optional="hide"/>
                 <field name="amount_untaxed" optional="hide"/>
             </xpath>

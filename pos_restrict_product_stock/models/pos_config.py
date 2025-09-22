@@ -56,6 +56,11 @@ class PosConfig(models.Model):
         help="This sequence is automatically created by Odoo but you can change it "
         "to customize the reference numbers of your orders lines.", copy=False)
 
+    allow_outlet2 = fields.Boolean(
+        string="Allow outlet 2",
+        help="If enabled, this point of sale will be able to show the Outlet 2 option."
+    )
+
     tax_id = fields.Many2one(
         'account.tax',
         string="Sale Tax",

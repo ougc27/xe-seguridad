@@ -22,7 +22,10 @@ msgstr "Ambos"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/ProductDamagePopup.xml:0
 #: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__res_config_settings__land_cost_cancel_modes__cancel
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.pos_order_form_inherit_pos_restrict_product_stock
 #, python-format
 msgid "Cancel"
 msgstr "Cancelar"
@@ -510,7 +513,12 @@ msgid "Print Acceptance Ticket"
 msgstr "Imprimir ticket de aceptación"
 
 #. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentConfigurationScreen.xml:0
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__product_id
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.product_promotion_location_search_view
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+#, python-format
 msgid "Product"
 msgstr "Producto"
 
@@ -963,16 +971,520 @@ msgid "Untaxed Amount"
 msgstr "Importe sin impuestos"
 
 #. module: pos_restrict_product_stock
+#: model:res.groups,name:pos_restrict_product_stock.group_pos_access_limited
+msgid "Cannot see all point of sale records"
+msgstr "No tiene acceso a todos los registros de puntos de venta"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentConfigurationScreen.xml:0
+#, python-format
+msgid "12 Months"
+msgstr "12 Meses"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentConfigurationScreen.xml:0
+#, python-format
+msgid "6 Months"
+msgstr "6 Meses"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductDamagePopup.js:0
+#, python-format
+msgid "You cannot sell more units than the stock available in the store."
+msgstr "No puedes vender más unidades de las que hay disponibles en la tienda."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/ProductDamagePopup.xml:0
+#, python-format
+msgid "Add Product"
+msgstr "Agregar producto"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentScreen.xml:0
+#, python-format
+msgid "Back"
+msgstr "Regresar"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__pos_allow_outlet2
+msgid "Allow Outlet 2"
+msgstr "Permitir Outlet 2"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__allow_outlet2
+msgid "Allow outlet 2"
+msgstr "Permitir Outlet 2"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__pos_order__payment_plan__cash
+msgid "Cash"
+msgstr "Contado"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentConfigurationScreen.xml:0
+#, python-format
+msgid "Cash Payment"
+msgstr "Contado"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "Check order lines: some items have a price of 0 or less."
+msgstr "Revisa las líneas de la orden: algunos artículos tienen precio 0 o menor."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "Check prices"
+msgstr "Revisar precios"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order_line__damage_type
+msgid "Damage Type"
+msgstr "Tipo de Daño"
+
+#. module: pos_restrict_product_stock
 #: model:ir.model.fields,help:pos_restrict_product_stock.field_res_config_settings__pos_tax_id
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
 msgid "Enter the sales tax for the Point of Sale."
 msgstr "Ingresa el impuesto de ventas para el Punto de Venta."
 
 #. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentConfigurationScreen.xml:0
+#, python-format
+msgid "Go to Payment"
+msgstr "Ir al Pago"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
+msgid ""
+"If enabled, this point of sale will be able to sell products with the "
+"pricelist Outlet 2."
+msgstr "Si está habilitado, este punto de venta podrá vender productos con la lista de precios Outlet 2."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_config__allow_outlet2
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_res_config_settings__pos_allow_outlet2
+msgid ""
+"If enabled, this point of sale will be able to show the Outlet 2 option."
+msgstr "Si está habilitado, este punto de venta podrá mostrar la opción Outlet 2."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__pos_order__payment_plan__installment_12
+msgid "Installment 12"
+msgstr "12 Meses"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__pos_order__payment_plan__installment_6
+msgid "Installment 6"
+msgstr "6 Meses"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentConfigurationScreen.xml:0
+#, python-format
+msgid "Name"
+msgstr "Nombre"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "No"
+msgstr "No"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/ProductDamagePopup.xml:0
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__pos_order_line__damage_type__no_outlet
+#, python-format
+msgid "No Outlet"
+msgstr "No Outlet"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentConfigurationScreen.xml:0
+#, python-format
+msgid "Order Lines"
+msgstr "Líneas de Pedido"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/ProductDamagePopup.xml:0
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__pos_order_line__damage_type__outlet_1
+#, python-format
+msgid "Outlet 1"
+msgstr "Outlet 1"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/ProductDamagePopup.xml:0
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__pos_order_line__damage_type__outlet_2
+#, python-format
+msgid "Outlet 2"
+msgstr "Outlet 2"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order__payment_plan
+msgid "Payment Plan"
+msgstr "Plazo de Pago"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentConfigurationScreen.xml:0
+#, python-format
+msgid "Price"
+msgstr "Precio"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/ProductDamagePopup.xml:0
+#, python-format
+msgid "Price per Unit:"
+msgstr "Precio Unitario"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentConfigurationScreen.xml:0
+#, python-format
+msgid "Qty"
+msgstr "Cant"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductDamagePopup.js:0
+#, python-format
+msgid "Quantity exceeds available stock for Outlet products"
+msgstr "La cantidad excede el stock disponible para productos Outlet"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "Quantity needs to be greater than 0 for all products."
+msgstr "La cantidad debe ser mayor a 0 para todos los productos."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentConfigurationScreen.xml:0
+#, python-format
+msgid "Go Back"
+msgstr "Regresar"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid "Reversal of: %s"
+msgstr "Reversión de: %s"
+
+#. module: pos_restrict_product_stock
 #: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__tax_id
 #: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__pos_tax_id
 msgid "Sale Tax"
 msgstr "Impuesto de Venta"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductDamagePopup.js:0
+#, python-format
+msgid "Select Damage Type"
+msgstr "Seleccionar Tipo de Daño"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentConfigurationScreen.xml:0
+#, python-format
+msgid "Select Payment Plan"
+msgstr "Seleccionar Plan de Pago"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/PosStore.js:0
+#, python-format
+msgid "Select Quantity and Type of Damage"
+msgstr "Selecciona Cantidad y Tipo de Daño"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/ProductDamagePopup.xml:0
+#, python-format
+msgid "Select the correct price for the product"
+msgstr "Selecciona el precio correcto para el producto"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "Some Serial/Lot Numbers are missing"
+msgstr "Faltan algunos números de serie/lote"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/product_pricelist.py:0
+#, python-format
+msgid "The pricelist does not exist."
+msgstr "La lista de precios no existe."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/product_pricelist.py:0
+#, python-format
+msgid "The product does not exist."
+msgstr "El producto no existe."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_session.py:0
+#, python-format
+msgid ""
+"The withdrawal amount must match the available cash in the register.\n"
+"Current available cash: %.2f"
+msgstr "El monto del retiro debe coincidir con el efectivo disponible en la caja.\nEfectivo disponible actual: %.2f"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentConfigurationScreen.xml:0
+#, python-format
+msgid "Total"
+msgstr "Total"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentConfigurationScreen.xml:0
+#, python-format
+msgid "Unit Price"
+msgstr "Precio Unitario"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "Yes"
+msgstr "Sí"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid ""
+"You are trying to sell products with serial/lot numbers, but some of them are not set.\n"
+"Would you like to proceed anyway?"
+msgstr "Estás intentando vender productos con números de serie/lote, pero algunos no están asignados.\n¿Deseas continuar de todas formas?"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid ""
+"You can't: create a pos order from the backend interface, or unset the "
+"pricelist, or create a pos.order in a python test with Form tool, or edit "
+"the form view in studio if no PoS order exist"
+msgstr "No puedes: crear una orden de punto de venta desde la interfaz de backend, desasignar la lista de precios, crear un pos.order en un test de Python con la herramienta Form, o editar la vista de formulario en Studio si no existe ninguna orden de PoS"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductDamagePopup.js:0
+#, python-format
+msgid "You must select a damage type before adding the product."
+msgstr "Debes seleccionar un tipo de daño antes de agregar el producto."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/account_move.py:0
+#, python-format
+msgid ""
+"\n"
+"\n"
+"The move (%s) is not balanced.\n"
+"The total of debits equals %s and the total of credits equals %s.\n"
+"You might want to specify a default account on journal \"%s\" to automatically balance each move."
+msgstr ""
+"\n"
+"\n"
+"El movimiento (%s) no está saldado.\n"
+"El total de débito es igual a %s y el total de crédito es igual a %s.\n"
+"Tal vez quiera especificar una cuenta por defecto en el diario \"%s\" para saldar cada movimiento de forma automática."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/account_move.py:0
+#, python-format
+msgid "An error has occurred."
+msgstr "Ocurrió un error."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.actions.act_window,help:pos_restrict_product_stock.action_product_promotion_location
+msgid "Create Product Promotion Location"
+msgstr "Crear Ubicación de Promoción de Producto"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_product_promotion_location__price_type
+msgid ""
+"Determines if the price is fixed or variable. If fixed, the monthly payment "
+"scheme cannot be enabled."
+msgstr ""
+"Determina si el precio es fijo o variable. Si es fijo, no se puede habilitar "
+"el esquema de pago mensual."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__date_end
+msgid "End Date"
+msgstr "Fecha de fin"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_product_promotion_location__date_end
+msgid ""
+"Ending datetime for the product promition location validation\n"
+"The displayed value depends on the timezone set in your preferences."
+msgstr ""
+"Fecha y hora de finalización para la validación de la ubicación de promoción "
+"del producto\nEl valor mostrado depende de la zona horaria configurada en tus "
+"preferencias."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__product_promotion_location__price_type__fixed
+msgid "Fixed"
+msgstr "Fijo"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__price
+msgid "Price"
+msgstr "Precio"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.product_promotion_location_search_view
+msgid "Group By"
+msgstr "Agrupar por"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__id
+msgid "ID"
+msgstr "ID"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "It is not allowed to mix refunds and sales"
+msgstr "No está permitido mezclar devoluciones y ventas"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__price_type
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.product_promotion_location_search_view
+msgid "Price Type"
+msgstr "Tipo de Precio"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_product_pricelist
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__pricelist_id
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.product_promotion_location_search_view
+msgid "Pricelist"
+msgstr "Lista de precios"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_product_promotion_location
+msgid "Product Promotion By Location"
+msgstr "Promoción de Producto por Ubicación"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_product_promotion_location_form
+msgid "Product Promotion by Location"
+msgstr "Promoción de Producto por Ubicación"
+
+#. module: pos_restrict_product_stock
+#: model:ir.actions.act_window,name:pos_restrict_product_stock.action_product_promotion_location
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_product_promotion_location_tree
+msgid "Product Promotions by Location"
+msgstr "Promociones de Productos por Ubicación"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.actions.act_window,help:pos_restrict_product_stock.action_product_promotion_location
+msgid "Product promotion by warehouse location for change prices"
+msgstr "Promoción de producto por ubicación de almacén para cambiar precios"
+
+#. module: pos_restrict_product_stock
+#: model:ir.ui.menu,name:pos_restrict_product_stock.pos_config_menu_product_promotion_location
+msgid "Promotions by location"
+msgstr "Promociones por ubicación"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "Refund and Sales not allowed"
+msgstr "Devoluciones y ventas no permitidas"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__date_start
+msgid "Start Date"
+msgstr "Fecha de inicio"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_product_promotion_location__date_start
+msgid ""
+"Starting datetime for the product promition location validation\n"
+"The displayed value depends on the timezone set in your preferences."
+msgstr ""
+"Fecha y hora de inicio para la validación de la ubicación de promoción del producto\n"
+"El valor mostrado depende de la zona horaria configurada en tus preferencias."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_session.py:0
+#, python-format
+msgid "This session is already closed."
+msgstr "Esta sesión ya está cerrada."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__product_promotion_location__price_type__variable
+msgid "Variable"
+msgstr "Variable"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_promotion_location__warehouse_id
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.product_promotion_location_search_view
+msgid "Warehouse"
+msgstr "Almacén"
 
 #. module: pos_restrict_product_stock
 #. odoo-python

@@ -47,6 +47,12 @@ class ResConfigSettings(models.TransientModel):
 
     user_ids =  fields.Many2many(related='pos_config_id.res_user_ids', readonly=False)
 
+    pos_allow_outlet2 = fields.Boolean(
+        string="Allow Outlet 2",
+        related='pos_config_id.allow_outlet2',
+        help="If enabled, this point of sale will be able to show the Outlet 2 option."
+    )
+
     pos_tax_id = fields.Many2one(
         'account.tax',
         related='pos_config_id.tax_id',

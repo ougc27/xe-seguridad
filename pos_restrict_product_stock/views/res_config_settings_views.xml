@@ -89,6 +89,17 @@
                         <br/>
                         <div>
                             <div class="o_setting_right_pane">
+                                <label for="pos_allow_outlet2"/>
+                                <br/>
+                                <field name="pos_allow_outlet2" readonly="False"/>
+                                <div class="text-muted">
+                                    If enabled, this point of sale will be able to sell products with the pricelist Outlet 2.
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+                        <div>
+                            <div class="o_setting_right_pane">
                                 <label for="pos_tax_id"/>
                                 <br/>
                                 <field name="pos_tax_id" readonly="False"/>

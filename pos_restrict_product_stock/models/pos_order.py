@@ -27,6 +27,12 @@ class PosOrder(models.Model):
 
     amount_untaxed = fields.Float(compute='_compute_amount_untaxed', string='Untaxed Amount', store=True)
 
+    payment_plan = fields.Selection([
+        ("cash", "Cash"),
+        ("installment_6", "Installment 6"),
+        ("installment_12", "Installment 12"),
+    ], default="cash", copy=False, readonly=True)
+
     @api.depends('payment_ids', 'lines')
     def _compute_amount_untaxed(self):
         for order in self:
@@ -164,6 +170,7 @@ class PosOrder(models.Model):
     def _order_fields(self, ui_order):
         order_fields = super(PosOrder, self)._order_fields(ui_order)
         order_fields['reference'] = ui_order.get('reference', False)
+        order_fields['payment_plan'] = ui_order.get('payment_plan', False)
         return order_fields
 
     def action_open_available_to_invoice_orders(self):
@@ -229,21 +236,72 @@ class PosOrder(models.Model):
             vals.update({'narration': self.note})
         return vals
 
+    @api.depends('name', 'reference')
+    @api.depends_context('from_helpdesk_ticket')
+    def _compute_display_name(self):
+        if not self._context.get('from_helpdesk_ticket'):
+            return super()._compute_display_name()
+        for rec in self:
+            name = rec.name
+            if rec.reference:
+                name = f'{name} - {rec.reference}'
+            rec.display_name = name
+
+    @api.model
+    def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
+        if self.env.context.get('from_helpdesk_ticket'):
+            query = """
+                SELECT id
+                    FROM pos_order
+                    WHERE
+                    (
+                        name ilike %s
+                    OR
+                        reference ilike %s
+                    )
+                    AND
+                        company_id = %s
+                    LIMIT %s
+            """
+            self.env.cr.execute(
+                query, (
+                    '%' + name + '%',
+                    '%' + name + '%',
+                    self.env.company.id,
+                    limit
+                )
+            )
+            return [row[0] for row in self.env.cr.fetchall()]
+        return super()._name_search(name, domain, operator, limit, order)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        orders = super().create(vals_list)
+        for order in orders:
+            difference = order.amount_total - (order.amount_untaxed + order.amount_tax)
+            if abs(difference) >= order.currency_id.rounding:
+                line = order.lines[-1]
+                tax_multiplier = 1 + sum(line.tax_ids_after_fiscal_position.mapped("amount")) / 100.0
+                base_adjustment = difference / tax_multiplier
+                line.write({
+                    "price_subtotal": line.price_subtotal + base_adjustment,
+                })
+        return orders
+
     def check_moves(self):
         """Checks that the order cannot be cancelled if there are undelivered or unreturned products."""
-
+    
         qty_out = {}
-        for picking in self.picking_ids.filtered(lambda p: p.picking_type_code == 'outgoing' and p.state == 'done'):
-            for line in picking.move_line_ids:
-                qty_out[line.product_id] = qty_out.get(line.product_id, 0) + line.qty_done
-
         qty_returned = {}
-        for picking in self.picking_ids.filtered(lambda p: p.picking_type_code == 'incoming' and p.state == 'done'):
-            if picking.origin and self.name in picking.origin:
-                for line in picking.move_line_ids:
-                    if line.location_dest_id.usage in ('internal', 'customer'):
-                        qty_returned[line.product_id] = qty_returned.get(line.product_id, 0) + line.qty_done
-
+    
+        for picking in self.picking_ids.filtered(lambda p: p.state == 'done'):
+            for line in picking.move_line_ids:
+                if line.location_id.usage == 'internal' and line.location_dest_id.usage == 'customer':
+                    qty_out[line.product_id] = qty_out.get(line.product_id, 0) + line.qty_done
+    
+                elif line.location_id.usage == 'customer' and line.location_dest_id.usage == 'internal':
+                    qty_returned[line.product_id] = qty_returned.get(line.product_id, 0) + line.qty_done
+    
         for product, qty_delivered in qty_out.items():
             qty_ret = qty_returned.get(product, 0)
             if qty_ret != qty_delivered:
