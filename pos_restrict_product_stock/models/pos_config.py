@@ -60,7 +60,6 @@ class PosConfig(models.Model):
         'account.tax',
         string="Sale Tax",
         readonly=False,
-        required=True,
         check_company=True,
     )
 
