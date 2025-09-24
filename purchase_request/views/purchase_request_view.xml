@@ -32,9 +32,16 @@
                     />
                     <button
                         name="%(action_purchase_request_line_make_purchase_order)d"
-                        invisible="state not in ('approved')"
+                        invisible="state not in ('approved') or is_intercompany"
                         string="Create RFQ"
                         type="action"
+                    />
+                    <button
+                        name="button_sale_order"
+                        invisible="state not in ('approved') or not is_intercompany or intercompany_so_created"
+                        string="Create SO"
+                        type="object"
+                        groups="purchase_request.group_purchase_request_intercompany"
                     />
                     <button
                         name="button_done"
@@ -126,6 +133,18 @@
                                 readonly="is_editable == False"
                             />
                             <field name="description" readonly="is_editable == False" />
+                            <field name="intercompany_so_created" invisible="True"/>
+                            <field name="is_intercompany" readonly="state != 'draft'"/>
+                            <field name="source_company_id"
+                                readonly="state != 'draft'"
+                                invisible="not is_intercompany"
+                                required="is_intercompany" 
+                                options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="destination_company_id"
+                                readonly="state != 'draft'" 
+                                invisible="not is_intercompany" 
+                                required="is_intercompany" 
+                                options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="group_id" readonly="is_editable == False" />
                         </group>
                         <group>
@@ -149,7 +168,8 @@
                                     decoration-muted="cancelled == True"
                                     editable="bottom"
                                 >
-                                    <field name="product_id" />
+                                    <field name="product_id" options="{'no_create': True, 'no_create_edit': True}" domain="[('purchase_request', '=', True)]" column_invisible="parent.is_intercompany"/>
+                                    <field name="product_id" options="{'no_create': True, 'no_create_edit': True}" column_invisible="not parent.is_intercompany"/>
                                     <field name="name" />
                                     <field name="product_qty" />
                                     <field
