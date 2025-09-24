@@ -1,5 +1,4 @@
 import pytz
-
 from odoo import models, fields, api, _
 from datetime import timedelta, datetime
 from odoo.exceptions import UserError
@@ -95,6 +94,8 @@ class PosOrder(models.Model):
 
             if not order.partner_id:
                 raise UserError(_('Please provide a partner for the sale.'))
+
+            partner_id.write({'property_account_receivable_id': order.config_id.property_account_receivable_id.id})
 
             move_vals = order._prepare_invoice_vals(partner_id)
             new_move = order._create_invoice(move_vals)
@@ -231,19 +232,18 @@ class PosOrder(models.Model):
 
     def check_moves(self):
         """Checks that the order cannot be cancelled if there are undelivered or unreturned products."""
-
+    
         qty_out = {}
-        for picking in self.picking_ids.filtered(lambda p: p.picking_type_code == 'outgoing' and p.state == 'done'):
-            for line in picking.move_line_ids:
-                qty_out[line.product_id] = qty_out.get(line.product_id, 0) + line.qty_done
-
         qty_returned = {}
-        for picking in self.picking_ids.filtered(lambda p: p.picking_type_code == 'incoming' and p.state == 'done'):
-            if picking.origin and self.name in picking.origin:
-                for line in picking.move_line_ids:
-                    if line.location_dest_id.usage in ('internal', 'customer'):
-                        qty_returned[line.product_id] = qty_returned.get(line.product_id, 0) + line.qty_done
-
+    
+        for picking in self.picking_ids.filtered(lambda p: p.state == 'done'):
+            for line in picking.move_line_ids:
+                if line.location_id.usage == 'internal' and line.location_dest_id.usage == 'customer':
+                    qty_out[line.product_id] = qty_out.get(line.product_id, 0) + line.qty_done
+    
+                elif line.location_id.usage == 'customer' and line.location_dest_id.usage == 'internal':
+                    qty_returned[line.product_id] = qty_returned.get(line.product_id, 0) + line.qty_done
+    
         for product, qty_delivered in qty_out.items():
             qty_ret = qty_returned.get(product, 0)
             if qty_ret != qty_delivered:
@@ -265,3 +265,11 @@ class PosOrder(models.Model):
             self.picking_ids.filtered(lambda p: p.state not in ('done', 'cancel')).action_cancel()
             rec.mapped('payment_ids').sudo().unlink()
             return rec
+
+    def write(self, vals):
+        res = super().write(vals)
+        for record in self:
+            partner_id = record.partner_id
+            if partner_id:          
+                partner_id.write({'property_account_receivable_id': record.config_id.property_account_receivable_id.id})
+        return res

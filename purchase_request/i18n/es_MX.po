@@ -1458,6 +1458,41 @@ msgstr ""
 msgid "You have to select lines from the same company."
 msgstr ""
 
+#. module: purchase_request
+#: model:ir.model.fields,help:purchase_request.field_purchase_request__is_intercompany
+msgid "Indicates whether this record is part of an intercompany operation."
+msgstr "Indica si este registro forma parte de una operación intercompañía."
+
+#. module: purchase_request
+#: model:ir.model.fields,field_description:purchase_request.field_purchase_request__is_intercompany
+msgid "Intercompany"
+msgstr "Intergrupo"
+
+#. module: purchase_request
+#: model:ir.model.fields,field_description:purchase_request.field_purchase_request__intercompany_so_created
+msgid "Intercompany Sale Order Created"
+msgstr "Orden de Venta Intergrupo Creada"
+
+#. module: purchase_request
+#: model:ir.model.fields,help:purchase_request.field_purchase_request__intercompany_so_created
+msgid "Indicates whether an intercompany sale order has already been created for this request."
+msgstr "Indica si ya se ha creado una orden de venta intergrupo para esta solicitud."
+
+#. module: purchase_request
+#: model:ir.model.fields,field_description:purchase_request.field_purchase_request__destination_company_id
+msgid "Destination Company"
+msgstr "Empresa Destino"
+
+#. module: purchase_request
+#: model:ir.model.fields,field_description:purchase_request.field_purchase_request__source_company_id
+msgid "Source Company"
+msgstr "Empresa Origen"
+
+#. module: purchase_request
+#: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
+msgid "Create SO"
+msgstr "Crear OV"
+
 #~ msgid "Last Modified on"
 #~ msgstr "Última modificación el"
 

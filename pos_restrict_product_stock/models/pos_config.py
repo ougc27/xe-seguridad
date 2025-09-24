@@ -60,5 +60,15 @@ class PosConfig(models.Model):
         'account.tax',
         string="Sale Tax",
         readonly=False,
+        required=True,
         check_company=True,
+    )
+
+    property_account_receivable_id = fields.Many2one(
+        'account.account',
+        required=True,
+        company_dependent=True,
+        string="Account Receivable",
+        domain="[('account_type', '=', 'asset_receivable'), ('deprecated', '=', False)]",
+        help="This account will be used instead of the default one as the receivable account for the current partner",
     )
