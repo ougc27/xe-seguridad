@@ -51,7 +51,6 @@ class ResConfigSettings(models.TransientModel):
         'account.tax',
         related='pos_config_id.tax_id',
         readonly=False,
-        required=True,
         check_company=True,
         help="Enter the sales tax for the Point of Sale."
     )
