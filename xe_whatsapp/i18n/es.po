@@ -341,3 +341,8 @@ msgstr "Puede ver el botón disponible/no disponible (Para asignar conversacione
 #: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__is_available
 msgid "Is Available"
 msgstr "Esta disponible"
+
+#. module: xe_whatsapp
+#: model:res.groups,name:xe_whatsapp.can_see_assigned_person_button_group
+msgid "Can see assigned person button"
+msgstr "Puede ver el listado de las personas asignadas en whatsapp"

@@ -36,17 +36,19 @@
                 Assigned to: Asignar asesor
             </t>
         </div>
-
-        <ul class="o-whatsapp-person-list">
-            <t t-foreach="state.availablePersons" t-as="person" t-key="person.id">
-                <li t-on-click="assignPerson.bind(this, person.id)">
-                    <div class="person-avatar">
-                        <t t-esc="person.name[0]"/>
-                    </div>
-                    <span class="person-name"><t t-esc="person.name"/></span>
-                </li>
-            </t>
-        </ul>
+        
+        <div t-if="state.isVisible">
+            <ul class="o-whatsapp-person-list">
+                <t t-foreach="state.availablePersons" t-as="person" t-key="person.id">
+                    <li t-on-click="assignPerson.bind(this, person.id)">
+                        <div class="person-avatar">
+                            <t t-esc="person.name[0]"/>
+                        </div>
+                        <span class="person-name"><t t-esc="person.name"/></span>
+                    </li>
+                </t>
+            </ul>
+        </div>
     </t>
 
 </templates>
