@@ -4,4 +4,8 @@
         <field name="name">Can see available button</field>
         <field name="category_id" ref="base.module_category_usability"/>
     </record>
+    <record id="can_see_assigned_person_button_group" model="res.groups">
+        <field name="name">Can see assigned person button</field>
+        <field name="category_id" ref="base.module_category_usability"/>
+    </record>
 </odoo>

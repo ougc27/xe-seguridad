@@ -12,13 +12,16 @@ export class ChannelAssignedPerson extends Component {
         this.rpc = useService("rpc");
         this.store = useState(useService("mail.store"));
         this.threadService = useState(useService("mail.thread"));
+        this.user = useService("user");
         this.state = useState({
             assignedPerson: null,
             availablePersons: [],
+            isVisible: false
         });
 
         onWillStart(async () => {
             await this.fetchAssignedPerson();
+            this.state.isVisible = await this.user.hasGroup("xe_whatsapp.can_see_assigned_person_button_group");
         });
     }
 
