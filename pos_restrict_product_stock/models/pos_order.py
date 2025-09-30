@@ -81,7 +81,6 @@ class PosOrder(models.Model):
         if self.company_id.anglo_saxon_accounting and self.session_id.update_stock_at_closing and self.session_id.state != 'closed':
             self._create_order_picking()
         with_context = self.env.context.copy()
-        with_context.update({'from_portal': True})
         return self.with_context(**with_context)._generate_pos_order_invoice(partner_id)
 
     def _generate_pos_order_invoice(self, partner_id=False):

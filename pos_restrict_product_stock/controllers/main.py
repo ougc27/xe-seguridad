@@ -7,6 +7,7 @@ from odoo import http, _
 from odoo.http import request
 from datetime import timedelta, datetime
 from odoo.tools import format_amount
+from odoo.exceptions import UserError
 
 
 class PosControllerInherit(PosController):
@@ -210,5 +211,31 @@ class PosControllerInherit(PosController):
             with_context.update({f'default_{field.name}': invoice_values.get(field.name)})
         # Allowing default values for moves is important for some localizations that would need specific fields to be set on the invoice, such as Mexico.
         with_context.update({'from_portal': True})
-        pos_order.with_context(with_context).action_pos_order_invoice(move_partner)
+        try:
+            pos_order.with_context(with_context).action_pos_order_invoice(move_partner)
+        except UserError as e:
+            if pos_order.account_move:
+                pos_order.account_move.sudo().button_draft()
+                pos_order.account_move.sudo().button_cancel()
+            pos_order.account_move = False
+            return request.render("point_of_sale.ticket_validation_screen", {
+                'partner': pos_order.partner_id,
+                'address_url': f'/my/account?redirect=/pos/ticket/validate?access_token={pos_order.access_token}',
+                'user_is_connected': not request.env.user._is_public(),
+                'format_amount': format_amount,
+                'env': request.env,
+                'countries': request.env['res.country'].sudo().search([]),
+                'states': request.env['res.country.state'].sudo().search([]),
+                'partner_can_edit_vat': True,
+                'pos_order': pos_order,
+                'invoice_required_fields': additional_invoice_fields,
+                'partner_required_fields': request.env['res.partner'].get_partner_localisation_fields_required_to_invoice(
+                    pos_order.company_id.account_fiscal_country_id
+                ),
+                'access_token': pos_order.access_token,
+                'is_date_expired': False,
+                'error': {},
+                'error_message': [e],
+                'extra_field_values': {},
+            })
         return request.redirect('/my/invoices/%s?access_token=%s' % (pos_order.account_move.id, pos_order.account_move._portal_ensure_token()))
