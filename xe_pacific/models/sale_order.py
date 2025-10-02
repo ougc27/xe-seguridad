@@ -50,7 +50,9 @@ class SaleOrder(models.Model):
     def write(self, vals):
         if 'order_line' in vals:
             for order in self:
-                if order.picking_ids.filtered(lambda p: p.state == 'transit'): 
+                if order.picking_ids.filtered(lambda p: p.state == 'transit'):
+                    if self.env.user.has_group('base.group_system'):
+                        continue
                     raise UserError(_("You cannot modify sale order lines because there is at least one transfer in remission status."))
         return super(SaleOrder, self).write(vals)
 
