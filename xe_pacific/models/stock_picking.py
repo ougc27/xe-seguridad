@@ -189,7 +189,7 @@ class StockPicking(models.Model):
                         rec.shipping_assignment = 'shipments'
                         continue
                     if 'monterrey pr1' in rec.location_id.warehouse_id.name.lower():
-                        if distribution_channel in ['DISTRIBUIDORES', 'MARKETPLACE', 'VENTA DIRECTA']:
+                        if distribution_channel in ['DISTRIBUIDORES', 'MARKETPLACE', 'GOTT']:
                             rec.shipping_assignment = 'shipments'
                             continue
                         if sale_id.order_line.filtered(lambda record: record.product_id.default_code == 'FLTENVIO'):
