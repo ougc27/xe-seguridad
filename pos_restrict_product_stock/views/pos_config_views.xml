@@ -14,4 +14,18 @@
             </xpath>
         </field>
     </record>
+    <record id="pos_config_view_form_inherit_hide_is_posbox" model="ir.ui.view">
+        <field name="name">pos.config.form.view.inherit.hide.is_posbox</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='active']" position="after">
+                <field name="iface_print_via_proxy" invisible="1"/>
+                <field name="iface_cashdrawer" invisible="1"/>
+                <field name="iface_customer_facing_display_via_proxy" invisible="1"/>
+                <field name="iface_customer_facing_display_background_image_1920" invisible="1"/>  
+            </xpath>
+            <xpath expr="//setting[field[@name='is_posbox']]" position="replace"/>
+        </field>
+    </record>
 </odoo>
