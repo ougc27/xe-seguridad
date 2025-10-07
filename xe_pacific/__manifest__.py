@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.29",
+    "version": "17.0.0.0.30",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
