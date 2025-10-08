@@ -46,3 +46,20 @@ class ResConfigSettings(models.TransientModel):
     pos_delivery_partner_id = fields.Many2one(related='pos_config_id.delivery_partner_id')
 
     user_ids =  fields.Many2many(related='pos_config_id.res_user_ids', readonly=False)
+
+    pos_tax_id = fields.Many2one(
+        'account.tax',
+        related='pos_config_id.tax_id',
+        readonly=False,
+        required=True,
+        check_company=True,
+        help="Enter the sales tax for the Point of Sale."
+    )
+
+    pos_property_account_receivable_id = fields.Many2one(
+        'account.account',
+        string="Account Receivable",
+        related='pos_config_id.property_account_receivable_id',
+        required=True,
+        help="This account will be used instead of the default one as the receivable account for the current partner",
+    )

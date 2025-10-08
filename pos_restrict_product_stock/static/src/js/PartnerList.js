@@ -4,7 +4,7 @@ import { PartnerListScreen } from "@point_of_sale/app/screens/partner_list/partn
 
 
 patch(PartnerListScreen.prototype, {
-    async saveChanges(processedChanges) {;
+    async saveChanges(processedChanges) {
         if (this.pos.config.crm_team_id) {
             processedChanges.team_id = this.pos.config.crm_team_id[0];
         }

@@ -86,6 +86,28 @@
                                 </div>
                             </div>
                         </div>
+                        <br/>
+                        <div>
+                            <div class="o_setting_right_pane">
+                                <label for="pos_tax_id"/>
+                                <br/>
+                                <field name="pos_tax_id" readonly="False"/>
+                                <div class="text-muted">
+                                    Enter the sales tax for the Point of Sale.
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+                        <div>
+                            <div class="o_setting_right_pane">
+                                <label for="pos_property_account_receivable_id"/>
+                                <br/>
+                                <field name="pos_property_account_receivable_id" readonly="False"/>
+                                <div class="text-muted">
+                                    Enter the Account Receivable for all partners in PoS
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>                
             </xpath>
