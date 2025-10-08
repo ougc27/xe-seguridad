@@ -966,3 +966,40 @@ msgstr "Importe sin impuestos"
 #: model:res.groups,name:pos_restrict_product_stock.group_pos_access_limited
 msgid "Cannot see all point of sale records"
 msgstr "No tiene acceso a todos los registros de puntos de venta"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_res_config_settings__pos_tax_id
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
+msgid "Enter the sales tax for the Point of Sale."
+msgstr "Ingresa el impuesto de ventas para el Punto de Venta."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__tax_id
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__pos_tax_id
+msgid "Sale Tax"
+msgstr "Impuesto de Venta"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid ""
+"You cannot cancel this order because its accounting entry (invoice) is not "
+"cancelled."
+msgstr "No puedes cancelar esta orden porque su asiento contable (factura) no está cancelado."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid ""
+"You cannot cancel this order. The product %s has %s units delivered and %s "
+"units returned."
+msgstr "No puedes cancelar esta orden. El producto %s tiene %s unidades entregadas y %s unidades retornadas."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/wizard/account_move_send.py:0
+#, python-format
+msgid "The invoice could not be validated: %s"
+msgstr "No se pudo timbrar la factura: %s"

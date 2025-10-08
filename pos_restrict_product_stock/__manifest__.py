@@ -20,7 +20,7 @@
 #############################################################################
 {
     'name': 'Display Stock in POS | Restrict Out-of-Stock Products in POS',
-    'version': '17.0.1.0.48',
+    'version': '17.0.1.0.49',
     'category': 'Point of Sale',
     'summary': """Enhance your Point of Sale experience by preventing the 
     ordering of out-of-stock products during your session""",
@@ -31,7 +31,7 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': 'https://www.cybrosys.com',
-    'depends': ['xe_customs', 'base_vat', 'pos_hr', 'portal'],
+    'depends': ['xe_pacific', 'base_vat', 'pos_hr', 'portal'],
     'data': [
         'security/point_of_sale_security.xml',
         'security/ir_rules.xml',
@@ -50,7 +50,9 @@
         'point_of_sale._assets_pos': [
             '/pos_restrict_product_stock/static/src/js/RestrictStockPopup.js',
             '/pos_restrict_product_stock/static/src/js/order.js',
-            '/pos_restrict_product_stock/static/src/js/ProductScreen.js',
+            '/pos_restrict_product_stock/static/src/js/orderline.js',
+            '/pos_restrict_product_stock/static/src/js/product.js',
+            '/pos_restrict_product_stock/static/src/js/PosStore.js',
             '/pos_restrict_product_stock/static/src/js/ProductItem.js',
             '/pos_restrict_product_stock/static/src/js/PaymentScreen.js',
             '/pos_restrict_product_stock/static/src/js/CashOpeningPopup.js',
