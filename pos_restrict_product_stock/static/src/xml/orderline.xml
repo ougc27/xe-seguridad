@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_restrict_product_stock.Orderline" t-inherit="point_of_sale.Orderline" t-inherit-mode="extension">
+        <xpath expr="//li[@class='price-per-unit']" position="inside">
+            <t t-if="line.damage_type">
+                <strong class="badge bg-warning text-dark fw-bold ms-2">
+                    <t t-esc="line.damage_type"/>
+                </strong>
+            </t>
+        </xpath>
+    </t>
+</templates>

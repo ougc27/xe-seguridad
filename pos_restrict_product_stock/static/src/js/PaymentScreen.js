@@ -188,5 +188,21 @@ patch(PaymentScreen.prototype, {
         if (ev.key === ' ' || isNaN(ev.key)) {
             ev.preventDefault();
         }
-    }
+    },
+
+    goBack() {
+        const order = this.currentOrder;
+        order.payment_plan = null;
+        const hasOutlet = order.orderlines.some(line =>
+            ["outlet_1", "outlet_2"].includes(line.damage_type)
+        );
+        const hasFixedPrice = order.orderlines.some(
+            (line) => line.product?.price_type === "fixed"
+        );
+        if (hasOutlet || hasFixedPrice) {
+            this.pos.showScreen("ProductScreen");
+        } else {
+            this.pos.showScreen("PaymentConfiguratorScreen");
+        }
+    },
 });

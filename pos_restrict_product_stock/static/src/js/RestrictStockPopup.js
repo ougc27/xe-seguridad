@@ -8,7 +8,13 @@ class RestrictStockPopup extends AbstractAwaitablePopup {
     async _OrderProduct() {
     // On clicking order product button on popup, it will add product to orderline
         var product = this.env.services.pos.db.get_product_by_id(this.props.pro_id)
-        const newLine = await this.env.services.pos.selectedOrder.add_product(product);
+        const options = {
+            quantity: 1,
+            extras: {
+                price_type: "manual",
+            },
+        }
+        const newLine = await this.env.services.pos.selectedOrder.add_product(product, options);
         newLine.qty_available = 0;
         newLine.no_stock = true;
         this.cancel();

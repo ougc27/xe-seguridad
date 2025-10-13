@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_product_promotion_location,access.product.promotion.location,model_product_promotion_location,product.group_product_pricelist,1,1,1,1

@@ -9,6 +9,12 @@
         <field name="inherit_id"
                ref="point_of_sale.res_config_settings_view_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//block[@id='pos_accounting_section']/setting[@id='default_sales_tax_setting']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//block[@id='pos_accounting_section']/setting[field[@name='account_default_pos_receivable_account_id']]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
              <xpath expr="//block[@id='pos_interface_section']" position="after">
                 <div class="row mt16 o_settings_container">
                     <h2>Stock Configuration</h2>
@@ -83,6 +89,17 @@
                                 <field name="pos_delivery_partner_id" readonly="False"/>
                                 <div class="text-muted">
                                     Partner shipping assigned to the stock move when shipping later option is selected.
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+                        <div>
+                            <div class="o_setting_right_pane">
+                                <label for="pos_allow_outlet2"/>
+                                <br/>
+                                <field name="pos_allow_outlet2" readonly="False"/>
+                                <div class="text-muted">
+                                    If enabled, this point of sale will be able to sell products with the pricelist Outlet 2.
                                 </div>
                             </div>
                         </div>

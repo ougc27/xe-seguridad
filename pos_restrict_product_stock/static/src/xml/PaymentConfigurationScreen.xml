@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<t t-name="PaymentConfiguratorScreen" owl="1">
+    <div class="container py-3">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <button class="btn btn-odoo-secondary d-flex align-items-center px-4 py-2 rounded"
+                    t-on-click="goBack">
+                <i class="fa fa-arrow-left me-2"></i> Go Back
+            </button>
+            <button class="btn btn-odoo-primary d-flex align-items-center px-4 py-2 rounded disabled:opacity-50"
+                    t-att-disabled="!state.payment_plan"
+                    t-on-click="goToPayment">
+                <i class="fa fa-credit-card me-2"></i> Go to Payment
+            </button>
+        </div>
+
+        <div class="payment-options-section">
+            <h2>Select Payment Plan</h2>
+            <div class="radio-group">
+                <label class="custom-radio form-check-label text-dark">
+                    <input type="radio" name="payment_plan"
+                           value="cash"
+                           t-att-checked="state.payment_plan === 'cash'"
+                           t-on-change="selectPlan"
+                           class="form-check-input me-2"/>
+                    Cash Payment
+                </label>
+
+                <label class="custom-radio form-check-label text-dark">
+                    <input type="radio" name="payment_plan"
+                           value="installment_6"
+                           t-att-checked="state.payment_plan === 'installment_6'"
+                           t-on-change="selectPlan"
+                           class="form-check-input me-2"/>
+                    6 Months
+                </label>
+
+                <label class="custom-radio form-check-label text-dark">
+                    <input type="radio" name="payment_plan"
+                           value="installment_12"
+                           t-att-checked="state.payment_plan === 'installment_12'"
+                           t-on-change="selectPlan"
+                           class="form-check-input me-2"/>
+                    12 Months
+                </label>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="order-lines-title">Order Lines</h3>
+            <div class="table-responsive">
+                <table class="table order-lines-table bg-white">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-3" style="width: 80px;"></th>
+                            <th class="px-4 py-3">Name</th>
+                            <th class="px-4 py-3">Qty</th>
+                            <th class="px-4 py-3">Unit Price</th>
+                            <th class="px-4 py-3">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="currentOrder.get_orderlines()" t-as="line" t-key="line.cid">
+                            <tr>
+                                <td class="px-4 py-3">
+                                    <img t-att-src="line.product.image_url || '/web/image/product.product/' + line.product.id + '/image_128'"
+                                         alt="Product"
+                                         class="img-thumbnail" style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px;"/>
+                                </td>
+                                <td class="px-4 py-3 fw-semibold text-dark">
+                                    <t t-esc="line.product.display_name"/>
+                                </td>
+                                <td class="px-4 py-3 text-muted">
+                                    <t t-esc="line.get_quantity_str()"/>
+                                </td>
+                                <td class="px-4 py-3 text-muted">
+                                    $<t t-esc="line.get_quantity() and (line.get_all_prices().priceWithTax / line.get_quantity()) or 0"/>
+                                </td>
+                                <td class="px-4 py-3 fw-bold text-dark">
+                                    $<t t-esc="line.get_display_price()"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            <td class="px-4 py-3 fw-bold text-dark" colspan="3">Total</td>
+                            <td class="px-4 py-3 fw-bold text-dark">
+                                $<t t-esc="currentOrder ? currentOrder.get_total_with_tax().toFixed(2) : '0.00'"/>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</t>
