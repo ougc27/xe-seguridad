@@ -1,6 +1,7 @@
 # Copyright 2018-2019 ForgeFlow, S.L.
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0)
 
+from markupsafe import Markup
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -150,6 +151,20 @@ class PurchaseRequest(models.Model):
         string="Total Estimated Cost",
         store=True,
     )
+    source_company_id = fields.Many2one('res.company', 'Empresa Origen')
+
+    destination_company_id = fields.Many2one('res.company', 'Empresa Destino')
+
+    is_intercompany = fields.Boolean(
+        string="Intergrupo",
+        help="Indicates whether this record is part of an intercompany operation."
+    )
+
+    intercompany_so_created = fields.Boolean(
+        string="Orden de Venta Intergrupo Creada,
+        help="Indica si ya se ha creado una orden de venta intergrupo para esta solicitud.",
+        copy=False
+    )
 
     @api.depends("line_ids", "line_ids.estimated_cost")
     def _compute_estimated_cost(self):
@@ -274,6 +289,51 @@ class PurchaseRequest(models.Model):
     def button_to_approve(self):
         self.to_approve_allowed_check()
         return self.write({"state": "to_approve"})
+
+    def button_sale_order(self):
+        partner_id = self.destination_company_id.partner_id
+        SaleOrder = self.env['sale.order'].sudo().with_company(self.source_company_id.id)
+        sale_order_vals = {
+            'company_id': self.source_company_id.id,
+            'partner_id': partner_id.id,
+            'partner_invoice_id': partner_id.id,
+            'partner_shipping_id': partner_id.id,
+            'warehouse_id': self.source_company_id.warehouse_id.id,
+            'origin': self.name,
+        }
+        sale_order = SaleOrder.create(sale_order_vals)
+        for line in self.line_ids:
+            price_unit = 0
+            try:
+                price_unit = sale_order.pricelist_id._get_product_price(line.product_id, 1, partner_id) or 0.01
+            except:
+                price_unit = line.product_id.list_price or 0.01
+
+            sale_order_lines_vals = {
+                'order_id': sale_order.id,
+                'product_id': line.product_id.id,
+                'product_uom_qty': line.product_qty,
+                'price_unit': price_unit,
+                'name': line.name
+            }
+            self.env['sale.order.line'].sudo().with_company(self.source_company_id.id).create(sale_order_lines_vals)
+
+        html_link = self.with_context(
+            model_name="sale.order",
+            record_id=sale_order.id
+        )._get_html_link(
+            title=sale_order.name
+        )
+
+        self.sudo().message_post(
+            body=Markup("Orden de venta intergrupo %s creada en %s") % (
+                html_link, self.source_company_id.name
+            ),
+            message_type="notification",
+            subtype_xmlid="mail.mt_note"
+        )
+
+        self.write({'intercompany_so_created': True})
 
     def button_approved(self):
         return self.write({"state": "approved"})
