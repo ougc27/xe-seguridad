@@ -47,10 +47,17 @@ class ResConfigSettings(models.TransientModel):
 
     user_ids =  fields.Many2many(related='pos_config_id.res_user_ids', readonly=False)
 
+    pos_allow_outlet2 = fields.Boolean(
+        string="Allow Outlet 2",
+        related='pos_config_id.allow_outlet2',
+        help="If enabled, this point of sale will be able to show the Outlet 2 option."
+    )
+
     pos_tax_id = fields.Many2one(
         'account.tax',
         related='pos_config_id.tax_id',
         readonly=False,
+        required=True,
         check_company=True,
         help="Enter the sales tax for the Point of Sale."
     )
@@ -61,4 +68,17 @@ class ResConfigSettings(models.TransientModel):
         related='pos_config_id.property_account_receivable_id',
         required=True,
         help="This account will be used instead of the default one as the receivable account for the current partner",
+    )
+
+    #esto nunca agregarlooooooooo
+    land_cost_cancel_modes = fields.Selection(
+        selection=[
+            ("cancel", "Cancel"),
+            ("cancel_draft", "Cancel and Reset to Draft"),
+            ("cancel_delete", "Cancel and Delete"),
+        ],
+        string="Operation Type",
+        help="Select the operation to perform when canceling a landed cost.",
+        store=True,
+        copy=True,
     )

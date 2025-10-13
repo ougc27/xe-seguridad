@@ -151,15 +151,9 @@ class PurchaseRequest(models.Model):
         string="Total Estimated Cost",
         store=True,
     )
-    source_company_id = fields.Many2one(
-        comodel_name="res.company",
-        string="Source Company",
-    )
+    source_company_id = fields.Many2one('res.company', 'Source Company')
 
-    destination_company_id = fields.Many2one(
-        comodel_name="res.company",
-        string="Destination Company",
-    )
+    destination_company_id = fields.Many2one('res.company', 'Destination Company')
 
     is_intercompany = fields.Boolean(
         string="Intercompany",
@@ -319,7 +313,8 @@ class PurchaseRequest(models.Model):
                 'order_id': sale_order.id,
                 'product_id': line.product_id.id,
                 'product_uom_qty': line.product_qty,
-                'price_unit': price_unit
+                'price_unit': price_unit,
+                'name': line.name
             }
             self.env['sale.order.line'].sudo().with_company(self.source_company_id.id).create(sale_order_lines_vals)
 

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="ProductDamagePopup" owl="1">
+        <div class="popup popup-large rounded-3 shadow-lg p-4" style="border-radius: 20px;">
+
+            <t t-if="props.image_url">
+                <div class="text-center mb-3">
+                    <img t-att-src="props.image_url"
+                         style="max-width:150px; max-height:150px;"
+                         class="rounded shadow-sm"/>
+                </div>
+            </t>
+
+            <div class="popup-body mb-3 text-center">
+                <strong><t t-esc="props.body"/></strong>
+            </div>
+
+            <div class="popup-content">
+
+                <div class="quantity-control d-flex justify-content-center mb-4">
+                    <button class="btn btn-secondary rounded-circle px-3" t-on-click="decrement">-</button>
+                    <span class="mx-3 fs-5"><t t-esc="state.quantity"/></span>
+                    <button class="btn btn-secondary rounded-circle px-3" t-on-click="increment">+</button>
+                </div>
+
+                <div class="text-center mb-2 fw-bold">
+                    Select the correct price for the product
+                </div>
+
+                <div class="damage-buttons d-flex justify-content-center gap-4 mb-4">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="damage_type"
+                            value="no_outlet" t-on-change="selectDamage"
+                            t-att-checked="state.damage_type == 'no_outlet'"/>
+                        <label class="form-check-label">No Outlet</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="damage_type"
+                            value="outlet_1" t-on-change="selectDamage"
+                            t-att-checked="state.damage_type == 'outlet_1'"/>
+                        <label class="form-check-label">Outlet 1</label>
+                    </div>
+                    <div class="form-check form-check-inline" t-if="props.allow_outlet2">
+                        <input class="form-check-input" type="radio" name="damage_type"
+                            value="outlet_2" t-on-change="selectDamage"
+                            t-att-checked="state.damage_type == 'outlet_2'"/>
+                        <label class="form-check-label">Outlet 2</label>
+                    </div>
+                </div>
+
+                <t t-if="state.price_included and state.price_included != 0">
+                    <div class="text-center fw-bold fs-5 mt-2">
+                        <span class="text-dark">Price per Unit:</span>
+                        <span class="text-danger ms-2">
+                            $<t t-esc="state.price_included"/>
+                        </span>
+                    </div>
+                </t>
+            </div>
+
+            <div class="popup-footer d-flex justify-content-center gap-3 mt-4">
+                <button class="btn btn-secondary px-4 rounded-pill" t-on-click="cancel">Cancel</button>
+                <button t-att-disabled="!state.damage_type" class="btn btn-primary px-4 rounded-pill" t-on-click="_OrderProduct">Add Product</button>
+            </div>
+        </div>
+    </t>
+
+</templates>

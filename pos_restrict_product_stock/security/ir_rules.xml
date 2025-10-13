@@ -26,5 +26,12 @@
         <field name="model_id" ref="point_of_sale.model_report_pos_order"/>
         <field name="domain_force">[('config_id.res_user_ids', 'in', [user.id])]</field>
         <field name="groups" eval="[(4, ref('pos_restrict_product_stock.group_pos_access_limited'))]"/>
-    </record>    
+    </record>
+
+    <record id="product_promotion_location_rule_company" model="ir.rule">
+        <field name="name">Product Promotion Location - Company</field>
+        <field name="model_id" ref="model_product_promotion_location"/>
+        <field name="groups" eval="[(4, ref('product.group_product_pricelist'))]"/>
+        <field name="domain_force">[('company_id', '=', company_id)]</field>
+    </record>
 </odoo>

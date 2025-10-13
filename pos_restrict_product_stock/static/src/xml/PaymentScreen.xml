@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
+    <t t-name="pos_restrict_product_stock.PaymentScreenTop" t-inherit="point_of_sale.PaymentScreenTop" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('back')]" position="replace">
+            <div class="button back btn btn-lg btn-secondary" t-on-click="goBack">
+                <i class="fa fa-angle-double-left me-2" />
+                <span class="back_text">Back</span>
+            </div>
+        </xpath>
+    </t>
+
     <t t-name="point_of_sale.PaymentScreenButtons" t-inherit="point_of_sale.PaymentScreenButtons" t-inherit-mode="extension" owl="1">
         <!--<xpath expr="//button[hasclass('partner-button')]" position="replace">
             <button class="button partner-button btn btn-light py-3 text-start rounded-0 border-bottom d-none" 

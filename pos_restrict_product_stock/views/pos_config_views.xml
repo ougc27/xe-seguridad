@@ -14,4 +14,20 @@
             </xpath>
         </field>
     </record>
+    <record id="pos_config_view_form_inherit_hide_is_posbox" model="ir.ui.view">
+        <field name="name">pos.config.form.view.inherit.hide.is_posbox</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//setting[@id='other_devices']" position="attributes">
+                <attribute name="groups">base.group_system</attribute>
+            </xpath>
+            <xpath expr="//setting[field[@name='is_posbox']]" position="attributes">
+                <attribute name="groups">base.group_system</attribute>
+            </xpath>
+            <xpath expr="//setting[field[@name='module_pos_hr']]" position="attributes">
+                <attribute name="groups">base.group_system</attribute>
+            </xpath>
+        </field>
+    </record>
 </odoo>
