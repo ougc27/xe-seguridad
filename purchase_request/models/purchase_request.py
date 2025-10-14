@@ -161,7 +161,7 @@ class PurchaseRequest(models.Model):
     )
 
     intercompany_so_created = fields.Boolean(
-        string="Orden de Venta Intergrupo Creada,
+        string="Orden de Venta Intergrupo Creada",
         help="Indica si ya se ha creado una orden de venta intergrupo para esta solicitud.",
         copy=False
     )
