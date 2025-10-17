@@ -1,9 +1,9 @@
 /** @odoo-module **/
 import { patch } from "@web/core/utils/patch";
+import { Product } from "@point_of_sale/app/store/models";
 import RestrictStockPopup from "@pos_restrict_product_stock/js/RestrictStockPopup"
 import { PosStore } from "@point_of_sale/app/store/pos_store";
 import { _t } from "@web/core/l10n/translation";
-
 
 patch(PosStore.prototype, {
 
