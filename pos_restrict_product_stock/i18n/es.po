@@ -1003,3 +1003,43 @@ msgstr "No puedes cancelar esta orden. El producto %s tiene %s unidades entregad
 #, python-format
 msgid "The invoice could not be validated: %s"
 msgstr "No se pudo timbrar la factura: %s"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Incorrect Total Payment"
+msgstr "Pago total incorrecto"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid ""
+"The total amount must exactly match the order total."
+msgstr ""
+"El monto total debe coincidir exactamente con el total del pedido."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Invalid Payment Amount"
+msgstr "Monto de pago inválido"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid ""
+"A payment method cannot have a negative amount. Please check your entries."
+msgstr ""
+"Un método de pago no puede tener un monto negativo. Por favor, revise sus "
+"entradas."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Excessive Payment"
+msgstr "Pago excesivo"

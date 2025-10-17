@@ -426,3 +426,63 @@ class PosSession(models.Model):
 
     def _get_receivable_account(self, payment_method):
         return self.config_id.property_account_receivable_id or payment_method.receivable_account_id
+
+    def _loader_params_custom_product_pricelist(self):
+        if self.config_id.use_pricelist:
+            base_ids = self.config_id.available_pricelist_ids.ids
+        else:
+            base_ids = [self.config_id.pricelist_id.id]
+
+        dependent_items = self.env['product.pricelist.item'].sudo().search([
+            ('base', '=', 'pricelist'),
+            ('pricelist_id', 'in', base_ids)
+        ])
+
+        dependent_ids = dependent_items.mapped('base_pricelist_id.id')
+
+        all_ids = list(set(base_ids + dependent_ids))
+
+        return {
+            'search_params': {
+                'domain': [('id', 'in', all_ids)],
+                'fields': ['name', 'display_name', 'discount_policy']
+            }
+        }
+
+    def load_pos_data(self):
+        loaded_data = {}
+        self = self.with_context(loaded_data=loaded_data)
+
+        for model in self._pos_ui_models_to_load():
+            loaded_data[model] = self._load_model(model)
+
+        self._pos_data_process(loaded_data)
+
+        params = self._loader_params_custom_product_pricelist()
+        pricelists = self.env['product.pricelist'].search_read(**params['search_params'])
+
+        pricelist_by_id = {pl['id']: pl for pl in pricelists}
+        for pl in pricelists:
+            pl['items'] = []
+
+        product_tmpl_ids = [p['product_tmpl_id'][0] for p in loaded_data['product.product']]
+        product_ids = [p['id'] for p in loaded_data['product.product']]
+
+        item_domain = self._product_pricelist_item_domain_by_product(product_tmpl_ids, product_ids, pricelists)
+        items = self.env['product.pricelist.item'].search_read(item_domain, self._product_pricelist_item_fields())
+
+        for item in items:
+            pricelist_by_id[item['pricelist_id'][0]]['items'].append(item)
+
+        loaded_data['all_pricelists'] = pricelists
+
+        applicable_items = defaultdict(list)
+        for item in items:
+            if item['product_id']:
+                applicable_items[item['product_id'][0]].append(item)
+            elif item['product_tmpl_id']:
+                applicable_items[item['product_tmpl_id'][0]].append(item)
+
+        loaded_data['applicable_items'] = dict(applicable_items)
+
+        return loaded_data
