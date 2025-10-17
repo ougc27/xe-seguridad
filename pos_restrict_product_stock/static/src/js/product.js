@@ -4,6 +4,8 @@ import { Product } from "@point_of_sale/app/store/models";
 import { patch } from "@web/core/utils/patch";
 import { _t } from "@web/core/l10n/translation";
 
+const { DateTime } = luxon;
+
 patch(Product.prototype, {
     get_display_price({
         pricelist = this.pos.getDefaultPricelist(),
