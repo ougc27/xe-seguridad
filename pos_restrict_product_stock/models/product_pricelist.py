@@ -84,29 +84,43 @@ class Pricelist(models.Model):
 
         result = []
 
-        for line in lines:     
-            pricelist = self.browse(line["pricelist_id"])       
-            pv_number = None
+        for line in lines:
+            pricelist = self.browse(line["pricelist_id"])
+            prefix = ""
+            number_part = None
             price = 0
-            if pricelist and pricelist.name and pricelist.name.upper().startswith("PV"):
-                match = re.search(r"^PV(\d+)", pricelist.name.upper())
+
+            if pricelist and pricelist.name:
+                match = re.match(r"^([A-Za-z]+)(\d+)", pricelist.name)
                 if match:
-                    pv_number = int(match.group(1))
+                    prefix = match.group(1)
+                    number_part = int(match.group(2))
 
             new_pricelist = pricelist
-            if pv_number and decrement > 0:
-                target_number = pv_number - decrement
+            if number_part and decrement > 0:
+                target_number = number_part - decrement
+                new_name_pattern = f"{prefix}{target_number}"
                 new_pricelist = self.search(
-                    [("name", "ilike", f"PV{target_number}")],
+                    [("name", "ilike", new_name_pattern)],
                     limit=1
                 ) or pricelist
 
+            _logger.info("este es el new_pricelist")
+            _logger.info(new_pricelist)
+
             product = self.env["product.product"].browse(line["product_id"])
             qty = line.get("quantity", 1.0)
-            partner = self.env.user.partner_id 
-
+            partner = self.env.user.partner_id
+            item_id = self.env['product.pricelist.item'].search(
+                [('base', '=', 'pricelist'), ('pricelist_id', '=', new_pricelist.id)], limit=1)
+            price_discount = 0
+            if item_id:
+                price_discount = item_id.price_discount
+                new_pricelist = item_id.base_pricelist_id
             try:
                 price = new_pricelist._get_product_price(product, qty, partner)
+                if price_discount:
+                    price = price * (1 - (price_discount / 100.0))
             except:
                 price = product.list_price
 
