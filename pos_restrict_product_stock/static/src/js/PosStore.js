@@ -35,5 +35,47 @@ patch(PosStore.prototype, {
             picking_id: picking_type_id,
             product_id: product_id
         });
+    },
+    async _processData(loadedData) {
+        this.all_pricelists = loadedData["all_pricelists"];
+        await super._processData(loadedData);
+    },
+    _loadProductProduct(products) {
+        const productMap = {};
+        const productTemplateMap = {};
+
+        const modelProducts = products.map((product) => {
+            product.pos = this;
+            product.env = this.env;
+            product.applicablePricelistItems = {};
+            productMap[product.id] = product;
+            productTemplateMap[product.product_tmpl_id[0]] = (
+                productTemplateMap[product.product_tmpl_id[0]] || []
+            ).concat(product);
+            return new Product(product);
+        });
+        const pricelists = this.all_pricelists || this.pricelists;
+        for (const pricelist of pricelists) {
+            for (const pricelistItem of pricelist.items) {
+                if (pricelistItem.product_id) {
+                    const product_id = pricelistItem.product_id[0];
+                    const correspondingProduct = productMap[product_id];
+                    if (correspondingProduct) {
+                        this._assignApplicableItems(pricelist, correspondingProduct, pricelistItem);
+                    }
+                } else if (pricelistItem.product_tmpl_id) {
+                    const product_tmpl_id = pricelistItem.product_tmpl_id[0];
+                    const correspondingProducts = productTemplateMap[product_tmpl_id];
+                    for (const correspondingProduct of correspondingProducts || []) {
+                        this._assignApplicableItems(pricelist, correspondingProduct, pricelistItem);
+                    }
+                } else {
+                    for (const correspondingProduct of products) {
+                        this._assignApplicableItems(pricelist, correspondingProduct, pricelistItem);
+                    }
+                }
+            }
+        }
+        this.db.add_products(modelProducts);
     }
 });
