@@ -473,13 +473,11 @@ class PosSession(models.Model):
         item_domain = self._product_pricelist_item_domain_by_product(product_tmpl_ids, product_ids, pricelists)
         items = self.env['product.pricelist.item'].search_read(item_domain, self._product_pricelist_item_fields())
 
-        # Asociar items a cada lista de precios
         for item in items:
             pricelist_by_id[item['pricelist_id'][0]]['items'].append(item)
 
         loaded_data['all_pricelists'] = pricelists
 
-        # Crear applicable_items con todos los items por producto/plantilla
         applicable_items = defaultdict(list)
         for item in items:
             if item['product_id']:

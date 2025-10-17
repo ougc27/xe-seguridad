@@ -126,11 +126,42 @@ patch(PaymentScreen.prototype, {
                     order.get_rounding_applied()
             ) > 0.00001
         ) {
-            if (!this.pos.payment_methods.some((pm) => pm.is_cash_count)) {
+            /*if (!this.pos.payment_methods.some((pm) => pm.is_cash_count)) {
                 this.popup.add(ErrorPopup, {
                     title: _t("Cannot return change without a cash payment method"),
                     body: _t(
                         "There is no cash payment method available in this point of sale to handle the change.\n\n Please pay the exact amount or add a cash payment method in the point of sale configuration"
+                    ),
+                });
+                return false;
+            }*/
+            await this.popup.add(ErrorPopup, {
+                title: _t("Incorrect Total Payment"),
+                body: _t(
+                    "The total amount must exactly match the order total."
+                ),
+            });
+            return false;
+        }
+
+        for (const line of order.get_paymentlines()) {
+            const amount = line.get_amount();
+
+            if (amount < 0) {
+                await this.popup.add(ErrorPopup, {
+                    title: _t("Invalid Payment Amount"),
+                    body: _t(
+                        "A payment method cannot have a negative amount. Please check your entries."
+                    ),
+                });
+                return false;
+            }
+
+            if (amount > order.get_total_with_tax()) {
+                await this.popup.add(ErrorPopup, {
+                    title: _t("Excessive Payment"),
+                    body: _t(
+                        `El método de pago "${line.payment_method.name}" excede el monto total del pedido.`
                     ),
                 });
                 return false;
