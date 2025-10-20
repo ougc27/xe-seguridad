@@ -157,7 +157,7 @@ patch(PaymentScreen.prototype, {
                 return false;
             }
 
-            if (amount > order.get_total_with_tax()) {
+            /*if (amount > order.get_total_with_tax()) {
                 await this.popup.add(ErrorPopup, {
                     title: _t("Excessive Payment"),
                     body: _t(
@@ -165,7 +165,7 @@ patch(PaymentScreen.prototype, {
                     ),
                 });
                 return false;
-            }
+            }*/
         }
 
         // if the change is too large, it's probably an input error, make the user confirm.
