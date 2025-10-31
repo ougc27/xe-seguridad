@@ -4,6 +4,29 @@
         <field name="model">helpdesk.ticket</field>
         <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="service_picking_ids" invisible="1"/>
+                <field name="show_transfer_button" invisible="1"/>
+                <button name="action_open_transfer_wizard"
+                        type="object"
+                        string="Generate Transfer"
+                        class="oe_highlight"
+                        invisible="not show_transfer_button or not is_type_paint_or_function"
+                        icon="fa-truck"/>
+                <button name="autofill_from_picking_or_sale"
+                    type="object"
+                    string="Autofill Information"
+                    invisible="is_locked"
+                    class="btn-secondary"
+                    icon="fa-magic"/>
+                <button type="object"
+                    name="action_open_service_picking_ids"
+                    class="oe_stat_button"
+                    icon="fa-truck"
+                    invisible="not service_picking_ids">
+                    Service Delivery
+                </button>
+            </xpath>
             <xpath expr="//field[@name='team_id']" position="after">
                 <field name="source_id" options="{'no_create':True, 'no_create_edit': True}" required="1"/>
                 <field name="attribution_ids" 
@@ -131,38 +154,6 @@
         </field>
     </record>
 
-    <record id="helpdesk_ticket_view_form_button_inherit" model="ir.ui.view">
-        <field name="name">helpdesk.helpdesk.ticket.form.button.inherit</field>
-        <field name="model">helpdesk.ticket</field>
-        <field name="inherit_id" ref="helpdesk_fsm.helpdesk_ticket_view_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//button[@name='action_generate_fsm_task']" position="replace">
-                <field name="service_picking_ids" invisible="1"/>
-                <field name="show_transfer_button" invisible="1"/>
-                <button name="action_open_transfer_wizard"
-                        type="object"
-                        string="Generate Transfer"
-                        class="oe_highlight"
-                        invisible="not show_transfer_button or not is_type_paint_or_function"
-                        icon="fa-truck"/>
-                <button name="autofill_from_picking_or_sale"
-                    type="object"
-                    string="Autofill Information"
-                    invisible="not is_type_paint_or_function or is_locked"
-                    class="btn-secondary"
-                    icon="fa-magic"/>
-            </xpath>
-            <xpath expr="//button[@name='action_view_fsm_tasks']" position="before">
-                <button type="object"
-                    name="action_open_service_picking_ids"
-                    class="oe_stat_button"
-                    icon="fa-truck"
-                    invisible="not service_picking_ids">
-                    Service Delivery
-                </button>
-            </xpath>
-        </field>
-    </record>
     <record id="helpdesk_ticket_view_kanban_inherit" model="ir.ui.view">
         <field name="name">helpdesk.ticket.kanban.inherit</field>
         <field name="model">helpdesk.ticket</field>
