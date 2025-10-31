@@ -4,7 +4,7 @@
     "name": "Cloud Storage Google",
     "summary": """Store chatter attachments in the Google cloud""",
     "category": "Technical Settings",
-    "version": "1.0",
+    "version": "17.0.0.0.0",
     "depends": ["cloud_storage"],
     "data": [
         "views/settings.xml",
