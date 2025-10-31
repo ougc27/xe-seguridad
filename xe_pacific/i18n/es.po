@@ -1556,3 +1556,10 @@ msgstr "Estado Kanban"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__pos_order_id
 msgid "Pos Order"
 msgstr "Orden del punto de venta"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_res_partner__commercial_name
+#: model:ir.model.fields,field_description:xe_pacific.field_res_users__commercial_name
+#: model:ir.model.fields,field_description:xe_pacific.field_sale_order__partner_commercial_name
+msgid "Commercial Name"
+msgstr "Nombre Comercial"

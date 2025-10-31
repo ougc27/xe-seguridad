@@ -47,4 +47,14 @@
             </xpath>
         </field>
     </record>
+    <record model="ir.ui.view" id="sale_margin_sale_order_pivot">
+        <field name="name">sale.order.margin.view.pivot</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sale_order_pivot"/>
+        <field name="arch" type="xml">
+            <pivot position="inside">
+                <field name="partner_commercial_name"/>
+            </pivot>
+        </field>
+    </record>
 </odoo>
