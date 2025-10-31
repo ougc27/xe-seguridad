@@ -24,6 +24,12 @@ class SaleOrder(models.Model):
 
     description = fields.Html()
 
+    partner_commercial_name = fields.Char(
+        related='partner_id.commercial_name',
+        string='Commercial Name',
+        store=True,
+    )
+
     @api.depends('team_id')
     def _compute_note(self):
         for order in self:

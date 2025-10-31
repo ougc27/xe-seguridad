@@ -1,5 +1,9 @@
-from odoo import fields, models, api
+from odoo import fields, models, api, _
 from odoo.tools import frozendict
+from odoo.exceptions import UserError
+
+import logging
+_logger = logging.getLogger()
 
 
 class AccountMoveLine(models.Model):
@@ -45,3 +49,49 @@ class AccountMoveLine(models.Model):
                 if arguments not in cache:
                     cache[arguments] = self.env['account.analytic.distribution.model']._get_distribution(arguments)
                 line.analytic_distribution = cache[arguments] or line.analytic_distribution
+
+    def _check_amls_exigibility_for_reconciliation(self, shadowed_aml_values=None):
+        """ Ensure the current journal items are eligible to be reconciled together.
+            Adapted for POS: ignores already reconciled lines to allow invoice creation.
+        """
+        if not self:
+            return
+    
+        # Filtrar solo las líneas NO reconciliadas para las validaciones
+        unreconciled_amls = self.filtered(lambda aml: not aml.reconciled)
+    
+        if unreconciled_amls:
+            # Validación: todas las líneas deben estar publicadas
+            if any(aml.parent_state != 'posted' for aml in unreconciled_amls):
+                raise UserError(_("You can only reconcile posted entries."))
+    
+            # Validación: todas las líneas deben ser de la misma cuenta
+            accounts = unreconciled_amls.mapped(
+                lambda x: x._get_reconciliation_aml_field_value('account_id', shadowed_aml_values)
+            )
+            if len(accounts) > 1:
+                raise UserError(_(
+                    "Entries are not from the same account: %s",
+                    ", ".join(accounts.mapped('display_name')),
+                ))
+    
+            # Validación: todas las líneas deben pertenecer a la misma compañía
+            if len(unreconciled_amls.mapped('company_id').root_id) > 1:
+                raise UserError(_(
+                    "Entries don't belong to the same company: %s",
+                    ", ".join(unreconciled_amls.mapped('company_id.display_name')),
+                ))
+    
+            # Validación: la cuenta debe permitir reconciliación
+            account = accounts[0]
+            if not account.reconcile and account.account_type not in ('asset_cash', 'liability_credit_card'):
+                raise UserError(_(
+                    "Account %s does not allow reconciliation. First change the configuration of this account "
+                    "to allow it.",
+                    account.display_name,
+                ))
+    
+        # Si todas las líneas ya estaban reconciliadas, simplemente logueamos y seguimos
+        else:
+            _logger.info("All journal items are already reconciled. Skipping reconciliation checks but allowing invoice creation.")
+    
