@@ -16,45 +16,6 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__create_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__create_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__create_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__create_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__create_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__create_uid
-msgid "Created by"
-msgstr "Creado por"
-
-#. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__create_date
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__create_date
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_date
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_date
-#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__create_date
-#: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__create_date
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__create_date
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_date
-#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_date
-#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__create_date
-msgid "Created on"
-msgstr "Creado el"
-
-#. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__display_name
-#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__display_name
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__display_name
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__display_name
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__display_name
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__display_name
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__display_name
-msgid "Display Name"
-msgstr "Nombre para mostrar"
-
-#. module: xe_pacific
 #: model:ir.model.fields.selection,name:xe_pacific.selection__stock_picking__kanban_task_status__confirmed
 msgid "ENT CONFIRMADA"
 msgstr "ENT CONFIRMADA"
@@ -95,17 +56,6 @@ msgid "Excepción"
 msgstr "Excepción"
 
 #. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__id
-#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__id
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__id
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__id
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__id
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__id
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__id
-msgid "ID"
-msgstr "ID"
-
-#. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_project_task__installer_id
 msgid "Installer"
 msgstr "Instalador"
@@ -119,28 +69,6 @@ msgstr "Estado Kanban"
 #: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__kanban_task_status
 msgid "Kanban Task Status"
 msgstr "Estado de la tarea Kanban"
-
-#. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__write_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__write_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__write_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__write_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__write_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_uid
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__write_uid
-msgid "Last Updated by"
-msgstr "Última actualización por"
-
-#. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__write_date
-#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__write_date
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__write_date
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__write_date
-#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__write_date
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_date
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__write_date
-msgid "Last Updated on"
-msgstr "Última actualización el"
 
 #. module: xe_pacific
 #: model:ir.model.fields.selection,name:xe_pacific.selection__stock_picking__shipping_assignment__logistics
@@ -263,14 +191,6 @@ msgstr "Tienda punto de venta"
 #: model:ir.model.fields,field_description:xe_pacific.field_product_template__not_automatic_lot_number
 msgid "Not Automatic Lot Number"
 msgstr "Número de lote no automático"
-
-#. module: xe_pacific
-#: model_terms:ir.ui.view,arch_db:xe_pacific.base_copy_user_access_view_form
-#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_wizard
-#: model_terms:ir.ui.view,arch_db:xe_pacific.view_generate_ticket_wizard_form
-#: model_terms:ir.ui.view,arch_db:xe_pacific.view_ticket_transfer_wizard_form
-msgid "Cancel"
-msgstr "Cancelar"
 
 #. module: xe_pacific
 #: model_terms:ir.ui.view,arch_db:xe_pacific.base_copy_user_access_view_form
@@ -843,19 +763,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__crm_team_id
 msgid "Sales Team"
 msgstr "Canal"
-
-#. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__picking_id
-msgid "Picking"
-msgstr "Traslado"
-
-#. module: xe_pacific
-#. odoo-python
-#: model:ir.model,name:xe_pacific.model_product_template
-#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__product_id
-#, python-format
-msgid "Product"
-msgstr "Producto"
 
 #. module: xe_pacific
 #. odoo-python
@@ -1563,3 +1470,269 @@ msgstr "Orden del punto de venta"
 #: model:ir.model.fields,field_description:xe_pacific.field_sale_order__partner_commercial_name
 msgid "Commercial Name"
 msgstr "Nombre Comercial"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/stock_picking.py:0
+#, python-format
+msgid "There are no moves in this transfer."
+msgstr "No hay movimientos en este traslado."
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/split_picking.py:0
+#, python-format
+msgid "You cannot enter a negative quantity."
+msgstr "No puedes ingresar una cantidad negativa."
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/split_picking.py:0
+#, python-format
+msgid "You cannot enter more than the available quantity."
+msgstr "No puedes ingresar más de la cantidad disponible."
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/split_picking.py:0
+#, python-format
+msgid "You cannot enter negative quantities for %s."
+msgstr "No puedes ingresar cantidades negativas para %s."
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/split_picking.py:0
+#, python-format
+msgid "A new partial transfer has been created: %s"
+msgstr "Se ha creado un nuevo traslado parcial: %s"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__qty_available
+msgid "Available Quantity"
+msgstr "Cantidad disponible"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.base_copy_user_access_view_form
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_wizard
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_generate_ticket_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_ticket_transfer_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_split_picking_wizard
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_split_picking_wizard
+msgid "Confirm"
+msgstr "Confirmar"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__description
+#, python-format
+msgid "Description"
+msgstr "Descripción"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/split_picking.py:0
+#, python-format
+msgid "Exceeded Quantity"
+msgstr "Cantidad excedida"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/split_picking.py:0
+#, python-format
+msgid "Invalid Quantity"
+msgstr "Cantidad inválida"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__id
+#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__id
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__id
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__id
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__id
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__id
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__id
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__id
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_base_copy_user_access__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_reason__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__line_ids
+msgid "Lines"
+msgstr "Líneas"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_split_picking_wizard_line
+msgid "Lines of the split picking wizard"
+msgstr "Líneas del asistente de separación de traslado"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/split_picking.py:0
+#, python-format
+msgid "New Picking"
+msgstr "Nuevo traslado"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/split_picking.py:0
+#, python-format
+msgid "No valid quantities selected to split."
+msgstr "No se seleccionaron cantidades válidas para separar."
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/split_picking.py:0
+#, python-format
+msgid "Only confirmed or assigned pickings can be split."
+msgstr "Solo se pueden dividir traslados confirmados o asignados."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__move_id
+msgid "Original Move"
+msgstr "Movimiento original"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__picking_id
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__picking_id
+msgid "Picking"
+msgstr "Traslado"
+
+#. module: xe_pacific
+#. odoo-python
+#: model:ir.model,name:xe_pacific.model_product_template
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__product_id
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__product_id
+#, python-format
+msgid "Product"
+msgstr "Producto"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_split_picking_wizard
+msgid "Products in Picking"
+msgstr "Productos en el traslado"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__qty_to_split
+msgid "Quantity to Split"
+msgstr "Cantidad a separar"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/stock_picking.py:0
+#: model:ir.actions.act_window,name:xe_pacific.action_split_picking_wizard
+#: model_terms:ir.ui.view,arch_db:xe_pacific.stock_picking_form_inherit_split_button
+#, python-format
+msgid "Split Products"
+msgstr "Separar productos"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_split_picking_wizard
+msgid "Split Products from Picking"
+msgstr "Separar productos del traslado"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/split_picking.py:0
+#, python-format
+msgid ""
+"The quantity to split for %s cannot exceed the available quantity (%s)."
+msgstr "La cantidad a separar para %s no puede exceder la ca
+
+#. module: xe_pacific
+#: model:res.groups,name:xe_pacific.group_can_split_specific_lines
+msgid "Can Split Specific Lines"
+msgstr "Puede separar partidas específicas"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/helpdesk_ticket.py:0
+#: model_terms:ir.ui.view,arch_db:xe_pacific.custom_helpdesk_ticket_view_form
+#, python-format
+msgid "Generate Transfer"
+msgstr "Generar Entrega"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.custom_helpdesk_ticket_view_form
+msgid "Autofill Information"
+msgstr "Autocompletar información"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.custom_helpdesk_ticket_view_form
+msgid "Service Delivery"
+msgstr "Entrega del servicio"

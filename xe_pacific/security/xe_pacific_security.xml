@@ -60,4 +60,8 @@
         <field name="perm_unlink" eval="1"/>
         <field name="perm_read" eval="1"/>
     </record>
+    <record id="group_can_split_specific_lines" model="res.groups">
+        <field name="name">Can Split Specific Lines</field>
+        <field name="category_id" ref="base.module_category_inventory_inventory"/>
+    </record>
 </odoo>

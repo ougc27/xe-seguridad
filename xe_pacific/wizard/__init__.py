@@ -4,3 +4,4 @@ from . import cancellation_remission
 from . import ticket_transfer_wizard
 from . import ticket_transfer_wizard
 from . import generate_ticket_wizard
+from . import split_picking
