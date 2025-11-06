@@ -834,3 +834,34 @@ class StockPicking(models.Model):
                 'default_partner_id': self.partner_id.id,
             },
         }
+
+    def action_open_split_picking_wizard(self):
+        self.ensure_one()
+
+        if not self.move_ids_without_package:
+            raise UserError(_("There are no moves in this transfer."))
+
+        wizard = self.env['split.picking.wizard'].create({
+            'picking_id': self.id,
+        })
+
+        lines = []
+        for move in self.move_ids_without_package:
+            lines.append((0, 0, {
+                'move_id': move.id,
+                'description': move.description_picking or move.name,
+                'product_id': move.product_id.id,
+                'qty_available': move.product_uom_qty,
+                'qty_to_split': 0.0,
+            }))
+
+        wizard.write({'line_ids': lines})
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Split Products'),
+            'res_model': 'split.picking.wizard',
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
