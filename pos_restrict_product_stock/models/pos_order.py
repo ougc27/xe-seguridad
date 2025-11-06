@@ -125,7 +125,8 @@ class PosOrder(models.Model):
                 'payment_state': 'in_payment',
                 'pos_session_id': order.session_id.id,
                 'team_id': order.config_id.crm_team_id.id,
-                'invoice_user_id': order.user_id.id
+                'invoice_user_id': order.user_id.id,
+                'l10n_mx_edi_payment_method_id': order.l10n_mx_edi_payment_method_id.id,
             })
 
         if not moves:
@@ -289,7 +290,7 @@ class PosOrder(models.Model):
                 raise UserError(_(
                     "You cannot cancel this order. The product %s has %s units delivered and %s units returned."
                 ) % (product.display_name, qty_delivered, qty_ret))
-        
+
     def check_invoice(self):
         if self.to_invoice:
             raise UserError(_("You cannot cancel this order because its accounting entry (invoice) is not cancelled."))

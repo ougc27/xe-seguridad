@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_split_picking_wizard" model="ir.ui.view">
+            <field name="name">split.picking.wizard.form</field>
+            <field name="model">split.picking.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Split Products from Picking">
+                    <group>
+                        <field name="picking_id" readonly="1"/>
+                    </group>
+
+                    <separator string="Products in Picking"/>
+
+                    <field name="line_ids" nolabel="1">
+                        <tree editable="bottom" create="false" delete="false">
+                            <field name="move_id" invisible="1" column_invisible="1" optional="hide"/>
+                            <field name="product_id" readonly="1"/>
+                            <field name="description" readonly="1"/>
+                            <field name="qty_available" readonly="1"/>
+                            <field name="qty_to_split"/>
+                        </tree>
+                    </field>
+
+                    <footer>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                        <button string="Confirm" type="object" name="action_confirm" class="btn-primary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_split_picking_wizard" model="ir.actions.act_window">
+            <field name="name">Split Products</field>
+            <field name="res_model">split.picking.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record id="stock_picking_form_inherit_split_button" model="ir.ui.view">
+            <field name="name">stock.picking.form.inherit.split.button</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <header position="inside">
+                    <button
+                        name="action_open_split_picking_wizard"
+                        string="Split Products"
+                        type="object"
+                        class="btn-primary"
+                        groups="xe_pacific.group_can_split_specific_lines"
+                        invisible="state not in ('assigned', 'confirmed', 'cancel')"/>
+                </header>
+            </field>
+        </record>
+    </data>
+</odoo>
