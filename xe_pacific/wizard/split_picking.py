@@ -9,7 +9,7 @@ class SplitPickingWizard(models.Model):
     _name = 'split.picking.wizard'
     _description = 'Wizard to split picking'
 
-    picking_id = fields.Many2one('stock.picking', string='Picking', required=True)
+    picking_id = fields.Many2one('stock.picking', string='Picking')
     line_ids = fields.One2many('split.picking.wizard.line', 'wizard_id', string='Lines')
 
     def action_confirm(self):
@@ -19,7 +19,7 @@ class SplitPickingWizard(models.Model):
         if not picking:
             raise UserError(_("There is no picking associated."))
 
-        if picking.state not in ('assigned', 'confirmed', 'cancel'):
+        if picking.state not in ('assigned', 'confirmed'):
             raise UserError(_("Only confirmed or assigned pickings can be split."))
 
         StockMove = self.env['stock.move']
@@ -70,9 +70,9 @@ class SplitPickingWizard(models.Model):
             'origin': picking.origin,
             'company_id': picking.company_id.id,
             'scheduled_date': picking.scheduled_date,
-            'group_id': picking.group_id.id if picking.group_id else False,
+            'group_id': picking.group_id.id,
             'note': picking.note,
-            'sale_id': picking.sale_id.id if picking.sale_id else False,
+            'sale_id': picking.sale_id.id,
             'user_id': picking.user_id.id,
         }
 
@@ -87,15 +87,20 @@ class SplitPickingWizard(models.Model):
         new_picking.action_confirm()
         new_picking.do_unreserve()
 
-        # Post a message on the original picking
-        self.env['mail.message'].create({
-            'model': 'stock.picking',
-            'res_id': picking.id,
-            'body': _('A new partial transfer has been created: %s') % new_picking.name,
-            'message_type': 'comment',
-            'subtype_id': self.env.ref('mail.mt_note').id,
-            'author_id': self.env.user.partner_id.id,
-        })
+        if len(picking.move_ids) == 0:
+            picking.sudo().unlink()
+        else:
+            # Post a message on the original picking
+            self.env['mail.message'].create({
+                'model': 'stock.picking',
+                'res_id': picking.id,
+                'body': _('A new partial transfer has been created: %s') % new_picking.name,
+                'message_type': 'comment',
+                'subtype_id': self.env.ref('mail.mt_note').id,
+                'author_id': self.env.user.partner_id.id,
+            })
+        self.line_ids.sudo().unlink()
+        self.sudo().unlink()
 
         # Open the new picking
         return {
