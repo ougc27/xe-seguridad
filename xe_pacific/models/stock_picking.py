@@ -865,3 +865,14 @@ class StockPicking(models.Model):
             'view_mode': 'form',
             'target': 'new',
         }
+
+    def _create_backorder_picking(self):
+        self.ensure_one()
+        return self.copy({
+            'name': '/',
+            'move_ids': [],
+            'move_line_ids': [],
+            'backorder_id': self.id,
+            'kanban_task_status': 'to_scheduled',
+            'shipment_task_status': 'to_scheduled',
+        })
