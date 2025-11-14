@@ -19,7 +19,7 @@ class StockPicking(models.Model):
         ('shipped', 'EMBARCADO / RUTA'),
         ('waiting', 'PDTE MODIFICACIÓN'),
         ('finished', 'FINALIZADO'),
-        ('exception', 'EXCEPCIÓN')], tracking=True, default='to_scheduled', group_expand='_group_expand_states')
+        ('exception', 'EXCEPCIÓN')], tracking=True, copy=False, default='to_scheduled', group_expand='_group_expand_states')
 
     shipment_task_status = fields.Selection([
         ('to_scheduled', 'POR PROGRAMAR'),
@@ -30,7 +30,7 @@ class StockPicking(models.Model):
         ('shipments', 'EMBARQUES'),
         ('confirmed', 'EMBARCADO'),
         ('finished', 'FINALIZADO'),
-        ('exception', 'EXCEPCIÓN')], tracking=True, default='to_scheduled', group_expand='_group_expand_status')
+        ('exception', 'EXCEPCIÓN')], tracking=True, copy=False, default='to_scheduled', group_expand='_group_expand_status')
 
     x_studio_canal_de_distribucin = fields.Char(
         string="Nombre del Equipo de Ventas",
