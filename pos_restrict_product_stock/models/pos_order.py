@@ -100,6 +100,9 @@ class PosOrder(models.Model):
 
             move_vals = order._prepare_invoice_vals(partner_id)
             new_move = order._create_invoice(move_vals)
+            new_move.write({
+                'l10n_mx_edi_payment_method_id': order.l10n_mx_edi_payment_method_id.id,
+            })
 
             order.write({'account_move': new_move.id})
             new_move.sudo().with_company(order.company_id).with_context(skip_invoice_sync=True)._post()
@@ -126,7 +129,6 @@ class PosOrder(models.Model):
                 'pos_session_id': order.session_id.id,
                 'team_id': order.config_id.crm_team_id.id,
                 'invoice_user_id': order.user_id.id,
-                'l10n_mx_edi_payment_method_id': order.l10n_mx_edi_payment_method_id.id,
             })
 
         if not moves:
