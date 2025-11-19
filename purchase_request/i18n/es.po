@@ -1543,3 +1543,8 @@ msgstr "Debe seleccionar líneas de la misma compañía."
 #, fuzzy
 #~ msgid "Procurement Rule"
 #~ msgstr "Abastecimiento"
+
+#. module: purchase_request
+#: model:res.groups,name:purchase_request.group_purchase_request_intercompany
+msgid "Purchase Request Intercompany"
+msgstr "Solicitud de Compra Intergrupo"
