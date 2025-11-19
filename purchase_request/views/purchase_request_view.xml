@@ -38,7 +38,7 @@
                     />
                     <button
                         name="button_sale_order"
-                        invisible="state not in ('approved') or not is_intercompany or intercompany_so_created"
+                        invisible="not is_intercompany or intercompany_so_created"
                         string="Create OV"
                         type="object"
                         groups="purchase_request.group_purchase_request_intercompany"
@@ -138,12 +138,14 @@
                             <field name="source_company_id"
                                 readonly="state != 'draft'"
                                 invisible="not is_intercompany"
-                                required="is_intercompany" 
+                                required="is_intercompany"
+                                context="{'show_all_companies': True}"
                                 options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="destination_company_id"
                                 readonly="state != 'draft'" 
                                 invisible="not is_intercompany" 
-                                required="is_intercompany" 
+                                required="is_intercompany"
+                                context="{'show_all_companies': True}"
                                 options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="group_id" readonly="is_editable == False" />
                         </group>
