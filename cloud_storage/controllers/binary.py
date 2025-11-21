@@ -34,8 +34,7 @@ class BinaryInherit(WebBinary):
                     'res_model': model,
                     'res_id': int(id)
                 })
-                _logger.info("Llame el post_add_create")
-                attachment.sudo()._post_add_create()
+                attachment.sudo().with_context(no_cloud=True)._post_add_create()
             except AccessError:
                 args.append({'error': _("You are not allowed to upload an attachment here.")})
             except Exception:
