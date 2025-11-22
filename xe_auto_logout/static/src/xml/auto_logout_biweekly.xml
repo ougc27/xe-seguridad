@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="xe_auto_logout.BiWeeklyLogout">
+        <div style="display:none;"></div>
+    </t>
+</templates>
