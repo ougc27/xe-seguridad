@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'XE Auto Logout',
-    'version': '17.0.0.0.2',
+    'version': '17.0.0.0.1',
     'category': 'Extra Tools',
     'summary': """Auto logout idle user with fixed time on sundays""",
     'description': """If the user

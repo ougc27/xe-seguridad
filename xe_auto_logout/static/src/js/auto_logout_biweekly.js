@@ -6,7 +6,7 @@ import { useService } from "@web/core/utils/hooks";
 
 const { onMounted } = owl;
 
-CONFIGURACIÓN
+//CONFIGURACIÓN
 const TARGET_DAY = 0;              // Domingo
 const TARGET_HOUR = 23;            // 11 PM
 const CHECK_INTERVAL = 5 * 60 * 1000;  // Revisa cada 5 minutos
