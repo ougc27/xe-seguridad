@@ -1,5 +1,5 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-
+import logging
 import json
 import re
 import base64
@@ -18,6 +18,8 @@ from odoo import models, tools
 from odoo.exceptions import ValidationError, UserError
 
 from ..utils.cloud_storage_google_utils import generate_signed_url_v4
+
+_logger = logging.getLogger(__name__)
 
 CloudStorageGoogleCredentials = {}  # {db_name: (account_info, credential)}
 
@@ -110,7 +112,7 @@ class IrAttachment(models.Model):
                 })
 
                 if response.status_code != 200:
-                    raise UserError(f"Error al subir {rec.name}: {response.status_code} - {response.text}")
+                    _logger.error(f"Error al subir {rec.name}: {response.status_code} - {response.text}")
 
                 rec.write({
                     'url': rec.url.replace(
@@ -121,58 +123,24 @@ class IrAttachment(models.Model):
                 })
 
             except Exception as e:
-                raise UserError(f"Error en {rec.name} (ID {rec.id}): {str(e)}")
+                _logger.error(f"Error en {rec.name} (ID {rec.id}): {str(e)}")
 
-    """def migrate_attachments_to_gcs(self):
-        for rec in self:
-            try:
-                file_data = b''
-                if rec.datas:
-                    file_data = base64.b64decode(rec.datas)
-                elif rec.store_fname:
-                    filestore = tools.config.filestore(self.env.cr.dbname)
-                    file_path = os.path.join(filestore, rec.store_fname)
-                    if os.path.exists(file_path):
-                        with open(file_path, 'rb') as f:
-                            file_data = f.read()
+    def download_file_from_gcs(self):
+        try:
+            download_info = self._generate_cloud_storage_download_info()
+            url = download_info.get("url")
+            resp = requests.get(url)
+            if resp.status_code == 200:            
+                resp.raise_for_status()
+                data_bytes = resp.content
+                data_b64 = base64.b64encode(data_bytes).decode()
+                if data_b64:
+                    mimetype = self.mimetype
+                    self.write({
+                        "datas": data_b64,
+                        "type": "binary",
+                        "mimetype": mimetype
+                    })
 
-                if not file_data:
-                    raise UserError(f"Archivo vacío o no encontrado: {rec.name}")
-
-                # 🔹 Generamos la URL del Cloud Storage (sin tocar el tipo aún)
-                upload_url_base = rec._generate_cloud_storage_url()
-
-                # 🔹 Forzamos tipo antes de generar signed URL
-                rec.write({
-                    'raw': False,
-                    'type': 'cloud_storage',
-                    'url': upload_url_base,
-                })
-
-                upload_info = rec._generate_cloud_storage_upload_info()
-                upload_url = upload_info.get('url')
-
-                # 🔹 Subimos a GCS con headers completos
-                response = requests.put(
-                    upload_url,
-                    data=file_data,
-                    headers={
-                        'Content-Type': rec.mimetype or 'application/octet-stream',
-                        'Content-Length': str(len(file_data)),
-                    },
-                )
-
-                if response.status_code != 200:
-                    raise UserError(f"Error al subir {rec.name}: {response.status_code} - {response.text}")
-
-                # 🔹 Reescribimos la URL final (versión visual cloud.google)
-                rec.write({
-                    'url': rec.url.replace(
-                        "https://storage.googleapis.com",
-                        "https://storage.cloud.google.com"
-                    ),
-                    'datas': False,  # limpia el binario local
-                })
-
-            except Exception as e:
-                raise UserError(f"Error en {rec.name} (ID {rec.id}): {str(e)}")"""
+        except Exception as e:
+            _logger.error(f"Error en {self.name} (ID {self.id}): {str(e)}")
