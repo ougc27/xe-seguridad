@@ -21,21 +21,7 @@ class ThreadControllerInherit(ThreadController):
         )
         for attachment_id in post_data.get('attachment_ids'):
             attachment = request.env["ir.attachment"].sudo().browse(attachment_id)
-            download_info = attachment._generate_cloud_storage_download_info()
-            url = download_info.get("url")
-            resp = requests.get(url)
-            if resp.status_code == 200:            
-                data = resp.content         
-                resp.raise_for_status()
-                data_bytes = resp.content
-                data_b64 = base64.b64encode(data_bytes).decode()
-                if data_b64:
-                    mimetype = attachment.mimetype
-                    attachment.write({
-                        "datas": data_b64,
-                        "type": "binary",
-                        "mimetype": mimetype
-                    })
+            attachment.download_file_from_gcs()
         if context:
             request.update_context(**context)
         canned_response_ids = tuple(cid for cid in post_data.pop('canned_response_ids', []) if isinstance(cid, int))
