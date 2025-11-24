@@ -3,14 +3,12 @@ from odoo.http import request
 from markupsafe import Markup
 import base64
 import requests
-import logging
 from datetime import datetime
 from werkzeug.exceptions import NotFound
 from odoo.addons.mail.controllers.thread import ThreadController
 from odoo.addons.mail.models.discuss.mail_guest import add_guest_to_context
 from odoo.exceptions import ValidationError, UserError
 
-_logger = logging.getLogger(__name__)
 
 class ThreadControllerInherit(ThreadController):
 
@@ -23,11 +21,7 @@ class ThreadControllerInherit(ThreadController):
         )
         for attachment_id in post_data.get('attachment_ids'):
             attachment = request.env["ir.attachment"].sudo().browse(attachment_id)
-            _logger.info("este es el attachment")
-            _logger.info(attachment.read()[0])
             download_info = attachment._generate_cloud_storage_download_info()
-            _logger.info("download_info")
-            _logger.info(download_info)
             url = download_info.get("url")
             resp = requests.get(url)
             if resp.status_code == 200:            
@@ -35,8 +29,6 @@ class ThreadControllerInherit(ThreadController):
                 resp.raise_for_status()
                 data_bytes = resp.content
                 data_b64 = base64.b64encode(data_bytes).decode()
-                _logger.info("data_b64")
-                _logger.info(data_b64)
                 if data_b64:
                     mimetype = attachment.mimetype
                     attachment.write({
