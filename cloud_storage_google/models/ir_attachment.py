@@ -7,6 +7,7 @@ import requests
 import os
 import threading
 from urllib.parse import unquote, quote
+from datetime import datetime, timedelta
 
 try:
     from google.oauth2 import service_account
@@ -42,11 +43,11 @@ class IrAttachment(models.Model):
     _cloud_storage_google_url_pattern = re.compile(r'https://storage\.googleapis\.com/(?P<bucket_name>[\w\-.]+)/(?P<blob_name>[^?]+)')
 
     def _get_cloud_storage_google_info(self):
-        url = self.url.replace(
-            "https://storage.cloud.google.com",
-            "https://storage.googleapis.com"
-        )
-        match = self._cloud_storage_google_url_pattern.match(url)
+        #url = self.url.replace(
+            #"https://storage.cloud.google.com",
+            #"https://storage.googleapis.com"
+        #)
+        match = self._cloud_storage_google_url_pattern.match(self.url)
         if not match:
             raise ValidationError('%s is not a valid Google Cloud Storage URL.', self.url)
         return {
@@ -95,6 +96,9 @@ class IrAttachment(models.Model):
     def migrate_attachments_to_gcs(self):
         for rec in self:
             try:
+                mimetype = rec.mimetype
+                #if rec.mimetype == 'audio/ogg':
+                    #mimetype = 'video/mp4'
                 datas = rec.datas
                 rec.write({
                     'raw': False,
@@ -108,19 +112,20 @@ class IrAttachment(models.Model):
                 file_data = base64.b64decode(datas)
             
                 response = requests.put(upload_url, data=file_data, headers={
-                    'Content-Type': rec.mimetype or 'application/octet-stream'
+                    'Content-Type': mimetype or 'application/octet-stream'
                 })
 
                 if response.status_code != 200:
                     _logger.error(f"Error al subir {rec.name}: {response.status_code} - {response.text}")
 
                 rec.write({
-                    'url': rec.url.replace(
-                        "https://storage.googleapis.com",
-                        "https://storage.cloud.google.com"
-                    ),
+                    #'url': rec.url.replace(
+                        #"https://storage.googleapis.com",
+                        #"https://storage.cloud.google.com"
+                    #),
+                    'mimetype': mimetype,
                     'datas': False,
-                })
+                })     
 
             except Exception as e:
                 _logger.error(f"Error en {rec.name} (ID {rec.id}): {str(e)}")

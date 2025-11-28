@@ -31,8 +31,8 @@ class CloudAttachmentController(AttachmentController):
         # upload files to the cloud storage
         attachment = request.env["ir.attachment"].browse(data["id"]).sudo()
         data["upload_info"] = attachment._generate_cloud_storage_upload_info()
-        attachment.write(
-            {'url': attachment.url.replace("https://storage.googleapis.com", "https://storage.cloud.google.com")
-        })
+        #attachment.write(
+            #{'url': attachment.url.replace("https://storage.googleapis.com", "https://storage.cloud.google.com")
+        #})
         
         return request.make_json_response(data)
