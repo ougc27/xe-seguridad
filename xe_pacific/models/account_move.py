@@ -74,3 +74,23 @@ class AccountMove(models.Model):
                     [('company_id', '=', self.env.company.id), ('name', 'in', order_names)]).ids
                 continue
             record.order_ids = False
+
+    @api.depends(
+        'move_type',
+        'invoice_date_due',
+        'invoice_date',
+        'invoice_payment_term_id',
+        'l10n_mx_edi_payment_method_id',
+    )
+    def _compute_l10n_mx_edi_payment_policy(self):
+        res = super(AccountMove, self)._compute_l10n_mx_edi_payment_policy()
+        for move in self:
+
+            if not move.l10n_mx_edi_payment_method_id:
+                continue
+
+            if move.l10n_mx_edi_payment_method_id.code == '99':
+                move.l10n_mx_edi_payment_policy = 'PPD'
+            else:
+                move.l10n_mx_edi_payment_policy = 'PUE'
+        return res
