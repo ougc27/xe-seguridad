@@ -102,6 +102,7 @@ class L10nMxEdiDocument(models.Model):
         if cfdi_values.get('document_name', None):
             invoice_origin = self.env['account.move'].search([
                 ('name', '=', cfdi_values['document_name']),
+                ('state', '=', 'posted'),
                 ('company_id', '=', cfdi_values['company'].id)
             ])
             if invoice_origin.x_studio_almacen_id.partner_id.zip:
