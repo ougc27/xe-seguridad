@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 
 class ResPartner(models.Model):
@@ -39,3 +40,31 @@ class ResPartner(models.Model):
             if record.country_id:
                 record.contact_address_complete += record.country_id.name
             record.contact_address_complete = record.contact_address_complete.strip().strip(',')
+
+    @api.model
+    def _restricted_company_partner_fields(self, vals):
+        restricted_fields = {
+            'name',
+            'vat',
+            'fiscal_name',
+            'phone',
+            'mobile',
+            'email',
+            'website'
+        }
+        fields_attempted = restricted_fields.intersection(vals.keys())
+
+        if not fields_attempted:
+            return
+        
+        user = self.env.user
+
+        if not user.has_group("base.group_system"):
+            field_list = ", ".join(fields_attempted)
+            raise UserError(("No tienes permisos para modificar los siguientes datos del contacto: %s") % field_list)
+
+    def write(self, vals):
+        for partner in self:
+            if partner.sudo().ref_company_ids:
+                partner._restricted_company_partner_fields(vals)
+        return super().write(vals)
