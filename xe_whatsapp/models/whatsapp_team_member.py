@@ -81,7 +81,7 @@ class WhatsappTeamMember(models.Model):
         Config.set_param(config_key, str(next_user_id))
 
         user_id = self.env['res.users'].browse(next_user_id)
-        team_member = self.env['whatsapp.team.members'].search([('user_id', '=', user_id.id)])
+        team_member = self.env['whatsapp.team.members'].search([('user_id', '=', user_id.id), ('wa_account_id', '=', wa_account_id.id)], limit=1)
         assignment_count = team_member.assignment_count + 1
         team_member.sudo().write({'assignment_count': assignment_count})
         return user_id
