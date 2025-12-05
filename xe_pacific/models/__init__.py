@@ -30,3 +30,4 @@ from . import mrp_bom
 from . import crm_team
 from . import stock_forecasted
 from . import module
+from . import ir_attachment
