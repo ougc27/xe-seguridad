@@ -77,6 +77,18 @@ class DiscussChannel(models.Model):
                             'partner_id': channel_member_id,
                             'channel_id': rec.id,
                         }])
+        if 'assigned_person' in vals and rec.channel_type == "whatsapp":
+            assigned_person = rec.assigned_person
+            if assigned_person:
+                assigned_partner = assigned_person.partner_id
+                for member in rec.channel_member_ids:
+                    if member.partner_id == assigned_partner:
+                        member.write({'custom_notifications': None})
+                    else:
+                        member.write({'custom_notifications': 'no_notif'})
+            else:
+                for member in rec.channel_member_ids:
+                    member.write({'custom_notifications': 'no_notif'})
         return res
 
     def _channel_info(self):
