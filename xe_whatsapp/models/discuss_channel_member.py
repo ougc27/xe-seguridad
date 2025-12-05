@@ -32,3 +32,18 @@ class DiscussChannelMember(models.Model):
             (member.partner_id, 'discuss.channel/unpin', {'id': member.channel_id.id})
             for member in members_to_be_unpinned
         ])
+
+    def create(self, vals):
+        member = super().create(vals)
+        channel = member.channel_id
+        if channel.channel_type == "whatsapp":
+            assigned_person = channel.assigned_person
+            member_partner = member.partner_id
+
+            if assigned_person:
+                assigned_partner = assigned_person.partner_id
+                if assigned_partner != member_partner:
+                    member.write({'custom_notifications': 'no_notif'})
+            else:
+                member.write({'custom_notifications': 'no_notif'})
+        return member
