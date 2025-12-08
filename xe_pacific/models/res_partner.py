@@ -68,3 +68,19 @@ class ResPartner(models.Model):
             if partner.sudo().ref_company_ids:
                 partner._restricted_company_partner_fields(vals)
         return super().write(vals)
+
+    @api.model
+    def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
+        if self.env.context.get('from_account_payment'):
+            domain = domain or []
+            domain += [
+                '|', '|', '|',
+                ('name', 'ilike', name),
+                ('email', 'ilike', name),
+                ('mobile', 'ilike', name),
+                ('phone', 'ilike', name),
+            ]
+    
+            return super()._name_search(name, domain, operator, limit, order)
+    
+        return super()._name_search(name, domain, operator, limit, order)
