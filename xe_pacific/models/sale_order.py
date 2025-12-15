@@ -98,7 +98,7 @@ class SaleOrder(models.Model):
                     rec.picking_ids.separate_construction_remissions()
             for picking in rec.picking_ids:
                 if picking.company_id.id == 4:
-                    picking.update_tag_ids_to_pickings(False)
+                    picking.update_tag_ids_to_pickings()
                 moves = picking.move_ids.filtered(lambda move: (
                      move.product_id.product_tmpl_id.not_automatic_lot_number
                 ))

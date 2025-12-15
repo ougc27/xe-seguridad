@@ -303,6 +303,7 @@ class PosOrder(models.Model):
             rec.check_invoice()
 
             session_id = rec.session_id
+            stop_at = session_id.stop_at
             amount_total = rec.amount_total
             session_id.sudo().write({
                 'cash_register_balance_end': session_id.cash_register_balance_end - amount_total,
@@ -332,6 +333,9 @@ class PosOrder(models.Model):
 
             session_id.sudo().action_pos_session_close()
 
+            if not stop_at:
+                stop_at = fields.Datetime.now()
+            session_id.sudo().write({'stop_at': stop_at})
         return rec
 
     def write(self, vals):
