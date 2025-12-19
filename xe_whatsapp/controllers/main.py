@@ -17,7 +17,7 @@ class WebhookInherit(Webhook):
         request.env['ir.logging'].sudo().create({
             'name': 'Whatsapp Webhook',
             'type': 'server',
-            'dbname': env.cr.dbname,
+            'dbname': request.env.cr.dbname,
             'level': 'INFO',
             'message': data,
             'path': 'xe_whatsapp.controllers.main.py',
