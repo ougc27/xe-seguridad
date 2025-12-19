@@ -1,2 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_whatsapp_team_members,access.whatsapp.team.members,model_whatsapp_team_members,whatsapp.group_whatsapp_admin,1,1,1,1
+access_whatsapp_reassignment_log,access.whatsapp.reassignment.log,model_whatsapp_reassignment_log,whatsapp.group_whatsapp_admin,1,0,0,0
+access_whatsapp_response_metric,access.whatsapp.response.metric,model_whatsapp_response_metric,whatsapp.group_whatsapp_admin,1,0,0,0

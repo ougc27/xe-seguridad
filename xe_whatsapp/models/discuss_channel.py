@@ -1,6 +1,7 @@
+import pytz
 from odoo import fields, models, api, _
 from odoo.tools import html2plaintext
-from datetime import timedelta
+from datetime import timedelta, time
 
 
 class DiscussChannel(models.Model):
@@ -20,8 +21,6 @@ class DiscussChannel(models.Model):
 
     first_respond_message = fields.Datetime(string="Primer mensaje cliente", readonly=True)
 
-    user_respond_in_time = fields.Boolean(string="El usuario respondio a tiempo")
-
     is_open_for_all_users = fields.Boolean(string="Esta abierto a todos los usuarios")
 
     assigned_person = fields.Many2one(
@@ -32,7 +31,11 @@ class DiscussChannel(models.Model):
     whatsapp_channel_active = fields.Boolean('Is Whatsapp Channel Active', compute="_compute_whatsapp_channel_active")
 
     last_wa_mail_message_id = fields.Many2one(comodel_name="mail.message", string="Last WA Partner Mail Message", index='btree_not_null')
-    
+
+    is_reassigned_computed = fields.Boolean(default=False)
+
+    is_reassigned = fields.Boolean(default=False)
+
     @api.depends('last_wa_mail_message_id')
     def _compute_whatsapp_channel_valid_until(self):
         for channel in self:
@@ -164,3 +167,137 @@ class DiscussChannel(models.Model):
             'source_id': source_id,
             'medium_id': medium_id
         })
+
+    def _get_channels_pending_reassign(self, only_today=True, minutes=10, limit=200):
+        """Returns the channels that must be checked:
+        - they have a first_respond_message (first customer message)
+        - first_respond_message <= now - minutes
+        - is_reassigned_computed == False
+        - optionally, only today’s channels (only_today=True)
+        """
+        now = fields.Datetime.now()
+        cutoff = now - timedelta(minutes=minutes)
+        domain = [
+            ('first_respond_message', '!=', False),
+            ('first_respond_message', '<=', cutoff),
+            ('is_reassigned_computed', '=', False),
+            ('assigned_person', '!=', False),
+        ]
+        if only_today:
+            today = fields.Date.today()
+            domain.append(('first_respond_message', '>=', today))
+
+        return self.sudo().search(domain, limit=limit, order="create_date desc")
+
+    def _agent_replied_within_window(self, channel, minutes=10):
+        """Returns True if the assigned_person sent at least one message within the interval:
+        [first_respond_message, first_respond_message + minutes]
+        This attempts to cover several message integration schemas (user_id, author_id, from_user).
+        """
+        start = channel.first_respond_message
+        end_dt = fields.Datetime.from_string(start) + timedelta(minutes=minutes)
+        Message = self.env['whatsapp.message']
+        domain = [
+            ('mobile_number', 'ilike', channel.whatsapp_number),
+            ('create_uid', '=', channel.assigned_person.id),
+            ('create_date', '>=', start),
+            ('create_date', '<=', end_dt),
+        ]
+        return bool(Message.sudo().search(domain, limit=1))
+
+    def _process_single_channel_for_reassign(self, channel, minutes=10):
+        """For a channel:
+        - if the assigned_person replied within the time window -> mark is_reassigned_computed=True
+        - if they did NOT reply -> reassign using assign_person_to_chat_round_robin(...)
+            and mark is_reassigned_computed=True
+        """
+        try:
+            agent_replied = self._agent_replied_within_window(channel, minutes=minutes)
+        except Exception:
+            agent_replied = True
+
+        if agent_replied:
+            channel.sudo().write({'is_reassigned_computed': True})
+            return
+
+        wa_account = getattr(channel, 'wa_account_id', False)
+        user = None
+        if wa_account:
+            user = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(wa_account, 'sales_team')
+        
+        if user == channel.assigned_person:
+            user = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(
+                wa_account, 'sales_team'
+            )
+
+        vals = {'is_reassigned_computed': True}
+        if user:
+            vals['assigned_person'] = user.id
+            vals['is_reassigned'] = True
+
+            lost_count = self.env['whatsapp.reassignment.log'].sudo().search(
+                [
+                    ('lost_by_user_id', '=', channel.assigned_person.id),
+                    ('wa_account_id', '=', wa_account.id),
+                ],
+                order="id DESC",
+                limit=1
+            ).lost_count
+
+            if not lost_count:
+                lost_count = 0
+
+            self.env['whatsapp.reassignment.log'].sudo().create({
+                'lost_by_user_id': channel.assigned_person.id,
+                'assigned_to_user_id': user.id,
+                'whatsapp_number': channel.whatsapp_number,
+                'wa_account_id': wa_account.id,
+                'reassigned_at': fields.Datetime.now(),
+                'lost_count': lost_count + 1,
+            })            
+
+        channel.sudo().write(vals)
+
+    def log_reassignment(self, user_id, vals):
+        ReassignmentLog  = self.env['whatsapp.reassignment.log']
+        lost_count = ReassignmentLog .sudo().search(
+            [
+                ('lost_by_user_id', '=', user_id),
+                ('wa_account_id', '=', vals.get('wa_account_id')),
+            ],
+            order="id DESC",
+            limit=1,
+        ).lost_count
+
+        if not lost_count:
+            lost_count = 0
+
+        vals.update({
+            'lost_count': lost_count + 1,
+            'reassigned_at': fields.Datetime.now(),
+        })
+
+        return ReassignmentLog .sudo().create(vals)
+
+    def _cron_reassign_unanswered(self, only_today=True, batch_limit=100, minutes=10):
+        env = self.with_context(tz='America/Mexico_City')
+        now = fields.Datetime.context_timestamp(
+            env,
+            fields.Datetime.now()
+        ).time()
+        start = time(8, 40)
+        end = time(18, 30)
+
+        if not (start <= now <= end):
+            return
+        candidates = self._get_channels_pending_reassign(only_today=only_today, minutes=minutes, limit=batch_limit)
+        if not candidates:
+            return
+        for ch in candidates:
+            self._process_single_channel_for_reassign(ch, minutes=minutes)
+
+    def _channel_basic_info(self):
+        self.ensure_one()
+        res = super()._channel_basic_info()
+        res["is_reassigned"] = self.is_reassigned
+        return res

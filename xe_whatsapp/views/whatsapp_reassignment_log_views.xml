@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_whatsapp_reassignment_log_tree" model="ir.ui.view">
+        <field name="name">whatsapp.reassignment.log.tree</field>
+        <field name="model">whatsapp.reassignment.log</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="lost_count > 5">
+                <field name="reassigned_at"/>
+                <field name="whatsapp_number"/>
+                <field name="lost_by_user_id"/>
+                <field name="assigned_to_user_id"/>
+                <field name="wa_account_id"/>
+                <field name="reassignment_type"/>
+                <field name="lost_count"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_whatsapp_reassignment_log_search" model="ir.ui.view">
+        <field name="name">whatsapp.reassignment.log.search</field>
+        <field name="model">whatsapp.reassignment.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="whatsapp_number"/>
+                <field name="lost_by_user_id"/>
+                <field name="assigned_to_user_id"/>
+                <field name="wa_account_id"/>
+
+                <!-- Quick filters -->
+                <filter name="today" string="Today"
+                        domain="[('reassigned_at', '>=', context_today())]"/>
+                <filter name="last_7" string="Last 7 Days"
+                        domain="[('reassigned_at', '>=', (context_today() - datetime.timedelta(days=7)))]"/>
+                <filter name="high_loss" string="Frequent Losses"
+                        domain="[('lost_count', '>=', 5)]"/>
+
+                <!-- Group by -->
+                <group expand="1" string="Group By">
+                    <filter name="group_lost_by" string="Lost By"
+                            context="{'group_by': 'lost_by_user_id'}"/>
+                    <filter name="group_assigned_to" string="Reassigned To"
+                            context="{'group_by': 'assigned_to_user_id'}"/>
+                    <filter name="group_account" string="WhatsApp Account"
+                            context="{'group_by': 'wa_account_id'}"/>
+                    <filter name="group_date" string="Day"
+                            context="{'group_by': 'reassigned_at:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_whatsapp_reassignment_logs" model="ir.actions.act_window">
+        <field name="name">Reassignment Logs</field>
+        <field name="res_model">whatsapp.reassignment.log</field>
+        <field name="view_mode">tree</field>
+        <field name="search_view_id" ref="view_whatsapp_reassignment_log_search"/>
+    </record>
+
+    <menuitem name="WhatsApp Reassignment Logs"
+        id="whatsapp_reassignment_log_menu"
+        parent="whatsapp.whatsapp_configuration_menu"
+        sequence="10"
+        action="action_whatsapp_reassignment_logs"/>
+</odoo>

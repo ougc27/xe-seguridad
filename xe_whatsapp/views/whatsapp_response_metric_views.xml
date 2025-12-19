@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_whatsapp_response_metric_tree" model="ir.ui.view">
+        <field name="name">whatsapp.response.metric.tree</field>
+        <field name="model">whatsapp.response.metric</field>
+        <field name="arch" type="xml">
+            <tree string="WhatsApp Response Metrics">
+                <field name="user_id"/>
+                <field name="whatsapp_number"/>
+                <field name="wa_account_id"/>
+                <field name="response_time_minutes"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_whatsapp_response_metric_search" model="ir.ui.view">
+        <field name="name">whatsapp.response.metric.search</field>
+        <field name="model">whatsapp.response.metric</field>
+        <field name="arch" type="xml">
+            <search string="Search Response Metrics">
+                <field name="user_id"/>
+                <field name="whatsapp_number"/>
+                <field name="wa_account_id"/>
+                <filter
+                    name="today"
+                    string="Today"
+                    domain="[('first_agent_message_at', '>=', context_today())]"
+                />
+                <filter
+                    name="last_7_days"
+                    string="Last 7 Days"
+                    domain="[('first_agent_message_at', '>=', (context_today() - datetime.timedelta(days=7)))]"
+                />
+                <separator/>
+                <filter
+                    name="slow_response"
+                    string="Slow Response (+30 min)"
+                    domain="[('response_time_minutes', '&gt;', 30)]"
+                />
+                <filter
+                    name="fast_response"
+                    string="Fast Response (&lt; 5 min)"
+                    domain="[('response_time_minutes', '&lt;', 5)]"
+                />
+                <group expand="0" string="Group By">
+                    <filter name="group_user" string="Agent"
+                        context="{'group_by': 'user_id'}"/>
+                    <filter name="group_account" string="WhatsApp Account"
+                        context="{'group_by': 'wa_account_id'}"/>
+                    <filter
+                        name="group_day"
+                        string="Day"
+                        context="{'group_by': 'first_agent_message_at:day'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_whatsapp_response_metric" model="ir.actions.act_window">
+        <field name="name">WhatsApp Response Metrics</field>
+        <field name="res_model">whatsapp.response.metric</field>
+        <field name="view_mode">tree</field>
+        <field name="search_view_id" ref="view_whatsapp_response_metric_search"/>
+    </record>
+
+    <menuitem
+        id="whatsapp_response_metric_menu"
+        name="WhatsApp Response Metrics"
+        parent="whatsapp.whatsapp_configuration_menu"
+        action="action_whatsapp_response_metric"
+        sequence="15"
+    />
+
+</odoo>

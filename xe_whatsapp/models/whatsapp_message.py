@@ -2,12 +2,11 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta  
 from odoo import fields, models, api, Command
 from odoo.addons.whatsapp.tools import phone_validation as wa_phone_validation
-from odoo.tools import groupby, html2plaintext
+from odoo.tools import groupby
 from odoo.exceptions import ValidationError, UserError
 from odoo.addons.whatsapp.tools.whatsapp_exception import WhatsAppError
 from odoo.addons.whatsapp.tools.whatsapp_api import WhatsAppApi
 import markupsafe
-from markupsafe import Markup
 
 
 class WhatsappMessage(models.Model):
@@ -42,14 +41,14 @@ class WhatsappMessage(models.Model):
         """
         records = super().create(vals)
         for rec in records:
-            last_messages = self.env['whatsapp.message'].search([
+            first_messages = self.env['whatsapp.message'].search([
                 ('mobile_number', '=', rec.mobile_number)
-            ], order='create_date desc', limit=2)
+            ], order='create_date ASC', limit=2)
 
             channel = self.env['discuss.channel'].search(
                 [('whatsapp_number', '=', rec.mobile_number_formatted)])
             
-            if len(last_messages) == 1 and rec.state == 'received':
+            if len(first_messages) == 1 and rec.state == 'received':
                 #rec.send_automated_respond()
                 team = 'sales_team'
                 channel.write({
@@ -62,36 +61,20 @@ class WhatsappMessage(models.Model):
                     assigned_person_id = self.assign_member_to_chat(channel, user_id)
                     channel.whatsapp_partner_id.update_whatsapp_partner(assigned_person_id)
                 continue
-            
-            """channel = self.env['discuss.channel'].search([('whatsapp_number', '=', rec.mobile_number_formatted)])
-            if rec.body == '<p>Ventas</p>':
-                team = 'sales_team'
-                channel.write({
-                    'assigned_to': team,
-                    'first_respond_message': datetime.now()
-                })
-                partners = self.env['whatsapp.team.members'].assign_person_to_chat_aleatory(
-                                            rec.wa_account_id, team)
-                if partners:
-                    self.change_channel_members(channel, partners)
-
-            if rec.body == '<p>Atención a clientes</p>':
-                team = 'support_team'
-                channel.write({
-                    'assigned_to': team,
-                    'first_respond_message': datetime.now()
-                })
-                partners = self.env['whatsapp.team.members'].assign_person_to_chat_aleatory(
-                                            rec.wa_account_id, team)
-                if partners:
-                    self.change_channel_members(channel, partners)"""
-            if len(last_messages) > 1:
-                last_message = last_messages[1]
-            last_message = last_messages[0]
-            if channel.user_respond_in_time:
-                types = ('outgoing', 'sent', 'delivered', 'read')
-                if last_message.state == 'received' and rec.state in types:
-                    rec['user_respond_in_time'] = True
+            if rec.state != 'received' and channel.assigned_person == rec.create_uid:
+                agent_replied  = self.env['whatsapp.message'].search([
+                    ('mobile_number', '=', rec.mobile_number),
+                    ('create_uid', '!=', 4),
+                ], limit=2)
+                if len(agent_replied) == 1:
+                    first_message = first_messages[0]
+                    self.env['whatsapp.response.metric'].sudo().create({
+                        'user_id': rec.create_uid.id,
+                        'whatsapp_number': rec.mobile_number,
+                        'wa_account_id': rec.wa_account_id.id,
+                        'first_customer_message_at': first_message.create_date,
+                        'first_agent_message_at': rec.create_date,
+                    })
         return records
 
     def _get_html_preview_whatsapp(self, rec, wa_template_id):

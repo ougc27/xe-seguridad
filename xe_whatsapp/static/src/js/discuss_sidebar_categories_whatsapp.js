@@ -37,8 +37,12 @@ patch(DiscussSidebarCategories.prototype, {
         this.state.search = false;
     },
 
-    groupedByAssignedPerson(threads) {
+    groupedByAssignedPerson(category) {
+        let threads = this.filteredThreads(category);
         const groups = {};
+        threads = [...threads].sort((a, b) => {
+            return (b.is_reassigned === true) - (a.is_reassigned === true);
+        });
         for (const thread of threads) {
             const assignedPerson = thread.assigned_person ? thread.assigned_person[1] : "Sin asignar";
             if (!groups[assignedPerson]) {

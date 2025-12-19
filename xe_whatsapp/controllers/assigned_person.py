@@ -1,4 +1,4 @@
-from odoo import http
+from odoo import http, fields
 from odoo.http import request
 
 class WhatsAppAssignedPerson(http.Controller):
@@ -9,7 +9,8 @@ class WhatsAppAssignedPerson(http.Controller):
         assigned_person = channel.assigned_person
         available_persons = request.env['whatsapp.team.members'].sudo().search([
             ('team', '=', channel.assigned_to),
-            ('user_id.active', '=', True)
+            ('user_id.active', '=', True),
+            ('wa_account_id', '=', channel.wa_account_id.id)
         ]).mapped(lambda member: {
             'id': member.user_id.id,
             'name': member.user_id.name
@@ -26,6 +27,28 @@ class WhatsAppAssignedPerson(http.Controller):
         user = request.env['res.users'].sudo().browse(person_id)
         if channel and user:
             if user:
+                if channel.assigned_person:
+                    lost_count = request.env['whatsapp.reassignment.log'].sudo().search(
+                        [
+                            ('lost_by_user_id', '=', channel.assigned_person.id),
+                            ('wa_account_id', '=', channel.wa_account_id.id),
+                        ],
+                        order="id DESC",
+                        limit=1
+                    ).lost_count
+
+                    if not lost_count:
+                        lost_count = 0
+
+                    request.env['whatsapp.reassignment.log'].sudo().create({
+                        'lost_by_user_id': channel.assigned_person.id,
+                        'assigned_to_user_id': user.id,
+                        'whatsapp_number': channel.whatsapp_number,
+                        'wa_account_id': channel.wa_account_id.id,
+                        'reassigned_at': fields.Datetime.now(),
+                        'lost_count': lost_count + 1,
+                        'reassignment_type': 'manual'
+                    })            
                 channel.assigned_person = user.id
                 channel.whatsapp_partner_id.update_whatsapp_partner(user.id)
                 return True
