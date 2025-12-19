@@ -77,11 +77,15 @@ msgid "Created On"
 msgstr "Creado El"
 
 #. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_reassignment_log__create_uid
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__create_uid
 #: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
 #. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_reassignment_log__create_date
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__create_date
 #: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__create_date
 msgid "Created on"
 msgstr "Creado el"
@@ -92,6 +96,8 @@ msgid "Discussion Channel"
 msgstr "Canal de Discusión"
 
 #. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_reassignment_log__display_name
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__display_name
 #: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__display_name
 msgid "Display Name"
 msgstr "Nombre Mostrado"
@@ -129,6 +135,8 @@ msgid "Hide Assigned Person List"
 msgstr "Ocultar Lista de Personas Asignadas"
 
 #. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_reassignment_log__id
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__id
 #: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__id
 msgid "ID"
 msgstr "ID"
@@ -139,11 +147,15 @@ msgid "Is Whatsapp Channel Active"
 msgstr "¿El Canal de WhatsApp está Activo?"
 
 #. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_reassignment_log__write_uid
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__write_uid
 #: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__write_uid
 msgid "Last Updated by"
 msgstr "Última Actualización por"
 
 #. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_reassignment_log__write_date
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__write_date
 #: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__write_date
 msgid "Last Updated on"
 msgstr "Última Actualización el"
@@ -287,6 +299,8 @@ msgid "Users assigned to the whatsapp account"
 msgstr "Usuarios asignados a la cuenta de WhatsApp"
 
 #. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_reassignment_log__wa_account_id
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__wa_account_id
 #: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_team_members__wa_account_id
 msgid "WhatsApp Business Account"
 msgstr "Cuenta de Negocio de WhatsApp"
@@ -346,3 +360,188 @@ msgstr "Esta disponible"
 #: model:res.groups,name:xe_whatsapp.can_see_assigned_person_button_group
 msgid "Can see assigned person button"
 msgstr "Puede ver el listado de las personas asignadas en whatsapp"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_partner_form
+msgid "<span class=\"o_stat_text\">Chats</span>"
+msgstr "<span class=\"o_stat_text\">Chats</span>"
+
+#. module: xe_whatsapp
+#. odoo-javascript
+#: code:addons/xe_whatsapp/static/src/xml/assigned_person.xml:0
+#, python-format
+msgid "Assigned to: Asignar asesor"
+msgstr "Asignado a: Asignar asesor"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_reassignment_log_search
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_response_metric_search
+msgid "Day"
+msgstr "Día"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields.selection,name:xe_whatsapp.selection__whatsapp_reassignment_log__reassignment_type__auto
+msgid "Automatic"
+msgstr "Automático"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__user_id
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_response_metric_search
+msgid "Agent"
+msgstr "Agente"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_response_metric_search
+msgid "Fast Response (< 5 min)"
+msgstr "Respuesta rápida (< 5 min)"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__first_agent_message_at
+msgid "First Agent Message At"
+msgstr "Fecha del primer mensaje del agente"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__first_customer_message_at
+msgid "First Customer Message At"
+msgstr "Fecha del primer mensaje del cliente"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_reassignment_log_search
+msgid "Frequent Losses"
+msgstr "Pérdidas frecuentes"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_reassignment_log_search
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_response_metric_search
+msgid "Group By"
+msgstr "Agrupar por"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,help:xe_whatsapp.field_whatsapp_reassignment_log__lost_count
+msgid ""
+"Incremented each time this user loses a conversation due to automatic "
+"reassignment."
+msgstr ""
+"Se incrementa cada vez que este usuario pierde una conversación debido a una "
+"reasignación automática."
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__is_reassigned
+msgid "Is Reassigned"
+msgstr "Está reasignado"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__is_reassigned_computed
+msgid "Is Reassigned Computed"
+msgstr "Está reasignado (calculado)"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_reassignment_log_search
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_response_metric_search
+msgid "Last 7 Days"
+msgstr "Últimos 7 días"
+
+#. module: xe_whatsapp
+#: model:ir.model,name:xe_whatsapp.model_whatsapp_reassignment_log
+msgid "Log of lost conversations due to automatic reassignment"
+msgstr "Registro de conversaciones perdidas por reasignación automática"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_reassignment_log_search
+msgid "Lost By"
+msgstr "Perdido por"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_reassignment_log__lost_by_user_id
+msgid "Lost By User"
+msgstr "Perdido por el usuario"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_reassignment_log__lost_count
+msgid "Lost Count"
+msgstr "Cantidad de pérdidas"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields.selection,name:xe_whatsapp.selection__whatsapp_reassignment_log__reassignment_type__manual
+msgid "Manual"
+msgstr "Manual"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_reassignment_log__reassigned_at
+msgid "Reassigned At"
+msgstr "Reasignado el"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_reassignment_log_search
+msgid "Reassigned To"
+msgstr "Reasignado a"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_reassignment_log__assigned_to_user_id
+msgid "Reassigned To User"
+msgstr "Reasignado al usuario"
+
+#. module: xe_whatsapp
+#: model:ir.actions.act_window,name:xe_whatsapp.action_whatsapp_reassignment_logs
+msgid "Reassignment Logs"
+msgstr "Registros de reasignación"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_reassignment_log__reassignment_type
+msgid "Reassignment Type"
+msgstr "Tipo de reasignación"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__response_time_minutes
+msgid "Response Time (Minutes)"
+msgstr "Tiempo de respuesta (minutos)"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_response_metric_search
+msgid "Search Response Metrics"
+msgstr "Buscar métricas de respuesta"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_response_metric_search
+msgid "Slow Response (+30 min)"
+msgstr "Respuesta lenta (+30 min)"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_reassignment_log_search
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_response_metric_search
+msgid "Today"
+msgstr "Hoy"
+
+#. module: xe_whatsapp
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_reassignment_log_search
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_response_metric_search
+msgid "WhatsApp Account"
+msgstr "Cuenta de WhatsApp"
+
+#. module: xe_whatsapp
+#: model:ir.model,name:xe_whatsapp.model_whatsapp_response_metric
+msgid "WhatsApp First Response Metric"
+msgstr "Métrica de primera respuesta de WhatsApp"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_reassignment_log__whatsapp_number
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__whatsapp_number
+msgid "WhatsApp Number"
+msgstr "Número de WhatsApp"
+
+#. module: xe_whatsapp
+#: model:ir.ui.menu,name:xe_whatsapp.whatsapp_reassignment_log_menu
+msgid "WhatsApp Reassignment Logs"
+msgstr "Registros de reasignación de WhatsApp"
+
+#. module: xe_whatsapp
+#: model:ir.actions.act_window,name:xe_whatsapp.action_whatsapp_response_metric
+#: model:ir.ui.menu,name:xe_whatsapp.whatsapp_response_metric_menu
+#: model_terms:ir.ui.view,arch_db:xe_whatsapp.view_whatsapp_response_metric_tree
+msgid "WhatsApp Response Metrics"
+msgstr "Métricas de respuesta de WhatsApp"
+
+#. module: xe_whatsapp
+#: model:ir.actions.server,name:xe_whatsapp.ir_cron_reassign_unanswered_whatsapp_ir_actions_server
+msgid "WhatsApp: Reassign unanswered chats"
+msgstr "WhatsApp: Reasignar chats sin respuesta"

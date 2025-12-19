@@ -17,7 +17,7 @@
                     <ChannelSelector category="category" onValidate.bind="stopEditing" autofocus="true" close.bind="stopEditing" />
                 </div>
                 <t t-if="category.id === 'whatsapp'">
-                    <t t-foreach="groupedByAssignedPerson(category.threads)" t-as="assigned_group" t-key="assigned_group_index">
+                    <t t-foreach="groupedByAssignedPerson(category)" t-as="assigned_group" t-key="assigned_group_index">
                         <div class="o-mail-DiscussSidebarSubCategory ms-4">
                             <div class="d-flex align-items-center my-1">
                                 <div t-attf-class="d-flex align-items-baseline mx-1 {{ hover_class }}" 
@@ -43,6 +43,19 @@
                     </t>
                 </t>
             </t>
+        </xpath>
+    </t>
+    <t t-name="xe_whatsapp.DiscussSidebarChannel" t-inherit="mail.DiscussSidebarChannel" t-inherit-mode="extension">
+        <xpath expr="//button[contains(@class, 'o-mail-DiscussSidebarChannel')]" position="attributes">
+            <attribute name="t-att-class">
+                {
+                    'bg-inherit': thread.notEq(store.discuss.thread),
+                    'o-active': thread.eq(store.discuss.thread),
+                    'o-unread': thread.message_unread_counter > 0 and !thread.muteUntilDateTime,
+                    'opacity-50': thread.muteUntilDateTime,
+                    'o-wa-reassigned': thread.is_reassigned
+                }
+            </attribute>
         </xpath>
     </t>
 </templates>

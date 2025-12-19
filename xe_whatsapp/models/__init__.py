@@ -5,3 +5,5 @@ from . import res_partner
 from . import crm_team_member
 from . import res_users
 from . import discuss_channel_member
+from . import whatsapp_reassignment_log
+from . import whatsapp_response_metric

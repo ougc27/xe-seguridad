@@ -38,7 +38,8 @@ patch(Thread.prototype, {
                 "is_editable",
                 "defaultDisplayMode",
                 "assigned_person",
-                'is_open'
+                'is_open',
+                'is_reassigned'
             ]);
             assignIn(this, data, [
                 "custom_channel_name",
