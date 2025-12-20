@@ -1,7 +1,7 @@
 import pytz
 from odoo import fields, models, api, _
 from odoo.tools import html2plaintext
-from datetime import timedelta, time
+from datetime import datetime, timedelta, time
 
 
 class DiscussChannel(models.Model):
@@ -168,6 +168,30 @@ class DiscussChannel(models.Model):
             'medium_id': medium_id
         })
 
+    def _get_sla_start_datetime(self, channel):
+        tz = pytz.timezone(self.env.context.get('tz') or self.env.user.tz or 'UTC')
+        env = self.with_context(tz='America/Mexico_City')
+        now = fields.Datetime.context_timestamp(
+            env,
+            channel.first_respond_message
+        )
+        work_start = time(8, 30)
+        work_end = time(18, 30)
+
+        if now.time() < work_start:
+            sla_start = now.replace(
+                hour=8, minute=30, second=0, microsecond=0
+            )
+
+        elif now.time() > work_end:
+            next_day = now.date() + timedelta(days=1)
+            sla_start = tz.localize(datetime.combine(next_day, work_start))
+
+        else:
+            sla_start = now
+
+        return sla_start.astimezone(pytz.UTC)
+
     def _get_channels_pending_reassign(self, only_today=True, minutes=10, limit=200):
         """Returns the channels that must be checked:
         - they have a first_respond_message (first customer message)
@@ -194,7 +218,7 @@ class DiscussChannel(models.Model):
         [first_respond_message, first_respond_message + minutes]
         This attempts to cover several message integration schemas (user_id, author_id, from_user).
         """
-        start = channel.first_respond_message
+        start = self._get_sla_start_datetime(channel)
         end_dt = fields.Datetime.from_string(start) + timedelta(minutes=minutes)
         Message = self.env['whatsapp.message']
         domain = [
@@ -254,7 +278,8 @@ class DiscussChannel(models.Model):
                 'wa_account_id': wa_account.id,
                 'reassigned_at': fields.Datetime.now(),
                 'lost_count': lost_count + 1,
-            })            
+            })
+            channel._broadcast(channel.channel_member_ids.partner_id.ids)
 
         channel.sudo().write(vals)
 
