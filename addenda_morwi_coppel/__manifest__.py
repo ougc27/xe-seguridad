@@ -17,7 +17,7 @@
     'sequence': 50,
     'summary': "Addenda Coppel",
     'website': 'https://www.morwi.com',
-    'version': '1.2',
+    'version': '1.3',
     'description': """
 Addendas Coppel
 ===============================================================
@@ -31,7 +31,8 @@ Also a template is added for render the addenda.
     'depends': [
         'base',
         'l10n_mx_edi',
-        'addenda_morwi'
+        'addenda_morwi',
+        'cloud_storage_google'
     ],
     'data': [
         'security/ir.model.access.csv',

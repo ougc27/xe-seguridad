@@ -2,6 +2,8 @@
 from odoo import models, api, fields
 
 from lxml import etree
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class AccountMove(models.Model):
@@ -129,13 +131,25 @@ class AccountMoveSend(models.TransientModel):
 
         # l10n_mx_edi_cfdi_attachment_id
         for move in moves:
+            ir_attachment = self.env['ir.attachment'].sudo().search([('name', '=', move.invoice_pdf_report_id.name)])
+            if ir_attachment and not ir_attachment.datas:
+                ir_attachment.sudo().download_file_from_gcs()
+            l10n_mx_attachment = move.invoice_pdf_report_id
+            if l10n_mx_attachment and not l10n_mx_attachment.datas:
+                l10n_mx_attachment.sudo().download_file_from_gcs()
+            l10n_mx_edi_cfdi_attachment_id = move.l10n_mx_edi_cfdi_attachment_id
+            if l10n_mx_edi_cfdi_attachment_id and not l10n_mx_edi_cfdi_attachment_id.datas:
+                l10n_mx_edi_cfdi_attachment_id.sudo().download_file_from_gcs()
             for doc in move.l10n_mx_edi_invoice_document_ids:
-                cfdi_node = etree.fromstring(doc.attachment_id.raw)
+                attachment_id = doc.attachment_id
+                if attachment_id and not attachment_id.datas:
+                    attachment_id.download_file_from_gcs()
+                cfdi_node = etree.fromstring(attachment_id.raw)
                 for node in cfdi_node.xpath("//*[local-name()='Cadena']"):
                     if node.text == '{}':
                         node.text = move._l10n_mx_edi_get_extra_invoice_report_values()['cadena']
             
-                doc.attachment_id.raw = etree.tostring(cfdi_node, pretty_print=True, xml_declaration=True, encoding='UTF-8')
+                attachment_id.raw = etree.tostring(cfdi_node, pretty_print=True, xml_declaration=True, encoding='UTF-8')
 
         res = super()._process_send_and_print(moves, wizard=wizard, allow_fallback_pdf=allow_fallback_pdf, **kwargs)
         return res

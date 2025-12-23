@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import fields, models, api
 from .l10n_mx_edi_document import USAGE_SELECTION
 
 
@@ -33,3 +33,16 @@ class AccountMove(models.Model):
                     'warehouse_id': warehouse_id
                 })
             payment.l10n_mx_edi_cfdi_invoice_try_update_payment(pay_results)
+
+    @api.depends('l10n_mx_edi_cfdi_attachment_id')
+    def _compute_l10n_mx_edi_cfdi_uuid(self):
+        '''Fill the invoice fields from the cfdi values.
+        '''
+        for move in self:
+            if move.l10n_mx_edi_cfdi_attachment_id:
+                if not move.l10n_mx_edi_cfdi_attachment_id.datas:
+                    move.l10n_mx_edi_cfdi_attachment_id.download_file_from_gcs()
+                cfdi_infos = self.env['l10n_mx_edi.document']._decode_cfdi_attachment(move.l10n_mx_edi_cfdi_attachment_id.raw)
+                move.l10n_mx_edi_cfdi_uuid = cfdi_infos.get('uuid')
+            else:
+                move.l10n_mx_edi_cfdi_uuid = None

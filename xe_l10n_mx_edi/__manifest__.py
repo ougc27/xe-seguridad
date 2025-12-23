@@ -2,14 +2,15 @@
 
 {
     "name": "MX-EDI XE Brands",
-    "version": "17.0.0.0.7",
+    "version": "17.0.0.0.8",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
     "depends": [
         'l10n_mx_edi_extended',
         'sale',
-        'xe_pacific'
+        'xe_pacific',
+        'cloud_storage_google'
     ],
     "category": "Accounting",
     "summary": "MX-EDI XE Brands",
