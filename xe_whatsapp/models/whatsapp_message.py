@@ -44,12 +44,10 @@ class WhatsappMessage(models.Model):
             first_messages = self.env['whatsapp.message'].search([
                 ('mobile_number', '=', rec.mobile_number)
             ], order='create_date ASC', limit=2)
-
             channel = self.env['discuss.channel'].search(
                 [('whatsapp_number', '=', rec.mobile_number_formatted)])
             
             if len(first_messages) == 1 and rec.state == 'received':
-                #rec.send_automated_respond()
                 team = 'sales_team'
                 channel.write({
                     'assigned_to': team,
@@ -75,6 +73,18 @@ class WhatsappMessage(models.Model):
                         'first_customer_message_at': first_message.create_date,
                         'first_agent_message_at': rec.create_date,
                     })
+            inactivity_template_enabled = self.env['ir.config_parameter'].sudo().get_param(
+                'inactivity_template_enabled', None)
+            if rec.state == 'received' and inactivity_template_enabled == "1":
+                existing_template_message = self.env['whatsapp.message'].search([
+                    ('mobile_number', '=', rec.mobile_number),
+                    ('wa_template_id', '!=', False),
+                ], limit=1)
+                if not existing_template_message:
+                    template_name='periodo_inactividad_z'
+                    if rec.wa_account_id == 8:
+                        template_name = 'periodo_inactividad_t'
+                    rec.send_automated_respond(template_name)
         return records
 
     def _get_html_preview_whatsapp(self, rec, wa_template_id):
@@ -89,7 +99,7 @@ class WhatsappMessage(models.Model):
     def _send_message(self, with_commit=False):
         """ Prepare json data for sending messages, attachments and templates."""
         # init api
-        user_id = self.env['res.users'].search([('name', '=', 'Rogelio González')])
+        user_id = self.env['res.users'].browse(180)
         message_to_api = {}
         for account, messages in groupby(self, lambda msg: msg.wa_account_id):
             if not account:
@@ -178,7 +188,7 @@ class WhatsappMessage(models.Model):
                 if with_commit:
                     self.sudo()._cr.commit()
 
-    def send_automated_respond(self):
+    def send_automated_respond(self, template_name):
         message_vals = []
         for record in self:
             formatted_number_wa = wa_phone_validation.wa_phone_format(
@@ -189,13 +199,13 @@ class WhatsappMessage(models.Model):
                 continue
   
             wa_template = self.env['whatsapp.template'].search(
-                [('template_name', '=', 'respuesta_automatica')], limit=1)
+                [('template_name', '=', template_name)], limit=1)
 
             body = self._get_html_preview_whatsapp(rec=record.mail_message_id.author_id, wa_template_id=wa_template)
 
             post_values = {
                 'author_id': 94012,
-                'attachment_ids': [],
+                'attachment_ids': wa_template.header_attachment_ids,
                 'body': body,
                 'message_type': 'whatsapp_message',
                 'partner_ids': hasattr(record, '_mail_get_partners') and record._mail_get_partners()[record.id].ids or record._whatsapp_get_responsible().partner_id.ids,
@@ -206,7 +216,7 @@ class WhatsappMessage(models.Model):
                          subtype_id=self.env['ir.model.data']._xmlid_to_res_id("mail.mt_note"))
             )
 
-            user_id = self.env['res.users'].search([('name', '=', 'Rogelio González')])
+            user_id = self.env['res.users'].browse(180)
 
             message_vals.append({
                     'create_uid': user_id.id,
