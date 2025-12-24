@@ -62,6 +62,7 @@ class WhatsappMessage(models.Model):
             if rec.state != 'received' and channel.assigned_person == rec.create_uid:
                 agent_replied  = self.env['whatsapp.message'].search([
                     ('mobile_number', '=', rec.mobile_number),
+                    ('wa_account_id', '=', rec.wa_account_id.id),
                     ('create_uid', '!=', 4),
                 ], limit=2)
                 if len(agent_replied) == 1:
@@ -78,11 +79,12 @@ class WhatsappMessage(models.Model):
             if rec.state == 'received' and inactivity_template_enabled == "1":
                 existing_template_message = self.env['whatsapp.message'].search([
                     ('mobile_number', '=', rec.mobile_number),
+                    ('wa_account_id', '=', rec.wa_account_id.id),
                     ('wa_template_id', '!=', False),
                 ], limit=1)
                 if not existing_template_message:
                     template_name='periodo_inactividad_z'
-                    if rec.wa_account_id == 8:
+                    if rec.wa_account_id.id == 8:
                         template_name = 'periodo_inactividad_t'
                     rec.send_automated_respond(template_name)
         return records
