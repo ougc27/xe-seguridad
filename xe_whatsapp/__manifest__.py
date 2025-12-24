@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI XE Brands Whatsapp",
-    "version": "17.0.0.0.10",
+    "version": "17.0.0.0.11",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
@@ -14,6 +14,7 @@
     "summary": "MX-EDI XE Brands",
     "demo": [],
     'data': [
+        "data/ir_config_parameter.xml",
         'data/ir_cron.xml',
         'views/whatsapp_team_member.xml',
         'views/whatsapp_menus.xml',
