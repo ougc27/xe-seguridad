@@ -18,7 +18,7 @@
 #    If not, see <http://www.gnu.org/licenses/>.
 #
 #############################################################################
-from odoo import api, models, fields, tools, _
+from odoo import models, fields, tools, _
 from odoo.exceptions import UserError, AccessError
 from odoo.tools import float_is_zero
 from collections import defaultdict
@@ -486,3 +486,41 @@ class PosSession(models.Model):
         loaded_data['applicable_items'] = dict(applicable_items)
 
         return loaded_data
+
+    def _create_account_move(self, balancing_account=False, amount_to_balance=0, bank_payment_method_diffs=None):
+        """ Create account.move and account.move.line records for this session.
+
+        Side-effects include:
+            - setting self.move_id to the created account.move record
+            - reconciling cash receivable lines, invoice receivable lines and stock output lines
+        """
+        account_move = self.env['account.move'].create({
+            'journal_id': self.config_id.journal_id.id,
+            'date': fields.Date.context_today(self),
+            'ref': self.name,
+        })
+        self.write({'move_id': account_move.id})
+
+        data = {'bank_payment_method_diffs': bank_payment_method_diffs or {}}
+        data = self._accumulate_amounts(data)
+        data = self._create_non_reconciliable_move_lines(data)
+        data = self._create_bank_payment_moves(data)
+        data = self._create_pay_later_receivable_lines(data)
+        data = self._create_cash_statement_lines_and_cash_move_lines(data)
+        data = self._create_invoice_receivable_lines(data)
+        data = self._create_stock_output_lines(data)
+        if balancing_account and amount_to_balance:
+            data = self._create_balancing_line(data, balancing_account, amount_to_balance)
+        for line in account_move.line_ids:
+            if line.account_id.code == '4.01.00.0000':
+                account_id = self.env['account.account'].sudo().search([('code', '=', '2.01.02.0029'), ('company_id', '=', account_move.company_id.id)], limit=1)
+                line.write({'account_id': account_id.id})
+        return data
+
+    def _get_related_account_moves(self):
+        moves = super()._get_related_account_moves()
+        reversal_moves = self.env['account.move'].search([
+            ('pos_session_id', '=', self.id),
+            ('ref', 'ilike', 'Reversal')
+        ])
+        return moves | reversal_moves

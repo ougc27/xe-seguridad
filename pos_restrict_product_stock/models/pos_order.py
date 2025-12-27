@@ -180,7 +180,7 @@ class PosOrder(models.Model):
             'view_mode': 'tree,form',
             'domain': [
                 ('to_invoice', '=', False),
-                #('date_order', '<=', three_days_ago),
+                ('date_order', '<=', three_days_ago),
                 '|',
                 ('is_refunded', '=', False),
                 ('refund_orders_count', '=', 0),
@@ -505,11 +505,16 @@ class PosOrder(models.Model):
             skip_invoice_line_sync=True,
         ).create({
             'journal_id': self.config_id.journal_id.id,
+            'pos_session_id': self.session_id.id,
             'date': fields.Date.context_today(self),
             'ref': _('Reversal of POS closing entry %s for order %s from session %s', self.session_move_id.name, self.name, self.session_id.name),
             'invoice_line_ids': [(0, 0, aml_value) for aml_value in move_lines],
         })
         reversal_entry.action_post()
+        for line in reversal_entry.line_ids:
+            if line.account_id.code == '4.01.00.0000':
+                account_id = self.env['account.account'].sudo().search([('code', '=', '2.01.02.0029'), ('company_id', '=', reversal_entry.company_id.id)], limit=1)
+                line.write({'account_id': account_id.id})
 
         pos_account_receivable = self.config_id.property_account_receivable_id
         account_receivable = self.payment_ids.payment_method_id.receivable_account_id
