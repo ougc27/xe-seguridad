@@ -1736,3 +1736,18 @@ msgstr "Autocompletar información"
 #: model_terms:ir.ui.view,arch_db:xe_pacific.custom_helpdesk_ticket_view_form
 msgid "Service Delivery"
 msgstr "Entrega del servicio"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__crm_lead__vambe_brands__protecto_home
+msgid "Romax Comercial SA de CV"
+msgstr "Romax Comercial SA de CV"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_crm_lead__vambe_brands
+msgid "Vambe Brands"
+msgstr "Vambe Marcas"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__crm_lead__vambe_brands__gott
+msgid "XE Brands"
+msgstr "XE Brands"
