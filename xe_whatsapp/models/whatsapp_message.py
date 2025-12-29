@@ -83,9 +83,9 @@ class WhatsappMessage(models.Model):
                     ('wa_template_id', '!=', False),
                 ], limit=1)
                 if not existing_template_message:
-                    template_name='periodo_inactividad_z'
+                    template_name='periodo_inactividad_ano_nuevo_xe_seguridad'
                     if rec.wa_account_id.id == 8:
-                        template_name = 'periodo_inactividad_t'
+                        template_name = 'periodo_inactividad_ano_nuevo_tecnodoor'
                     rec.send_automated_respond(template_name)
         return records
 
