@@ -180,7 +180,7 @@ class PosOrder(models.Model):
             'view_mode': 'tree,form',
             'domain': [
                 ('to_invoice', '=', False),
-                #('date_order', '<=', three_days_ago),
+                ('date_order', '<=', three_days_ago),
                 '|',
                 ('is_refunded', '=', False),
                 ('refund_orders_count', '=', 0),
