@@ -82,6 +82,7 @@ msgstr "Por entregar"
 
 #. module: xe_pacific
 #: model:ir.model,name:xe_pacific.model_sale_order
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__sale_order_id
 msgid "Sales Order"
 msgstr "Orden de venta"
 
@@ -401,6 +402,8 @@ msgstr "Remisiones sin factura"
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__company_id
 #: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__company_id
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__company_id
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__company_id
 msgid "Company"
 msgstr "Empresa"
 
@@ -981,6 +984,7 @@ msgstr "Teléfono de contacto"
 #. module: xe_pacific
 #. odoo-python
 #: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__description
 #, python-format
 msgid "Description"
 msgstr "Descripción"
@@ -1517,11 +1521,13 @@ msgstr "Cantidad disponible"
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_generate_ticket_wizard_form
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_ticket_transfer_wizard_form
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_split_picking_wizard
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_purchase_request_wizard
 msgid "Cancel"
 msgstr "Cancelar"
 
 #. module: xe_pacific
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_split_picking_wizard
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_purchase_request_wizard
 msgid "Confirm"
 msgstr "Confirmar"
 
@@ -1560,6 +1566,8 @@ msgstr "Cantidad inválida"
 #: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -1576,6 +1584,8 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -1589,6 +1599,8 @@ msgstr "Creado el"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -1602,6 +1614,8 @@ msgstr "Nombre para mostrar"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__id
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__id
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__id
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__id
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__id
 msgid "ID"
 msgstr "ID"
 
@@ -1615,6 +1629,8 @@ msgstr "ID"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -1628,11 +1644,14 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_attribution__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__write_date
 msgid "Last Updated on"
 msgstr "Última actualización el"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard__line_ids
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__line_ids
 msgid "Lines"
 msgstr "Líneas"
 
@@ -1678,6 +1697,7 @@ msgstr "Traslado"
 #: model:ir.model,name:xe_pacific.model_product_template
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__product_id
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__product_id
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__product_id
 #, python-format
 msgid "Product"
 msgstr "Producto"
@@ -1736,3 +1756,104 @@ msgstr "Autocompletar información"
 #: model_terms:ir.ui.view,arch_db:xe_pacific.custom_helpdesk_ticket_view_form
 msgid "Service Delivery"
 msgstr "Entrega del servicio"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__crm_lead__vambe_brands__protecto_home
+msgid "Romax Comercial SA de CV"
+msgstr "Romax Comercial SA de CV"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_crm_lead__vambe_brands
+msgid "Vambe Brands"
+msgstr "Vambe Marcas"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__crm_lead__vambe_brands__gott
+msgid "XE Brands"
+msgstr "XE Brands"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_order_form_inherit_information_tab
+msgid "Generate Purchase Request"
+msgstr "Generar Requisición de Compra"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_purchase_request_wizard_line
+msgid "Generate Purchase Request Lines from Sale Order"
+msgstr "Generar Líneas de Requisición de Compra desde la Orden de Venta"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_purchase_request_wizard
+msgid "Generate Purchase Request from Sale Order"
+msgstr "Generar Requisción de Compra desde la Orden de Venta"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_sale_order__has_purchase_request
+msgid "Has Purchase Request"
+msgstr "Tiene Requisción de Compra"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/sale_order.py:0
+#, python-format
+msgid "Purchase Request"
+msgstr "Requisición de Compra"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_purchase_request_wizard
+msgid "Purchase Request from Sale Order"
+msgstr "Requisción de Compra desde la Orden de Venta"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/sale_order.py:0
+#: code:addons/xe_pacific/wizard/generate_purchase_request.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_sale_order__purchase_request_ids
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_order_form_inherit_information_tab
+#: model:ir.actions.act_window,name:xe_pacific.action_purchase_request_wizard
+#, python-format
+msgid "Purchase Requests"
+msgstr "Requisiciones de Compra"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_purchase_request_wizard
+msgid "Products in Sale Order"
+msgstr "Productos en la Orden de Venta"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_purchase_request_wizard
+msgid "Purchase Request from Sale Order"
+msgstr "Requisición de Compra desde la Orden de Venta"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__product_qty
+msgid "Quantity"
+msgstr "Cantidad"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__requested_by
+msgid "Requested By"
+msgstr "Solicitado Por"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_purchase_request_wizard
+msgid "Supplied From"
+msgstr "Suministrado Desde"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__product_uom_id
+msgid "UoM"
+msgstr "UdM"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__wizard_id
+#: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__wizard_id
+msgid "Wizard"
+msgstr "Asistente"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/generate_purchase_request.py:0
+#, python-format
+msgid "All lines must have a company."
+msgstr "Todas las líneas deben tener una compañía."

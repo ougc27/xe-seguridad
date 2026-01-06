@@ -10,3 +10,5 @@ access_generate_ticket_wizard,access.generate.ticket.wizard,model_generate_ticke
 access_helpdesk_attribution,access.helpdesk.attribution,model_helpdesk_attribution,base.group_user,1,1,1,1
 access_split_picking_wizard,access.split.picking.wizard,model_split_picking_wizard,base.group_user,1,1,1,1
 access_split_picking_wizard_line,access.split.picking.wizard.line,model_split_picking_wizard_line,base.group_user,1,1,1,1
+access_purchase_request_wizard,access.purchase.request.wizard,model_purchase_request_wizard,base.group_user,1,1,1,1
+access_purchase_request_wizard_line,access.purchase.request.wizard.line,model_purchase_request_wizard_line,base.group_user,1,1,1,1

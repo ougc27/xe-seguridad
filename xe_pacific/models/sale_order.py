@@ -1,6 +1,6 @@
-from odoo import models, api, fields, _
+from odoo import models, tools, api, fields, _
 from odoo.exceptions import UserError
-
+import base64
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
@@ -29,6 +29,21 @@ class SaleOrder(models.Model):
         string='Commercial Name',
         store=True,
     )
+
+    purchase_request_ids = fields.One2many(
+        'purchase.request',
+        'sale_order_id',
+        string='Purchase Requests'
+    )
+
+    has_purchase_request = fields.Boolean(compute='_compute_has_purchase_request', copy=False, store=True)
+    
+    @api.depends('purchase_request_ids.state')
+    def _compute_has_purchase_request(self):
+        for record in self:
+            record.has_purchase_request = any(
+                pr.state != 'rejected' for pr in record.purchase_request_ids
+            )
 
     @api.depends('team_id')
     def _compute_note(self):
@@ -98,7 +113,7 @@ class SaleOrder(models.Model):
                     rec.picking_ids.separate_construction_remissions()
             for picking in rec.picking_ids:
                 if picking.company_id.id == 4:
-                    picking.update_tag_ids_to_pickings(False)
+                    picking.update_tag_ids_to_pickings()
                 moves = picking.move_ids.filtered(lambda move: (
                      move.product_id.product_tmpl_id.not_automatic_lot_number
                 ))
@@ -129,6 +144,28 @@ class SaleOrder(models.Model):
                 'target': 'current',
             }
 
+    def action_open_purchase_requests(self):
+        self.ensure_one()
+        purchase_request_ids = self.purchase_request_ids
+
+        if len(purchase_request_ids) == 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'purchase.request',
+                'view_mode': 'form',
+                'res_id': purchase_request_ids[0].id,
+                'target': 'current',
+            }
+        else:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Purchase Requests'),
+                'res_model': 'purchase.request',
+                'view_mode': 'tree,form',
+                'domain': [('id', 'in', purchase_request_ids.ids)],
+                'target': 'current',
+            }
+
     @api.model
     def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
         if self.env.context.get('from_helpdesk_ticket'):
@@ -155,3 +192,77 @@ class SaleOrder(models.Model):
             )
             return [row[0] for row in self.env.cr.fetchall()]
         return super()._name_search(name, domain, operator, limit, order)
+
+    # def convert_attachments_to_snapshot(self):
+    #     _logger.info("entre en el convert_attachments_to_snapshot")
+    #     ruta = r"C:\Users\XE Sistemas\Downloads\snapshot.txt"
+    #     with open(ruta, "rb") as f:
+    #         #contenido_b64 = f.read().strip()
+    #         contenido_b64 = f.read()
+
+    #     # Decodificar base64 → bytes reales del snapshot
+    #     snapshot_bytes = base64.b64encode(contenido_b64)
+    #     #_logger.info(snapshot_bytes)
+    #     # Interpretar bytes del snapshot → JSON
+    #     #snapshot_json = json.loads(snapshot_bytes)
+
+    #     attachment_description = self.env['ir.attachment'].browse(627984).description
+
+    #     attachment = self.env['ir.attachment'].create({
+    #         'name': 'snapshot.txt',
+    #         'type': 'binary',
+    #         "datas": attachment_description,
+    #         'description': attachment_description,
+    #         'res_model': self._name,
+    #         'res_id': self.id,
+    #         'mimetype': 'text/plain',
+    #     })
+
+    def convert_attachments_to_snapshot(self, odoo_root):
+
+        with tools.file_open(odoo_root, 'rb') as f:
+            contenido_bytes = f.read()
+
+        contenido_b64 = base64.b64encode(contenido_bytes)
+
+        attachment = self.env['ir.attachment'].create({
+            'name': 'snapshot.txt',
+            'type': 'binary',
+            "datas": contenido_b64,
+            'description': contenido_b64,
+            'res_model': self._name,
+            'res_id': self.id,
+            'mimetype': 'text/plain',
+        })
+
+        return attachment
+
+    def action_open_generate_purchase_request_wizard(self):
+        self.ensure_one()
+
+        wizard = self.env['purchase.request.wizard'].create({
+            'sale_order_id': self.id,
+            'company_id': self.company_id.id,
+            'requested_by': self.env.user.id,
+        })
+
+        lines = []
+        for line in self.order_line:
+            lines.append((0, 0, {
+                'wizard_id': wizard.id,
+                'product_id': line.product_id.id,
+                'name': line.name,
+                'product_qty': line.product_uom_qty,
+                'product_uom_id': line.product_uom.id,
+            }))
+
+        wizard.write({'line_ids': lines})
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Purchase Request'),
+            'res_model': 'purchase.request.wizard',
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }

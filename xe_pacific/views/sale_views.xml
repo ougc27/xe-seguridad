@@ -36,6 +36,16 @@
                     invisible="team_id not in [19, 5]"
                     required="team_id == 19"/>
             </xpath>
+            <xpath expr="//button[@name='action_preview_sale_order']" position="after">
+                <field name="invoice_status" invisible="1"/>
+                <field name="has_purchase_request" invisible="1"/>
+                <button
+                    name="action_open_generate_purchase_request_wizard"
+                    string="Generate Purchase Request"
+                    type="object"
+                    class="btn-primary"
+                    invisible="state != 'sale' or has_purchase_request or team_id != 5 or invoice_status == 'invoiced'"/>
+            </xpath>
             <xpath expr="//button[@name='action_view_delivery']" position="before">
                 <button type="object"
                     name="action_open_helpdesk_tickets"
@@ -43,6 +53,14 @@
                     icon="fa-ticket"
                     invisible="ticket_count == 0">
                     <field name="ticket_count" widget="statinfo" string="Tickets"/>
+                </button>
+                <field name="purchase_request_ids" invisible="1"/>
+                 <button type="object"
+                    string="Purchase Requests"
+                    name="action_open_purchase_requests"
+                    class="oe_stat_button"
+                    icon="fa-shopping-cart"
+                    invisible="not purchase_request_ids">
                 </button>
             </xpath>
         </field>

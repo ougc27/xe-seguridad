@@ -3,21 +3,16 @@
 import { AttachmentList } from "@mail/core/common/attachment_list";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
-import { useService } from "@web/core/utils/hooks";
 
 
 patch(AttachmentList.prototype, {
-    setup() {
-        super.setup();
-        this.orm = useService("orm");
-    },
     getActions(attachment) {
         const res = [];
         if (this.canDownload(attachment)) {
             res.push({
                 label: _t("Download"),
                 icon: "fa fa-download",
-                onSelect: async () => await this.onClickDownload(attachment),
+                onSelect: () => this.onClickDownload(attachment),
             });
         }
         return res;
