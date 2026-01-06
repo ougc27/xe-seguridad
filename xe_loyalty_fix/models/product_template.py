@@ -1,4 +1,4 @@
-from odoo import models, fields, tools
+from odoo import models, fields, tools, SUPERUSER_ID
 
 
 class ProductTemplate(models.Model):

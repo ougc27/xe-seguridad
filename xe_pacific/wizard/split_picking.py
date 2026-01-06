@@ -1,8 +1,5 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-import logging
-
-_logger = logging.getLogger(__name__)
 
 
 class SplitPickingWizard(models.Model):
@@ -76,8 +73,11 @@ class SplitPickingWizard(models.Model):
             'user_id': picking.user_id.id,
         }
 
-        new_picking = self.env['stock.picking'].create(new_picking_vals)
-
+        new_picking = (
+            self.env['stock.picking']
+            .with_context(sale_id=picking.sale_id)
+            .create(new_picking_vals)
+        )
         # Create the new moves in the new picking
         for data in removed_moves_data:
             data.update({'picking_id': new_picking.id})
@@ -99,6 +99,9 @@ class SplitPickingWizard(models.Model):
                 'subtype_id': self.env.ref('mail.mt_note').id,
                 'author_id': self.env.user.partner_id.id,
             })
+            if picking.sale_id and picking.picking_type_code == 'outgoing':
+                picking.update_tag_ids_to_pickings()
+                new_picking.update_tag_ids_to_pickings()
         self.line_ids.sudo().unlink()
         self.sudo().unlink()
 

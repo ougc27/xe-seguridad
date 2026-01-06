@@ -5,3 +5,4 @@ from . import ticket_transfer_wizard
 from . import ticket_transfer_wizard
 from . import generate_ticket_wizard
 from . import split_picking
+from . import generate_purchase_request

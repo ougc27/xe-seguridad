@@ -166,6 +166,18 @@ class PurchaseRequest(models.Model):
         copy=False
     )
 
+    sale_order_id = fields.Many2one(
+        'sale.order',
+        string='Orden de Venta'
+    )
+
+    @api.onchange('is_intercompany')
+    def _onchange_is_intercompany(self):
+        user_id = 211
+        if self.is_intercompany:
+            user_id = 29
+        self.assigned_to = user_id
+
     @api.depends("line_ids", "line_ids.estimated_cost")
     def _compute_estimated_cost(self):
         for rec in self:

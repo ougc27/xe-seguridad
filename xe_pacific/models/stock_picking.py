@@ -676,6 +676,8 @@ class StockPicking(models.Model):
                 backorder.write({'initial_date': backorder.sale_id.date_order})
             if backorder.picking_type_code == 'internal':
                 backorder.write({'initial_date': backorder_id.initial_date})
+            backorder.update_tag_ids_to_pickings()
+            backorder.backorder_id.update_tag_ids_to_pickings()
         return res
 
     def set_initial_date(self):
@@ -700,83 +702,65 @@ class StockPicking(models.Model):
         for picking in res:
             if picking.picking_type_code == 'outgoing':
                 picking.set_initial_date()
+                if picking.sale_id and self.move_ids:
+                    picking.update_tag_ids_to_pickings()
         return res
 
-    def update_tag_ids_to_pickings(self, from_write=False):
-        final_client = False
-        pickings = self.env['sale.order'].search([
-            ('name', '=', self.origin),
-            ('company_id', '=', self.env.company.id)
-        ]).picking_ids
-        if pickings:
-            picking = pickings[0]
-            if picking.shipping_assignment == 'shipments' or picking.x_studio_canal_de_distribucin == 'CONSTRUCTORAS':
-                return False
-        if from_write:
-            """origin = self.origin
-            if self.return_id:
-                origin = self.return_id.origin
-            sale_lines = self.env['sale.order'].search(
-                [('name', '=', origin), ('company_id', '=', self.env.company.id)]
-            ).order_line"""
-            sale_lines = False
-            if self.sale_id:
-                sale_lines = self.sale_id.order_line
-            if sale_lines:
-                if (
-                    self.move_ids.filtered(
-                        lambda m: m.product_id.default_code in ('VISTEC', 'VISTEC_COMPRADA')
-                    )
-                    and sale_lines.filtered(lambda m: m.product_id.type == 'product')
-                ):
-                    final_client = 'delivery'
-                if (
-                    self.move_ids.filtered(lambda m: m.product_id.type == 'product')
-                    and sale_lines.filtered(
-                        lambda m: m.product_id.type == 'consu' and
-                        'instalación' in m.product_id.name.lower() or
-                        'instalacion' in m.product_id.name.lower()    
-                    )
-                ):
-                    final_client = 'instalation'
-                if (
-                    self.move_ids.filtered(
-                        lambda m: m.product_id.default_code in ('VISREF', 'MTTOPUERTAS')
-                    )
-                ):
-                    final_client = 'instalation'
-        else:
-            if (
-                self.move_ids.filtered(
-                    lambda m: m.product_id.default_code in ('VISREF', 'MTTOPUERTAS')
-                )
-            ):
-                final_client = 'instalation'
-            elif (
-                self.move_ids.filtered(
-                    lambda m: m.product_id.default_code in ('VISTEC', 'VISTEC_COMPRADA'))
-            ):
-                final_client = 'technical_visit'
-            elif (
-                self.move_ids.filtered(lambda m: m.product_id.type == 'product')
-            ):
-                final_client = 'delivery'
-            elif (
-                self.move_ids.filtered(
-                    lambda m: m.product_id.type == 'consu' and
-                    'instalación' in m.product_id.name.lower() or
-                    'instalacion' in m.product_id.name.lower()    
-                )
-            ):
-                final_client = 'instalation'
-        for picking in pickings:
-            picking.add_tag_ids_to_pickings(final_client)
+    def update_tag_ids_to_pickings(self):
+        sale_id = self.sale_id
+        move_ids = self.move_ids
+        if not sale_id or self.shipping_assignment == 'shipments' or sale_id.team_id.name in ('CONSTRUCTORAS','GOTT','INTERGRUPO', 'CORPORATIVO'):
+            return
+
+        if (move_ids.filtered(
+            lambda m: m.product_id.default_code in ('VISTEC', 'VISTEC_COMPRADA')
+        )):
+            return self.add_tag_ids_to_pickings('technical_visit')
+
+        technical_visit = sale_id.order_line.filtered(
+            lambda m: m.product_id.default_code in ('VISTEC', 'VISTEC_COMPRADA')
+        )
+        has_doors = move_ids.filtered(
+            lambda m: 'Puertas / Puertas' in m.product_id.categ_id.complete_name and 
+            m.product_id.type == 'product'
+        )
+        standard_installation = move_ids.filtered(
+            lambda m: m.product_id.default_code in ('INS10', 'PH-INS10')
+        )
+
+        if not technical_visit and has_doors and standard_installation:
+            return self.add_tag_ids_to_pickings('initial_diagnosis')
+
+        storable_product = move_ids.filtered(
+            lambda m: m.product_id.detailed_type == 'product'
+        )
+
+        if storable_product:
+            return self.add_tag_ids_to_pickings('delivery')
+        
+        basic_installation = move_ids.filtered(
+            lambda m: m.product_id.default_code in ('INSBASCDI', 'PH-INSBASCDI')
+        )
+        
+        if not storable_product and (basic_installation or standard_installation):
+            return self.add_tag_ids_to_pickings('instalation')
+
+        door_maintenance = move_ids.filtered(
+            lambda m: m.product_id.default_code in ('MTTOPUERTAS', 'VISREF')
+        )
+
+        if not storable_product and door_maintenance:
+            return self.add_tag_ids_to_pickings('service')
+
+        return
 
     def add_tag_ids_to_pickings(self, final_client):
         tag_name_map = {
             'technical_visit': 'Visita técnica',
+            'initial_diagnosis': 'Diagnóstico inicial',
             'delivery': 'Entrega',
-            'instalation': 'Instalación',               
+            'instalation': 'Instalación',
+            'service': 'Servicio',
         }
         tag_name = tag_name_map.get(final_client)
         

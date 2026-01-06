@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.39",
+    "version": "17.0.0.0.40",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
@@ -19,7 +19,8 @@
         'mail',
         'sale_stock',
         'hr_attendance',
-        'calendar'
+        'calendar',
+        'purchase_request',
     ],
     "category": "Accounting",
     "summary": "MX-EDI XE Brands",
@@ -34,6 +35,7 @@
         'wizard/ticket_transfer_wizard.xml',
         'wizard/generate_ticket_wizard.xml',
         'wizard/split_picking.xml',
+        'wizard/generate_purchase_request.xml',
         #'views/fsm_project_menus.xml',
         'views/sale_views.xml',
         'views/helpdesk_attribution.xml',
