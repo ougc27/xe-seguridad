@@ -183,7 +183,7 @@ class DiscussChannel(models.Model):
             ('first_respond_message', '!=', False),
             ('first_respond_message', '<=', cutoff),
             ('is_reassigned_computed', '=', False),
-            ('out_of_working_hours', '=', False)
+            ('out_of_working_hours', '=', False),
             ('assigned_person', '!=', False),
         ]
         if only_today:
