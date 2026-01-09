@@ -545,3 +545,9 @@ msgstr "Métricas de respuesta de WhatsApp"
 #: model:ir.actions.server,name:xe_whatsapp.ir_cron_reassign_unanswered_whatsapp_ir_actions_server
 msgid "WhatsApp: Reassign unanswered chats"
 msgstr "WhatsApp: Reasignar chats sin respuesta"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__out_of_working_hours
+#: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__out_of_working_hours
+msgid "Out Of Working Hours"
+msgstr "Fuera de Horario Laboral"

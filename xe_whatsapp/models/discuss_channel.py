@@ -36,6 +36,8 @@ class DiscussChannel(models.Model):
 
     is_reassigned = fields.Boolean(default=False)
 
+    out_of_working_hours = fields.Boolean(default=False)
+
     @api.depends('last_wa_mail_message_id')
     def _compute_whatsapp_channel_valid_until(self):
         for channel in self:
@@ -168,30 +170,6 @@ class DiscussChannel(models.Model):
             'medium_id': medium_id
         })
 
-    def _get_sla_start_datetime(self, channel):
-        tz = pytz.timezone(self.env.context.get('tz') or self.env.user.tz or 'UTC')
-        env = self.with_context(tz='America/Mexico_City')
-        now = fields.Datetime.context_timestamp(
-            env,
-            channel.first_respond_message
-        )
-        work_start = time(8, 30)
-        work_end = time(18, 30)
-
-        if now.time() < work_start:
-            sla_start = now.replace(
-                hour=8, minute=30, second=0, microsecond=0
-            )
-
-        elif now.time() > work_end:
-            next_day = now.date() + timedelta(days=1)
-            sla_start = tz.localize(datetime.combine(next_day, work_start))
-
-        else:
-            sla_start = now
-
-        return sla_start.astimezone(pytz.UTC)
-
     def _get_channels_pending_reassign(self, only_today=True, minutes=10, limit=200):
         """Returns the channels that must be checked:
         - they have a first_respond_message (first customer message)
@@ -205,6 +183,7 @@ class DiscussChannel(models.Model):
             ('first_respond_message', '!=', False),
             ('first_respond_message', '<=', cutoff),
             ('is_reassigned_computed', '=', False),
+            ('out_of_working_hours', '=', False)
             ('assigned_person', '!=', False),
         ]
         if only_today:
@@ -218,7 +197,7 @@ class DiscussChannel(models.Model):
         [first_respond_message, first_respond_message + minutes]
         This attempts to cover several message integration schemas (user_id, author_id, from_user).
         """
-        start = self._get_sla_start_datetime(channel)
+        start = channel.first_respond_message
         end_dt = fields.Datetime.from_string(start) + timedelta(minutes=minutes)
         Message = self.env['whatsapp.message']
         domain = [
@@ -283,27 +262,6 @@ class DiscussChannel(models.Model):
 
         channel.sudo().write(vals)
 
-    def log_reassignment(self, user_id, vals):
-        ReassignmentLog  = self.env['whatsapp.reassignment.log']
-        lost_count = ReassignmentLog .sudo().search(
-            [
-                ('lost_by_user_id', '=', user_id),
-                ('wa_account_id', '=', vals.get('wa_account_id')),
-            ],
-            order="id DESC",
-            limit=1,
-        ).lost_count
-
-        if not lost_count:
-            lost_count = 0
-
-        vals.update({
-            'lost_count': lost_count + 1,
-            'reassigned_at': fields.Datetime.now(),
-        })
-
-        return ReassignmentLog .sudo().create(vals)
-
     def _cron_reassign_unanswered(self, only_today=True, batch_limit=100, minutes=10):
         env = self.with_context(tz='America/Mexico_City')
         now = fields.Datetime.context_timestamp(
@@ -320,6 +278,97 @@ class DiscussChannel(models.Model):
             return
         for ch in candidates:
             self._process_single_channel_for_reassign(ch, minutes=minutes)
+
+    def _get_channels_out_of_working(self, only_today=True, limit=200):
+        """Returns the channels that must be checked:
+        - they have a first_respond_message (first customer message)
+        - first_respond_message <= now
+        - is_reassigned_computed == False
+        - optionally, only today’s channels (only_today=True)
+        """
+        domain = [
+            ('first_respond_message', '!=', False),
+            ('is_reassigned_computed', '=', False),
+            ('out_of_working_hours', '=', True),
+            ('assigned_person', '!=', False),
+        ]
+
+        if only_today:
+            today = fields.Date.today()
+            domain.append(('first_respond_message', '>=', today))
+
+        return self.sudo().search(domain, limit=limit, order="create_date desc")
+
+    def _agent_replied_out_of_working(self, channel):
+        Message = self.env['whatsapp.message']
+
+        return bool(Message.sudo().search([
+            ('mobile_number', 'ilike', channel.whatsapp_number),
+            ('create_uid', '=', channel.assigned_person.id),
+            ('create_date', '>=', channel.first_respond_message),
+            ('create_date', '<=', fields.Datetime.now()),
+        ], limit=1))
+
+    def _process_single_channel_out_of_working(self, channel):
+        """For a channel:
+        - if the assigned_person replied within the time window -> mark is_reassigned_computed=True
+        - if they did NOT reply -> reassign using assign_person_to_chat_round_robin(...)
+            and mark is_reassigned_computed=True
+        """
+        try:
+            agent_replied = self._agent_replied_out_of_working(channel)
+        except Exception:
+            agent_replied = True
+
+        if agent_replied:
+            channel.sudo().write({'is_reassigned_computed': True})
+            return
+
+        wa_account = getattr(channel, 'wa_account_id', False)
+        user = None
+        if wa_account:
+            user = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(wa_account, 'sales_team')
+        
+        if user == channel.assigned_person:
+            user = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(
+                wa_account, 'sales_team'
+            )
+
+        vals = {'is_reassigned_computed': True}
+        if user:
+            vals['assigned_person'] = user.id
+            vals['is_reassigned'] = True
+
+            lost_count = self.env['whatsapp.reassignment.log'].sudo().search(
+                [
+                    ('lost_by_user_id', '=', channel.assigned_person.id),
+                    ('wa_account_id', '=', wa_account.id),
+                ],
+                order="id DESC",
+                limit=1
+            ).lost_count
+
+            if not lost_count:
+                lost_count = 0
+
+            self.env['whatsapp.reassignment.log'].sudo().create({
+                'lost_by_user_id': channel.assigned_person.id,
+                'assigned_to_user_id': user.id,
+                'whatsapp_number': channel.whatsapp_number,
+                'wa_account_id': wa_account.id,
+                'reassigned_at': fields.Datetime.now(),
+                'lost_count': lost_count + 1,
+            })
+            channel._broadcast(channel.channel_member_ids.partner_id.ids)
+
+        channel.sudo().write(vals)
+
+    def _cron_reassign_out_of_working(self, only_today=True, batch_limit=100):
+        candidates = self._get_channels_out_of_working(only_today=only_today, limit=batch_limit)
+        if not candidates:
+            return
+        for ch in candidates:
+            self._process_single_channel_out_of_working(ch)
 
     def _channel_basic_info(self):
         self.ensure_one()
