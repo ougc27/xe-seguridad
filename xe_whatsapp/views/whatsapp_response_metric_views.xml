@@ -9,6 +9,9 @@
                 <field name="whatsapp_number"/>
                 <field name="wa_account_id"/>
                 <field name="response_time_minutes"/>
+                <field name="out_of_working_hours"/>
+                <field name="first_customer_message_at"/>
+                <field name="first_agent_message_at" optional="hide"/>
             </tree>
         </field>
     </record>
@@ -20,6 +23,7 @@
                 <field name="user_id"/>
                 <field name="whatsapp_number"/>
                 <field name="wa_account_id"/>
+                <field name="out_of_working_hours"/>
                 <filter
                     name="today"
                     string="Today"

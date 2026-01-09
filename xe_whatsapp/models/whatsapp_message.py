@@ -49,9 +49,19 @@ class WhatsappMessage(models.Model):
             
             if len(first_messages) == 1 and rec.state == 'received':
                 team = 'sales_team'
+                datetime_now = datetime.now()
+                env = self.with_context(tz='America/Mexico_City')
+                now = fields.Datetime.context_timestamp(
+                    env,
+                    datetime_now
+                )
+                work_start = time(8, 30)
+                work_end = time(18, 30)
+                out_of_hours = now.time() < work_start or now.time() > work_end
                 channel.write({
                     'assigned_to': team,
-                    'first_respond_message': datetime.now()
+                    'first_respond_message': datetime_now,
+                    'out_of_working_hours': out_of_hours,
                 })
                 user_id = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(
                     rec.wa_account_id, team)
@@ -68,6 +78,7 @@ class WhatsappMessage(models.Model):
                 if len(agent_replied) == 1:
                     first_message = first_messages[0]
                     self.env['whatsapp.response.metric'].sudo().create({
+                        'out_of_working_hours': channel.out_of_working_hours,
                         'user_id': rec.create_uid.id,
                         'whatsapp_number': rec.mobile_number,
                         'wa_account_id': rec.wa_account_id.id,

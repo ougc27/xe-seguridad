@@ -44,6 +44,8 @@ class WhatsappResponseMetric(models.Model):
         store=True,
     )
 
+    out_of_working_hours = fields.Boolean(default=False)
+
     @api.depends('first_customer_message_at', 'first_agent_message_at')
     def _compute_response_time(self):
         for rec in self:
