@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from dateutil.relativedelta import relativedelta  
 from odoo import fields, models, api, Command
 from odoo.addons.whatsapp.tools import phone_validation as wa_phone_validation
