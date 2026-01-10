@@ -18,7 +18,7 @@
                             <!--<field name="name" readonly="1"/>
                             <field name="product_qty" readonly="1"/>
                             <field name="product_uom_id" readonly="1"/>-->
-                            <field name="company_id" string="Supplied From" required="1" context="{'show_all_companies': True}"/>
+                            <field name="company_id" string="Supplied From" required="1" context="{'show_all_companies': True}" options="{'no_open': True, 'no_create': True}"/>
                         </tree>
                     </field>
 
