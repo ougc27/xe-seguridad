@@ -170,6 +170,21 @@ class DiscussChannel(models.Model):
             'medium_id': medium_id
         })
 
+    def reload(self):
+        """
+        Notify the frontend to reload data.
+        """
+        partner_ids = self.channel_member_ids.partner_id.ids
+        notifications = [
+            (
+                partner_id,
+                "page_refresh",
+                {"model_name": self._name}
+            )
+            for partner_id in partner_ids
+        ]
+        self.env["bus.bus"].sudo()._sendmany(notifications)
+
     def _get_channels_pending_reassign(self, only_today=True, minutes=10, limit=200):
         """Returns the channels that must be checked:
         - they have a first_respond_message (first customer message)
@@ -226,11 +241,11 @@ class DiscussChannel(models.Model):
         wa_account = getattr(channel, 'wa_account_id', False)
         user = None
         if wa_account:
-            user = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(wa_account, 'sales_team')
+            user = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(wa_account, 'sales_team', 'last_reassigned_whatsapp_user')
         
         if user == channel.assigned_person:
             user = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(
-                wa_account, 'sales_team'
+                wa_account, 'sales_team', 'last_reassigned_whatsapp_user'
             )
 
         vals = {'is_reassigned_computed': True}
@@ -259,7 +274,7 @@ class DiscussChannel(models.Model):
                 'lost_count': lost_count + 1,
             })
             channel._broadcast(channel.channel_member_ids.partner_id.ids)
-
+            channel.reload()
         channel.sudo().write(vals)
 
     def _cron_reassign_unanswered(self, only_today=True, batch_limit=100, minutes=10):
@@ -327,11 +342,11 @@ class DiscussChannel(models.Model):
         wa_account = getattr(channel, 'wa_account_id', False)
         user = None
         if wa_account:
-            user = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(wa_account, 'sales_team')
+            user = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(wa_account, 'sales_team', 'last_reassigned_whatsapp_user')
         
         if user == channel.assigned_person:
             user = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(
-                wa_account, 'sales_team'
+                wa_account, 'sales_team', 'last_reassigned_whatsapp_user'
             )
 
         vals = {'is_reassigned_computed': True}
@@ -360,7 +375,7 @@ class DiscussChannel(models.Model):
                 'lost_count': lost_count + 1,
             })
             channel._broadcast(channel.channel_member_ids.partner_id.ids)
-
+            channel.reload()
         channel.sudo().write(vals)
 
     def _cron_reassign_out_of_working(self, only_today=True, batch_limit=100):

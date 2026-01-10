@@ -51,7 +51,7 @@ class WhatsappTeamMember(models.Model):
 
         return False
 
-    def assign_person_to_chat_round_robin(self, wa_account_id, team):
+    def assign_person_to_chat_round_robin(self, wa_account_id, team, config_parameter='last_assigned_whatsapp_user'):
         Config = self.env['ir.config_parameter'].sudo()
 
         members = self.env['whatsapp.team.members'].search([
@@ -66,7 +66,7 @@ class WhatsappTeamMember(models.Model):
         members = members.sorted(lambda m: m.user_id.id)
         user_ids = members.mapped('user_id.id')
 
-        config_key = f"last_assigned_whatsapp_user_{team}_{wa_account_id.id}"
+        config_key = f"{config_parameter}_{team}_{wa_account_id.id}"
         last_user_id_str = Config.get_param(config_key)
         last_user_id = int(last_user_id_str) if last_user_id_str and last_user_id_str.isdigit() else None
 

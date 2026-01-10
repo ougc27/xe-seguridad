@@ -48,7 +48,7 @@ class WhatsAppAssignedPerson(http.Controller):
                         'reassigned_at': fields.Datetime.now(),
                         'lost_count': lost_count + 1,
                         'reassignment_type': 'manual'
-                    })            
+                    })
                 channel.assigned_person = user.id
                 channel.whatsapp_partner_id.update_whatsapp_partner(user.id)
                 return True
@@ -58,4 +58,5 @@ class WhatsAppAssignedPerson(http.Controller):
     def reload(self, channel_id):
         channel = request.env['discuss.channel'].sudo().browse(channel_id)
         if channel:
+            channel.reload()
             channel._broadcast(channel.channel_member_ids.partner_id.ids)

@@ -64,7 +64,7 @@ class WhatsappMessage(models.Model):
                     'out_of_working_hours': out_of_hours,
                 })
                 user_id = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(
-                    rec.wa_account_id, team)
+                    rec.wa_account_id, team, 'last_assigned_whatsapp_user')
                 if user_id:
                     assigned_person_id = self.assign_member_to_chat(channel, user_id)
                     channel.whatsapp_partner_id.update_whatsapp_partner(assigned_person_id)
