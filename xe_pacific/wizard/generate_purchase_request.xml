@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_purchase_request_wizard" model="ir.ui.view">
+            <field name="name">purchase.request.wizard.form</field>
+            <field name="model">purchase.request.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Purchase Request from Sale Order">
+                    <group>
+                        <field name="sale_order_id" readonly="1"/>
+                    </group>
+
+                    <separator string="Products in Sale Order"/>
+
+                    <field name="line_ids" nolabel="1">
+                        <tree editable="bottom" create="false" delete="false">
+                            <field name="product_id" readonly="1"/>
+                            <!--<field name="name" readonly="1"/>
+                            <field name="product_qty" readonly="1"/>
+                            <field name="product_uom_id" readonly="1"/>-->
+                            <field name="company_id" string="Supplied From" required="1" context="{'show_all_companies': True}"/>
+                        </tree>
+                    </field>
+
+                    <footer>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                        <button string="Confirm" type="object" name="action_confirm" class="btn-primary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_purchase_request_wizard" model="ir.actions.act_window">
+            <field name="name">Purchase Requests</field>
+            <field name="res_model">purchase.request.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

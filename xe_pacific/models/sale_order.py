@@ -30,6 +30,21 @@ class SaleOrder(models.Model):
         store=True,
     )
 
+    purchase_request_ids = fields.One2many(
+        'purchase.request',
+        'sale_order_id',
+        string='Purchase Requests'
+    )
+
+    has_purchase_request = fields.Boolean(compute='_compute_has_purchase_request', copy=False, store=True)
+    
+    @api.depends('purchase_request_ids.state')
+    def _compute_has_purchase_request(self):
+        for record in self:
+            record.has_purchase_request = any(
+                pr.state != 'rejected' for pr in record.purchase_request_ids
+            )
+
     @api.depends('team_id')
     def _compute_note(self):
         for order in self:
@@ -129,6 +144,30 @@ class SaleOrder(models.Model):
                 'target': 'current',
             }
 
+    def action_open_purchase_requests(self):
+        self.ensure_one()
+        purchase_request_ids = self.purchase_request_ids
+        ctx = dict(self.env.context)
+        ctx.update({'create': False})
+        if len(purchase_request_ids) == 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'purchase.request',
+                'view_mode': 'form',
+                'res_id': purchase_request_ids[0].id,
+                'target': 'current',
+            }
+        else:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Purchase Requests'),
+                'res_model': 'purchase.request',
+                'view_mode': 'tree,form',
+                'domain': [('id', 'in', purchase_request_ids.ids)],
+                'target': 'current',
+                'context': ctx,
+            }
+
     @api.model
     def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
         if self.env.context.get('from_helpdesk_ticket'):
@@ -155,3 +194,33 @@ class SaleOrder(models.Model):
             )
             return [row[0] for row in self.env.cr.fetchall()]
         return super()._name_search(name, domain, operator, limit, order)
+
+    def action_open_generate_purchase_request_wizard(self):
+        self.ensure_one()
+
+        wizard = self.env['purchase.request.wizard'].create({
+            'sale_order_id': self.id,
+            'company_id': self.company_id.id,
+            'requested_by': self.env.user.id,
+        })
+
+        lines = []
+        for line in self.order_line:
+            lines.append((0, 0, {
+                'wizard_id': wizard.id,
+                'product_id': line.product_id.id,
+                'name': line.name,
+                'product_qty': line.product_uom_qty,
+                'product_uom_id': line.product_uom.id,
+            }))
+
+        wizard.write({'line_ids': lines})
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Purchase Request'),
+            'res_model': 'purchase.request.wizard',
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
