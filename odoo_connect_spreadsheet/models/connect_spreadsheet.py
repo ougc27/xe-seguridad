@@ -74,6 +74,16 @@ class ConnectSpreadsheet(models.Model):
                                             "ROWS: Operates on the rows of a sheet.\n"
                                             "COLUMNS: Operates on the columns of a sheet.")
 
+    apply_company_context = fields.Boolean(
+        string="Apply company context override",
+        default=False,
+    )
+
+    company_context_ids = fields.Many2many(
+        'res.company',
+        string="Companies for context override",
+    )
+
     @api.model
     def _get_default_timezone(self):
         return self.env.user.tz
@@ -130,8 +140,105 @@ class ConnectSpreadsheet(models.Model):
                                    self.sheet_name + '!' + self.range_name if self.sheet_name else
                                    self.range_name, values, self.insert_data_option, self.major_dimension)
 
+    def sync_spreadsheet_per_company(self):
+        sheets_name = []
+        for sheet in _helpers.spreadsheet_metadata(self.spreadsheet_service(), self.spreadsheet_id)['sheets']:
+            sheets_name.append(sheet["properties"]["title"])
+        if self.sheet_name not in sheets_name:
+            _helpers.add_sheet(self.spreadsheet_service(), self.spreadsheet_id, self.sheet_name)
+
+        if self.clear_sheet is True:
+            """
+            If any changes detect on range_name field, clear all data inside the sheet, and refill/update it 
+            with bellow update data code. Ths logic is related with _onchange_range_name method.
+
+            Set the sheet and the range of cells to clear, for this purpose, clear all cells.
+            """
+            _helpers.clear_spreadsheet_data(self.spreadsheet_service(), self.spreadsheet_id,
+                                            self.sheet_name + '!' + self.clear_range if self.sheet_name else self.clear_range)
+            self.clear_sheet = False
+
+        values = []
+        if self.pure_sql:
+            self.test_query()
+            for rec in self.execute_query():
+                values.append(rec)
+            """Update the data in the selected sheet and range"""
+            self._operation_type(values)
+        else:
+            values = []
+            header_title = []
+            set_timezone = pytz.timezone(self.timezone)
+            order = str(self.order_with.name) + " " + self.order_type if self.order_with else None
+            """Set the title header on the spreadsheet from the selected field"""
+            # TODO | If with header should we make the header string be bold?
+            if self.show_header:
+                for field in self.spreadsheet_field_ids:
+                    header_title.append(field.field_id.field_description)
+                values.append(header_title)
+            companies = self.company_context_ids
+            for company in companies:
+                env = self.env(
+                    context=dict(self.env.context, allowed_company_ids=[company.id], company_id=company.id)
+                )
+
+                try:
+                    model = env[self.model_id.model].search(
+                        ast.literal_eval(self.domain),
+                        order=order,
+                        limit=self.limit,
+                    )
+                except ValueError:
+                    model = env[self.model_id.model].search([], order=order, limit=self.limit)
+
+                for m in model:
+                    row = []
+
+                    for field in self.spreadsheet_field_ids:
+                        value = False
+
+                        if field.field_id.name == 'company_id':
+                            value = company.name
+
+                        else:
+                            field_value = m.mapped(field.field_id.name)
+                            if field_value:
+                                value = field_value
+
+                                if field.field_id.relation:
+                                    value = value.mapped(field.display_field.name)
+
+                                elif field.field_id.ttype == 'datetime' and self.timezone:
+                                    if isinstance(value, list):
+                                        value = [
+                                            v.astimezone(set_timezone)
+                                            for v in value
+                                            if isinstance(v, datetime.datetime)
+                                        ]
+                                    else:
+                                        value = value.astimezone(set_timezone)
+
+                        if isinstance(value, list):
+                            value = ', '.join(map(str, value))
+                        elif value:
+                            value = str(value)
+                        else:
+                            value = False
+
+                        row.append(value)
+
+                    values.append(row)
+
+            self._operation_type(values)
+
+        if self.update_type != 'manual':
+            """After spreadsheet updated, set the show_sync_spreadsheet_button to False again"""
+            self.show_sync_spreadsheet_button = False
+
     def sync_spreadsheet(self):
         """Add a new sheet if that doesn't exist"""
+        if self.apply_company_context and self.company_context_ids:
+            return self.sync_spreadsheet_per_company()
         sheets_name = []
         for sheet in _helpers.spreadsheet_metadata(self.spreadsheet_service(), self.spreadsheet_id)['sheets']:
             sheets_name.append(sheet["properties"]["title"])

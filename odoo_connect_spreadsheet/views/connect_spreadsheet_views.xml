@@ -78,6 +78,10 @@
                                 <hr/>
                                 <group invisible="pure_sql == True">
                                     <field name="enable_domain_filter" widget="boolean_toggle"/>
+                                    <field name="apply_company_context" widget="boolean_toggle"/>
+                                </group>
+                                <group invisible="not apply_company_context">
+                                    <field name="company_context_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True}"/>
                                 </group>
                                 <group invisible="enable_domain_filter == False">
                                     <field name="domain" widget="domain" options="{'model': 'model_name'}"/>
