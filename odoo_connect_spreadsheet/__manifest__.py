@@ -17,7 +17,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Productivity',
-    'version': '17.0.3.6.11',
+    'version': '17.0.3.6.12',
     'support': 'trinanda357@gmail.com',
     'license': 'OPL-1',
     'price': 272.4,
