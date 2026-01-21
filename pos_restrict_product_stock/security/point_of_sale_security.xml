@@ -16,4 +16,8 @@
         <field name="name">Cannot see all point of sale records</field>
         <field name="category_id" ref="base.module_category_hidden"/>
     </record>
+    <record id="group_loyalty_manager" model="res.groups">
+        <field name="name">Loyalty Manager</field>
+        <field name="category_id" ref="base.module_category_usability"/>
+    </record>
 </odoo>

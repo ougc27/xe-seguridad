@@ -200,6 +200,11 @@ patch(PaymentScreen.prototype, {
             return false;
         }
 
+        for (const line of order.orderlines) {
+            if (line.coupon_id) {
+                await order.addCouponPerLine(line.coupon_code, line);
+            }
+        }
         return true;
     },
 

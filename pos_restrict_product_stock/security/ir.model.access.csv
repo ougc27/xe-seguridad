@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_program_pos_user,Loyalty Program (PoS User),loyalty.model_loyalty_program,point_of_sale.group_pos_user,1,0,0,0
+access_program_pos_loyalty_manager,Loyalty Program (Loyalty Manager),loyalty.model_loyalty_program,pos_restrict_product_stock.group_loyalty_manager,1,1,1,1
+access_applicability_pos_loyalty_manager,Loyalty Rule (Loyalty Manager),loyalty.model_loyalty_rule,pos_restrict_product_stock.group_loyalty_manager,1,1,1,1
+access_coupon_pos_loyalty_manager,Loyalty Coupon (Loyalty Manager),loyalty.model_loyalty_card,pos_restrict_product_stock.group_pos_advanced_user,1,1,1,0
+access_reward_pos_loyalty_manager,Loyalty Reward (Loyalty Manager),loyalty.model_loyalty_reward,pos_restrict_product_stock.group_loyalty_manager,1,1,1,1
+access_communication_pos_loyalty_manager,Loyalty Communication (Loyalty Manager),loyalty.model_loyalty_mail,pos_restrict_product_stock.group_loyalty_manager,1,1,1,1

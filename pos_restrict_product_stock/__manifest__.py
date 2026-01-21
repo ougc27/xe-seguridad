@@ -20,7 +20,7 @@
 #############################################################################
 {
     'name': 'Display Stock in POS | Restrict Out-of-Stock Products in POS',
-    'version': '17.0.1.0.51',
+    'version': '17.0.1.0.52',
     'category': 'Point of Sale',
     'summary': """Enhance your Point of Sale experience by preventing the 
     ordering of out-of-stock products during your session""",
@@ -31,10 +31,11 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': 'https://www.cybrosys.com',
-    'depends': ['xe_pacific', 'base_vat', 'pos_hr', 'portal'],
+    'depends': ['xe_pacific', 'base_vat', 'pos_hr', 'portal', 'pos_loyalty', 'sale_loyalty'],
     'data': [
         'security/point_of_sale_security.xml',
         'security/ir_rules.xml',
+        'security/ir.model.access.csv',
         'data/report_paperformat.xml',
         'data/res_groups.xml',
         'report/report_acceptance_ticket.xml',
@@ -46,6 +47,10 @@
         'views/account_move_views.xml',
         'views/pos_config_views.xml',
         'views/templates.xml',
+        'views/loyalty_program_views.xml',
+        'views/loyalty_reward_views.xml',
+        'views/pos_order_line_views.xml',
+        'views/pos_loyalty_menu_views.xml',
     ],
     'assets': {
         'point_of_sale._assets_pos': [
@@ -63,10 +68,12 @@
             '/pos_restrict_product_stock/static/src/js/ClosingPopup.js',
             '/pos_restrict_product_stock/static/src/js/navbar.js',
             '/pos_restrict_product_stock/static/src/js/ReceiptScreen.js',
+            '/pos_restrict_product_stock/static/src/js/ProductScreen.js',
             '/pos_restrict_product_stock/static/src/js/PartnerList.js',
             '/pos_restrict_product_stock/static/src/css/display_stock.css',
             '/pos_restrict_product_stock/static/src/css/payment_screens.css',
             '/pos_restrict_product_stock/static/src/css/acceptance_ticket.css',
+            '/pos_restrict_product_stock/static/src/xml/orderline.xml',
             '/pos_restrict_product_stock/static/src/xml/ProductItem.xml',
             '/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml',
             '/pos_restrict_product_stock/static/src/xml/ProductInfoPopup.xml',
@@ -80,8 +87,7 @@
             '/pos_restrict_product_stock/static/src/xml/ClosingPopup.xml',
             '/pos_restrict_product_stock/static/src/xml/InvoiceButton.xml',
             '/pos_restrict_product_stock/static/src/xml/TicketScreen.xml',
-            #'/pos_restrict_product_stock/static/src/xml/ResetProgramsButton.xml',
-            #'/pos_restrict_product_stock/static/src/xml/RewardButton.xml',
+            '/pos_restrict_product_stock/static/src/xml/LoyaltyButtons.xml',
         ],
     },
     #'images': ['static/description/banner.jpg'],

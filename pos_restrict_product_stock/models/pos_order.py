@@ -70,6 +70,10 @@ class PosOrder(models.Model):
                 #order.write({'partner_id': delivery_partner_id})
             for picking in order.picking_ids:
                 picking.write({'partner_id': delivery_partner_id})
+        coupon_lines = order.lines.filtered(lambda l: l.coupon_id)
+        for line in coupon_lines:
+            if not line.coupon_id.program_id.allow_multiple_use:
+                line.coupon_id.sudo().write({'source_pos_order_id': order_id})
 
     def get_res_partner_by_id(self):
         partner = self.env['res.partner'].browse(self.id)
@@ -271,7 +275,21 @@ class PosOrder(models.Model):
             )
             return [row[0] for row in self.env.cr.fetchall()]
         return super()._name_search(name, domain, operator, limit, order)
-    
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        orders = super().create(vals_list)
+        for order in orders:
+            difference = order.amount_total - (order.amount_untaxed + order.amount_tax)
+            if abs(difference) >= order.currency_id.rounding:
+                line = order.lines[-1]
+                tax_multiplier = 1 + sum(line.tax_ids_after_fiscal_position.mapped("amount")) / 100.0
+                base_adjustment = difference / tax_multiplier
+                line.write({
+                    "price_subtotal": line.price_subtotal + base_adjustment,
+                })
+        return orders
+
     def check_moves(self):
         """Checks that the order cannot be cancelled if there are undelivered or unreturned products."""
     
@@ -292,7 +310,7 @@ class PosOrder(models.Model):
                 raise UserError(_(
                     "You cannot cancel this order. The product %s has %s units delivered and %s units returned."
                 ) % (product.display_name, qty_delivered, qty_ret))
-
+        
     def check_invoice(self):
         if self.to_invoice:
             raise UserError(_("You cannot cancel this order because its accounting entry (invoice) is not cancelled."))

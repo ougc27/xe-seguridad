@@ -25,6 +25,15 @@
                 <field name="iface_customer_facing_display_via_proxy" invisible="1"/>
                 <field name="iface_customer_facing_display_background_image_1920" invisible="1"/>  
             </xpath>
+            <xpath expr="//setting[@id='other_devices']" position="attributes">
+                <attribute name="groups">base.group_system</attribute>
+            </xpath>
+            <xpath expr="//setting[field[@name='is_posbox']]" position="attributes">
+                <attribute name="groups">base.group_system</attribute>
+            </xpath>
+            <xpath expr="//setting[field[@name='module_pos_hr']]" position="attributes">
+                <attribute name="groups">base.group_system</attribute>
+            </xpath>
             <xpath expr="//setting[field[@name='is_posbox']]" position="replace"/>
         </field>
     </record>

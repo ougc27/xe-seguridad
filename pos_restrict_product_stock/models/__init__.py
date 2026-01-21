@@ -29,3 +29,5 @@ from . import pos_order_line
 from . import account_move
 from . import product_pricelist_item
 from . import pos_payment
+from . import loyalty_program
+from . import loyalty_reward
