@@ -1,15 +1,45 @@
 /** @odoo-module */
 
 import { Orderline } from "@point_of_sale/app/store/models";
-import {
-    roundDecimals as round_di,
-    floatIsZero,
-} from "@web/core/utils/numbers";
 import { patch } from "@web/core/utils/patch";
 import { _t } from "@web/core/l10n/translation";
 
 
 patch(Orderline.prototype, {
+    setup() {
+        super.setup(...arguments);
+        this.coupon_id = this.coupon_id || null;
+        this.coupon_code = this.coupon_code || null;
+        this.discount_price = this.discount_price || null;
+        this.price_with_discount = this.price_with_discount || null;
+        this.price_without_discount = this.price_without_discount || null;
+    },
+    init_from_JSON(json) {
+        super.init_from_JSON(...arguments);
+        this.coupon_id = json.coupon_id || null;
+        this.coupon_code = json.coupon_code || null;
+        this.discount_price = json.discount_price || null;
+        this.price_with_discount = json.price_with_discount || null;
+        this.price_without_discount = json.price_without_discount || null;
+        if (this.coupon_id && this.price_with_discount) {
+            return super.set_unit_price(this.price_with_discount);
+        }
+    },
+    export_as_JSON() {
+        const result = super.export_as_JSON(...arguments);
+        result.coupon_id = this.coupon_id || false;
+        result.coupon_code = this.coupon_code || false;
+        result.discount_price = this.discount_price || false;
+        result.price_with_discount = this.price_with_discount || false;
+        result.price_without_discount = this.price_without_discount || false;
+        return result;
+    },
+    getDisplayData() {
+        const res = super.getDisplayData(...arguments);
+        res.coupon_code = this.coupon_code;
+        res.discount_price = this.discount_price;
+        return res;
+    },
     get_all_prices(qty = this.get_quantity()) {
         const price_unit = this.get_unit_price() * (1.0 - this.get_discount() / 100.0);
         let taxtotal = 0;
@@ -95,5 +125,27 @@ patch(Orderline.prototype, {
         let taxesIds = posTaxId || this.tax_ids || product.taxes_id;
         taxesIds = taxesIds.filter((t) => t in this.pos.taxes_by_id);
         return this.pos.get_taxes_after_fp(taxesIds, this.order.fiscal_position);
+    },
+    setCoupon(data) {
+        this.coupon_code = data.code;
+        this.coupon_id = data.coupon_id;
+        this.discount_price = data.discount_price;
+        this.price_with_discount = data.price_with_discount;
+        this.price_without_discount = data.price_without_discount;
+    },
+    removeCoupon() {
+        const price_without_discount = this.price_without_discount;
+        this.coupon_id = null;
+        this.coupon_code = null;
+        this.discount_price = null;
+        this.price_with_discount = null;
+        this.price_without_discount = null;
+        this.set_unit_price(price_without_discount);
+    },
+    set_unit_price(price, is_from_pricelist=false) {
+        if (!is_from_pricelist && this.coupon_id && this.price_with_discount) {
+            return super.set_unit_price(this.price_with_discount);
+        }
+        return super.set_unit_price(price);
     },
 });

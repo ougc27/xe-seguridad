@@ -1,10 +1,67 @@
 from itertools import groupby
-from odoo import api, models
+from odoo import fields, models, api
 
 
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'
 
+    discount_price = fields.Float(
+        string="Coupon Discount Amount",
+        digits='Product Price',
+        help="Discount amount applied by the coupon on this line"
+    )
+
+    program_id = fields.Many2one(
+        'loyalty.program',
+        string="Coupon Program",
+        related='coupon_id.program_id',
+        store=True,
+        readonly=True,
+        help="Loyalty program associated with the applied coupon"
+    )
+
+    config_id = fields.Many2one(
+        'pos.config',
+        string="POS Configuration",
+        related='order_id.config_id',
+        store=True,
+        readonly=True,
+        help="Point of Sale configuration associated with this order line"
+    )
+
+    user_id = fields.Many2one(
+        'res.users',
+        string="Salesperson",
+        related='order_id.user_id',
+        store=True,
+        readonly=True,
+        help="Salesperson associated with this POS order line"
+    )
+
+    def _export_for_ui(self, orderline):
+        return {
+            'id': orderline.id,
+            'qty': orderline.qty,
+            'attribute_value_ids': orderline.attribute_value_ids.filtered(lambda av: av.ptav_active).ids,
+            'custom_attribute_value_ids': orderline.custom_attribute_value_ids.read(['id', 'name', 'custom_product_template_attribute_value_id', 'custom_value'], load=False),
+            'price_unit': orderline.price_unit,
+            'skip_change': orderline.skip_change,
+            'uuid': orderline.uuid,
+            'price_subtotal': orderline.price_subtotal,
+            'price_subtotal_incl': orderline.price_subtotal_incl,
+            'product_id': orderline.product_id.id,
+            'discount': orderline.discount,
+            'tax_ids': [[6, False, orderline.tax_ids.mapped(lambda tax: tax.id)]],
+            'pack_lot_ids': [[0, 0, lot] for lot in orderline.pack_lot_ids.export_for_ui()],
+            'customer_note': orderline.customer_note,
+            'refunded_qty': orderline.refunded_qty,
+            'price_extra': orderline.price_extra,
+            'full_product_name': orderline.full_product_name,
+            'refunded_orderline_id': orderline.refunded_orderline_id.id,
+            'combo_parent_id': orderline.combo_parent_id.id,
+            'combo_line_ids': orderline.combo_line_ids.mapped('id'),
+            'discount_price': orderline.discount_price
+        }
 
     def _launch_stock_rule_from_pos_order_lines(self):
         procurements = []

@@ -96,6 +96,7 @@ msgstr "¿En qué tipo de cantidad tienes que restringir y mostrar en POS?"
 #. module: pos_restrict_product_stock
 #. odoo-javascript
 #: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
 #, python-format
 msgid "Order"
 msgstr "Orden"
@@ -511,6 +512,7 @@ msgstr "Imprimir ticket de aceptación"
 
 #. module: pos_restrict_product_stock
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.report_ticket_acceptance_document
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
 msgid "Product"
 msgstr "Producto"
 
@@ -968,10 +970,52 @@ msgid "Cannot see all point of sale records"
 msgstr "No tiene acceso a todos los registros de puntos de venta"
 
 #. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/PaymentScreen.xml:0
+#, python-format
+msgid "Back"
+msgstr "Regresar"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "Check order lines: some items have a price of 0 or less."
+msgstr "Revisa las líneas de la orden: algunos artículos tienen precio 0 o menor."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "Check prices"
+msgstr "Revisar precios"
+
+#. module: pos_restrict_product_stock
 #: model:ir.model.fields,help:pos_restrict_product_stock.field_res_config_settings__pos_tax_id
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
 msgid "Enter the sales tax for the Point of Sale."
 msgstr "Ingresa el impuesto de ventas para el Punto de Venta."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "No"
+msgstr "No"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "Quantity needs to be greater than 0 for all products."
+msgstr "La cantidad debe ser mayor a 0 para todos los productos."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid "Reversal of: %s"
+msgstr "Reversión de: %s"
 
 #. module: pos_restrict_product_stock
 #: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__tax_id
@@ -1043,3 +1087,442 @@ msgstr ""
 #, python-format
 msgid "Excessive Payment"
 msgstr "Pago excesivo"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#, python-format
+msgid "Are you sure you want to remove the coupon?"
+msgstr "¿Estás seguro de que deseas eliminar el cupón?"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/xml/orderline.xml:0
+#, python-format
+msgid "Coupon"
+msgstr "Cupón"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Coupon conditions not met for this product."
+msgstr "Las condiciones del cupón no se cumplen para este producto."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#, python-format
+msgid "Coupon has already been applied to this order."
+msgstr "El cupón ya ha sido aplicado a esta orden."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid ""
+"Coupon not applicable for the current price list.\n"
+"Applicable price lists: %(lists)s"
+msgstr ""
+"El cupón no es aplicable para la lista de precios actual.\n"
+"Listas de precios aplicables: %(lists)s"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Coupon not applicable to this product."
+msgstr "El cupón no es aplicable a este producto."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Coupon program inactive."
+msgstr "El programa de cupones está inactivo."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "Coupon: %s"
+msgstr "Cupón: %s"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_loyalty_program__allow_multiple_use
+msgid "If enabled, coupons from this program can be used multiple times."
+msgstr "Si está habilitado, los cupones de este programa pueden usarse múltiples veces."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Invalid coupon code."
+msgstr "Código de cupón inválido."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Invalid discount application configuration."
+msgstr "Configuración inválida para la aplicación del descuento."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Invalid line amount."
+msgstr "Importe de la línea inválido."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#, python-format
+msgid "Please select a line before applying a coupon."
+msgstr "Por favor selecciona una línea antes de aplicar un cupón."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Product category (%(categ_name)s) does not meet coupon conditions."
+msgstr "La categoría del producto (%(categ_name)s) no cumple con las condiciones del cupón."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Product does not match coupon product rules."
+msgstr "El producto no cumple con las reglas del cupón."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Product tag (%(tag_name)s) does not meet coupon conditions."
+msgstr "La etiqueta del producto (%(tag_name)s) no cumple con las condiciones del cupón."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#, python-format
+msgid ""
+"Removing this coupon will remove the discount from the order. Do you want to"
+" proceed?"
+msgstr ""
+"Al eliminar este cupón se quitará el descuento de la orden. ¿Deseas continuar?"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid ""
+"Some coupons are invalid. The applied coupons have been updated. Please "
+"check the order."
+msgstr ""
+"Algunos cupones no son válidos. Los cupones aplicados han sido actualizados. "
+"Por favor revisa la orden."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid "That %s coupon code has already been used."
+msgstr "El código de cupón %s ya ha sido utilizado."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid "There are not enough points for the coupon: %s."
+msgstr "No hay suficientes puntos para el cupón: %s."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "This coupon has already been used in another order."
+msgstr "Este cupón ya ha sido utilizado en otra orden."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__loyalty_reward__discount_application__unit
+msgid "Apply Per Unit"
+msgstr "Aplicar por unidad"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields.selection,name:pos_restrict_product_stock.selection__loyalty_reward__discount_application__line
+msgid "Apply to Line Total"
+msgstr "Aplicar al total de la línea"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_loyalty_reward__discount_application
+msgid ""
+"Defines whether the discount is applied to the total amount of the order "
+"line or individually to each unit."
+msgstr ""
+"Define si el descuento se aplica al importe total de la línea de la orden "
+"o de forma individual a cada unidad."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_loyalty_reward__discount_application
+msgid "Discount Application"
+msgstr "Aplicación del descuento"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Discount results in zero amount."
+msgstr "El descuento da como resultado un importe en cero."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#, python-format
+msgid "Gift card or Discount code"
+msgstr "Tarjeta de regalo o código de descuento"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "No compatible discount reward found."
+msgstr "No se encontró una recompensa de descuento compatible."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Unsupported discount applicability."
+msgstr "Tipo de aplicación del descuento no compatible."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/orderline.xml:0
+#, python-format
+msgid "with a discount of"
+msgstr "con un descuento de"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "with taxes included"
+msgstr "con impuestos incluidos"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "without taxes"
+msgstr "sin impuestos"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_loyalty_program__allow_multiple_use
+msgid "Allow Multiple Uses"
+msgstr "Permitir múltiples usos"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Invalid POS configuration."
+msgstr "Configuración de POS inválida."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Invalid product."
+msgstr "Producto inválido."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid ""
+"Minimum purchase amount %(tax_mode)s is %(required)s. Current amount: "
+"%(current)s."
+msgstr ""
+"El importe mínimo de compra %(tax_mode)s es %(required)s. Importe actual: "
+"%(current)s."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Minimum quantity required: %(qty)s"
+msgstr "Cantidad mínima requerida: %(qty)s"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "Missing required data."
+msgstr "Faltan datos requeridos."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_loyalty_program
+msgid "Loyalty Program"
+msgstr "Programa de lealtad"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_loyalty_reward
+msgid "Loyalty Reward"
+msgstr "Recompensa de lealtad"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "Company"
+msgstr "Compañía"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "Group By"
+msgstr "Agrupar por"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model,name:pos_restrict_product_stock.model_res_users
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "User"
+msgstr "Usuario"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order_line__discount_price
+msgid "Coupon Discount Amount"
+msgstr "Importe de Descuento del Cupón"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order_line__program_id
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "Coupon Program"
+msgstr "Programa de Cupones"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "Create Date"
+msgstr "Fecha de Creación"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_order_line__discount_price
+msgid "Discount amount applied by the coupon on this line"
+msgstr "Importe del descuento aplicado por el cupón en esta línea"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_order_line__program_id
+msgid "Loyalty program associated with the applied coupon"
+msgstr "Programa de lealtad asociado al cupón aplicado"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "POS Config"
+msgstr "Configuración del Punto de Venta"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order_line__config_id
+msgid "POS Configuration"
+msgstr "Configuración del Punto de Venta"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_tree_coupon_analysis
+msgid "POS Order Lines with Coupons"
+msgstr "Líneas de Pedido del POS con Cupones"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_order_line__config_id
+msgid "Point of Sale configuration associated with this order line"
+msgstr "Configuración del Punto de Venta asociada a esta línea de pedido"
+
+#. module: pos_restrict_product_stock
+#: model:ir.actions.act_window,name:pos_restrict_product_stock.action_pos_order_line_with_coupons
+#: model:ir.ui.menu,name:pos_restrict_product_stock.menu_pos_order_lines_with_coupons
+msgid "Sales Order Lines with Coupons"
+msgstr "Líneas de Venta con Cupones"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order_line__user_id
+msgid "Salesperson"
+msgstr "Vendedor"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_order_line__user_id
+msgid "Salesperson associated with this POS order line"
+msgstr "Vendedor asociado a esta línea de pedido del POS"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "Search POS Order Lines"
+msgstr "Buscar Líneas de Pedido del POS"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "This Month"
+msgstr "Este Mes"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "This Week"
+msgstr "Esta Semana"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "Today"
+msgstr "Hoy"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "Change Pricelist"
+msgstr "Cambiar lista de precios"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#, python-format
+msgid "Change quantity"
+msgstr "Cambiar cantidad"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid ""
+"At least one order line has an applied coupon. Changing the pricelist will "
+"remove all coupons and you will need to apply them again. Do you want to "
+"continue?"
+msgstr ""
+"Al menos una línea de la orden tiene un cupón aplicado. Cambiar la lista de "
+"precios eliminará todos los cupones y tendrás que aplicarlos nuevamente. "
+"¿Deseas continuar?"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#, python-format
+msgid ""
+"At least one order line has an applied coupon. Changing the quantity will "
+"remove all coupons and you will need to apply them again. Do you want to "
+"continue?"
+msgstr ""
+"Al menos una línea de la orden tiene un cupón aplicado. Cambiar la cantidad "
+"eliminará todos los cupones y tendrás que aplicarlos nuevamente. "
+"¿Deseas continuar?"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "Yes, change pricelist"
+msgstr "Sí, cambiar lista de precios"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#, python-format
+msgid "Yes, change quantity"
+msgstr "Sí, cambiar cantidad"

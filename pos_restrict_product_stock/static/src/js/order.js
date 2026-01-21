@@ -1,7 +1,6 @@
 /** @odoo-module */
 
 import { Order } from "@point_of_sale/app/store/models";
-import { Orderline } from "@point_of_sale/app/store/models";
 import { ConfirmPopup } from "@point_of_sale/app/utils/confirm_popup/confirm_popup";
 import { patch } from "@web/core/utils/patch";
 import { ErrorPopup } from "@point_of_sale/app/errors/popups/error_popup";
@@ -21,7 +20,7 @@ patch(Order.prototype, {
             });
             return false;
         }
-        const invalidPrice = this.orderlines.some(line => line.get_unit_price() <= 0);
+        const invalidPrice = this.orderlines.some(line => !line.coupon_id && line.get_unit_price() <= 0);
         if (invalidPrice) {
             await this.env.services.popup.add(ErrorPopup, {
                 title: _t("Check prices"),
@@ -65,6 +64,81 @@ patch(Order.prototype, {
         super.init_from_JSON(...arguments);
         this.reference = json.reference || false;
     },
+    get_total_with_tax() {
+        let total = 0;
+        this.orderlines.forEach(line => {
+            const line_total = line.get_price_with_tax();
+            total += Math.round(line_total * 100) / 100;
+        });
+        return total;
+    },
+    async set_pricelist(pricelist) {
+        var self = this;
+        const orderlines = this.get_orderlines();
+        const linesWithCoupon = orderlines.filter(line => line.coupon_id);
+
+        if (linesWithCoupon.length) {
+            const { confirmed } = await this.env.services.popup.add(ConfirmPopup, {
+                title: _t("Change Pricelist"),
+                body: _t(
+                    "At least one order line has an applied coupon. " +
+                    "Changing the pricelist will remove all coupons and you will need to apply them again. " +
+                    "Do you want to continue?"
+                ),
+                confirmText: _t("Yes, change pricelist"),
+                cancelText: _t("Cancel"),
+            });
+
+            if (!confirmed) {
+                return;
+            }
+        }
+        this.pricelist = pricelist;
+        for (const line of linesWithCoupon) {
+            line.removeCoupon();
+        }
+
+        const lines_to_recompute = orderlines.filter(
+            (line) =>
+                !(line.comboLines?.length || line.comboParent)
+        );
+        lines_to_recompute.forEach((line) => {
+            line.set_unit_price(
+                line.product.get_price(self.pricelist, line.get_quantity(), line.get_price_extra()), true
+            );
+            self.fix_tax_included_price(line);
+        });
+        const combo_parent_lines = orderlines.filter(
+            (line) => line.comboLines?.length
+        );
+        const attributes_prices = {};
+        combo_parent_lines.forEach((parentLine) => {
+            attributes_prices[parentLine.id] = this.compute_child_lines(
+                parentLine.product,
+                parentLine.comboLines.map((childLine) => {
+                    const comboLineCopy = { ...childLine.comboLine };
+                    if (childLine.attribute_value_ids) {
+                        comboLineCopy.configuration = {
+                            attribute_value_ids: childLine.attribute_value_ids,
+                        };
+                    }
+                    return comboLineCopy;
+                }),
+                pricelist
+            );
+        });
+        const combo_children_lines = orderlines.filter(
+            (line) => line.comboParent
+        );
+        combo_children_lines.forEach((line) => {
+            line.set_unit_price(
+                attributes_prices[line.comboParent.id].find(
+                    (item) => item.comboLine.id === line.comboLine.id
+                ).price, true
+            );
+            self.fix_tax_included_price(line);
+        });
+    },
     updatePricelistAndFiscalPosition(newPartner) {
         let newPartnerFiscalPosition;
         const defaultFiscalPosition = this.pos.fiscal_positions.find(
@@ -81,4 +155,28 @@ patch(Order.prototype, {
         }
         this.set_fiscal_position(newPartnerFiscalPosition);
     },
+    async addCouponPerLine(code, line) {
+        const result = await this.pos.env.services.orm.call(
+            "loyalty.program",
+            "pos_validate_coupon_per_line",
+            [],
+            {
+                code: code,
+                product_id: line.product.id,
+                qty: line.get_quantity(),
+                price_unit: line.get_unit_price(),
+                config_id: this.pos.config.id,
+                price_with_tax: line.get_price_with_tax(),
+                pricelist_id: this.pricelist.id,
+            }
+        );    
+        if (!result.valid) {
+            await this.pos.env.services.popup.add(ErrorPopup, {
+                title: _t("Coupon: %s", code),
+                body: result.message,
+            });
+            return;
+        }
+        return result;
+    }
 });
