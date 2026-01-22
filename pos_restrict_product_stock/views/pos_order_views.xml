@@ -24,6 +24,9 @@
                 <button name="action_pos_order_invoice" string="Invoice" type="object" invisible="state not in ('paid', 'done')" groups="pos_restrict_product_stock.group_pos_advanced_user"/>
                 <button name="action_pos_order_cancel" string="Cancel" type="object" invisible="state in ('cancel')" groups="pos_restrict_product_stock.group_pos_advanced_user"/>
             </xpath>
+            <xpath expr="//field[@name='lines']/tree" position="inside">
+                <field name="coupon_id" optional="hide"/>
+            </xpath>
         </field>
     </record>
 
