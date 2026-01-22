@@ -22,7 +22,10 @@ msgstr "Ambos"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/ProductScreen.js:0
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
 #: code:addons/pos_restrict_product_stock/static/src/xml/RestrictStockPopup.xml:0
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.pos_order_form_inherit_pos_restrict_product_stock
 #, python-format
 msgid "Cancel"
 msgstr "Cancelar"
@@ -1526,3 +1529,8 @@ msgstr "Sí, cambiar lista de precios"
 #, python-format
 msgid "Yes, change quantity"
 msgstr "Sí, cambiar cantidad"
+
+#. module: pos_restrict_product_stock
+#: model:res.groups,name:pos_restrict_product_stock.group_loyalty_manager
+msgid "Loyalty Manager"
+msgstr "Administrador de Programas de Cupones y Lealtad"
