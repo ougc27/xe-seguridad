@@ -58,4 +58,20 @@
             </attribute>
         </xpath>
     </t>
+    <t t-name="xe_whatsapp.DiscussSidebarChannel" t-inherit="mail.DiscussSidebarChannel" t-inherit-mode="extension">
+        <xpath expr="//img" position="replace">
+            <img
+                style="object-fit: contain; background-color: #fff;"
+                class="w-100 h-100 rounded"
+                t-att-src="
+                    thread.wa_account_id === 7
+                        ? '/xe_whatsapp/static/src/img/xe-seguridad.png'
+                        : thread.wa_account_id === 8
+                            ? '/xe_whatsapp/static/src/img/logo-tecno-door.png'
+                            : thread.imgUrl
+                "
+                alt="Thread Image"
+            />
+        </xpath>
+    </t>
 </templates>
