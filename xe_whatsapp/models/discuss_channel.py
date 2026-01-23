@@ -389,4 +389,5 @@ class DiscussChannel(models.Model):
         self.ensure_one()
         res = super()._channel_basic_info()
         res["is_reassigned"] = self.is_reassigned
+        res["wa_account_id"] = self.wa_account_id.ids
         return res

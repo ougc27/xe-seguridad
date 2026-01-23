@@ -7,8 +7,8 @@ import { patch } from "@web/core/utils/patch";
 
 patch(Thread.prototype, {
     update(data) {
-        const { id, name, attachments, description, assigned_person, is_open, ...serverData } = data;
-        assignDefined(this, { id, name, description, assigned_person });
+        const { id, name, attachments, description, assigned_person, wa_account_id, ...serverData } = data;
+        assignDefined(this, { id, name, description, assigned_person, wa_account_id });
         if (attachments) {
             this.attachments = attachments;
         }
@@ -38,8 +38,8 @@ patch(Thread.prototype, {
                 "is_editable",
                 "defaultDisplayMode",
                 "assigned_person",
-                'is_open',
-                'is_reassigned'
+                'is_reassigned',
+                'wa_account_id',
             ]);
             assignIn(this, data, [
                 "custom_channel_name",
