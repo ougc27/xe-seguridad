@@ -6,129 +6,127 @@
             <t t-foreach="record.invoice_line_ids" t-as="line">
                 <t t-set="discount" t-value="discount + line.discount_amount_addenda"/>
             </t>
-            <Addenda>
-                <requestForPayment type="SimpleInvoiceType" contentVersion="1.0" documentStructureVersion="CPLM1.0" documentStatus="ORIGINAL" t-att-DeliveryDate="record.invoice_date">
-                    <requestForPaymentIdentification>
-                        <entityType>INVOICE</entityType>
-                        <uniqueCreatorIdentification t-raw="record.name"/>
-                    </requestForPaymentIdentification>
-                    <orderIdentification>
-                        <referenceIdentification type="ON" t-raw="record.purchase_order_reference"/>
-                        <ReferenceDate t-raw="record.addenda_coppel_po_date"/>
-                        <FechaPromesaEnt t-raw="record.addenda_coppel_po_date_delivery"/>
-                    </orderIdentification>
-                    <seller>
-                        <gln>0</gln>
-                        <!--<alternatePartyIdentification type="SELLER_ASSIGNED_IDENTIFIER_FOR_A_PARTY" t-raw="record.company_id.addenda_coppel_party_id"/>-->
-                        <alternatePartyIdentification type="SELLER_ASSIGNED_IDENTIFIER_FOR_A_PARTY" t-raw="'27774' if record.company_id.id == 1 else '25933' if record.company_id.id == 4 else '0'"/>
-                        <!--<IndentificaTipoProv t-raw="record.addenda_coppel_supplier_type"/>-->
-                        <IndentificaTipoProv t-raw="record.addenda_coppel_supplier_type or '1'"/>
-                    </seller>
-                    <shipTo>
-                        <gln>0</gln>
-                        <!--
-                        <nameAndAddress>
-                            <name t-raw="record.partner_id.name"/>
-                            <streetAddressOne t-raw="record.partner_id.contact_address"/>
-                            <streetAddressOne t-raw="record.partner_id.contact_address_complete"/>
-                            <city t-raw="record.partner_id.city_id.name"/>
-                            <postalCode t-raw="record.partner_id.zip"/>
-                            <BodegaDestino t-raw="record.addenda_coppel_dc"/>
-                            <BodegaReceptora t-raw="record.addenda_coppel_reception_dc"/>
-                        </nameAndAddress>
-                        -->
-                        <nameAndAddress>
-                            <name t-raw="record.partner_shipping_id.name"/>
-                            <streetAddressOne t-raw="record.partner_shipping_id.street + ' ' + record.partner_shipping_id.l10n_mx_edi_colony"/>
-                            <city t-raw="record.partner_shipping_id.city_id.name"/>
-                            <postalCode t-raw="record.partner_shipping_id.zip"/>
-                            <BodegaDestino t-raw="record.addenda_coppel_dc"/>
-                            <BodegaReceptora t-raw="record.addenda_coppel_reception_dc"/>
-                        </nameAndAddress>
-                    </shipTo>
-                    <currency t-att-currencyISOCode="record.currency_id.name">
-                        <currencyFunction>BILLING_CURRENCY</currencyFunction>
-                        <rateOfChange t-raw="list(record.currency_id._get_rates(record.company_id, record.invoice_date).values())[0]"/>
-                    </currency>
-                    <!--<FleteCaja t-att-type="record.addenda_coppel_packing" t-raw="record.addenda_coppel_transporter"/>-->
-                    <FleteCaja type="SELLER_PROVIDED" t-raw="record.addenda_coppel_transporter"/>
-                    <!--<allowanceCharge t-att-settlementType="record.addenda_coppel_discount_charge_imputation" t-att-allowanceChargeType="record.addenda_coppel_discount_charge">-->
-                    <allowanceCharge settlementType="BILL_BACK" allowanceChargeType="ALLOWANCE_GLOBAL">
-                        <specialServicesType>EAB</specialServicesType>
-                        <monetaryAmountOrPercentage>
-                            <rate base="INVOICE_VALUE">
-                                <percentage t-raw="discount"/>
-                            </rate>
-                        </monetaryAmountOrPercentage>
-                    </allowanceCharge>
-                    <t t-set="count" t-value="0"/>
-                    <t t-foreach="record.invoice_line_ids" t-as="line">
-                        <t t-set="count" t-value="count + 1"/>
-                        <lineItem type="SimpleInvoiceLineItemType" t-att-number="count">
-                            <tradeItemIdentification>
-                                <!--<gtin t-raw="line.product_id.default_code"/>-->
-                                <gtin t-raw="line.product_id.client_ids.filtered(lambda c: c.name == record.partner_id and c.company_id == record.company_id).product_code"/>
-                            </tradeItemIdentification>
-                            <!--<alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line._get_addenda_sku_client()"/>-->
-                            <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line.product_id.client_ids.filtered(lambda c: c.name == record.partner_id and c.company_id == record.company_id).product_code"/>
-                            <tradeItemDescriptionInformation language="ES">
-                                <!--<longText t-raw="line._get_addenda_product_name_client()"/>-->
-                                <longText t-raw="line.product_id.name"/>
-                            </tradeItemDescriptionInformation>
-                            <!--<invoicedQuantity t-att-unitOfMeasure="line.product_uom_id.name" t-raw="line.quantity"/>-->
-                            <invoicedQuantity unitOfMeasure="PCE" t-raw="line.quantity"/>
-                            <grossPrice>
-                                <Amount t-raw="line.price_unit"/>
-                            </grossPrice>
-                            <netPrice>
-                                <Amount t-raw="line.price_unit"/>
-                            </netPrice>
-                            <modeloInformation>
-                                <!--<longTextExt t-raw="line._get_addenda_product_name_client()"/>-->
-                                <longText t-raw="line.product_id.client_ids.filtered(lambda c: c.name == record.partner_id and c.company_id == record.company_id).product_name"/>
-                            </modeloInformation>
-                            <allowanceCharge allowanceChargeType="ALLOWANCE_GLOBAL">
-                                <specialServicesType>PAD</specialServicesType>
-                                <monetaryAmountOrPercentage>
-                                    <percentagePerUnit t-raw="line.discount_amount_addenda"/>
-                                    <ratePerUnit>
-                                        <amountPerUnit t-raw="line.discount"/>
-                                    </ratePerUnit>
-                                </monetaryAmountOrPercentage>
-                            </allowanceCharge>
-                            <totalLineAmount>
-                                <grossAmount>
-                                    <Amount t-raw="line.price_subtotal"/>
-                                </grossAmount>
-                                <netAmount>
-                                    <Amount t-raw="line.price_total"/>
-                                </netAmount>
-                            </totalLineAmount>
-                        </lineItem>
-                    </t>
-                    <totalAmount>
-                        <Amount t-raw="record.amount_untaxed"/>
-                    </totalAmount>
-                    <TotalAllowanceCharge allowanceOrChargeType="ALLOWANCE">
-                        <specialServicesType>TD</specialServicesType>
-                        <Amount t-raw="discount"/>
-                    </TotalAllowanceCharge>
-                    <baseAmount>
-                        <Amount t-raw="record.amount_untaxed"/>
-                    </baseAmount>
-                    <tax type="VAT">
-                        <taxPercentage t-raw="record.invoice_line_ids[0].tax_ids[0].amount if record.invoice_line_ids and record.invoice_line_ids[0].tax_ids else ''"/>
-                        <taxAmount t-raw="record.amount_tax"/>
-                        <taxCategory>TRANSFERIDO</taxCategory>
-                    </tax>
-                    <payableAmount>
-                        <Amount t-raw="record.amount_total"/>
-                    </payableAmount>
-                    <cadenaOriginal>
-                        <Cadena t-raw="record._l10n_mx_edi_get_extra_invoice_report_values()"/>
-                    </cadenaOriginal>
-                </requestForPayment>
-            </Addenda>
+            <requestForPayment type="SimpleInvoiceType" contentVersion="1.0" documentStructureVersion="CPLM1.0" documentStatus="ORIGINAL" t-att-DeliveryDate="record.invoice_date">
+                <requestForPaymentIdentification>
+                    <entityType>INVOICE</entityType>
+                    <uniqueCreatorIdentification t-raw="record.name"/>
+                </requestForPaymentIdentification>
+                <orderIdentification>
+                    <referenceIdentification type="ON" t-raw="record.purchase_order_reference"/>
+                    <ReferenceDate t-raw="record.addenda_coppel_po_date"/>
+                    <FechaPromesaEnt t-raw="record.addenda_coppel_po_date_delivery"/>
+                </orderIdentification>
+                <seller>
+                    <gln>0</gln>
+                    <!--<alternatePartyIdentification type="SELLER_ASSIGNED_IDENTIFIER_FOR_A_PARTY" t-raw="record.company_id.addenda_coppel_party_id"/>-->
+                    <alternatePartyIdentification type="SELLER_ASSIGNED_IDENTIFIER_FOR_A_PARTY" t-raw="'27774' if record.company_id.id == 1 else '25933' if record.company_id.id == 4 else '0'"/>
+                    <!--<IndentificaTipoProv t-raw="record.addenda_coppel_supplier_type"/>-->
+                    <IndentificaTipoProv t-raw="record.addenda_coppel_supplier_type or '1'"/>
+                </seller>
+                <shipTo>
+                    <gln>0</gln>
+                    <!--
+                    <nameAndAddress>
+                        <name t-raw="record.partner_id.name"/>
+                        <streetAddressOne t-raw="record.partner_id.contact_address"/>
+                        <streetAddressOne t-raw="record.partner_id.contact_address_complete"/>
+                        <city t-raw="record.partner_id.city_id.name"/>
+                        <postalCode t-raw="record.partner_id.zip"/>
+                        <BodegaDestino t-raw="record.addenda_coppel_dc"/>
+                        <BodegaReceptora t-raw="record.addenda_coppel_reception_dc"/>
+                    </nameAndAddress>
+                    -->
+                    <nameAndAddress>
+                        <name t-raw="record.partner_shipping_id.name"/>
+                        <streetAddressOne t-raw="record.partner_shipping_id.street + ' ' + record.partner_shipping_id.l10n_mx_edi_colony"/>
+                        <city t-raw="record.partner_shipping_id.city_id.name"/>
+                        <postalCode t-raw="record.partner_shipping_id.zip"/>
+                        <BodegaDestino t-raw="record.addenda_coppel_store_dc_id.coppel_branch_number"/>
+                        <BodegaReceptora t-raw="record.addenda_coppel_store_reception_dc_id.coppel_branch_number"/>
+                    </nameAndAddress>
+                </shipTo>
+                <currency t-att-currencyISOCode="record.currency_id.name">
+                    <currencyFunction>BILLING_CURRENCY</currencyFunction>
+                    <rateOfChange t-raw="list(record.currency_id._get_rates(record.company_id, record.invoice_date).values())[0]"/>
+                </currency>
+                <!--<FleteCaja t-att-type="record.addenda_coppel_packing" t-raw="record.addenda_coppel_transporter"/>-->
+                <FleteCaja type="SELLER_PROVIDED" t-raw="record.addenda_coppel_transporter"/>
+                <!--<allowanceCharge t-att-settlementType="record.addenda_coppel_discount_charge_imputation" t-att-allowanceChargeType="record.addenda_coppel_discount_charge">-->
+                <allowanceCharge settlementType="BILL_BACK" allowanceChargeType="ALLOWANCE_GLOBAL">
+                    <specialServicesType>EAB</specialServicesType>
+                    <monetaryAmountOrPercentage>
+                        <rate base="INVOICE_VALUE">
+                            <percentage t-raw="discount"/>
+                        </rate>
+                    </monetaryAmountOrPercentage>
+                </allowanceCharge>
+                <t t-set="count" t-value="0"/>
+                <t t-foreach="record.invoice_line_ids" t-as="line">
+                    <t t-set="count" t-value="count + 1"/>
+                    <lineItem type="SimpleInvoiceLineItemType" t-att-number="count">
+                        <tradeItemIdentification>
+                            <!--<gtin t-raw="line.product_id.default_code"/>-->
+                            <gtin t-raw="line.product_id.client_ids.filtered(lambda c: c.name == record.partner_id and c.company_id == record.company_id).product_code"/>
+                        </tradeItemIdentification>
+                        <!--<alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line._get_addenda_sku_client()"/>-->
+                        <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line.product_id.client_ids.filtered(lambda c: c.name == record.partner_id and c.company_id == record.company_id).product_code"/>
+                        <tradeItemDescriptionInformation language="ES">
+                            <!--<longText t-raw="line._get_addenda_product_name_client()"/>-->
+                            <longText t-raw="line.product_id.name"/>
+                        </tradeItemDescriptionInformation>
+                        <!--<invoicedQuantity t-att-unitOfMeasure="line.product_uom_id.name" t-raw="line.quantity"/>-->
+                        <invoicedQuantity unitOfMeasure="PCE" t-raw="line.quantity"/>
+                        <grossPrice>
+                            <Amount t-raw="line.price_unit"/>
+                        </grossPrice>
+                        <netPrice>
+                            <Amount t-raw="line.price_unit"/>
+                        </netPrice>
+                        <modeloInformation>
+                            <!--<longTextExt t-raw="line._get_addenda_product_name_client()"/>-->
+                            <longText t-raw="line.product_id.client_ids.filtered(lambda c: c.name == record.partner_id and c.company_id == record.company_id).product_name"/>
+                        </modeloInformation>
+                        <allowanceCharge allowanceChargeType="ALLOWANCE_GLOBAL">
+                            <specialServicesType>PAD</specialServicesType>
+                            <monetaryAmountOrPercentage>
+                                <percentagePerUnit t-raw="line.discount_amount_addenda"/>
+                                <ratePerUnit>
+                                    <amountPerUnit t-raw="line.discount"/>
+                                </ratePerUnit>
+                            </monetaryAmountOrPercentage>
+                        </allowanceCharge>
+                        <totalLineAmount>
+                            <grossAmount>
+                                <Amount t-raw="line.price_subtotal"/>
+                            </grossAmount>
+                            <netAmount>
+                                <Amount t-raw="line.price_total"/>
+                            </netAmount>
+                        </totalLineAmount>
+                    </lineItem>
+                </t>
+                <totalAmount>
+                    <Amount t-raw="record.amount_untaxed"/>
+                </totalAmount>
+                <TotalAllowanceCharge allowanceOrChargeType="ALLOWANCE">
+                    <specialServicesType>TD</specialServicesType>
+                    <Amount t-raw="discount"/>
+                </TotalAllowanceCharge>
+                <baseAmount>
+                    <Amount t-raw="record.amount_untaxed"/>
+                </baseAmount>
+                <tax type="VAT">
+                    <taxPercentage t-raw="record.invoice_line_ids[0].tax_ids[0].amount if record.invoice_line_ids and record.invoice_line_ids[0].tax_ids else ''"/>
+                    <taxAmount t-raw="record.amount_tax"/>
+                    <taxCategory>TRANSFERIDO</taxCategory>
+                </tax>
+                <payableAmount>
+                    <Amount t-raw="record.amount_total"/>
+                </payableAmount>
+                <cadenaOriginal>
+                    <Cadena t-raw="record._l10n_mx_edi_get_extra_invoice_report_values()"/>
+                </cadenaOriginal>
+            </requestForPayment>
         </template>
         <record id="l10n_mx_edi_addenda_coppel" model="ir.ui.view">
             <field name="l10n_mx_edi_addenda_flag">True</field>
