@@ -13,7 +13,7 @@ class Lead(models.Model):
     ], string='Vambe Brands')
 
     def write(self, vals):
-        if 'user_id' in vals and vals.get('user_id') is False:
+        if 'user_id' in vals:
             for rec in self:
                 if rec.vambe_brands:
                     self.env['ir.logging'].sudo().create({
