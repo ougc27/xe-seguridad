@@ -7,4 +7,32 @@
             ]"/>
         </record>
     </data>
+
+    <record id="view_pos_session_form_automated_closed_inherit" model="ir.ui.view">
+        <field name="name">view.pos.session.form.automated.closed.inherit</field>
+        <field name="model">pos.session</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_session_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='cash_register_balance_end_real']" position="after">
+                <field name="closed_automatically" invisible="not closed_automatically"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_pos_session_search_inherit_auto_close" model="ir.ui.view">
+        <field name="name">pos.session.search.inherit.auto.close</field>
+        <field name="model">pos.session</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_session_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='config_id']" position="after">
+                <field name="closed_automatically"/>
+            </xpath>
+            <xpath expr="//filter[@name='open_sessions']" position="after">
+                <separator/>
+                <filter name="closed_automatically"
+                        string="Closed Automatically"
+                        domain="[('closed_automatically', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>

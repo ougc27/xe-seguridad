@@ -91,12 +91,12 @@ class WhatsappMessage(models.Model):
                 existing_template_message = self.env['whatsapp.message'].search([
                     ('mobile_number', '=', rec.mobile_number),
                     ('wa_account_id', '=', rec.wa_account_id.id),
-                    ('wa_template_id', '!=', False),
+                    ('wa_template_id', 'in', (47, 48)),
                 ], limit=1)
                 if not existing_template_message:
-                    template_name='periodo_inactividad_ano_nuevo_xe_seguridad'
+                    template_name='asueto_2_feb_xe_seguridad'
                     if rec.wa_account_id.id == 8:
-                        template_name = 'periodo_inactividad_ano_nuevo_tecnodoor'
+                        template_name = 'asueto_2_feb_tecnodoor'
                     rec.send_automated_respond(template_name)
         return records
 

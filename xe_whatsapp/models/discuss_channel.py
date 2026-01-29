@@ -241,12 +241,8 @@ class DiscussChannel(models.Model):
         wa_account = getattr(channel, 'wa_account_id', False)
         user = None
         if wa_account:
-            user = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(wa_account, 'sales_team', 'last_reassigned_whatsapp_user')
-        
-        if user == channel.assigned_person:
-            user = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(
-                wa_account, 'sales_team', 'last_reassigned_whatsapp_user'
-            )
+            user = self.env['whatsapp.team.members'].sudo().search(
+                [('is_assigned', '=', True), ('team', '=', 'sales_team'), ('wa_account_id', '=', wa_account.id)], limit=1).user_id
 
         vals = {'is_reassigned_computed': True}
         if user:
