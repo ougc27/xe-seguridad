@@ -20,7 +20,7 @@
 #############################################################################
 {
     'name': 'Display Stock in POS | Restrict Out-of-Stock Products in POS',
-    'version': '17.0.1.0.51',
+    'version': '17.0.1.0.52',
     'category': 'Point of Sale',
     'summary': """Enhance your Point of Sale experience by preventing the 
     ordering of out-of-stock products during your session""",
@@ -31,12 +31,13 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': 'https://www.cybrosys.com',
-    'depends': ['xe_pacific', 'base_vat', 'pos_hr', 'portal'],
+    'depends': ['xe_pacific', 'base_vat', 'pos_hr', 'portal', 'pos_loyalty', 'sale_loyalty'],
     'data': [
         'security/point_of_sale_security.xml',
         'security/ir_rules.xml',
         'data/report_paperformat.xml',
         'data/res_groups.xml',
+        'data/ir_cron.xml',
         'report/report_acceptance_ticket.xml',
         'views/res_config_settings_views.xml',
         'views/pos_ticket_view.xml',
@@ -80,8 +81,6 @@
             '/pos_restrict_product_stock/static/src/xml/ClosingPopup.xml',
             '/pos_restrict_product_stock/static/src/xml/InvoiceButton.xml',
             '/pos_restrict_product_stock/static/src/xml/TicketScreen.xml',
-            #'/pos_restrict_product_stock/static/src/xml/ResetProgramsButton.xml',
-            #'/pos_restrict_product_stock/static/src/xml/RewardButton.xml',
         ],
     },
     #'images': ['static/description/banner.jpg'],

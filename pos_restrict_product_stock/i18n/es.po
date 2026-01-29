@@ -1043,3 +1043,23 @@ msgstr ""
 #, python-format
 msgid "Excessive Payment"
 msgstr "Pago excesivo"
+
+#. module: pos_restrict_product_stock
+#: model:ir.actions.server,name:pos_restrict_product_stock.ir_cron_close_open_pos_sessions_ir_actions_server
+msgid "Automatically Close Open PoS Sessions"
+msgstr "Cerrar automáticamente sesiones abiertas del PoS"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_session__closed_automatically
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_session_search_inherit_auto_close
+msgid "Closed Automatically"
+msgstr "Cerrada automáticamente"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_session__closed_automatically
+msgid ""
+"Indicates whether the session was closed automatically by a scheduled "
+"process."
+msgstr ""
+"Indica si la sesión fue cerrada automáticamente por un proceso "
+"programado."

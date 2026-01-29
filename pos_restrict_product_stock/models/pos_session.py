@@ -22,11 +22,21 @@ from odoo import models, fields, tools, _
 from odoo.exceptions import UserError, AccessError
 from odoo.tools import float_is_zero
 from collections import defaultdict
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class PosSession(models.Model):
     """Inherited pos session for loading quantity fields from product"""
     _inherit = 'pos.session'
+
+    closed_automatically = fields.Boolean(
+        string="Closed Automatically",
+        default=False,
+        copy=False,
+        readonly=True,
+        help="Indicates whether the session was closed automatically by a scheduled process."
+    )
 
     def _loader_params_product_product(self):
         """Load forcast and on hand quantity field to pos session.
@@ -121,6 +131,7 @@ class PosSession(models.Model):
                 #raise UserError(_('This session is already closed.'))
             self._check_if_no_draft_orders()
             self._check_invoices_are_posted()
+            self.sudo().write({'cash_register_difference': 0})
             cash_difference_before_statements = self.cash_register_difference
             if self.update_stock_at_closing:
                 self._create_picking_at_end_of_session()
@@ -524,3 +535,27 @@ class PosSession(models.Model):
             ('ref', 'ilike', 'Reversal')
         ])
         return moves | reversal_moves
+
+    def cron_close_open_pos_sessions(self):
+        sessions = self.sudo().search([('state', '=', 'opened')])
+
+        for session in sessions:
+            try:
+                if session.config_id.cash_control:
+                    session.post_closing_cash_details(
+                        counted_cash=session.cash_register_balance_end
+                    )
+                bank_payment_method_diff_pairs = [
+                    (pm.id, 0)
+                    for pm in session.payment_method_ids
+                    if pm.type == 'bank'
+                ]
+                session.close_session_from_ui(
+                    bank_payment_method_diff_pairs=bank_payment_method_diff_pairs
+                )
+                session.sudo().write({'closed_automatically': True})
+
+            except Exception as e:
+                _logger.info(
+                    f'Error cerrando sesión {session.name}: {str(e)}'
+                )
