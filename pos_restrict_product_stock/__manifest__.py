@@ -31,7 +31,7 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': 'https://www.cybrosys.com',
-    'depends': ['xe_pacific', 'base_vat', 'pos_hr', 'portal', 'pos_loyalty', 'sale_loyalty'],
+    'depends': ['xe_pacific', 'base_vat', 'pos_hr', 'portal'],
     'data': [
         'security/point_of_sale_security.xml',
         'security/ir_rules.xml',
