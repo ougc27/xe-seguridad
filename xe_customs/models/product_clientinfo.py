@@ -55,6 +55,9 @@ class ProductClientInfo(models.Model):
     delay = fields.Integer(
         'Delivery Lead Time', default=1, required=True,
         help="Lead time in days between the confirmation of the purchase order and the receipt of the products in your warehouse. Used by the scheduler for automatic computation of the purchase order planning.")
+    unspsc_code_id = fields.Many2one('product.unspsc.code', 'UNSPSC Category',
+        domain=[('applies_to', '=', 'product')],
+        help='UNSPSC code of the product defined specifically for this customer.')
 
     @api.model
     def get_import_templates(self):
