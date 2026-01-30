@@ -131,9 +131,10 @@ class AccountMoveSend(models.TransientModel):
 
         # l10n_mx_edi_cfdi_attachment_id
         for move in moves:
-            ir_attachment = self.env['ir.attachment'].sudo().search([('name', '=', move.invoice_pdf_report_id.name)])
-            if ir_attachment and not ir_attachment.datas:
-                ir_attachment.sudo().download_file_from_gcs()
+            ir_attachments = self.env['ir.attachment'].sudo().search([('name', '=', move.invoice_pdf_report_id.name)])
+            for ir_attachment in ir_attachments:
+                if ir_attachment and not ir_attachment.datas:
+                    ir_attachment.sudo().download_file_from_gcs()
             l10n_mx_attachment = move.invoice_pdf_report_id
             if l10n_mx_attachment and not l10n_mx_attachment.datas:
                 l10n_mx_attachment.sudo().download_file_from_gcs()
