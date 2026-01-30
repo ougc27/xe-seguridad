@@ -941,3 +941,13 @@ msgstr ""
 "No puedes reservar el producto {product_name} con lote {lot_name} porque "
 "la cantidad total disponible es {qty}, pero estás intentando remisionar "
 "{requested_qty}, lo cual excede el stock disponible."
+
+#. module: xe_customs
+#: model:ir.model.fields,field_description:xe_customs.field_product_clientinfo__unspsc_code_id
+msgid "UNSPSC Category"
+msgstr "Categoría de UNSPSC"
+
+#. module: xe_customs
+#: model:ir.model.fields,help:xe_customs.field_product_clientinfo__unspsc_code_id
+msgid "UNSPSC code of the product defined specifically for this customer."
+msgstr "Código UNSPSC del producto definido específicamente para este cliente."

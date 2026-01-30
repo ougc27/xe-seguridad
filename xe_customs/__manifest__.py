@@ -4,7 +4,7 @@
 
 {
     "name": "XE Customs",
-    "version": "17.0.0.0.4",
+    "version": "17.0.0.0.5",
     "license": "LGPL-3",
     "author": "XE Customs",
     'sequence': 1,
@@ -13,7 +13,8 @@
         'sale_margin',
         'account',
         'hr',
-        'stock_no_negative'
+        'stock_no_negative',
+        'product_unspsc'
     ],
     "category": "Accounting",
     "summary": "XE Customs",

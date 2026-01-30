@@ -16,4 +16,17 @@ class ResPartner(models.Model):
 
     fiscal_name = fields.Char(
         help="The fiscal name of the customer with which the invoice will be issued to the SAT.")
-    
+
+    def _get_unspsc_code_for_partner(self, product):
+        self.ensure_one()
+
+        clientinfo = self.env['product.clientinfo'].sudo().search([
+            ('product_tmpl_id', '=', product.product_tmpl_id.id),
+            ('name', '=', self.id),
+            ('unspsc_code_id', '!=', False),
+        ], limit=1)
+
+        if clientinfo:
+            return clientinfo.unspsc_code_id.code
+
+        return product.unspsc_code_id.code

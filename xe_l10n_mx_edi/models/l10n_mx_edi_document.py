@@ -1,6 +1,9 @@
 from odoo import models, api
+from odoo.tools import frozendict
 from datetime import datetime
 from lxml import etree
+from collections import defaultdict
+
 
 USAGE_SELECTION = [
     ('G01', 'Acquisition of merchandise'),
@@ -215,3 +218,161 @@ class L10nMxEdiDocument(models.Model):
 
         # == Success ==
         on_success(cfdi_values, cfdi_filename, sign_results['cfdi_str'], populate_return=populate_return)
+
+    @api.model
+    def _add_base_lines_cfdi_values(self, cfdi_values, base_lines, percentage_paid=None):
+        """ Add the values about the lines to 'cfdi_values'.
+
+        :param cfdi_values:     The current CFDI values.
+        :param base_lines:      A list of dictionaries representing the lines of the document.
+                                (see '_convert_to_tax_base_line_dict' in account.tax).
+        :param percentage_paid: The percentage of the document lines to consider (when computing the payment CFDI).
+        """
+        currency = cfdi_values['currency']
+        tax_objected = cfdi_values['objeto_imp']
+        customer = (
+            cfdi_values
+            .get('receptor', {})
+            .get('customer')
+        )        
+
+        # Invoice lines.
+        cfdi_values['conceptos_list'] = line_values_list = []
+        for line in base_lines:
+            product = line['product']
+            quantity = line['quantity']
+            uom = line['uom']
+            discount = line['discount']
+
+            if percentage_paid:
+                for list_key in ('transferred_values_list', 'withholding_values_list'):
+                    for tax_values in line[list_key]:
+                        tax_values['base'] = currency.round(tax_values['base'] * percentage_paid)
+                        tax_values['importe'] = currency.round(tax_values['importe'] * percentage_paid)
+
+            # Post fix the base and tax amounts to be within allowed 0.01 rounding error
+            total_delta_base = 0.0
+            if cfdi_values['company'].tax_calculation_rounding_method == 'round_globally':
+                for list_key in ('transferred_values_list', 'withholding_values_list'):
+                    for tax_values in line[list_key]:
+                        if tax_values['importe'] and tax_values['tasa_o_cuota']:
+                            post_amounts_map = self._get_post_fix_tax_amounts_map(
+                                base_amount=tax_values['base'],
+                                tax_amount=tax_values['importe'],
+                                tax_rate=tax_values['tasa_o_cuota'],
+                                precision_digits=cfdi_values['line_base_importe_dp'],
+                            )
+                            tax_values['base'] = post_amounts_map['new_base_amount']
+                            tax_values['importe'] = post_amounts_map['new_tax_amount']
+                            total_delta_base += post_amounts_map['delta_base_amount']
+
+            transferred_values_list = line['transferred_values_list']
+            withholding_values_list = line['withholding_values_list']
+
+            is_refund_gi = cfdi_values['receptor']['uso_cfdi'] == 'G02'
+            if is_refund_gi:
+                product_unspsc_code = '84111506'
+                uom_unspsc_code = 'ACT'
+                description = "Devoluciones, descuentos o bonificaciones"
+            else:
+                product_unspsc_code = customer._get_unspsc_code_for_partner(product)
+                uom_unspsc_code = uom.unspsc_code_id.code
+                description = line['name']
+
+            cfdi_line_values = {
+                'line': line,
+                'clave_prod_serv': product_unspsc_code,
+                'no_identificacion': product.default_code,
+                'cantidad': quantity,
+                'clave_unidad': uom_unspsc_code,
+                'unidad': (uom.name or '').upper(),
+                'description': description,
+                'traslados_list': [],
+                'retenciones_list': [],
+            }
+
+            # Discount.
+            if currency.is_zero(discount):
+                discount = None
+            cfdi_line_values['descuento'] = discount
+
+            # Misc.
+            if transferred_values_list or withholding_values_list:
+                cfdi_line_values['objeto_imp'] = tax_objected
+            else:
+                cfdi_line_values['objeto_imp'] = '01'
+            cfdi_line_values['importe'] = line['gross_price_subtotal'] + total_delta_base
+            if cfdi_line_values['objeto_imp'] == '02':
+                cfdi_line_values['traslados_list'] = transferred_values_list
+                cfdi_line_values['retenciones_list'] = withholding_values_list
+            else:
+                cfdi_line_values['importe'] += sum(x['importe'] for x in transferred_values_list)\
+                                               - sum(x['importe'] for x in withholding_values_list)
+            cfdi_line_values['valor_unitario'] = cfdi_line_values['importe'] / cfdi_line_values['cantidad']
+
+            line_values_list.append(cfdi_line_values)
+
+        # Taxes.
+        withholding_values_map = defaultdict(lambda: {'base': 0.0, 'importe': 0.0})
+        withholding_reduced_values_map = defaultdict(lambda: {'base': 0.0, 'importe': 0.0})
+        transferred_values_map = defaultdict(lambda: {'base': 0.0, 'importe': 0.0})
+        for cfdi_line_values in line_values_list:
+            for tax_values in cfdi_line_values['retenciones_list']:
+                key = frozendict({'impuesto': tax_values['impuesto']})
+                withholding_reduced_values_map[key]['importe'] += tax_values['importe']
+            for result_dict, list_key in (
+                (withholding_values_map, 'retenciones_list'),
+                (transferred_values_map, 'traslados_list'),
+            ):
+                for tax_values in cfdi_line_values[list_key]:
+                    tax_key = frozendict({
+                        'impuesto': tax_values['impuesto'],
+                        'tipo_factor': tax_values['tipo_factor'],
+                        'tasa_o_cuota': tax_values['tasa_o_cuota']
+                    })
+                    result_dict[tax_key]['base'] += tax_values['base']
+                    result_dict[tax_key]['importe'] += tax_values['importe']
+
+        for list_key, source_dict in (
+            ('retenciones_list', withholding_values_map),
+            ('retenciones_reduced_list', withholding_reduced_values_map),
+            ('traslados_list', transferred_values_map),
+        ):
+            cfdi_values[list_key] = [
+                {
+                    **tax_key,
+                    'base': currency.round(tax_values['base']),
+                    'importe': currency.round(tax_values['importe']),
+                }
+                for tax_key, tax_values in source_dict.items()
+            ]
+
+        # Totals.
+        transferred_tax_amounts = [x['importe'] for x in cfdi_values['traslados_list'] if x['tipo_factor'] != 'Exento']
+        withholding_tax_amounts = [x['importe'] for x in cfdi_values['retenciones_list'] if x['tipo_factor'] != 'Exento']
+        cfdi_values['total_impuestos_trasladados'] = sum(transferred_tax_amounts)
+        cfdi_values['total_impuestos_retenidos'] = sum(withholding_tax_amounts)
+        cfdi_values['subtotal'] = sum(x['importe'] for x in line_values_list)
+        cfdi_values['descuento'] = sum(x['descuento'] for x in line_values_list if x['descuento'])
+        cfdi_values['total'] = cfdi_values['subtotal'] \
+                             - cfdi_values['descuento'] \
+                             + cfdi_values['total_impuestos_trasladados'] \
+                             - cfdi_values['total_impuestos_retenidos']
+
+        if currency.is_zero(cfdi_values['descuento']):
+            cfdi_values['descuento'] = None
+
+        # Cleanup attributes for Exento taxes.
+        for line in base_lines:
+            for key in ('transferred_values_list', 'withholding_values_list'):
+                for tax_values in line[key]:
+                    if tax_values['tipo_factor'] == 'Exento':
+                        tax_values['importe'] = None
+        for key in ('retenciones_list', 'traslados_list'):
+            for tax_values in cfdi_values[key]:
+                if tax_values['tipo_factor'] == 'Exento':
+                    tax_values['importe'] = None
+        if not transferred_tax_amounts:
+            cfdi_values['total_impuestos_trasladados'] = None
+        if not withholding_tax_amounts:
+            cfdi_values['total_impuestos_retenidos'] = None
