@@ -534,7 +534,12 @@ class PosSession(models.Model):
             ('pos_session_id', '=', self.id),
             ('ref', 'ilike', 'Reversal')
         ])
-        return moves | reversal_moves
+        cash_origin_moves = self.env['account.move'].search([
+            #'|',
+            ('tax_cash_basis_origin_move_id', 'in', moves.ids)
+            #('tax_cash_basis_origin_move_id.invoice_origin', 'in', self.order_ids.mapped('name'))
+        ])
+        return moves | reversal_moves | cash_origin_moves
 
     def cron_close_open_pos_sessions(self):
         sessions = self.sudo().search([('state', '=', 'opened')])
