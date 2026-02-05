@@ -566,5 +566,5 @@ class PosSession(models.Model):
                     f'Error cerrando sesión {session.name}: {str(e)}'
                 )
 
-    def _get_closed_orders(self):
-        return super()._get_closed_orders().filtered(lambda o: o.state != 'cancel')
+    #def _get_closed_orders(self):
+        #return super()._get_closed_orders().filtered(lambda o: o.state != 'cancel')
