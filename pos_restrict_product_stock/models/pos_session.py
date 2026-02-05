@@ -534,9 +534,10 @@ class PosSession(models.Model):
             ('pos_session_id', '=', self.id),
             ('ref', 'ilike', 'Reversal')
         ])
+        origin_move_ids = list(set(moves.ids + reversal_moves.ids))
         cash_origin_moves = self.env['account.move'].search([
             #'|',
-            ('tax_cash_basis_origin_move_id', 'in', moves.ids)
+            ('tax_cash_basis_origin_move_id', 'in', origin_move_ids)
             #('tax_cash_basis_origin_move_id.invoice_origin', 'in', self.order_ids.mapped('name'))
         ])
         return moves | reversal_moves | cash_origin_moves
@@ -564,3 +565,6 @@ class PosSession(models.Model):
                 _logger.info(
                     f'Error cerrando sesión {session.name}: {str(e)}'
                 )
+
+    def _get_closed_orders(self):
+        return super()._get_closed_orders().filtered(lambda o: o.state != 'cancel')
