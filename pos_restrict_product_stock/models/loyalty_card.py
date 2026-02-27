@@ -6,6 +6,7 @@ class LoyaltyCard(models.Model):
     _inherit = 'loyalty.card'
 
     def _get_user_allowed_warehouses(self):
+        """Return warehouses"""
         user = self.env.user
 
         pos_configs = self.env['pos.config'].search([
