@@ -316,64 +316,45 @@ class PosOrder(models.Model):
             raise UserError(_("You cannot cancel this order because its accounting entry (invoice) is not cancelled."))
 
     def action_pos_order_cancel(self):
-        for order in self:
-            session = order.session_id
+        for rec in self:
+            rec.check_moves()
+            rec.check_invoice()
 
-            order.check_moves()
-            order.check_invoice()
+            session_id = rec.session_id
+            stop_at = session_id.stop_at
+            amount_total = rec.amount_total
+            session_id.sudo().write({
+                'cash_register_balance_end': session_id.cash_register_balance_end - amount_total,
+                'cash_register_balance_end_real': session_id.cash_register_balance_end_real - amount_total,
+                'cash_register_total_entry_encoding': session_id.cash_register_total_entry_encoding - amount_total,
+            }) 
+            rec.sudo().write({'state': 'cancel'})
 
-            if session.state in ('opening_control', 'opened'):
-                order._cancel_open_session()
-            elif session.state == 'closed':
-                order._cancel_closed_session_hard()
-            coupon_lines = order.lines.filtered(lambda l: l.coupon_id)
-            for line in coupon_lines:
-                line.coupon_id.sudo().write({'source_pos_order_id': False})
-        return True
+            if rec.account_move and rec.account_move.state == 'draft':
+                rec.account_move.sudo().button_cancel()
 
-    # --------------------------------------------------
-    # SESIÓN ABIERTA → cancelación real
-    # --------------------------------------------------
+            rec.picking_ids.filtered(lambda p: p.state not in ('done', 'cancel')).sudo().action_cancel()
 
-    def _cancel_open_session(self):
-        self.ensure_one()
+            rec.mapped('payment_ids').sudo().unlink()
 
-        self.picking_ids.filtered(
-            lambda p: p.state not in ('done', 'cancel')
-        ).sudo().action_cancel()
+            if rec.session_move_id:
+                move = rec.session_move_id
+                if move.state == 'posted':
+                    for line in move.line_ids:
+                        if line.matched_debit_ids or line.matched_credit_ids:
+                            line.sudo().remove_move_reconcile()
+                    move.sudo().button_draft()
+                move.sudo().button_cancel()
+                move.sudo().with_context(force_delete=True).unlink()
 
-        if self.account_move:
-            move = self.account_move
-            if move.state == 'posted':
-                move.button_draft()
-            move.button_cancel()
-            move.unlink()
+            session_id.sudo().statement_line_ids.unlink()
 
-        self.payment_ids.sudo().unlink()
-        self.write({'state': 'cancel'})
+            session_id.sudo().action_pos_session_close()
 
-    # --------------------------------------------------
-    # SESIÓN CERRADA → SOLO REVERSA CONTABLE
-    # --------------------------------------------------
-
-    def _cancel_closed_session_hard(self):
-        self.ensure_one()
-        session = self.session_id
-
-        if not session.move_id:
-            raise UserError(_("The POS session has no accounting entry."))
-
-        # 1. Revertir asiento de la sesión
-        reversal = session.move_id._reverse_moves(
-            date=fields.Date.context_today(self),
-            journal=session.move_id.journal_id
-        )
-
-        # 2. Marcar orden como cancelada (lógico)
-        self.write({
-            'state': 'cancel',
-            'note': _('Canceled after session close. Accounting reversed.')
-        })
+            if not stop_at:
+                stop_at = fields.Datetime.now()
+            session_id.sudo().write({'stop_at': stop_at})
+        return rec
 
     def write(self, vals):
         res = super().write(vals)

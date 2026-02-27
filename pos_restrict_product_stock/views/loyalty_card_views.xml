@@ -5,9 +5,6 @@
         <field name="model">loyalty.card</field>
         <field name="inherit_id" ref="loyalty.loyalty_card_view_form"/>
         <field name="arch" type="xml">
-            <!--<xpath expr="//form[1]" position="attributes">
-                <attribute name="create">false</attribute>
-            </xpath>-->
             <xpath expr="//form" position="inside">
                 <field name="externally_managed" invisible="1"/>
             </xpath>
@@ -34,9 +31,6 @@
         <field name="model">loyalty.card</field>
         <field name="inherit_id" ref="loyalty.loyalty_card_view_tree"/>
         <field name="arch" type="xml">
-        <xpath expr="//tree[1]" position="attributes">
-            <attribute name="create">false</attribute>
-        </xpath>
             <xpath expr="//field[@name='create_date']" position="attributes">
                 <attribute name="optional">show</attribute>
             </xpath>
