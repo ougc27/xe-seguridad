@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_restrict_product_stock.PromoCodeButton" t-inherit="pos_loyalty.PromoCodeButton" t-inherit-mode="extension">
+        <xpath expr="//button[hasclass('control-button')]" position="attributes">
+            <attribute name="class">d-none</attribute>
+        </xpath>
+    </t>
+    <t t-name="pos_restrict_product_stock.ResetProgramsButton" t-inherit="pos_loyalty.ResetProgramsButton" t-inherit-mode="extension">
+        <xpath expr="//button[hasclass('control-button')]" position="attributes">
+            <attribute name="class">d-none</attribute>
+        </xpath>
+    </t>
+    <t t-name="pos_restrict_product_stock.RewardButton" t-inherit="pos_loyalty.RewardButton" t-inherit-mode="extension">
+        <xpath expr="//button[hasclass('control-button')]" position="attributes">
+            <attribute name="class">d-none</attribute>
+        </xpath>
+    </t>
+</templates>

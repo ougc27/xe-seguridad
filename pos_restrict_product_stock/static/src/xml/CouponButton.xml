@@ -1,0 +1,9 @@
+<templates id="template" xml:space="preserve">
+    <t t-name="your_module.CouponButton">
+        <button class="control-button btn btn-light rounded-0 fw-bolder"
+                t-on-click="() => this.onClick()">
+            <i class="fa fa-ticket me-1"/>
+            <span>Coupon</span>
+        </button>
+    </t>
+</templates>

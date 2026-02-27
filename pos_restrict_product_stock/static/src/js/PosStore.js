@@ -37,8 +37,21 @@ patch(PosStore.prototype, {
         });
     },
     async _processData(loadedData) {
-        this.all_pricelists = loadedData["all_pricelists"];
         await super._processData(loadedData);
+        this.all_pricelists = loadedData["all_pricelists"];
+        const loyalty_cards = loadedData["loyalty.card"] || [];
+        this.loyalty_cards = loyalty_cards;
+        for (const loyalty_card of loyalty_cards) {
+            const productId = loyalty_card.product_id[0];
+            const product = this.db.get_product_by_id(productId);
+            if (product) {
+                if (!product.loyalty_cards) {
+                    product.loyalty_cards = [];
+                }
+
+                product.loyalty_cards.push(loyalty_card);
+            }
+        }
     },
     _loadProductProduct(products) {
         const productMap = {};

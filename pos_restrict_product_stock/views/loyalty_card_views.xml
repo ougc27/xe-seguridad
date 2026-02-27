@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="loyalty_card_view_form_inherit_pos_loyalty" model="ir.ui.view">
+        <field name="name">loyalty.card.view.form.inherit.pos.loyalty</field>
+        <field name="model">loyalty.card</field>
+        <field name="inherit_id" ref="loyalty.loyalty_card_view_form"/>
+        <field name="arch" type="xml">
+            <!--<xpath expr="//form[1]" position="attributes">
+                <attribute name="create">false</attribute>
+            </xpath>-->
+            <xpath expr="//form" position="inside">
+                <field name="externally_managed" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="warehouse_id" readonly="externally_managed" options="{'no_create_edit': True, 'no_create': True}"/>
+                <field name="product_id" readonly="externally_managed" options="{'no_create_edit': True, 'no_create': True}"/>
+                <field name="damage_type" readonly="externally_managed"/>
+                <field name="pricelist_id" readonly="externally_managed" options="{'no_create_edit': True, 'no_create': True}"/>
+                <field name="price_from_pricelist"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="readonly">externally_managed</attribute>
+            </xpath>
+            <xpath expr="//field[@name='expiration_date']" position="replace">
+                <field name="expiration_date" readonly="externally_managed"/>
+            </xpath>
+            <xpath expr="//field[@name='points']" position="attributes">
+                <attribute name="readonly">externally_managed</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record id="loyalty_card_view_tree_inherit_used_date" model="ir.ui.view">
+        <field name="name">loyalty.card.view.tree.inherit.used.date</field>
+        <field name="model">loyalty.card</field>
+        <field name="inherit_id" ref="loyalty.loyalty_card_view_tree"/>
+        <field name="arch" type="xml">
+        <xpath expr="//tree[1]" position="attributes">
+            <attribute name="create">false</attribute>
+        </xpath>
+            <xpath expr="//field[@name='create_date']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+            <xpath expr="//field[@name='create_date']" position="after">
+                <field name="used_date"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="loyalty_card_view_search_inherit_custom" model="ir.ui.view">
+        <field name="name">loyalty.card.view.search.inherit.custom</field>
+        <field name="model">loyalty.card</field>
+        <field name="inherit_id" ref="loyalty.loyalty_card_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='active']" position="replace">
+                <filter name="active"
+                    string="Available Coupons"
+                    domain="[
+                        ('source_pos_order_id', '=', False),
+                        '|',
+                        ('expiration_date', '=', False),
+                        ('expiration_date', '&gt;=', context_today().strftime('%Y-%m-%d'))
+                    ]"
+                    />
+            </xpath>
+            <xpath expr="//filter[@name='inactive']" position="after">
+                <filter name="used"
+                    string="Used Coupons"
+                    domain="[('source_pos_order_id', '!=', False)]"/>
+                <separator/>
+                <filter
+                    string="Created Today"
+                    name="filter_created_today"
+                    domain="[('create_date', '>=', context_today())]"
+                />
+                <filter
+                    string="Created This Week"
+                    name="filter_created_this_week"
+                    domain="[
+                        ('create_date', '>=', (datetime.datetime.combine(context_today() + relativedelta(weeks=-1,days=1,weekday=0), datetime.time(0,0,0)).to_utc()).strftime('%Y-%m-%d %H:%M:%S')),
+                        ('create_date', '&lt;', (datetime.datetime.combine(context_today() + relativedelta(days=1,weekday=0), datetime.time(0,0,0)).to_utc()).strftime('%Y-%m-%d %H:%M:%S'))]"
+                />
+                <filter
+                    string="Created This Month"
+                    name="filter_created_this_month"
+                    domain="[
+                        ('create_date', '>=', (datetime.datetime.combine(context_today() + relativedelta(months=-1,days=1,weekday=0), datetime.time(0,0,0)).to_utc()).strftime('%Y-%m-%d %H:%M:%S')),
+                        ('create_date', '&lt;', (datetime.datetime.combine(context_today() + relativedelta(days=1,weekday=0), datetime.time(0,0,0)).to_utc()).strftime('%Y-%m-%d %H:%M:%S'))]"
+                />
+                <separator/>
+                <filter name="filter_create_date" date="create_date"/>
+                <separator/>
+                <filter
+                    string="Used Today"
+                    name="filter_used_date_today"
+                    domain="[('used_date', '>=', context_today())]"
+                />
+                <filter
+                    string="Used This Week"
+                    name="filter_used_date_this_week"
+                    domain="[
+                        ('used_date', '>=', (datetime.datetime.combine(context_today() + relativedelta(weeks=-1,days=1,weekday=0), datetime.time(0,0,0)).to_utc()).strftime('%Y-%m-%d %H:%M:%S')),
+                        ('used_date', '&lt;', (datetime.datetime.combine(context_today() + relativedelta(days=1,weekday=0), datetime.time(0,0,0)).to_utc()).strftime('%Y-%m-%d %H:%M:%S'))]"
+                />
+                <filter
+                    string="Used This Month"
+                    name="filter_used_date_this_month"
+                    domain="[
+                        ('used_date', '>=', (datetime.datetime.combine(context_today() + relativedelta(months=-1,days=1,weekday=0), datetime.time(0,0,0)).to_utc()).strftime('%Y-%m-%d %H:%M:%S')),
+                        ('used_date', '&lt;', (datetime.datetime.combine(context_today() + relativedelta(days=1,weekday=0), datetime.time(0,0,0)).to_utc()).strftime('%Y-%m-%d %H:%M:%S'))]"
+                />
+                <separator/>
+                <filter name="filter_used_date" date="used_date"/>
+            </xpath>
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter
+                        string="Warehouse"
+                        name="group_by_warehouse"
+                        context="{'group_by': 'warehouse_id'}"
+                    />
+                    <filter
+                        string="Product"
+                        name="group_by_product"
+                        context="{'group_by': 'product_id'}"
+                    />
+                    <filter
+                        string="Damage Type"
+                        name="group_by_damage_type"
+                        context="{'group_by': 'damage_type'}"
+                    />
+                    <filter
+                        string="Pricelist"
+                        name="group_by_pricelist_id"
+                        context="{'group_by': 'pricelist_id'}"
+                    />
+                </group>
+            </xpath>
+        </field>
+    </record>
+    <record id="loyalty.loyalty_card_action" model="ir.actions.act_window">
+        <field name="context">{'search_default_active': 1, 'create': False}</field>
+    </record>
+</odoo>

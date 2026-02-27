@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="loyalty_generate_wizard_view_form_inherit_outlet" model="ir.ui.view">
+        <field name="name">loyalty.generate.wizard.view.form.inherit.outlet</field>
+        <field name="model">loyalty.generate.wizard</field>
+        <field name="inherit_id" ref="loyalty.loyalty_generate_wizard_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='coupon_qty']" position="after">
+                <field name="product_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                <field name="warehouse_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                <field name="pricelist_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                <field name="damage_type"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

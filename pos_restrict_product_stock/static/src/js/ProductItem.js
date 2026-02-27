@@ -1,8 +1,10 @@
 /** @odoo-module **/
 import { patch } from "@web/core/utils/patch";
 import { useService } from "@web/core/utils/hooks"
-import { useState } from "@odoo/owl";
+import { useState, useEffect } from "@odoo/owl";
 import { ProductCard } from "@point_of_sale/app/generic_components/product_card/product_card";
+import { usePos } from "@point_of_sale/app/store/pos_hook";
+import { onMounted } from "@odoo/owl";
 
 patch(ProductCard.prototype, {
 
