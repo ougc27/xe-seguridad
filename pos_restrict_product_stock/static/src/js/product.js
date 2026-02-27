@@ -13,13 +13,6 @@ patch(Product.prototype, {
         price = this.get_price(pricelist, quantity),
         iface_tax_included = this.pos.config.iface_tax_included,
     } = {}) {
-        if (this.pos.promotions && this.id) {
-            const promo = this.pos.promotions.find(p => p.product_id === this.id);
-            if (promo) {
-                this.original_price = price;    
-                price = promo.price;
-            }
-        }
         const posTaxId = this.pos.config.tax_id
             ? [this.pos.config.tax_id[0]]
             : null;
@@ -27,6 +20,27 @@ patch(Product.prototype, {
         const order = this.pos.get_order();
         const taxes = this.pos.get_taxes_after_fp(taxId, order && order.fiscal_position);
         const currentTaxes = this.pos.getTaxesByIds(taxId);
+        if (this.pos.promotions && this.id) {
+            const promo = this.pos.promotions.find(p => p.product_id === this.id);
+            if (
+                promo &&
+                (
+                    !promo.pricelist_ids ||
+                    promo.pricelist_ids.includes(pricelist.id)
+                )
+            ) {
+                const original_price = price;  
+                price = promo.price;
+                const priceAfterFpOriginal = this.pos.computePriceAfterFp(original_price, currentTaxes);
+                const allPricesOriginal = this.pos.compute_all(taxes, priceAfterFpOriginal, quantity, this.pos.currency.rounding);
+                this.original_price = allPricesOriginal.total_included;
+                this.promotion_price = price;
+                promo.original_price = allPricesOriginal.total_included;
+            }
+            else {
+                this.original_price = null;
+            }
+        }
         const priceAfterFp = this.pos.computePriceAfterFp(price, currentTaxes);
         const allPrices = this.pos.compute_all(taxes, priceAfterFp, quantity, this.pos.currency.rounding);
         if (iface_tax_included === "total") {
@@ -36,7 +50,7 @@ patch(Product.prototype, {
         }
     },
 
-    get_price(pricelist, quantity, price_extra = 0, recurring = false) {
+    /*get_price(pricelist, quantity, price_extra = 0, recurring = false) {
         const date = DateTime.now();
 
         // In case of nested pricelists, it is necessary that all pricelists are made available in
@@ -102,5 +116,5 @@ patch(Product.prototype, {
         // because it would cause inconsistencies with the backend for
         // pricelist that have base == 'pricelist'.
         return price;
-    },
+    },*/
 });

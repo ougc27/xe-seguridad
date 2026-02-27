@@ -200,6 +200,11 @@ patch(PaymentScreen.prototype, {
             return false;
         }
 
+        for (const line of order.orderlines) {
+            if (line.coupon_id) {
+                await order.addCouponPerLine(line.coupon_code, line);
+            }
+        }
         return true;
     },
 
@@ -219,5 +224,21 @@ patch(PaymentScreen.prototype, {
         if (ev.key === ' ' || isNaN(ev.key)) {
             ev.preventDefault();
         }
+    },
+    async afterOrderValidation(suggestToSync = true) {
+        const order = this.pos.get_order();
+        const lines = order.get_orderlines();
+        for (const line of lines) {
+            if (line.coupon_id) {
+                const couponId = line.coupon_id;
+                if (line.product.loyalty_cards) {
+                    line.product.loyalty_cards =
+                        line.product.loyalty_cards.filter(c => c.id !== couponId);
+                }
+                this.pos.loyalty_cards =
+                    this.pos.loyalty_cards.filter(c => c.id !== couponId);
+            }
+        }
+        await super.afterOrderValidation(...arguments);
     }
 });

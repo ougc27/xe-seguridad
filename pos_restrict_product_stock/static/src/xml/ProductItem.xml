@@ -27,5 +27,16 @@
                 </div>
             </t>
         </xpath>
+        <xpath expr="//span[contains(@class, 'price-tag')]" position="before">
+            <t t-set="product" t-value="this.env.services.pos.db.get_product_by_id(props.productId)"/>
+            <span t-if="product.original_price"
+                class="text-muted text-decoration-line-through me-2 fw-bolder fs-5">
+                $<t t-esc="product.original_price"/>.00
+            </span>
+        </xpath>
+
+        <xpath expr="//span[contains(@class, 'price-tag')]" position="attributes">
+            <attribute name="class">price-tag text-primary fw-bolder fs-5</attribute>
+        </xpath>
     </t>
 </templates>

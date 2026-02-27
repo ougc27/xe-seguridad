@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_restrict_product_stock.Orderline" t-inherit="point_of_sale.Orderline" t-inherit-mode="extension">
+        <xpath expr="//li[@class='price-per-unit']" position="after">
+            <li class="fw-bolder" t-if="line.coupon_code">
+                Coupon <em><t t-esc="line.coupon_code"/></em> with a discount of
+                <span class="text-success price">
+                    $−<t t-esc="line.discount_price.toFixed(2)"/>
+                </span>
+            </li>
+        </xpath>
+    </t>
+</templates>

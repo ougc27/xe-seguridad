@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="loyalty_rule_view_form_inherit_max_qty" model="ir.ui.view">
+        <field name="name">loyalty.rule.view.form.inherit.max.qty</field>
+        <field name="model">loyalty.rule</field>
+        <field name="inherit_id" ref="loyalty.loyalty_rule_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='minimum_qty']" position="after">
+                <field name="maximum_qty"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="loyalty_rule_view_kanban_inherit_max_qty" model="ir.ui.view">
+        <field name="name">loyalty.rule.view.kanban.inherit.max.qty</field>
+        <field name="model">loyalty.rule</field>
+        <field name="inherit_id" ref="loyalty.loyalty_rule_view_kanban"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='minimum_qty']" position="after">
+                <field name="maximum_qty"/>
+            </xpath>
+
+            <xpath expr="//t[@t-if='record.minimum_qty.raw_value > 0']" position="after">
+                <t t-if="record.maximum_qty.raw_value > 0">
+                    <span>If maximum <field name="maximum_qty"/> item(s) allowed</span><br/>
+                </t>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

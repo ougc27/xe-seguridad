@@ -124,7 +124,16 @@ class PosSession(models.Model):
         bank_payment_method_diffs = bank_payment_method_diffs or {}
         self.ensure_one()
         data = {}
-        sudo = self.user_has_groups('point_of_sale.group_pos_user')
+        sudo = self.user_has_groups('point_of_sale.group_pos_user')   
+        active_orders = self.order_ids.filtered(lambda o: o.state != 'cancel')
+        if not active_orders and not self.sudo().statement_line_ids and not self.move_id:
+            # sesión vacía real
+            self.write({
+                'state': 'closed',
+                'stop_at': fields.Datetime.now(),
+                'cash_register_difference': 0,
+            })
+            return True
         if self.order_ids.filtered(lambda o: o.state != 'cancel') or self.sudo().statement_line_ids:
             self.cash_real_transaction = sum(self.sudo().statement_line_ids.mapped('amount'))
             #if self.state == 'closed':
@@ -568,3 +577,34 @@ class PosSession(models.Model):
 
     #def _get_closed_orders(self):
         #return super()._get_closed_orders().filtered(lambda o: o.state != 'cancel')
+
+    def _pos_ui_models_to_load(self):
+        result = super()._pos_ui_models_to_load()
+        result.append('loyalty.card')
+        return result
+
+    def _loader_params_loyalty_card(self):
+        return {
+            'search_params': {
+            'domain': [
+                ('warehouse_id', '=', self.config_id.picking_type_id.warehouse_id.id),
+                ('source_pos_order_id', '=', False),
+                '|',
+                ('expiration_date', '=', False),
+                ('expiration_date', '>=', fields.Date.context_today(self)),
+            ],
+                'fields': [
+                    'id',
+                    'code',
+                    'expiration_date',
+                    'product_id',
+                    'damage_type',
+                    'pricelist_id',
+                    'price_from_pricelist',
+                    'program_name'
+                ],
+            },
+        }
+
+    def _get_pos_ui_loyalty_card(self, params):
+        return self.env['loyalty.card'].search_read(**params['search_params'])

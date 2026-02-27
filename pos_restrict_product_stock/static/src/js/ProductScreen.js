@@ -1,39 +1,46 @@
 /** @odoo-module **/
 import { patch } from "@web/core/utils/patch";
-import RestrictStockPopup from "@pos_restrict_product_stock/js/RestrictStockPopup"
-import { PosStore } from "@point_of_sale/app/store/pos_store";
-import { _t } from "@web/core/l10n/translation";
+import { ProductScreen } from "@point_of_sale/app/screens/product_screen/product_screen";
+import { onWillStart } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks";
 
 
-patch(PosStore.prototype, {
+patch(ProductScreen.prototype, {
+    setup() {
+        super.setup(...arguments);
+        this.rpc = useService("rpc");
+        onWillStart(async () => {
+            await this._load_promotions();
+        });
+    },
 
-    async addProductToCurrentOrder(...args) {
-        var type = this.config.stock_type
-        const product_id = args['0'].id
-        const [qty_available, virtual_available] = await this.getProductQuantity(product_id)
-        if (this.config.is_restrict_product && ((type == 'qty_on_hand') && (qty_available <= 0)) | ((type == 'virtual_qty') && (virtual_available <= 0)) |
-            ((args['0'].qty_available <= 0) && (args['0'].virtual_available <= 0))) {
-            this.popup.add(RestrictStockPopup, {
-                body: args['0'].display_name,
-                pro_id: product_id
-            });
-        }    
-        else{
-            await super.addProductToCurrentOrder(...args);
-            const orderlines = this.env.services.pos.selectedOrder.orderlines;
-            orderlines.forEach(line => {
-                if (line.product.id === product_id) {
-                    line.qty_available = qty_available;
-                    line.no_stock = false;
-                }
-            });
+    async _load_promotions() {
+        try {
+            const order = this.pos.selectedOrder;
+            const product_ids = Object.keys(this.pos.db.product_by_id).map(id => parseInt(id));
+            const company_id = this.pos.config.company_id[0];
+            const picking_type_id = this.pos.config.picking_type_id[0];
+            const original_pricelist_id = order.pricelist.id;
+            const currency_id = this.pos.config.currency_id[0];
+            let tax_id = null;
+            if (this.pos.config.tax_id) {
+                tax_id = this.pos.config.tax_id[0];
+            }
+
+            const promotions = await this.rpc("/pos/promotion_data", {
+                company_id,
+                picking_type_id,
+                product_ids,
+                original_pricelist_id,
+                currency_id,
+                tax_id
+            });            
+
+            this.pos.promotions = promotions;
+            //this._apply_promotions_to_products();
+
+        } catch (error) {
+            console.error("Error loading promotions:", error);
         }
     },
-    async getProductQuantity(product_id) {
-        const picking_type_id = this.env.services.pos.picking_type.id;
-        return await this.orm.call("product.product", "get_product_quantity", [], {
-            picking_id: picking_type_id,
-            product_id: product_id
-        });
-    }
 });
