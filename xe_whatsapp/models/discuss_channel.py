@@ -273,7 +273,7 @@ class DiscussChannel(models.Model):
             channel.reload()
         channel.sudo().write(vals)
 
-    def _cron_reassign_unanswered(self, only_today=True, batch_limit=100, minutes=10):
+    def _cron_reassign_unanswered(self, only_today=True, batch_limit=100, minutes=7):
         env = self.with_context(tz='America/Mexico_City')
         now = fields.Datetime.context_timestamp(
             env,

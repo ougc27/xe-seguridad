@@ -126,8 +126,28 @@ patch(Order.prototype, {
 
         const lines_to_recompute = orderlines.filter(
             (line) =>
-                !(line.comboLines?.length || line.comboParent)
+                !(line.comboLines?.length || line.comboParent) &&
+                !line.promotion_id
         );
+
+        orderlines.forEach((line) => {
+            let product = line.product;
+            if (product.promotion_price) {
+                const promo = this.pos.promotions.find(p => p.product_id === product.id);
+                if (promo) {
+                    const promotion = {
+                        promotion_id: promo.promotion_id,
+                        promotion_price: promo.price,
+                        original_price: promo.original_price,
+                        available_promotion_pricelists: promo.pricelist_ids,
+                        discount_promotion: product.original_price - promo.gross_price
+                    };
+                    line.set_unit_price(promotion.promotion_price);
+                    line.setPromotion(promotion);
+                }
+            }
+        });
+
         lines_to_recompute.forEach((line) => {
             line.set_unit_price(
                 line.product.get_price(self.pricelist, line.get_quantity(), line.get_price_extra()), true
