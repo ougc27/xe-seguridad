@@ -37,7 +37,6 @@ patch(ProductScreen.prototype, {
             });            
 
             this.pos.promotions = promotions;
-            //this._apply_promotions_to_products();
 
         } catch (error) {
             console.error("Error loading promotions:", error);

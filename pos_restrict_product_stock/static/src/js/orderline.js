@@ -1,6 +1,8 @@
 /** @odoo-module */
 
 import { Orderline } from "@point_of_sale/app/store/models";
+import { roundDecimals as round_di } from "@web/core/utils/numbers";
+import { floatIsZero } from "@web/core/utils/numbers";
 import { patch } from "@web/core/utils/patch";
 import { _t } from "@web/core/l10n/translation";
 import { TextInputPopup } from "@point_of_sale/app/utils/input_popups/text_input_popup";
@@ -33,12 +35,12 @@ patch(Orderline.prototype, {
         this.promotion_price = json.promotion_price || null;
         this.original_price = json.original_price || null;
         this.available_promotion_pricelists = json.available_promotion_pricelists || null;
-        if (this.promotion_price && !this.coupon_id && !this.price_with_discount) {
-            return super.set_unit_price(this.promotion_price);
-        }
-        if (this.coupon_id && this.price_with_discount) {
-            return super.set_unit_price(this.price_with_discount);
-        }
+        // if (this.promotion_price && !this.coupon_id && !this.price_with_discount) {
+        //     return super.set_unit_price(this.promotion_price);
+        // }
+        // if (this.coupon_id && this.price_with_discount) {
+        //     return super.set_unit_price(this.price_with_discount);
+        // }
     },
 
     export_as_JSON() {
@@ -197,4 +199,55 @@ patch(Orderline.prototype, {
         this.discount_promotion = null;
         this.set_unit_price(original_price);
     },
+    can_be_merged_with(orderline) {
+        var price = parseFloat(
+            round_di(this.price || 0, this.pos.dp["Product Price"]).toFixed(
+                this.pos.dp["Product Price"]
+            )
+        );
+        var order_line_price = orderline
+            .get_product()
+            .get_price(orderline.order.pricelist, this.get_quantity());
+
+        this.order.orderlines;
+        order_line_price = round_di(
+            orderline.compute_fixed_price(order_line_price),
+            this.pos.currency.decimal_places
+        );
+        let hasSameAttributes =
+            Object.keys(Object(orderline.attribute_value_ids)).length ===
+            Object.keys(Object(this.attribute_value_ids)).length;
+        if (
+            hasSameAttributes &&
+            Object(orderline.attribute_value_ids)?.length &&
+            Object(this.attribute_value_ids)?.length
+        ) {
+            hasSameAttributes = orderline.attribute_value_ids.every(
+                (value, index) => value === this.attribute_value_ids[index]
+            );
+        }
+        return (
+            !this.skipChange &&
+            orderline.getNote() === this.getNote() &&
+            this.get_product().id === orderline.get_product().id &&
+            this.get_unit() &&
+            this.is_pos_groupable() &&
+            // don't merge discounted orderlines
+            this.get_discount() === 0 &&
+            floatIsZero(
+                price - orderline.price - orderline.get_price_extra(),
+                this.pos.currency.decimal_places
+            ) &&
+            !(
+                this.product.tracking === "lot" &&
+                (this.pos.picking_type.use_create_lots || this.pos.picking_type.use_existing_lots)
+            ) &&
+            this.full_product_name === orderline.full_product_name &&
+            orderline.get_customer_note() === this.get_customer_note() &&
+            !this.refunded_orderline_id &&
+            !this.isPartOfCombo() &&
+            !orderline.isPartOfCombo() &&
+            hasSameAttributes
+        );
+    }
 });
