@@ -67,7 +67,33 @@ patch(PaymentScreen.prototype, {
             }
         }
 
-        if (
+        const partner = order.get_partner();
+
+        if (!partner) {
+            const { confirmed } = await this.popup.add(ConfirmPopup, {
+                title: _t("Please select the Customer"),
+                body: _t(
+                    "You need to select the customer for complete the sale"
+                ),
+            });
+            if (confirmed) {
+                this.selectPartner();
+            }
+            return false;
+        }
+        if (!partner.name || (!partner.phone && !partner.mobile)) {
+            const { confirmed } = await this.popup.add(ConfirmPopup, {
+                title: _t("Please fill the full name and number of the customer"),
+                body: _t(
+                    "You need to fill the full name and number of the client for complete the sale"
+                ),
+            });
+            if (confirmed) {
+                this.selectPartner(true, ['phone', 'mobile']);
+            }
+            return false;
+        }
+        /*if (
             (order.is_to_invoice() || order.getShippingDate()) &&
             !order.get_partner()
         ) {
@@ -81,9 +107,8 @@ patch(PaymentScreen.prototype, {
                 this.selectPartner();
             }
             return false;
-        }
+        }*/
 
-        const partner = order.get_partner();
         if (
             order.getShippingDate() &&
             !(partner.name && partner.street && partner.city && partner.country_id)

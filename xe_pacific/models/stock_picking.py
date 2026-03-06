@@ -1,5 +1,6 @@
 from collections import defaultdict
 from odoo import api, models, fields, _
+from odoo.osv import expression
 from odoo.exceptions import UserError
 import math
 
@@ -106,7 +107,7 @@ class StockPicking(models.Model):
 
     x_subdivision = fields.Char(copy=False)
 
-    service_ticket_id = fields.Many2one('helpdesk.ticket', copy=False)
+    service_ticket_id = fields.Many2one('helpdesk.ticket', copy=False, tracking=True)
 
     is_full_returned = fields.Boolean(compute='_compute_is_full_returned', copy=False, store=True)
 
@@ -187,7 +188,17 @@ class StockPicking(models.Model):
                     if any(keyword in rec.location_id.warehouse_id.name for keyword in ['Amazon', 'MercadoLibre']):
                         rec.shipping_assignment = 'shipments'
                         continue
-                    if 'monterrey pr1' in rec.location_id.warehouse_id.name.lower():
+
+                    warehouses = [
+                        'monterrey pr1',
+                        'monterrey pr2',
+                        'monterrey ro1',
+                        'monterrey ro2',
+                        'monterrey xe1',
+                        'monterrey xe2',
+                    ]
+
+                    if any(w in rec.location_id.warehouse_id.name.lower() for w in warehouses):
                         if distribution_channel in ['DISTRIBUIDORES', 'MARKETPLACE', 'GOTT']:
                             rec.shipping_assignment = 'shipments'
                             continue
@@ -653,7 +664,10 @@ class StockPicking(models.Model):
                     if programed_stage:
                         service_ticket_id.write({'stage_id': programed_stage.id})
             if picking.x_studio_folio_rem and picking.state not in ['transit', 'done']:
-                picking.write({'state': 'transit'})
+                picking.write({
+                    'state': 'transit',
+                    'service_ticket_id': service_ticket_id
+                })
             if picking.shipping_assignment == 'shipments':
                 picking.x_task.sudo().unlink()
         return res
