@@ -128,7 +128,8 @@ class HelpdeskTicket(models.Model):
     service_picking_ids = fields.One2many(
         'stock.picking',
         'service_ticket_id',
-        copy=False
+        copy=False,
+        tracking=True
     )
 
     show_transfer_button = fields.Boolean(compute="_compute_show_transfer_button")

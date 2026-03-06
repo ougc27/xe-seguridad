@@ -1936,3 +1936,42 @@ msgstr "Fecha de Creación"
 #: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_order_line__discount_price
 msgid "Discount amount applied by the coupon on this line"
 msgstr "Importe del descuento aplicado por el cupón en esta línea"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/PartnerList.js:0
+#, python-format
+msgid "Phone information required"
+msgstr "Información de teléfono requerida"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/PartnerList.js:0
+#, python-format
+msgid "Please enter a phone number or a mobile number."
+msgstr "Por favor ingrese un número de teléfono o un número de celular."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "You need to select the customer for complete the sale"
+msgstr "Necesita seleccionar el cliente para completar la venta"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid "Please fill the full name and number of the customer"
+msgstr "Por favor complete el nombre completo y el número del cliente"
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/PaymentScreen.js:0
+#, python-format
+msgid ""
+"You need to fill the full name and number of the client for complete the "
+"sale"
+msgstr ""
+"Necesita completar el nombre completo y el número del cliente para completar la "
+"venta"
