@@ -28,6 +28,16 @@ class PosOrder(models.Model):
 
     amount_untaxed = fields.Float(compute='_compute_amount_untaxed', string='Untaxed Amount', store=True)
 
+    original_partner_id = fields.Many2one(
+        "res.partner",
+        string="Original Customer",
+        readonly=True,
+        index=True,
+        help="Customer selected by the salesperson in the Point of Sale at the time of the sale. "
+            "This field preserves the original customer information even if the partner on the order "
+            "is later changed (for example, during global invoicing)."
+    )
+
     @api.depends('payment_ids', 'lines')
     def _compute_amount_untaxed(self):
         for order in self:
@@ -280,6 +290,9 @@ class PosOrder(models.Model):
     def create(self, vals_list):
         orders = super().create(vals_list)
         for order in orders:
+            partner_id = order.partner_id.id
+            if partner_id:
+                order.sudo().write({'original_partner_id': partner_id})
             difference = order.amount_total - (order.amount_untaxed + order.amount_tax)
             if abs(difference) >= order.currency_id.rounding:
                 line = order.lines[-1]
@@ -327,7 +340,11 @@ class PosOrder(models.Model):
                 'cash_register_balance_end': session_id.cash_register_balance_end - amount_total,
                 'cash_register_balance_end_real': session_id.cash_register_balance_end_real - amount_total,
                 'cash_register_total_entry_encoding': session_id.cash_register_total_entry_encoding - amount_total,
-            }) 
+            })
+            coupon_lines = rec.lines.filtered(lambda l: l.coupon_id)
+            for line in coupon_lines:
+                if line.coupon_id.source_pos_order_id: 
+                    line.coupon_id.sudo().write({'source_pos_order_id': False})
             rec.sudo().write({'state': 'cancel'})
 
             if rec.account_move and rec.account_move.state == 'draft':
