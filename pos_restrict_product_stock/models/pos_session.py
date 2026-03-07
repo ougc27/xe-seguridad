@@ -204,6 +204,7 @@ class PosSession(models.Model):
         split_receivables_bank = defaultdict(amounts)
         split_receivables_cash = defaultdict(amounts)
         split_receivables_pay_later = defaultdict(amounts)
+        split_receivables_online = defaultdict(amounts)
         combine_receivables_bank = defaultdict(amounts)
         combine_receivables_cash = defaultdict(amounts)
         combine_receivables_pay_later = defaultdict(amounts)
@@ -214,8 +215,7 @@ class PosSession(models.Model):
         stock_expense = defaultdict(amounts)
         stock_return = defaultdict(amounts)
         stock_output = defaultdict(amounts)
-        split_receivables_online = defaultdict(amounts)
-
+        
         rounding_difference = {'amount': 0.0, 'amount_converted': 0.0}
         # Track the receivable lines of the order's invoice payment moves for reconciliation
         # These receivable lines are reconciled to the corresponding invoice receivable lines
@@ -234,41 +234,48 @@ class PosSession(models.Model):
                     continue
                 date = payment.payment_date
                 payment_method = payment.payment_method_id
-                is_split_payment = payment.payment_method_id.split_transactions
                 payment_type = payment_method.type
 
-                # If not pay_later, we create the receivable vals for both invoiced and uninvoiced orders.
-                #   Separate the split and aggregated payments.
-                # Moreover, if the order is invoiced, we create the pos receivable vals that will balance the
-                # pos receivable lines from the invoice payments.
                 if payment_type != 'pay_later':
-                    if is_split_payment and payment_type == 'cash':
-                        split_receivables_cash[payment] = self._update_amounts(split_receivables_cash[payment], {'amount': amount}, date)
-                    elif not is_split_payment and payment_type == 'cash':
-                        combine_receivables_cash[payment_method] = self._update_amounts(combine_receivables_cash[payment_method], {'amount': amount}, date)
-                    elif is_split_payment and payment_type == 'bank':
-                        split_receivables_bank[payment] = self._update_amounts(split_receivables_bank[payment], {'amount': amount}, date)
-                    elif not is_split_payment and payment_type == 'bank':
-                        combine_receivables_bank[payment_method] = self._update_amounts(combine_receivables_bank[payment_method], {'amount': amount}, date)
 
-                    # Create the vals to create the pos receivables that will balance the pos receivables from invoice payment moves.
+                    if payment_type == 'cash':
+                        split_receivables_cash[payment] = self._update_amounts(
+                            split_receivables_cash[payment],
+                            {'amount': amount},
+                            date
+                        )
+
+                    elif payment_type == 'bank':
+                        split_receivables_bank[payment] = self._update_amounts(
+                            split_receivables_bank[payment],
+                            {'amount': amount},
+                            date
+                        )
+
+                    elif payment_type == 'online':
+                        split_receivables_online[payment] = self._update_amounts(
+                            split_receivables_online[payment],
+                            {'amount': amount},
+                            date
+                        )
+
                     if order_is_invoiced:
-                        if is_split_payment:
-                            split_inv_payment_receivable_lines[payment] |= payment.account_move_id.line_ids.filtered(lambda line: line.account_id == pos_receivable_account)
-                            split_invoice_receivables[payment] = self._update_amounts(split_invoice_receivables[payment], {'amount': payment.amount}, order.date_order)
-                        else:
-                            combine_inv_payment_receivable_lines[payment_method] |= payment.account_move_id.line_ids.filtered(lambda line: line.account_id == pos_receivable_account)
-                            combine_invoice_receivables[payment_method] = self._update_amounts(combine_invoice_receivables[payment_method], {'amount': payment.amount}, order.date_order)
+                        split_inv_payment_receivable_lines[payment] |= payment.account_move_id.line_ids.filtered(
+                            lambda line: line.account_id == pos_receivable_account
+                        )
 
-                # If pay_later, we create the receivable lines.
-                #   if split, with partner
-                #   Otherwise, it's aggregated (combined)
-                # But only do if order is *not* invoiced because no account move is created for pay later invoice payments.
+                        split_invoice_receivables[payment] = self._update_amounts(
+                            split_invoice_receivables[payment],
+                            {'amount': payment.amount},
+                            order.date_order
+                        )
+
                 if payment_type == 'pay_later' and not order_is_invoiced:
-                    if is_split_payment:
-                        split_receivables_pay_later[payment] = self._update_amounts(split_receivables_pay_later[payment], {'amount': amount}, date)
-                    elif not is_split_payment:
-                        combine_receivables_pay_later[payment_method] = self._update_amounts(combine_receivables_pay_later[payment_method], {'amount': amount}, date)
+                    split_receivables_pay_later[payment] = self._update_amounts(
+                        split_receivables_pay_later[payment],
+                        {'amount': amount},
+                        date
+                    )
 
             if not order_is_invoiced:
                 order_taxes = defaultdict(tax_amounts)
@@ -284,12 +291,26 @@ class PosSession(models.Model):
                         tuple((tax['id'], tax['account_id'], tax['tax_repartition_line_id']) for tax in line['taxes']),
                         line['base_tags'],
                     )
-                    sales[sale_key] = self._update_amounts(sales[sale_key], {'amount': line['amount']}, line['date_order'], round=False)
+
+                    sales[sale_key] = self._update_amounts(
+                        sales[sale_key],
+                        {'amount': line['amount']},
+                        line['date_order'],
+                        round=False
+                    )
+
                     sales[sale_key].setdefault('tax_amount', 0.0)
-                    # Combine tax lines
+
                     for tax in line['taxes']:
-                        tax_key = (tax['account_id'] or line['income_account_id'], tax['tax_repartition_line_id'], tax['id'], tuple(tax['tag_ids']))
+                        tax_key = (
+                            tax['account_id'] or line['income_account_id'],
+                            tax['tax_repartition_line_id'],
+                            tax['id'],
+                            tuple(tax['tag_ids'])
+                        )
+
                         sales[sale_key]['tax_amount'] += tax['amount']
+
                         order_taxes[tax_key] = self._update_amounts(
                             order_taxes[tax_key],
                             {'amount': tax['amount'], 'base_amount': tax['base']},
@@ -304,14 +325,21 @@ class PosSession(models.Model):
 
                 if self.config_id.cash_rounding:
                     diff = order.amount_paid - order.amount_total
-                    rounding_difference = self._update_amounts(rounding_difference, {'amount': diff}, order.date_order)
+                    rounding_difference = self._update_amounts(
+                        rounding_difference,
+                        {'amount': diff},
+                        order.date_order
+                    )
 
-                # Increasing current partner's customer_rank
                 partners = (order.partner_id | order.partner_id.commercial_partner_id)
                 partners._increase_rank('customer_rank')
 
         if self.company_id.anglo_saxon_accounting:
-            all_picking_ids = self.order_ids.filtered(lambda p: not p.is_invoiced and not p.shipping_date).picking_ids.ids + self.picking_ids.filtered(lambda p: not p.pos_order_id).ids
+            all_picking_ids = (
+                self.order_ids.filtered(lambda p: not p.is_invoiced and not p.shipping_date).picking_ids.ids
+                + self.picking_ids.filtered(lambda p: not p.pos_order_id).ids
+            )
+
             if all_picking_ids:
                 # Combine stock lines
                 stock_move_sudo = self.env['stock.move'].sudo()
@@ -354,21 +382,21 @@ class PosSession(models.Model):
                     split_receivables_online[payment] = self._update_amounts(split_receivables_online[payment], {'amount': amount}, date)
 
         data.update({
-            'taxes':                               taxes,
-            'sales':                               sales,
-            'stock_expense':                       stock_expense,
-            'split_receivables_bank':              split_receivables_bank,
-            'combine_receivables_bank':            combine_receivables_bank,
-            'split_receivables_cash':              split_receivables_cash,
-            'combine_receivables_cash':            combine_receivables_cash,
-            'combine_invoice_receivables':         combine_invoice_receivables,
-            'split_receivables_pay_later':         split_receivables_pay_later,
-            'combine_receivables_pay_later':       combine_receivables_pay_later,
-            'stock_return':                        stock_return,
-            'stock_output':                        stock_output,
+            'taxes': taxes,
+            'sales': sales,
+            'stock_expense': stock_expense,
+            'split_receivables_bank': split_receivables_bank,
+            'combine_receivables_bank': combine_receivables_bank,
+            'split_receivables_cash': split_receivables_cash,
+            'combine_receivables_cash': combine_receivables_cash,
+            'combine_invoice_receivables': combine_invoice_receivables,
+            'split_receivables_pay_later': split_receivables_pay_later,
+            'combine_receivables_pay_later': combine_receivables_pay_later,
+            'stock_return': stock_return,
+            'stock_output': stock_output,
             'combine_inv_payment_receivable_lines': combine_inv_payment_receivable_lines,
-            'rounding_difference':                 rounding_difference,
-            'MoveLine':                            MoveLine,
+            'rounding_difference': rounding_difference,
+            'MoveLine': MoveLine,
             'split_invoice_receivables': split_invoice_receivables,
             'split_inv_payment_receivable_lines': split_inv_payment_receivable_lines,
             'split_receivables_online': split_receivables_online,
