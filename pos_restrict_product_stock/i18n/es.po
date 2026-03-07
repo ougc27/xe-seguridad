@@ -1975,3 +1975,31 @@ msgid ""
 msgstr ""
 "Necesita completar el nombre completo y el número del cliente para completar la "
 "venta"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_order__original_partner_id
+msgid ""
+"Customer selected by the salesperson in the Point of Sale at the time of the"
+" sale. This field preserves the original customer information even if the "
+"partner on the order is later changed (for example, during global "
+"invoicing)."
+msgstr ""
+"Cliente seleccionado por el vendedor en el Punto de Venta al momento de la"
+" venta. Este campo conserva la información original del cliente incluso si "
+"el cliente en la orden se cambia posteriormente (por ejemplo, durante la "
+"facturación global)."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order__original_partner_id
+msgid "Original Customer"
+msgstr "Cliente Original"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "Active Order Lines"
+msgstr "Líneas de orden activas"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "Inactive Order Lines"
+msgstr "Líneas de orden inactivas"

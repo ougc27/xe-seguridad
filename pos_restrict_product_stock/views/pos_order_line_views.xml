@@ -38,6 +38,17 @@
                 <field name="user_id"/>
                 <field name="coupon_id"/>
                 <field name="company_id"/>
+
+                <filter name="active_order_lines"
+                    string="Active Order Lines"
+                    domain="[('order_id.state', '!=', 'cancel')]"/>
+
+                <filter name="inactive_order_lines"
+                    string="Inactive Order Lines"
+                    domain="[('order_id.state', '=', 'cancel')]"/>
+
+                <separator/>
+
                 <filter
                     string="Today"
                     name="filter_today"
@@ -106,7 +117,8 @@
         <field name="res_model">pos.order.line</field>
         <field name="view_mode">tree</field>
         <field name="view_id" ref="view_pos_order_line_tree_coupon_analysis"/>
-        <field name="domain">[('coupon_id', '!=', False), ('order_id.state', '!=', 'cancel')]</field>
+        <field name="domain">[('coupon_id', '!=', False)]</field>
+        <field name="context">{'search_default_active_order_lines': 1}</field>
         <field name="search_view_id" ref="view_pos_order_line_search_coupon_analysis"/>
     </record>
 
