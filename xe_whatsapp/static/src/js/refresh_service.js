@@ -6,13 +6,10 @@ import { registry } from "@web/core/registry";
 export const pageRefreshService = {
     dependencies: ["bus_service"],
     start(env, { bus_service }) {
-        console.log("Registering bus service for page refresh");
         bus_service.subscribe("page_refresh", ({ model_name }) => {
-            console.log("Received page refresh notification");
             if (browser.location.href.includes(`model=${model_name}`)) {
                 reloadOnIncomingWebhooks();
             } else {
-                console.log("Cannot locate the correct page");
             }
         });
         function reloadOnIncomingWebhooks() {
@@ -29,7 +26,6 @@ export const pageRefreshService = {
             const urlParams = new URLSearchParams(hash);
 
             if (urlParams.has('view_type') && urlParams.get('view_type') === 'form') {
-                console.log("Executing hard reload");
                 // Perform a hard refresh.
                 // Invoke hard refresh client action.
                 actionService.doAction({
@@ -37,7 +33,6 @@ export const pageRefreshService = {
                     tag: "reload",
                 });
             } else {
-                console.log("Executing soft reload");
                 // Soft refresh for other view types.
                 // Invoke soft refresh client action.
                 actionService.doAction({

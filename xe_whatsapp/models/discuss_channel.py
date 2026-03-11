@@ -70,7 +70,7 @@ class DiscussChannel(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        if vals.get('is_open_for_all_users'):
+        """if vals.get('is_open_for_all_users'):
             for rec in self:
                 member_ids = self.env['whatsapp.team.members'].search([
                     ('wa_account_id', '=', rec.wa_account_id.id), 
@@ -81,14 +81,15 @@ class DiscussChannel(models.Model):
                         self.env['discuss.channel.member'].sudo().create([{
                             'partner_id': channel_member_id,
                             'channel_id': rec.id,
-                        }])
+                        }])"""
         if 'assigned_person' in vals:
             for rec in self:
                 assigned_person = rec.assigned_person
                 if assigned_person:
-                    assigned_partner = assigned_person.partner_id
+                    assigned_partner_id = assigned_person.partner_id.id
+                    rec.update_channel_members()
                     for member in rec.channel_member_ids:
-                        if member.partner_id == assigned_partner:
+                        if member.partner_id.id == assigned_partner_id:
                             member.write({'custom_notifications': None})
                         else:
                             member.write({'custom_notifications': 'no_notif'})
@@ -383,3 +384,163 @@ class DiscussChannel(models.Model):
         res["is_reassigned"] = self.is_reassigned
         res["wa_account_id"] = self.wa_account_id.id
         return res
+
+    def channel_fetched(self):
+        """ Broadcast the channel_fetched notification to channel members
+        """
+        for channel in self:
+            if not channel.message_ids.ids:
+                return
+            # a bit not-modular but helps understanding code
+            if channel.channel_type not in {'chat', 'whatsapp'}:
+                return
+            last_message_id = channel.message_ids.ids[0] # zero is the index of the last message
+            member = self.env['discuss.channel.member'].search_read(
+                [
+                    ('channel_id', '=', channel.id),
+                    ('partner_id', '=', partner_id)
+                ],
+                ['id', 'fetched_message_id'],
+                limit=1
+            )
+
+            if member[0]['fetched_message_id'] == last_message_id:
+                # last message fetched by user is already up-to-date
+                return
+            # Avoid serialization error when multiple tabs are opened.
+            query = """
+                UPDATE discuss_channel_member
+                SET fetched_message_id = %s
+                WHERE id IN (
+                    SELECT id FROM discuss_channel_member WHERE id = %s
+                    FOR NO KEY UPDATE SKIP LOCKED
+                )
+            """
+            self.env.cr.execute(query, (last_message_id, member[0]['id']))
+            self.env['bus.bus']._sendone(channel, 'discuss.channel.member/fetched', {
+                'channel_id': channel.id,
+                'id': member.id,
+                'last_message_id': last_message_id,
+                'partner_id': self.env.user.partner_id.id,
+            })
+
+    @api.returns('self')
+    def _get_whatsapp_channel(self, whatsapp_number, wa_account_id, sender_name=False, create_if_not_found=False, related_message=False):
+        """ Creates a whatsapp channel.
+
+        :param str whatsapp_number: whatsapp phone number of the customer. It should
+          be formatted according to whatsapp standards, aka {country_code}{national_number}.
+
+        :returns: whatsapp discussion discuss.channel
+        """
+        # be somewhat defensive with number, as it is used in various flows afterwards
+        # notably in 'message_post' for the number, and called by '_process_messages'
+        base_number = whatsapp_number if whatsapp_number.startswith('+') else f'+{whatsapp_number}'
+        wa_number = base_number.lstrip('+')
+        wa_formatted = wa_phone_validation.wa_phone_format(
+            self.env.company,
+            number=base_number,
+            force_format="WHATSAPP",
+            raise_exception=False,
+        ) or wa_number
+
+        related_record = False
+        responsible_partners = self.env['res.partner']
+        channel_domain = [
+            ('whatsapp_number', '=', wa_formatted),
+            ('wa_account_id', '=', wa_account_id.id)
+        ]
+        if related_message:
+            related_record = self.env[related_message.model].browse(related_message.res_id)
+            responsible_partners = related_record._whatsapp_get_responsible(
+                related_message=related_message,
+                related_record=related_record,
+                whatsapp_account=wa_account_id,
+            ).partner_id
+
+            if 'message_ids' in related_record:
+                record_messages = related_record.message_ids
+            else:
+                record_messages = self.env['mail.message'].search([
+                    ('model', '=', related_record._name),
+                    ('res_id', '=', related_record.id),
+                    ('message_type', '!=', 'user_notification'),
+                ])
+            channel_domain += [
+                ('whatsapp_mail_message_id', 'in', record_messages.ids),
+            ]
+        channel = self.sudo().search(channel_domain, order='create_date desc', limit=1)
+        if responsible_partners:
+            channel = channel.filtered(lambda c: all(r in c.channel_member_ids.partner_id for r in responsible_partners))
+
+        partners_to_notify = responsible_partners
+        record_name = related_message.record_name
+        if not record_name and related_message.res_id:
+            record_name = self.env[related_message.model].browse(related_message.res_id).display_name
+        if not channel and create_if_not_found:
+            channel = self.sudo().with_context(tools.clean_context(self.env.context)).create({
+                'name': f"{wa_formatted} ({record_name})" if record_name else wa_formatted,
+                'channel_type': 'whatsapp',
+                'whatsapp_number': wa_formatted,
+                'whatsapp_partner_id': self.env['res.partner']._find_or_create_from_number(wa_formatted, sender_name).id,
+                'wa_account_id': wa_account_id.id,
+                'whatsapp_mail_message_id': related_message.id if related_message else None,
+            })
+            partners_to_notify += channel.whatsapp_partner_id
+            if related_message:
+                # Add message in channel about the related document
+                info = _("Related %(model_name)s: ", model_name=self.env['ir.model']._get(related_message.model).display_name)
+                url = Markup('{base_url}/web#model={model}&id={res_id}').format(
+                    base_url=self.get_base_url(), model=related_message.model, res_id=related_message.res_id)
+                related_record_name = related_message.record_name
+                if not related_record_name:
+                    related_record_name = self.env[related_message.model].browse(related_message.res_id).display_name
+                channel.message_post(
+                    body=Markup('<p>{info}<a target="_blank" href="{url}">{related_record_name}</a></p>').format(
+                        info=info, url=url, related_record_name=related_record_name),
+                    message_type='comment',
+                    author_id=self.env.ref('base.partner_root').id,
+                    subtype_xmlid='mail.mt_note',
+                )
+                if hasattr(related_record, 'message_post'):
+                    # Add notification in document about the new message and related channel
+                    info = _("A new WhatsApp channel is created for this document")
+                    url = Markup('{base_url}/web#model=discuss.channel&id={channel_id}').format(
+                        base_url=self.get_base_url(), channel_id=channel.id)
+                    related_record.message_post(
+                        author_id=self.env.ref('base.partner_root').id,
+                        body=Markup('<p>{info}<a target="_blank" class="o_whatsapp_channel_redirect"'
+                                    'data-oe-id="{channel_id}" href="{url}">{channel_name}</a></p>').format(
+                                        info=info, url=url, channel_id=channel.id, channel_name=channel.display_name),
+                        message_type='comment',
+                        subtype_xmlid='mail.mt_note',
+                    )
+            if partners_to_notify == channel.whatsapp_partner_id and wa_account_id.notify_user_ids.partner_id:
+                partner_ids = channel.get_administrator()
+                partners_to_notify += partner_ids
+            channel.channel_member_ids = [Command.clear()] + [Command.create({'partner_id': partner.id}) for partner in partners_to_notify]
+            channel._broadcast(partners_to_notify.ids)
+        return channel
+
+    def get_administrator(self):
+        user_ids = self.env['whatsapp.team.members'].sudo().search([
+            ('wa_account_id', '=', self.wa_account_id.id),
+            ('is_assigned', '=', True),
+            ('team', '=', 'sales_team')
+        ]).user_id
+        return user_ids.partner_id
+
+    def update_channel_members(self):
+        admin_partners = self.get_administrator()
+        members_to_remove = self.channel_member_ids.filtered(
+            lambda m: m.partner_id.id not in admin_partners.ids
+        )
+        commands = [(3, m.id) for m in members_to_remove]
+        commands.append((0, 0, {
+            'partner_id': self.assigned_person.partner_id.id
+        }))
+        self.write({
+            'channel_member_ids': commands
+        })
+        self._broadcast(channel.channel_member_ids.partner_id.ids)
+        self.reload()

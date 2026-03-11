@@ -24,6 +24,7 @@ class WhatsAppAssignedPerson(http.Controller):
     @http.route('/xe_whatsapp/set_assigned_person', type='json', auth='user')
     def set_assigned_person(self, channel_id, person_id):
         channel = request.env['discuss.channel'].sudo().browse(channel_id)
+        wa_account_id = channel.wa_account_id.id
         user = request.env['res.users'].sudo().browse(person_id)
         if channel and user:
             if user:
@@ -31,7 +32,7 @@ class WhatsAppAssignedPerson(http.Controller):
                     lost_count = request.env['whatsapp.reassignment.log'].sudo().search(
                         [
                             ('lost_by_user_id', '=', channel.assigned_person.id),
-                            ('wa_account_id', '=', channel.wa_account_id.id),
+                            ('wa_account_id', '=', wa_account_id),
                         ],
                         order="id DESC",
                         limit=1
@@ -44,7 +45,7 @@ class WhatsAppAssignedPerson(http.Controller):
                         'lost_by_user_id': channel.assigned_person.id,
                         'assigned_to_user_id': user.id,
                         'whatsapp_number': channel.whatsapp_number,
-                        'wa_account_id': channel.wa_account_id.id,
+                        'wa_account_id': wa_account_id,
                         'reassigned_at': fields.Datetime.now(),
                         'lost_count': lost_count + 1,
                         'reassignment_type': 'manual'

@@ -85,7 +85,7 @@ class WhatsappMessage(models.Model):
                         'first_customer_message_at': first_message.create_date,
                         'first_agent_message_at': rec.create_date,
                     })
-            inactivity_template_enabled = self.env['ir.config_parameter'].sudo().get_param(
+            """inactivity_template_enabled = self.env['ir.config_parameter'].sudo().get_param(
                 'inactivity_template_enabled', None)
             if rec.state == 'received' and inactivity_template_enabled == "1":
                 existing_template_message = self.env['whatsapp.message'].search([
@@ -97,7 +97,7 @@ class WhatsappMessage(models.Model):
                     template_name='asueto_2_feb_xe_seguridad'
                     if rec.wa_account_id.id == 8:
                         template_name = 'asueto_2_feb_tecnodoor'
-                    rec.send_automated_respond(template_name)
+                    rec.send_automated_respond(template_name)"""
         return records
 
     def _get_html_preview_whatsapp(self, rec, wa_template_id):
