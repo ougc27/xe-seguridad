@@ -1,6 +1,7 @@
 import pytz
 from odoo import fields, models, api, _
 from odoo.tools import html2plaintext
+from odoo.addons.whatsapp.tools import phone_validation as wa_phone_validation
 from datetime import datetime, timedelta, time
 
 
