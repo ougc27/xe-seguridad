@@ -421,7 +421,7 @@ class DiscussChannel(models.Model):
             self.env.cr.execute(query, (last_message_id, member[0]['id']))
             self.env['bus.bus']._sendone(channel, 'discuss.channel.member/fetched', {
                 'channel_id': channel.id,
-                'id': member.id,
+                'id': member[0]['id'],
                 'last_message_id': last_message_id,
                 'partner_id': partner_id,
             })
@@ -535,7 +535,7 @@ class DiscussChannel(models.Model):
     def update_channel_members(self):
         admin_partners = self.get_administrator()
         members_to_remove = self.channel_member_ids.filtered(
-            lambda m: m.partner_id.id not in admin_partners.ids
+            lambda m: m.partner_id.id not in admin_partners.ids or not m.partner_id.user_ids
         )
         commands = [(3, m.id) for m in members_to_remove]
         commands.append((0, 0, {
