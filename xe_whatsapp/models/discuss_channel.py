@@ -390,6 +390,7 @@ class DiscussChannel(models.Model):
         """ Broadcast the channel_fetched notification to channel members
         """
         for channel in self:
+            partner_id = self.env.user.partner_id.id
             if not channel.message_ids.ids:
                 return
             # a bit not-modular but helps understanding code
@@ -422,7 +423,7 @@ class DiscussChannel(models.Model):
                 'channel_id': channel.id,
                 'id': member.id,
                 'last_message_id': last_message_id,
-                'partner_id': self.env.user.partner_id.id,
+                'partner_id': partner_id,
             })
 
     @api.returns('self')
