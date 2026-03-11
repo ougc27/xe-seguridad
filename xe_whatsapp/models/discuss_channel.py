@@ -534,13 +534,15 @@ class DiscussChannel(models.Model):
 
     def update_channel_members(self):
         admin_partners = self.get_administrator()
+        partner_to_add = self.assigned_person.partner_id
         members_to_remove = self.channel_member_ids.filtered(
             lambda m: m.partner_id.id not in admin_partners.ids and self.whatsapp_partner_id.id != m.partner_id.id
         )
         commands = [(3, m.id) for m in members_to_remove]
-        commands.append((0, 0, {
-            'partner_id': self.assigned_person.partner_id.id
-        }))
+        if partner_to_add not in admin_partners:
+            commands.append((0, 0, {
+                'partner_id': partner_to_add.id
+            }))
         self.write({
             'channel_member_ids': commands
         })
