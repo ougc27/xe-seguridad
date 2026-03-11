@@ -535,7 +535,7 @@ class DiscussChannel(models.Model):
     def update_channel_members(self):
         admin_partners = self.get_administrator()
         members_to_remove = self.channel_member_ids.filtered(
-            lambda m: m.partner_id.id not in admin_partners.ids and rec.whatsapp_partner_id.id != m.partner_id.id
+            lambda m: m.partner_id.id not in admin_partners.ids and self.whatsapp_partner_id.id != m.partner_id.id
         )
         commands = [(3, m.id) for m in members_to_remove]
         commands.append((0, 0, {
