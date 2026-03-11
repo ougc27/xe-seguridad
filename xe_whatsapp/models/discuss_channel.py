@@ -544,5 +544,5 @@ class DiscussChannel(models.Model):
         self.write({
             'channel_member_ids': commands
         })
-        self._broadcast(channel.channel_member_ids.partner_id.ids)
+        self._broadcast(self.channel_member_ids.partner_id.ids)
         self.reload()
