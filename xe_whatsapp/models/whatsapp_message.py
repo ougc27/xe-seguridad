@@ -46,58 +46,72 @@ class WhatsappMessage(models.Model):
             ], order='create_date ASC', limit=2)
             channel = self.env['discuss.channel'].search(
                 [('whatsapp_number', '=', rec.mobile_number_formatted)])
-            
-            if len(first_messages) == 1 and rec.state == 'received':
-                team = 'sales_team'
-                datetime_now = datetime.now()
-                env = self.with_context(tz='America/Mexico_City')
-                now = fields.Datetime.context_timestamp(
-                    env,
-                    datetime_now
-                )
-                work_start = time(8, 30)
-                work_end = time(18, 30)
-                out_of_hours = now.time() < work_start or now.time() > work_end
-                channel.write({
-                    'assigned_to': team,
-                    'first_respond_message': datetime_now,
-                    'out_of_working_hours': out_of_hours,
-                })
-                user_id = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(
-                    rec.wa_account_id, team, 'last_assigned_whatsapp_user')
-                if user_id:
-                    assigned_person_id = self.assign_member_to_chat(channel, user_id)
-                    channel.whatsapp_partner_id.update_whatsapp_partner(assigned_person_id)
-                continue
-            if rec.state != 'received' and channel.assigned_person == rec.create_uid:
-                agent_replied  = self.env['whatsapp.message'].search([
-                    ('mobile_number', '=', rec.mobile_number),
-                    ('wa_account_id', '=', rec.wa_account_id.id),
-                    ('create_uid', '!=', 4),
-                ], limit=2)
-                if len(agent_replied) == 1:
-                    first_message = first_messages[0]
-                    self.env['whatsapp.response.metric'].sudo().create({
-                        'out_of_working_hours': channel.out_of_working_hours,
-                        'user_id': rec.create_uid.id,
-                        'whatsapp_number': rec.mobile_number,
-                        'wa_account_id': rec.wa_account_id.id,
-                        'first_customer_message_at': first_message.create_date,
-                        'first_agent_message_at': rec.create_date,
+            whatsapp_auto_assign_weekends_disabled = self.env['ir.config_parameter'].sudo().get_param(
+                'whatsapp_auto_assign_weekends_disabled', None)
+            if rec.state == 'received':
+                if whatsapp_auto_assign_weekends_disabled == "1" and not channel.is_weekend:
+                    channel.reset_all_channel_members()
+                if len(first_messages) == 1:
+                    team = 'sales_team'
+                    datetime_now = datetime.now()
+                    env = self.with_context(tz='America/Mexico_City')
+                    now = fields.Datetime.context_timestamp(
+                        env,
+                        datetime_now
+                    )
+                    work_start = time(8, 30)
+                    work_end = time(18, 30)
+                    out_of_hours = now.time() < work_start or now.time() > work_end
+                    channel.write({
+                        'assigned_to': team,
+                        'first_respond_message': datetime_now,
+                        'out_of_working_hours': out_of_hours,
                     })
-            """inactivity_template_enabled = self.env['ir.config_parameter'].sudo().get_param(
+                    if whatsapp_auto_assign_weekends_disabled == "1":
+                        continue
+                    user_id = self.env['whatsapp.team.members'].assign_person_to_chat_round_robin(
+                        rec.wa_account_id, team, 'last_assigned_whatsapp_user')
+                    if user_id:
+                        assigned_person_id = self.assign_member_to_chat(channel, user_id)
+                        channel.whatsapp_partner_id.update_whatsapp_partner(assigned_person_id)
+                    continue
+            else:
+                if channel.assigned_person == rec.create_uid:
+                    agent_replied  = self.env['whatsapp.message'].search([
+                        ('mobile_number', '=', rec.mobile_number),
+                        ('wa_account_id', '=', rec.wa_account_id.id),
+                        ('create_uid', '!=', 4),
+                    ], limit=2)
+                    if len(agent_replied) == 1:
+                        first_message = first_messages[0]
+                        if whatsapp_auto_assign_weekends_disabled == "1":
+                            asigned_person_id = first_message.create_uid.id
+                            channel.write({
+                                'assigned_person': asigned_person_id,
+                            })
+                            channel.whatsapp_partner_id.update_whatsapp_partner(asigned_person_id)
+                            channel.reload()
+                        self.env['whatsapp.response.metric'].sudo().create({
+                            'out_of_working_hours': channel.out_of_working_hours,
+                            'user_id': rec.create_uid.id,
+                            'whatsapp_number': rec.mobile_number,
+                            'wa_account_id': rec.wa_account_id.id,
+                            'first_customer_message_at': first_message.create_date,
+                            'first_agent_message_at': rec.create_date,
+                        })
+            inactivity_template_enabled = self.env['ir.config_parameter'].sudo().get_param(
                 'inactivity_template_enabled', None)
             if rec.state == 'received' and inactivity_template_enabled == "1":
                 existing_template_message = self.env['whatsapp.message'].search([
                     ('mobile_number', '=', rec.mobile_number),
                     ('wa_account_id', '=', rec.wa_account_id.id),
-                    ('wa_template_id', 'in', (47, 48)),
+                    ('wa_template_id', 'in', (49, 50)),
                 ], limit=1)
                 if not existing_template_message:
-                    template_name='asueto_2_feb_xe_seguridad'
+                    template_name='periodo_inactivo_xe_seguridad'
                     if rec.wa_account_id.id == 8:
-                        template_name = 'asueto_2_feb_tecnodoor'
-                    rec.send_automated_respond(template_name)"""
+                        template_name = 'periodo_inactivo_tecnodoor'
+                    rec.send_automated_respond(template_name)
         return records
 
     def _get_html_preview_whatsapp(self, rec, wa_template_id):
