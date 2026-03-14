@@ -1,4 +1,5 @@
 import pytz
+from markupsafe import Markup
 from odoo import fields, models, api, tools, Command, _
 from odoo.tools import html2plaintext
 from odoo.addons.whatsapp.tools import phone_validation as wa_phone_validation
@@ -38,6 +39,8 @@ class DiscussChannel(models.Model):
     is_reassigned = fields.Boolean(default=False)
 
     out_of_working_hours = fields.Boolean(default=False)
+    
+    is_weekend = fields.Boolean(default=False)
 
     @api.depends('last_wa_mail_message_id')
     def _compute_whatsapp_channel_valid_until(self):
@@ -86,7 +89,9 @@ class DiscussChannel(models.Model):
         if 'assigned_person' in vals:
             for rec in self:
                 assigned_person = rec.assigned_person
-                if assigned_person:
+                whatsapp_auto_assign_weekends_disabled = self.env['ir.config_parameter'].sudo().get_param(
+                    'whatsapp_auto_assign_weekends_disabled', None)
+                if assigned_person and whatsapp_auto_assign_weekends_disabled != "1":
                     assigned_partner_id = assigned_person.partner_id.id
                     rec.update_channel_members()
                     for member in rec.channel_member_ids:
@@ -275,7 +280,11 @@ class DiscussChannel(models.Model):
             channel.reload()
         channel.sudo().write(vals)
 
-    def _cron_reassign_unanswered(self, only_today=True, batch_limit=100, minutes=7):
+    def _cron_reassign_unanswered(self, only_today=True, batch_limit=100, minutes=4):
+        whatsapp_auto_assign_weekends_disabled = self.env['ir.config_parameter'].sudo().get_param(
+            'whatsapp_auto_assign_weekends_disabled', None)
+        if whatsapp_auto_assign_weekends_disabled == "1":
+            return
         env = self.with_context(tz='America/Mexico_City')
         now = fields.Datetime.context_timestamp(
             env,
@@ -372,7 +381,11 @@ class DiscussChannel(models.Model):
             channel.reload()
         channel.sudo().write(vals)
 
-    def _cron_reassign_out_of_working(self, only_today=True, batch_limit=100):
+    def _cron_reassign_out_of_working(self, only_today=True, batch_limit=200):
+        whatsapp_auto_assign_weekends_disabled = self.env['ir.config_parameter'].sudo().get_param(
+            'whatsapp_auto_assign_weekends_disabled', None)
+        if whatsapp_auto_assign_weekends_disabled == "1":
+            return
         candidates = self._get_channels_out_of_working(only_today=only_today, limit=batch_limit)
         if not candidates:
             return
@@ -518,8 +531,14 @@ class DiscussChannel(models.Model):
                         subtype_xmlid='mail.mt_note',
                     )
             if partners_to_notify == channel.whatsapp_partner_id and wa_account_id.notify_user_ids.partner_id:
-                partner_ids = channel.get_administrator()
-                partners_to_notify += partner_ids
+                whatsapp_auto_assign_weekends_disabled = self.env['ir.config_parameter'].sudo().get_param(
+                'whatsapp_auto_assign_weekends_disabled', None)
+                if whatsapp_auto_assign_weekends_disabled == "1":
+                    partners_to_notify += wa_account_id.notify_user_ids.partner_id
+                    channel.is_weekend = True
+                else:
+                    partner_ids = channel.get_administrator()
+                    partners_to_notify += partner_ids
             channel.channel_member_ids = [Command.clear()] + [Command.create({'partner_id': partner.id}) for partner in partners_to_notify]
             channel._broadcast(partners_to_notify.ids)
         return channel
@@ -545,6 +564,18 @@ class DiscussChannel(models.Model):
             }))
         self.write({
             'channel_member_ids': commands
+        })
+        self._broadcast(self.channel_member_ids.partner_id.ids)
+        self.reload()
+
+    def reset_all_channel_members(self):
+        target_partner_ids = set(self.wa_account_id.notify_user_ids.partner_id.ids)
+        current_partner_ids = set(self.channel_member_ids.partner_id.ids)
+        missing_partner_ids = target_partner_ids - current_partner_ids
+        self.write({
+            'channel_member_ids': [
+                Command.create({'partner_id': pid}) for pid in missing_partner_ids
+            ]
         })
         self._broadcast(self.channel_member_ids.partner_id.ids)
         self.reload()

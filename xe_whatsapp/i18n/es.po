@@ -551,3 +551,8 @@ msgstr "WhatsApp: Reasignar chats sin respuesta"
 #: model:ir.model.fields,field_description:xe_whatsapp.field_whatsapp_response_metric__out_of_working_hours
 msgid "Out Of Working Hours"
 msgstr "Fuera de Horario Laboral"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__is_weekend
+msgid "Is Weekend"
+msgstr "Fin de Semana"
