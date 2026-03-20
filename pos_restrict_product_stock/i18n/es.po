@@ -2003,3 +2003,14 @@ msgstr "Líneas de orden activas"
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
 msgid "Inactive Order Lines"
 msgstr "Líneas de orden inactivas"
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid ""
+"You cannot cancel this order. This order has a picking or pickings in "
+"transit state."
+msgstr ""
+"No puedes cancelar esta orden. Esta orden tiene un traslado o traslados en "
+"estado de tránsito."

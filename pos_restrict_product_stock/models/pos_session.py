@@ -565,6 +565,13 @@ class PosSession(models.Model):
                 line.write({'account_id': account_id.id})
         return data
 
+    def get_moves_to_cancel(self):
+        invoice_payments = self.mapped('order_ids.payment_ids.account_move_id')
+        cash_moves = self.statement_line_ids.mapped('move_id')
+        bank_payment_moves = self.bank_payment_ids.mapped('move_id')
+        other_related_moves = self._get_other_related_moves()
+        return invoice_payments | self.move_id | cash_moves | bank_payment_moves | other_related_moves
+
     def _get_related_account_moves(self):
         moves = super()._get_related_account_moves()
         reversal_moves = self.env['account.move'].search([
