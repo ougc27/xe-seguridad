@@ -25,7 +25,7 @@ class DiscussChannelMember(models.Model):
             ]),
         ]), limit=1000)
         members_to_be_unpinned = members.filtered(
-            lambda m: m.message_unread_counter == 0 or (not m.last_seen_dt and m.channel_id.create_date <= two_weeks_ago) or m.last_seen_dt <= two_weeks_ago
+            lambda m: m.message_unread_counter == 0 or (not m.last_seen_dt and m.channel_id.create_date <= one_week_ago) or m.last_seen_dt <= one_week_ago
         )
         members_to_be_unpinned.is_pinned = False
         self.env['bus.bus']._sendmany([

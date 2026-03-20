@@ -308,7 +308,17 @@ class PosOrder(models.Model):
     
         qty_out = {}
         qty_returned = {}
-    
+        
+        pickings_in_transit = self.picking_ids.filtered(lambda p: p.state in ('transit'))
+        if pickings_in_transit:
+            raise UserError(_(
+                "You cannot cancel this order. This order has a picking or pickings in transit state."
+            ))
+
+        pickings_to_cancel = self.picking_ids.filtered(lambda p: p.state not in ('done', 'cancel'))
+        if pickings_to_cancel:
+            pickings_to_cancel.sudo().action_cancel()
+        
         for picking in self.picking_ids.filtered(lambda p: p.state == 'done'):
             for line in picking.move_line_ids:
                 if line.location_id.usage == 'internal' and line.location_dest_id.usage == 'customer':
@@ -332,46 +342,39 @@ class PosOrder(models.Model):
         for rec in self:
             rec.check_moves()
             rec.check_invoice()
-
             session_id = rec.session_id
-            stop_at = session_id.stop_at
             amount_total = rec.amount_total
-            session_id.sudo().write({
-                'cash_register_balance_end': session_id.cash_register_balance_end - amount_total,
-                'cash_register_balance_end_real': session_id.cash_register_balance_end_real - amount_total,
-                'cash_register_total_entry_encoding': session_id.cash_register_total_entry_encoding - amount_total,
-            })
+
             coupon_lines = rec.lines.filtered(lambda l: l.coupon_id)
             for line in coupon_lines:
-                if line.coupon_id.source_pos_order_id: 
+                if line.coupon_id.source_pos_order_id:
                     line.coupon_id.sudo().write({'source_pos_order_id': False})
+
             rec.sudo().write({'state': 'cancel'})
 
-            if rec.account_move and rec.account_move.state == 'draft':
-                rec.account_move.sudo().button_cancel()
+            if session_id.state == 'closed':
+                if len(session_id.order_ids) > 1:
+                    moves = session_id.get_moves_to_cancel()
+                    for move in moves:
+                        move.button_cancel()
+                    session_id.sudo().action_pos_session_close()
+                    stop_at = session_id.stop_at
+                    if not stop_at:
+                        stop_at = fields.Datetime.now()
+                    session_id.sudo().write({'stop_at': stop_at})
+                else:
+                    moves = session_id.get_moves_to_cancel()
+                    for move in moves:
+                        move.button_cancel()
+                session_id.sudo().write({
+                    'cash_register_balance_end': session_id.cash_register_balance_end - amount_total,
+                    'cash_register_balance_end_real': session_id.cash_register_balance_end_real - amount_total,
+                    'cash_register_total_entry_encoding': session_id.cash_register_total_entry_encoding - amount_total,
+                })
+            else:
+                rec.payment_ids.unlink()
 
-            rec.picking_ids.filtered(lambda p: p.state not in ('done', 'cancel')).sudo().action_cancel()
-
-            rec.mapped('payment_ids').sudo().unlink()
-
-            if rec.session_move_id:
-                move = rec.session_move_id
-                if move.state == 'posted':
-                    for line in move.line_ids:
-                        if line.matched_debit_ids or line.matched_credit_ids:
-                            line.sudo().remove_move_reconcile()
-                    move.sudo().button_draft()
-                move.sudo().button_cancel()
-                move.sudo().with_context(force_delete=True).unlink()
-
-            session_id.sudo().statement_line_ids.unlink()
-
-            session_id.sudo().action_pos_session_close()
-
-            if not stop_at:
-                stop_at = fields.Datetime.now()
-            session_id.sudo().write({'stop_at': stop_at})
-        return rec
+        return True
 
     def write(self, vals):
         res = super().write(vals)
