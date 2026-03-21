@@ -189,20 +189,12 @@ class LoyaltyProgram(models.Model):
                 "message": _("No compatible discount reward found."),
             }
 
-        reward = rewards[0]
-
-        if reward.discount_applicability not in ("order", "specific_products"):
-            return {
-                "valid": False,
-                "message": _("Unsupported discount applicability."),
-            }
-
         def product_matches_reward(r):
             if r.discount_product_ids and product not in r.discount_product_ids:
                 return False
             if r.discount_product_category_id and product.categ_id != r.discount_product_category_id:
                 return False
-            if r.discount_product_tag_id and r.discount_product_tag_id not in product.tag_ids:
+            if r.discount_product_tag_id and r.discount_product_tag_id not in product.product_tag_ids:
                 return False
             if r.discount_product_domain:
                 domain = expression.normalize_domain(
@@ -212,12 +204,28 @@ class LoyaltyProgram(models.Model):
                     return False
             return True
 
-        if reward.discount_applicability == "specific_products":
-            if not product_matches_reward(reward):
-                return {
-                    "valid": False,
-                    "message": _("Coupon not applicable to this product."),
-                }
+        rewards = rewards.filtered(
+            lambda r:
+                r.discount_applicability != "cheapest" and (
+                    r.discount_applicability == "order"
+                    or (
+                        r.discount_applicability == "specific"
+                        and product_matches_reward(r)
+                    )
+                )
+        )
+
+        rewards = rewards.sorted(
+            key=lambda r: r.discount_applicability != "specific"
+        )
+
+        if not rewards:
+            return {
+                "valid": False,
+                "message": _("Coupon not applicable to this product."),
+            }
+
+        reward = rewards[0]
 
         discount_amount_tax = 0
         tax_ratio = line_subtotal / price_with_tax
