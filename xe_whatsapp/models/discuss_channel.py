@@ -42,6 +42,8 @@ class DiscussChannel(models.Model):
     
     is_weekend = fields.Boolean(default=False)
 
+    x_is_migrated = fields.Boolean(string="Migrated", copy=False)
+
     @api.depends('last_wa_mail_message_id')
     def _compute_whatsapp_channel_valid_until(self):
         for channel in self:
@@ -93,7 +95,7 @@ class DiscussChannel(models.Model):
                     'whatsapp_auto_assign_weekends_disabled', None)
                 if assigned_person and whatsapp_auto_assign_weekends_disabled != "1":
                     assigned_partner_id = assigned_person.partner_id.id
-                    rec.update_channel_members()
+                    rec.sudo().update_channel_members()
                     for member in rec.channel_member_ids:
                         if member.partner_id.id == assigned_partner_id:
                             member.write({'custom_notifications': None})
@@ -246,14 +248,17 @@ class DiscussChannel(models.Model):
             return
 
         wa_account = getattr(channel, 'wa_account_id', False)
-        user = None
+        user_id = False
         if wa_account:
-            user = self.env['whatsapp.team.members'].sudo().search(
-                [('is_assigned', '=', True), ('team', '=', 'sales_team'), ('wa_account_id', '=', wa_account.id)], limit=1).user_id
+            telemarketing_leader = self.env['crm.team'].sudo().browse(12).user_id
+            is_available = bool(telemarketing_leader and telemarketing_leader.is_available)
+            if is_available:
+                user_id = self.env['whatsapp.team.members'].sudo().search(
+                    [('is_assigned', '=', True), ('team', '=', 'sales_team'), ('wa_account_id', '=', wa_account.id)], limit=1).user_id.id
 
         vals = {'is_reassigned_computed': True}
-        if user:
-            vals['assigned_person'] = user.id
+        if user_id:
+            vals['assigned_person'] = user_id
             vals['is_reassigned'] = True
 
             lost_count = self.env['whatsapp.reassignment.log'].sudo().search(
@@ -270,7 +275,7 @@ class DiscussChannel(models.Model):
 
             self.env['whatsapp.reassignment.log'].sudo().create({
                 'lost_by_user_id': channel.assigned_person.id,
-                'assigned_to_user_id': user.id,
+                'assigned_to_user_id': user_id,
                 'whatsapp_number': channel.whatsapp_number,
                 'wa_account_id': wa_account.id,
                 'reassigned_at': fields.Datetime.now(),
@@ -346,15 +351,21 @@ class DiscussChannel(models.Model):
             channel.sudo().write({'is_reassigned_computed': True})
             return
 
+        whatsapp_auto_assign_weekends_disabled = self.env['ir.config_parameter'].sudo().get_param(
+            'whatsapp_auto_assign_weekends_disabled', None)
+
         wa_account = getattr(channel, 'wa_account_id', False)
-        user = None
+        user_id = False
         if wa_account:
-            user = self.env['whatsapp.team.members'].sudo().search(
-                [('is_assigned', '=', True), ('team', '=', 'sales_team'), ('wa_account_id', '=', wa_account.id)], limit=1).user_id
+            telemarketing_leader = self.env['crm.team'].sudo().browse(12).user_id
+            is_available = bool(telemarketing_leader and telemarketing_leader.is_available)
+            if is_available:
+                user_id = self.env['whatsapp.team.members'].sudo().search(
+                    [('is_assigned', '=', True), ('team', '=', 'sales_team'), ('wa_account_id', '=', wa_account.id)], limit=1).user_id.id
 
         vals = {'is_reassigned_computed': True}
-        if user:
-            vals['assigned_person'] = user.id
+        if user_id:
+            vals['assigned_person'] = user_id
             vals['is_reassigned'] = True
 
             lost_count = self.env['whatsapp.reassignment.log'].sudo().search(
@@ -371,7 +382,7 @@ class DiscussChannel(models.Model):
 
             self.env['whatsapp.reassignment.log'].sudo().create({
                 'lost_by_user_id': channel.assigned_person.id,
-                'assigned_to_user_id': user.id,
+                'assigned_to_user_id': user_id,
                 'whatsapp_number': channel.whatsapp_number,
                 'wa_account_id': wa_account.id,
                 'reassigned_at': fields.Datetime.now(),
@@ -537,14 +548,14 @@ class DiscussChannel(models.Model):
                     partners_to_notify += wa_account_id.notify_user_ids.partner_id
                     channel.is_weekend = True
                 else:
-                    partner_ids = channel.get_administrator()
+                    partner_ids = channel.sudo().get_administrator()
                     partners_to_notify += partner_ids
             channel.channel_member_ids = [Command.clear()] + [Command.create({'partner_id': partner.id}) for partner in partners_to_notify]
             channel._broadcast(partners_to_notify.ids)
         return channel
 
     def get_administrator(self):
-        user_ids = self.env['whatsapp.team.members'].sudo().search([
+        user_ids = self.env['whatsapp.team.members'].search([
             ('wa_account_id', '=', self.wa_account_id.id),
             ('is_assigned', '=', True),
             ('team', '=', 'sales_team')

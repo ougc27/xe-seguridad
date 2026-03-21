@@ -556,3 +556,8 @@ msgstr "Fuera de Horario Laboral"
 #: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__is_weekend
 msgid "Is Weekend"
 msgstr "Fin de Semana"
+
+#. module: xe_whatsapp
+#: model:ir.model.fields,field_description:xe_whatsapp.field_discuss_channel__x_is_migrated
+msgid "Migrated"
+msgstr "Migrado"

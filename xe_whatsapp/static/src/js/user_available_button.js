@@ -12,35 +12,43 @@ export class UserAvailableButton extends Component {
         this.orm = useService("orm");
         this.rpc = useService("rpc");
         this.user = useService("user");
+
         this.state = useState({
             online: false,
             canShowButton: false,
+            loading: false,
         });
+
         onWillStart(async () => {
             this.state.canShowButton = await this.user.hasGroup("xe_whatsapp.can_see_available_button_group");
+
             const [data] = await this.orm.read("res.users", [this.user.userId], ["is_available"]);
             this.state.online = data.is_available;
         });
     }
 
     async toggleStatus() {
+        if (this.state.loading) return;
+
+        this.state.loading = true;
         this.state.online = !this.state.online;
+
         await this.rpc("/xe_whatsapp/user/sudo_write_is_available", {
             user_id: this.user.userId,
             is_available: this.state.online
         });
-    }
 
-    get iconColor() {
-        return this.state.online ? "green" : "red";
+        this.state.loading = false;
     }
 
     get tooltip() {
-        return this.state.online ? "Disponible para conversaciones de whatsapp" : "No disponible";
+        return this.state.online
+            ? "Asignación Manual"
+            : "Asignación Automática";
     }
 }
 
-export const userAvailableButton= {
+export const userAvailableButton = {
     Component: UserAvailableButton,
 };
 

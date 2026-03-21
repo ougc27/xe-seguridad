@@ -2,9 +2,17 @@
 <templates xml:space="preserve">
     <t t-name="xe_whatsapp.user_available_button">
         <t t-if="state.canShowButton">
-            <div class="o_user_available_button_systray" t-att-title="tooltip" t-on-click="toggleStatus" style="cursor: pointer;">
-                <!--<i class="fa fa-whatsapp" t-att-style="'color: ' + iconColor"/>-->
-                <i class="fa fa-circle" t-att-style="'color: ' + iconColor" />
+            <div class="o_user_available_button_systray"
+                 t-att-title="tooltip"
+                 t-on-click="toggleStatus"
+                 style="cursor: pointer;">
+
+                <t t-if="state.online">
+                    <i class="fa fa-toggle-on text-success"/>
+                </t>
+                <t t-else="">
+                    <i class="fa fa-toggle-off text-danger"/>
+                </t>
             </div>
         </t>
     </t>

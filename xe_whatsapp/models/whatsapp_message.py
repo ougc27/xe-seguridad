@@ -50,7 +50,8 @@ class WhatsappMessage(models.Model):
                 'whatsapp_auto_assign_weekends_disabled', None)
             if rec.state == 'received':
                 if whatsapp_auto_assign_weekends_disabled == "1" and not channel.is_weekend:
-                    channel.reset_all_channel_members()
+                    channel.sudo().write({'x_is_migrated': False})
+                    channel.sudo().reset_all_channel_members()
                 if len(first_messages) == 1:
                     team = 'sales_team'
                     datetime_now = datetime.now()
