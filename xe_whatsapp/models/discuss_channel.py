@@ -255,6 +255,7 @@ class DiscussChannel(models.Model):
             if is_available:
                 user_id = self.env['whatsapp.team.members'].sudo().search(
                     [('is_assigned', '=', True), ('team', '=', 'sales_team'), ('wa_account_id', '=', wa_account.id)], limit=1).user_id.id
+                channel.reset_all_channel_members()
 
         vals = {'is_reassigned_computed': True}
         if user_id:
@@ -351,9 +352,6 @@ class DiscussChannel(models.Model):
             channel.sudo().write({'is_reassigned_computed': True})
             return
 
-        whatsapp_auto_assign_weekends_disabled = self.env['ir.config_parameter'].sudo().get_param(
-            'whatsapp_auto_assign_weekends_disabled', None)
-
         wa_account = getattr(channel, 'wa_account_id', False)
         user_id = False
         if wa_account:
@@ -362,6 +360,7 @@ class DiscussChannel(models.Model):
             if is_available:
                 user_id = self.env['whatsapp.team.members'].sudo().search(
                     [('is_assigned', '=', True), ('team', '=', 'sales_team'), ('wa_account_id', '=', wa_account.id)], limit=1).user_id.id
+                channel.reset_all_channel_members()
 
         vals = {'is_reassigned_computed': True}
         if user_id:
@@ -410,45 +409,45 @@ class DiscussChannel(models.Model):
         res["wa_account_id"] = self.wa_account_id.id
         return res
 
-    def channel_fetched(self):
-        """ Broadcast the channel_fetched notification to channel members
-        """
-        for channel in self:
-            partner_id = self.env.user.partner_id.id
-            if not channel.message_ids.ids:
-                return
-            # a bit not-modular but helps understanding code
-            if channel.channel_type not in {'chat', 'whatsapp'}:
-                return
-            last_message_id = channel.message_ids.ids[0] # zero is the index of the last message
-            member = self.env['discuss.channel.member'].search_read(
-                [
-                    ('channel_id', '=', channel.id),
-                    ('partner_id', '=', partner_id)
-                ],
-                ['id', 'fetched_message_id'],
-                limit=1
-            )
+    # def channel_fetched(self):
+    #     """ Broadcast the channel_fetched notification to channel members
+    #     """
+    #     for channel in self:
+    #         partner_id = self.env.user.partner_id.id
+    #         if not channel.message_ids.ids:
+    #             return
+    #         # a bit not-modular but helps understanding code
+    #         if channel.channel_type not in {'chat', 'whatsapp'}:
+    #             return
+    #         last_message_id = channel.message_ids.ids[0] # zero is the index of the last message
+    #         member = self.env['discuss.channel.member'].search_read(
+    #             [
+    #                 ('channel_id', '=', channel.id),
+    #                 ('partner_id', '=', partner_id)
+    #             ],
+    #             ['id', 'fetched_message_id'],
+    #             limit=1
+    #         )
 
-            if member[0]['fetched_message_id'] == last_message_id:
-                # last message fetched by user is already up-to-date
-                return
-            # Avoid serialization error when multiple tabs are opened.
-            query = """
-                UPDATE discuss_channel_member
-                SET fetched_message_id = %s
-                WHERE id IN (
-                    SELECT id FROM discuss_channel_member WHERE id = %s
-                    FOR NO KEY UPDATE SKIP LOCKED
-                )
-            """
-            self.env.cr.execute(query, (last_message_id, member[0]['id']))
-            self.env['bus.bus']._sendone(channel, 'discuss.channel.member/fetched', {
-                'channel_id': channel.id,
-                'id': member[0]['id'],
-                'last_message_id': last_message_id,
-                'partner_id': partner_id,
-            })
+    #         if member[0]['fetched_message_id'] == last_message_id:
+    #             # last message fetched by user is already up-to-date
+    #             return
+    #         # Avoid serialization error when multiple tabs are opened.
+    #         query = """
+    #             UPDATE discuss_channel_member
+    #             SET fetched_message_id = %s
+    #             WHERE id IN (
+    #                 SELECT id FROM discuss_channel_member WHERE id = %s
+    #                 FOR NO KEY UPDATE SKIP LOCKED
+    #             )
+    #         """
+    #         self.env.cr.execute(query, (last_message_id, member[0]['id']))
+    #         self.env['bus.bus']._sendone(channel, 'discuss.channel.member/fetched', {
+    #             'channel_id': channel.id,
+    #             'id': member[0]['id'],
+    #             'last_message_id': last_message_id,
+    #             'partner_id': partner_id,
+    #         })
 
     @api.returns('self')
     def _get_whatsapp_channel(self, whatsapp_number, wa_account_id, sender_name=False, create_if_not_found=False, related_message=False):
