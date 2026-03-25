@@ -63,7 +63,7 @@ class AccountMoveLine(models.Model):
         if any(aml.parent_state != 'posted' for aml in self):
             move_lines = self.filtered(lambda l: l.parent_state != 'posted')
             for line in move_lines:
-                if 'POSS' in line.move_id.name:
+                if 'POSS' in line.move_id.name and line.move_id.state != 'posted':
                     line.move_id._post()
             if any(aml.parent_state != 'posted' for aml in self):
                 raise UserError(
@@ -71,7 +71,7 @@ class AccountMoveLine(models.Model):
                         self.ids,
                         names
                     )
-                )  
+                )
         accounts = self.mapped(lambda x: x._get_reconciliation_aml_field_value('account_id', shadowed_aml_values))
         if len(accounts) > 1:
             raise UserError(_(
