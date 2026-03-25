@@ -62,8 +62,11 @@ class AccountMoveLine(models.Model):
             raise UserError(_("You are trying to reconcile some entries that are already reconciled"))
         if any(aml.parent_state != 'posted' for aml in self):
             raise UserError(
-                _("You can only reconcile posted entries. %s %s") % (self.id, self.move_id)
-            )        
+                _("You can only reconcile posted entries. Lines: %s, Moves: %s") % (
+                    self.ids,
+                    self.mapped('move_id').ids
+                )
+            )      
         accounts = self.mapped(lambda x: x._get_reconciliation_aml_field_value('account_id', shadowed_aml_values))
         if len(accounts) > 1:
             raise UserError(_(
