@@ -357,7 +357,8 @@ class PosOrder(models.Model):
                     moves = session_id.get_moves_to_cancel().filtered(lambda m: m.state != 'cancel')
                     for move in moves:
                         try:
-                            move.button_draft()
+                            if move.state != 'draft':
+                                move.button_draft()
                             move.button_cancel()
                         except Exception as e:
                             raise UserError(
@@ -372,7 +373,8 @@ class PosOrder(models.Model):
                     moves = session_id.get_moves_to_cancel().filtered(lambda m: m.state != 'cancel')
                     for move in moves:
                         try:
-                            move.button_draft()
+                            if move.state != 'draft':
+                                move.button_draft()
                             move.button_cancel()
                         except Exception as e:
                             raise UserError(
