@@ -343,7 +343,6 @@ class PosOrder(models.Model):
             rec.check_moves()
             rec.check_invoice()
             session_id = rec.session_id
-            amount_total = rec.amount_total
 
             coupon_lines = rec.lines.filtered(lambda l: l.coupon_id)
             for line in coupon_lines:
@@ -353,6 +352,10 @@ class PosOrder(models.Model):
             rec.sudo().write({'state': 'cancel'})
 
             if session_id.state == 'closed':
+                cash_payments = rec.payment_ids.filtered(
+                    lambda p: p.payment_method_id.l10n_mx_edi_payment_method_id.id == 1
+                )
+                total_cash = sum(cash_payments.mapped('amount'))
                 if len(session_id.order_ids) > 1:
                     moves = session_id.get_moves_to_cancel().filtered(lambda m: m.state != 'cancel')
                     for move in moves:
@@ -381,9 +384,9 @@ class PosOrder(models.Model):
                                 _("Error en asiento contable %s: %s") % (move.id, str(e))
                             )
                 session_id.sudo().write({
-                    'cash_register_balance_end': session_id.cash_register_balance_end - amount_total,
-                    'cash_register_balance_end_real': session_id.cash_register_balance_end_real - amount_total,
-                    'cash_register_total_entry_encoding': session_id.cash_register_total_entry_encoding - amount_total,
+                    'cash_register_balance_end': session_id.cash_register_balance_end - total_cash,
+                    'cash_register_balance_end_real': session_id.cash_register_balance_end_real - total_cash,
+                    'cash_register_total_entry_encoding': session_id.cash_register_total_entry_encoding - total_cash,
                 })
             else:
                 rec.payment_ids.unlink()
