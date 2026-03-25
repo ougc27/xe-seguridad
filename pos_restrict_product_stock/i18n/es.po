@@ -2014,3 +2014,10 @@ msgid ""
 msgstr ""
 "No puedes cancelar esta orden. Esta orden tiene un traslado o traslados en "
 "estado de tránsito."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#, python-format
+msgid "You cannot refund an order from the current month."
+msgstr "No puedes hacer un reembolso de una orden del mes actual."

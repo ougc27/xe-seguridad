@@ -354,8 +354,9 @@ class PosOrder(models.Model):
 
             if session_id.state == 'closed':
                 if len(session_id.order_ids) > 1:
-                    moves = session_id.get_moves_to_cancel()
+                    moves = session_id.get_moves_to_cancel().filtered(lambda m: m.state != 'cancel')
                     for move in moves:
+                        move.button_draft()
                         move.button_cancel()
                     session_id.sudo().action_pos_session_close()
                     stop_at = session_id.stop_at
@@ -363,8 +364,9 @@ class PosOrder(models.Model):
                         stop_at = fields.Datetime.now()
                     session_id.sudo().write({'stop_at': stop_at})
                 else:
-                    moves = session_id.get_moves_to_cancel()
+                    moves = session_id.get_moves_to_cancel().filtered(lambda m: m.state != 'cancel')
                     for move in moves:
+                        move.button_draft()
                         move.button_cancel()
                 session_id.sudo().write({
                     'cash_register_balance_end': session_id.cash_register_balance_end - amount_total,
@@ -563,3 +565,19 @@ class PosOrder(models.Model):
             lines_to_reconcile[line.account_id] |= line
         for line in lines_to_reconcile.values():
             line.filtered(lambda l: not l.reconciled).reconcile()
+
+    def refund(self):
+        today = fields.Date.context_today(self)
+
+        for order in self:
+            if order.date_order:
+                order_date = fields.Date.to_date(order.date_order)
+
+                if (order_date.month == today.month and
+                    order_date.year == today.year):
+                    
+                    raise UserError(
+                        _("You cannot refund an order from the current month.")
+                    )
+
+        return super().refund()
