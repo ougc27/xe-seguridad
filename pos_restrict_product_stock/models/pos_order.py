@@ -356,8 +356,13 @@ class PosOrder(models.Model):
                 if len(session_id.order_ids) > 1:
                     moves = session_id.get_moves_to_cancel().filtered(lambda m: m.state != 'cancel')
                     for move in moves:
-                        move.button_draft()
-                        move.button_cancel()
+                        try:
+                            move.button_draft()
+                            move.button_cancel()
+                        except Exception as e:
+                            raise UserError(
+                                _("Error en asiento contable %s: %s") % (move.id, str(e))
+                            )            
                     session_id.sudo().action_pos_session_close()
                     stop_at = session_id.stop_at
                     if not stop_at:
@@ -366,8 +371,13 @@ class PosOrder(models.Model):
                 else:
                     moves = session_id.get_moves_to_cancel().filtered(lambda m: m.state != 'cancel')
                     for move in moves:
-                        move.button_draft()
-                        move.button_cancel()
+                        try:
+                            move.button_draft()
+                            move.button_cancel()
+                        except Exception as e:
+                            raise UserError(
+                                _("Error en asiento contable %s: %s") % (move.id, str(e))
+                            )
                 session_id.sudo().write({
                     'cash_register_balance_end': session_id.cash_register_balance_end - amount_total,
                     'cash_register_balance_end_real': session_id.cash_register_balance_end_real - amount_total,
