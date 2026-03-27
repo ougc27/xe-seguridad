@@ -1,0 +1,39 @@
+.o_psql_result_table {
+    border-collapse: collapse;
+    margin-top: 10px;
+    width: max-content;
+    min-width: 100%;
+}
+
+.o_psql_result_table th {
+    background-color: #87CEEB !important;
+    padding: 8px !important;
+    text-align: center !important;
+    font-weight: bold;
+    border: 1px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.o_psql_result_table td {
+    padding: 6px !important;
+    text-align: center !important;
+    border: 1px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.o_psql_result_table tbody tr:nth-child(even) {
+    background-color: #f8f0fc;
+}
+
+.o_psql_result_container {
+    width: 100%;
+    overflow-x: auto;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.o_psql_result_container .o_field_html .odoo-editor-editable,
+.o_psql_result_container .o_field_html .o_readonly {
+    overflow-x: auto !important;
+    width: 100% !important;
+}

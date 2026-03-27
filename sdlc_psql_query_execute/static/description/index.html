@@ -1,0 +1,557 @@
+<!--
+SEO Title:
+PSQL Query Execute for Odoo 19 | Run PostgreSQL SELECT Queries from Odoo UI with XLSX Export
+
+Meta Description:
+PSQL Query Execute for Odoo 19. Run PostgreSQL SELECT queries directly from the Odoo backend. View results in formatted HTML tables and export to XLSX with one click. Built for system administrators, developers, and technical consultants.
+-->
+<!-- Layout: Inline styles + HTML tables only (Odoo sanitizer safe). -->
+
+<section style="max-width:1050px;margin:0 auto;font-family:Verdana,Geneva,Tahoma,sans-serif;color:#1a202c;line-height:1.75;">
+
+  <!-- ═══════════════════ 1. HERO BANNER ═══════════════════ -->
+  <div style="background-color:#0a101e;padding:48px 36px 42px;border-radius:20px;margin-bottom:32px;text-align:center;">
+
+    <!-- Badges -->
+    <div style="margin-bottom:20px;">
+      <span style="display:inline-block;background-color:#0e7490;color:#ecfeff;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:6px 16px;border-radius:20px;margin:0 4px 8px 0;">
+        <i class="fa fa-check-circle"></i> &nbsp;Odoo 19
+      </span>
+      <span style="display:inline-block;background-color:#0369a1;color:#e0f2fe;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:6px 16px;border-radius:20px;margin:0 4px 8px 0;">
+        <i class="fa fa-database"></i> &nbsp;PostgreSQL
+      </span>
+      <span style="display:inline-block;background-color:#b45309;color:#fef3c7;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:6px 16px;border-radius:20px;margin:0 0 8px 0;">
+        <i class="fa fa-file-excel-o"></i> &nbsp;XLSX Export
+      </span>
+    </div>
+
+    <!-- Decorative accent line -->
+    <div style="width:60px;height:3px;background-color:#06b6d4;margin:0 auto 18px;border-radius:2px;"></div>
+
+    <h1 style="font-size:36px;line-height:1.15;margin:0 0 14px 0;color:#ffffff;font-weight:800;letter-spacing:-0.5px;">
+      PSQL Query Execute
+    </h1>
+    <p style="font-size:18px;margin:0 0 8px 0;color:#67e8f9;font-weight:600;">
+      Run PostgreSQL Queries Directly from Odoo
+    </p>
+    <p style="font-size:13px;margin:0 0 28px 0;color:#94a3b8;letter-spacing:0.3px;">
+      Execute SELECT &nbsp;&middot;&nbsp; Formatted Results &nbsp;&middot;&nbsp; XLSX Download &nbsp;&middot;&nbsp; Error Handling &nbsp;&middot;&nbsp; Zero Config
+    </p>
+
+    <!-- CTA buttons -->
+    <div>
+      <span style="display:inline-block;background-color:#0891b2;color:#ffffff;padding:14px 30px;border-radius:10px;font-weight:700;font-size:14px;margin:0 6px 8px 0;letter-spacing:0.3px;">
+        <i class="fa fa-download"></i> &nbsp;Get on Odoo Apps
+      </span>
+      <a href="mailto:sales@sdlccorp.com" style="display:inline-block;background-color:transparent;color:#67e8f9;text-decoration:none;padding:13px 30px;border-radius:10px;font-weight:700;font-size:14px;border:2px solid #155e75;letter-spacing:0.3px;margin:0 0 8px 0;">
+        <i class="fa fa-envelope"></i> &nbsp;Contact Us
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ 2. ABOUT + QUICK TAGS ═══════════════════ -->
+  <div style="margin-bottom:32px;padding:30px 28px;border-radius:16px;background-color:#ffffff;border:1px solid #e2e8f0;box-shadow:0 2px 12px rgba(0,0,0,0.04);">
+
+    <!-- Accent bar -->
+    <div style="width:50px;height:4px;background-color:#06b6d4;border-radius:2px;margin-bottom:18px;"></div>
+
+    <p style="font-size:16px;margin:0 0 14px 0;color:#334155;font-weight:400;">
+      <strong style="color:#0c4a6e;">SDLC PSQL Query Execute</strong> is a technical utility module for Odoo
+      that allows system administrators to run PostgreSQL SELECT queries directly from the Odoo user interface.
+      It provides a simple, secure, and convenient way to query database tables without leaving the
+      Odoo backend &mdash; complete with formatted HTML result tables and one-click XLSX export.
+    </p>
+    <p style="font-size:15px;margin:0 0 18px 0;color:#475569;">
+      Whether you need to quickly inspect data, validate records, debug issues, or generate ad-hoc reports,
+      this module gives technical users instant access to raw database results &mdash; all within a clean,
+      integrated Odoo interface.
+    </p>
+
+    <!-- Quick feature tags -->
+    <div>
+      <span style="display:inline-block;background-color:#ecfeff;color:#0e7490;font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;margin:0 6px 6px 0;border:1px solid #a5f3fc;">Execute SELECT</span>
+      <span style="display:inline-block;background-color:#ecfeff;color:#0e7490;font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;margin:0 6px 6px 0;border:1px solid #a5f3fc;">HTML Result Table</span>
+      <span style="display:inline-block;background-color:#fff7ed;color:#c2410c;font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;margin:0 6px 6px 0;border:1px solid #fed7aa;">XLSX Export</span>
+      <span style="display:inline-block;background-color:#ecfeff;color:#0e7490;font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;margin:0 6px 6px 0;border:1px solid #a5f3fc;">Styled Headers</span>
+      <span style="display:inline-block;background-color:#ecfeff;color:#0e7490;font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;margin:0 6px 6px 0;border:1px solid #a5f3fc;">Scrollable Results</span>
+      <span style="display:inline-block;background-color:#fff7ed;color:#c2410c;font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;margin:0 6px 6px 0;border:1px solid #fed7aa;">Error Handling</span>
+      <span style="display:inline-block;background-color:#f0fdf4;color:#15803d;font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;margin:0 6px 6px 0;border:1px solid #bbf7d0;">Zero Config</span>
+      <span style="display:inline-block;background-color:#f0fdf4;color:#15803d;font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;margin:0 0 6px 0;border:1px solid #bbf7d0;">Save &amp; Reuse Queries</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ 3. BANNER IMAGE ═══════════════════ -->
+  <div style="margin-bottom:32px;padding:5px;border-radius:16px;background-color:#0891b2;box-shadow:0 8px 30px rgba(8,145,178,0.25);">
+    <div style="padding:4px;border-radius:12px;background-color:#ffffff;">
+      <img src="banner.jpg"
+        alt="SDLC PSQL Query Execute banner - Run PostgreSQL queries from Odoo interface"
+        style="width:100%;height:auto;display:block;border-radius:8px;" />
+    </div>
+  </div>
+
+  <!-- ═══════════════════ 4. KEY HIGHLIGHTS (3 cards) ═══════════════════ -->
+  <div style="margin-bottom:32px;padding:32px 26px;border-radius:16px;background-color:#f0f9ff;border:1px solid #bae6fd;">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <span style="display:inline-block;background-color:#0e7490;color:#ecfeff;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:12px;margin-bottom:8px;">Core Capabilities</span>
+      <h2 style="font-size:26px;margin:0 0 4px 0;color:#0c4a6e;font-weight:800;letter-spacing:-0.3px;">
+        What Makes This Module Powerful
+      </h2>
+      <p style="margin:0;color:#64748b;font-size:14px;">Three essential capabilities for database-level insight from inside Odoo.</p>
+    </div>
+
+    <table style="width:100%;border-collapse:separate;border-spacing:14px 0;">
+      <tr>
+        <td style="width:33%;vertical-align:top;background-color:#ffffff;border-top:4px solid #0891b2;border-radius:12px;padding:24px 18px;box-shadow:0 4px 16px rgba(0,0,0,0.06);">
+          <div style="text-align:center;margin-bottom:14px;">
+            <span style="display:inline-block;background-color:#ecfeff;color:#0891b2;width:52px;height:52px;border-radius:26px;text-align:center;line-height:52px;font-size:22px;"><i class="fa fa-terminal"></i></span>
+          </div>
+          <h3 style="font-size:15px;margin:0 0 8px 0;color:#0c4a6e;font-weight:700;text-align:center;">Execute SELECT Queries</h3>
+          <p style="margin:0;font-size:13px;color:#64748b;text-align:center;">Run raw PostgreSQL SELECT queries directly from the Odoo backend with a single click. No external tools needed.</p>
+        </td>
+        <td style="width:33%;vertical-align:top;background-color:#ffffff;border-top:4px solid #0d9488;border-radius:12px;padding:24px 18px;box-shadow:0 4px 16px rgba(0,0,0,0.06);">
+          <div style="text-align:center;margin-bottom:14px;">
+            <span style="display:inline-block;background-color:#f0fdfa;color:#0d9488;width:52px;height:52px;border-radius:26px;text-align:center;line-height:52px;font-size:22px;"><i class="fa fa-table"></i></span>
+          </div>
+          <h3 style="font-size:15px;margin:0 0 8px 0;color:#0c4a6e;font-weight:700;text-align:center;">Formatted HTML Results</h3>
+          <p style="margin:0;font-size:13px;color:#64748b;text-align:center;">View results in a beautifully styled table with sky blue headers, alternating row colors, and scrollable layout.</p>
+        </td>
+        <td style="width:33%;vertical-align:top;background-color:#ffffff;border-top:4px solid #d97706;border-radius:12px;padding:24px 18px;box-shadow:0 4px 16px rgba(0,0,0,0.06);">
+          <div style="text-align:center;margin-bottom:14px;">
+            <span style="display:inline-block;background-color:#fffbeb;color:#d97706;width:52px;height:52px;border-radius:26px;text-align:center;line-height:52px;font-size:22px;"><i class="fa fa-file-excel-o"></i></span>
+          </div>
+          <h3 style="font-size:15px;margin:0 0 8px 0;color:#0c4a6e;font-weight:700;text-align:center;">One-Click XLSX Export</h3>
+          <p style="margin:0;font-size:13px;color:#64748b;text-align:center;">Export query results to a professionally formatted Excel file with Report Date, Company Name, and styled headers.</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ═══════════════════ 5. COMPLETE FEATURES (Dark Section) ═══════════════════ -->
+  <div style="margin-bottom:32px;padding:32px 26px;border-radius:16px;background-color:#0f172a;">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <span style="display:inline-block;background-color:#164e63;color:#67e8f9;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:12px;margin-bottom:8px;">Full Feature Set</span>
+      <h2 style="font-size:26px;margin:0 0 4px 0;color:#f0f9ff;font-weight:800;letter-spacing:-0.3px;">
+        Everything Under the Hood
+      </h2>
+      <p style="margin:0;color:#94a3b8;font-size:14px;">Every feature designed for fast, safe, and convenient database inspection.</p>
+    </div>
+
+    <table style="width:100%;border-collapse:separate;border-spacing:12px;">
+      <tr>
+        <td style="width:50%;vertical-align:top;background-color:#1e293b;border-top:3px solid #06b6d4;border-radius:10px;padding:18px 16px;">
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#67e8f9;font-weight:700;"><i class="fa fa-bars" style="color:#22d3ee;margin-right:8px;"></i>Menu Access &amp; Navigation</h3>
+          <p style="margin:0;font-size:13px;color:#94a3b8;">Accessible via <strong style="color:#cbd5e1;">Settings &gt; Technical &gt; PSQL Query</strong>. Fully integrated into the Odoo backend with no extra setup.</p>
+        </td>
+        <td style="width:50%;vertical-align:top;background-color:#1e293b;border-top:3px solid #14b8a6;border-radius:10px;padding:18px 16px;">
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#5eead4;font-weight:700;"><i class="fa fa-bookmark" style="color:#2dd4bf;margin-right:8px;"></i>Query Name &amp; Organization</h3>
+          <p style="margin:0;font-size:13px;color:#94a3b8;">Label and organize saved queries with a dedicated name field for better management and quick re-execution.</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="width:50%;vertical-align:top;background-color:#1e293b;border-top:3px solid #f59e0b;border-radius:10px;padding:18px 16px;">
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#fcd34d;font-weight:700;"><i class="fa fa-code" style="color:#fbbf24;margin-right:8px;"></i>SQL Query Input</h3>
+          <p style="margin:0;font-size:13px;color:#94a3b8;">Dedicated text area for writing raw PostgreSQL SELECT statements with full query flexibility and syntax support.</p>
+        </td>
+        <td style="width:50%;vertical-align:top;background-color:#1e293b;border-top:3px solid #f43f5e;border-radius:10px;padding:18px 16px;">
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#fda4af;font-weight:700;"><i class="fa fa-refresh" style="color:#fb7185;margin-right:8px;"></i>Execute / Refresh</h3>
+          <p style="margin:0;font-size:13px;color:#94a3b8;">Run or re-run queries instantly with a single click. Results refresh immediately without any page reload.</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="width:50%;vertical-align:top;background-color:#1e293b;border-top:3px solid #8b5cf6;border-radius:10px;padding:18px 16px;">
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#c4b5fd;font-weight:700;"><i class="fa fa-th" style="color:#a78bfa;margin-right:8px;"></i>Styled Result Table</h3>
+          <p style="margin:0;font-size:13px;color:#94a3b8;">Formatted HTML table with sky blue headers, alternating row colors, and horizontal/vertical scrolling for wide datasets.</p>
+        </td>
+        <td style="width:50%;vertical-align:top;background-color:#1e293b;border-top:3px solid #06b6d4;border-radius:10px;padding:18px 16px;">
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#67e8f9;font-weight:700;"><i class="fa fa-download" style="color:#22d3ee;margin-right:8px;"></i>XLSX Export with Branding</h3>
+          <p style="margin:0;font-size:13px;color:#94a3b8;">Export to Excel with Report Date, Company Name, styled column headers, and alternating row colors for professional output.</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align:top;background-color:#1e293b;border-top:3px solid #10b981;border-radius:10px;padding:18px 16px;" colspan="2">
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#6ee7b7;font-weight:700;"><i class="fa fa-exclamation-triangle" style="color:#34d399;margin-right:8px;"></i>Error Handling &amp; Validation</h3>
+          <p style="margin:0;font-size:13px;color:#94a3b8;">Descriptive error messages with Validation Error dialogs for invalid queries, SQL syntax errors, or missing tables. Clear feedback so users know exactly what went wrong.</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ═══════════════════ 6. HOW IT WORKS (4 Steps) ═══════════════════ -->
+  <div style="margin-bottom:32px;padding:32px 26px;border-radius:16px;background-color:#fffbf5;border:1px solid #fde68a;">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <span style="display:inline-block;background-color:#92400e;color:#fef3c7;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:12px;margin-bottom:8px;">Quick Start</span>
+      <h2 style="font-size:26px;margin:0 0 4px 0;color:#78350f;font-weight:800;letter-spacing:-0.3px;">
+        How It Works &mdash; 4 Simple Steps
+      </h2>
+      <p style="margin:0;color:#92400e;font-size:14px;">From install to results in under a minute. No configuration required.</p>
+    </div>
+
+    <table style="width:100%;border-collapse:separate;border-spacing:12px;">
+      <tr>
+        <td style="width:25%;vertical-align:top;background-color:#ffffff;border-radius:12px;padding:20px 14px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
+          <span style="display:inline-block;background-color:#0891b2;color:#ffffff;width:42px;height:42px;border-radius:21px;text-align:center;line-height:42px;font-size:18px;font-weight:800;margin-bottom:10px;">1</span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">Navigate</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Go to <strong>Settings &gt; Technical &gt; PSQL Query</strong></p>
+        </td>
+        <td style="width:25%;vertical-align:top;background-color:#ffffff;border-radius:12px;padding:20px 14px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
+          <span style="display:inline-block;background-color:#0d9488;color:#ffffff;width:42px;height:42px;border-radius:21px;text-align:center;line-height:42px;font-size:18px;font-weight:800;margin-bottom:10px;">2</span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">Write Query</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Enter a name and write your SELECT statement</p>
+        </td>
+        <td style="width:25%;vertical-align:top;background-color:#ffffff;border-radius:12px;padding:20px 14px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
+          <span style="display:inline-block;background-color:#d97706;color:#ffffff;width:42px;height:42px;border-radius:21px;text-align:center;line-height:42px;font-size:18px;font-weight:800;margin-bottom:10px;">3</span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">Execute</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Click <strong>Execute/Refresh</strong> to run the query instantly</p>
+        </td>
+        <td style="width:25%;vertical-align:top;background-color:#ffffff;border-radius:12px;padding:20px 14px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
+          <span style="display:inline-block;background-color:#e11d48;color:#ffffff;width:42px;height:42px;border-radius:21px;text-align:center;line-height:42px;font-size:18px;font-weight:800;margin-bottom:10px;">4</span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">Export</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Click <strong>XLSX</strong> to download formatted Excel report</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ═══════════════════ 7. SCREENSHOTS ═══════════════════ -->
+  <div style="margin-bottom:32px;padding:32px 26px;border-radius:16px;background-color:#ffffff;border:1px solid #e2e8f0;box-shadow:0 2px 12px rgba(0,0,0,0.04);">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <span style="display:inline-block;background-color:#ecfeff;color:#0e7490;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:12px;margin-bottom:8px;">Screenshots</span>
+      <h2 style="font-size:26px;margin:0 0 4px 0;color:#0c4a6e;font-weight:800;letter-spacing:-0.3px;">
+        See It in Action
+      </h2>
+      <p style="margin:0;color:#64748b;font-size:14px;">Real screens showing every step &mdash; from menu access to XLSX export and error handling.</p>
+    </div>
+
+    <div style="margin-bottom:20px;background-color:#f0f9ff;border-radius:12px;padding:16px;border:1px solid #bae6fd;">
+      <img src="photo1.png" alt="Settings > Technical > PSQL Query Menu" style="width:92%;height:auto;display:block;margin:0 auto;border-radius:8px;border:1px solid #cbd5e1;" />
+      <p style="margin:14px 0 0 0;text-align:center;font-size:13px;color:#475569;">
+        <strong style="color:#0c4a6e;">Access PSQL Query</strong> from Settings &gt; Technical menu
+      </p>
+    </div>
+
+    <div style="margin-bottom:20px;background-color:#f0f9ff;border-radius:12px;padding:16px;border:1px solid #bae6fd;">
+      <img src="photo2.png" alt="PSQL Query Form - Empty State" style="width:92%;height:auto;display:block;margin:0 auto;border-radius:8px;border:1px solid #cbd5e1;" />
+      <p style="margin:14px 0 0 0;text-align:center;font-size:13px;color:#475569;">
+        <strong style="color:#0c4a6e;">Query form view</strong> &mdash; enter a Query Name, write your SQL, and click Execute/Refresh
+      </p>
+    </div>
+
+    <div style="margin-bottom:20px;background-color:#f0f9ff;border-radius:12px;padding:16px;border:1px solid #bae6fd;">
+      <img src="photo3.png" alt="PSQL Query Form - Query Entered" style="width:92%;height:auto;display:block;margin:0 auto;border-radius:8px;border:1px solid #cbd5e1;" />
+      <p style="margin:14px 0 0 0;text-align:center;font-size:13px;color:#475569;">
+        <strong style="color:#0c4a6e;">Query entered</strong> &mdash; example: &quot;select * from res_partner limit 10&quot; ready for execution
+      </p>
+    </div>
+
+    <div style="margin-bottom:20px;background-color:#f0f9ff;border-radius:12px;padding:16px;border:1px solid #bae6fd;">
+      <img src="photo4.png" alt="Execute Button Highlighted" style="width:92%;height:auto;display:block;margin:0 auto;border-radius:8px;border:1px solid #cbd5e1;" />
+      <p style="margin:14px 0 0 0;text-align:center;font-size:13px;color:#475569;">
+        <strong style="color:#0c4a6e;">Click Execute/Refresh</strong> to run the SQL query and fetch results from the database
+      </p>
+    </div>
+
+    <div style="margin-bottom:20px;background-color:#f0f9ff;border-radius:12px;padding:16px;border:1px solid #bae6fd;">
+      <img src="photo5.png" alt="Query Results - Formatted HTML Table" style="width:92%;height:auto;display:block;margin:0 auto;border-radius:8px;border:1px solid #cbd5e1;" />
+      <p style="margin:14px 0 0 0;text-align:center;font-size:13px;color:#475569;">
+        <strong style="color:#0c4a6e;">Formatted HTML results</strong> with sky blue headers, alternating row colors, and horizontal scrolling
+      </p>
+    </div>
+
+    <div style="margin-bottom:20px;background-color:#f0f9ff;border-radius:12px;padding:16px;border:1px solid #bae6fd;">
+      <img src="photo6.png" alt="XLSX Download Button" style="width:92%;height:auto;display:block;margin:0 auto;border-radius:8px;border:1px solid #cbd5e1;" />
+      <p style="margin:14px 0 0 0;text-align:center;font-size:13px;color:#475569;">
+        <strong style="color:#0c4a6e;">Click the XLSX button</strong> to download query output as a professionally formatted Excel file
+      </p>
+    </div>
+
+    <div style="margin-bottom:20px;background-color:#f0f9ff;border-radius:12px;padding:16px;border:1px solid #bae6fd;">
+      <img src="photo7.png" alt="XLSX Report in Excel" style="width:92%;height:auto;display:block;margin:0 auto;border-radius:8px;border:1px solid #cbd5e1;" />
+      <p style="margin:14px 0 0 0;text-align:center;font-size:13px;color:#475569;">
+        <strong style="color:#0c4a6e;">XLSX report in Excel</strong> &mdash; Report Date, Company Name, styled headers, and alternating row colors
+      </p>
+    </div>
+
+    <div style="background-color:#f0f9ff;border-radius:12px;padding:16px;border:1px solid #bae6fd;">
+      <img src="photo8.png" alt="Validation Error Dialog" style="width:92%;height:auto;display:block;margin:0 auto;border-radius:8px;border:1px solid #cbd5e1;" />
+      <p style="margin:14px 0 0 0;text-align:center;font-size:13px;color:#475569;">
+        <strong style="color:#0c4a6e;">Error handling</strong> &mdash; Validation Error dialog with a descriptive SQL error message
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ 8. WHO IT'S FOR ═══════════════════ -->
+  <div style="margin-bottom:32px;padding:32px 26px;border-radius:16px;background-color:#f0f9ff;border:1px solid #bae6fd;">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <span style="display:inline-block;background-color:#ecfeff;color:#0e7490;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:12px;margin-bottom:8px;">Built For</span>
+      <h2 style="font-size:26px;margin:0 0 4px 0;color:#0c4a6e;font-weight:800;letter-spacing:-0.3px;">
+        Who Is This Module For?
+      </h2>
+    </div>
+
+    <table style="width:100%;border-collapse:separate;border-spacing:12px 0;">
+      <tr>
+        <td style="width:25%;vertical-align:top;background-color:#ffffff;border-radius:12px;padding:22px 14px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.05);border-bottom:4px solid #0891b2;">
+          <span style="display:inline-block;background-color:#ecfeff;color:#0891b2;width:50px;height:50px;border-radius:25px;text-align:center;line-height:50px;font-size:22px;margin-bottom:10px;"><i class="fa fa-user-secret"></i></span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">System Admins</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Inspect database tables, validate records, and debug data issues without leaving Odoo.</p>
+        </td>
+        <td style="width:25%;vertical-align:top;background-color:#ffffff;border-radius:12px;padding:22px 14px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.05);border-bottom:4px solid #0d9488;">
+          <span style="display:inline-block;background-color:#f0fdfa;color:#0d9488;width:50px;height:50px;border-radius:25px;text-align:center;line-height:50px;font-size:22px;margin-bottom:10px;"><i class="fa fa-code"></i></span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">Developers</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Test queries, verify data integrity, and run quick checks during development and debugging.</p>
+        </td>
+        <td style="width:25%;vertical-align:top;background-color:#ffffff;border-radius:12px;padding:22px 14px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.05);border-bottom:4px solid #d97706;">
+          <span style="display:inline-block;background-color:#fffbeb;color:#d97706;width:50px;height:50px;border-radius:25px;text-align:center;line-height:50px;font-size:22px;margin-bottom:10px;"><i class="fa fa-handshake-o"></i></span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">Consultants</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Generate ad-hoc reports and investigate data for clients directly from the Odoo backend.</p>
+        </td>
+        <td style="width:25%;vertical-align:top;background-color:#ffffff;border-radius:12px;padding:22px 14px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.05);border-bottom:4px solid #e11d48;">
+          <span style="display:inline-block;background-color:#fff1f2;color:#e11d48;width:50px;height:50px;border-radius:25px;text-align:center;line-height:50px;font-size:22px;margin-bottom:10px;"><i class="fa fa-users"></i></span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">Odoo Partners</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Provide clients with a safe, integrated tool for database inspection without external access.</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ═══════════════════ 9. CONFIGURATION ═══════════════════ -->
+  <div style="margin-bottom:32px;padding:28px 24px;border-radius:16px;background-color:#f0fdfa;border:1px solid #99f6e4;">
+
+    <h2 style="font-size:22px;margin:0 0 16px 0;color:#134e4a;font-weight:800;">
+      <i class="fa fa-check-circle" style="color:#0d9488;margin-right:8px;"></i>Zero Configuration &mdash; Works Out of the Box
+    </h2>
+
+    <table style="width:100%;border-collapse:collapse;">
+      <tr><td style="padding:8px 0;color:#334155;font-size:14px;border-bottom:1px solid #ccfbf1;"><i class="fa fa-check" style="color:#0d9488;margin-right:10px;"></i> Install the module &mdash; no settings to configure</td></tr>
+      <tr><td style="padding:8px 0;color:#334155;font-size:14px;border-bottom:1px solid #ccfbf1;"><i class="fa fa-check" style="color:#0d9488;margin-right:10px;"></i> Navigate to <strong>Settings &gt; Technical &gt; PSQL Query</strong></td></tr>
+      <tr><td style="padding:8px 0;color:#334155;font-size:14px;border-bottom:1px solid #ccfbf1;"><i class="fa fa-check" style="color:#0d9488;margin-right:10px;"></i> Create a new record, give it a name, and write your SELECT query</td></tr>
+      <tr><td style="padding:8px 0;color:#334155;font-size:14px;border-bottom:1px solid #ccfbf1;"><i class="fa fa-check" style="color:#0d9488;margin-right:10px;"></i> Click <strong>Execute/Refresh</strong> to run the query and view results</td></tr>
+      <tr><td style="padding:8px 0;color:#334155;font-size:14px;"><i class="fa fa-check" style="color:#0d9488;margin-right:10px;"></i> Click <strong>XLSX</strong> to download results as a formatted Excel file</td></tr>
+    </table>
+  </div>
+
+  <!-- ═══════════════════ 10. FAQ ═══════════════════ -->
+  <div style="margin-bottom:32px;padding:32px 26px;border-radius:16px;background-color:#ffffff;border:1px solid #e2e8f0;box-shadow:0 2px 12px rgba(0,0,0,0.04);">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <span style="display:inline-block;background-color:#ecfeff;color:#0e7490;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:12px;margin-bottom:8px;">FAQ</span>
+      <h2 style="font-size:26px;margin:0 0 4px 0;color:#0c4a6e;font-weight:800;letter-spacing:-0.3px;">
+        Frequently Asked Questions
+      </h2>
+    </div>
+
+    <table style="width:100%;border-collapse:separate;border-spacing:12px;">
+      <tr>
+        <td style="width:50%;vertical-align:top;background-color:#f0f9ff;border-top:3px solid #0891b2;border-radius:10px;padding:16px;">
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;"><i class="fa fa-question-circle" style="color:#0891b2;margin-right:6px;"></i>What type of queries can I run?</h3>
+          <p style="margin:0;font-size:13px;color:#475569;">Only SELECT queries are supported. INSERT, UPDATE, DELETE, and DDL statements are blocked for safety.</p>
+        </td>
+        <td style="width:50%;vertical-align:top;background-color:#f0fdfa;border-top:3px solid #0d9488;border-radius:10px;padding:16px;">
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#134e4a;font-weight:700;"><i class="fa fa-question-circle" style="color:#0d9488;margin-right:6px;"></i>Is any configuration needed?</h3>
+          <p style="margin:0;font-size:13px;color:#475569;">No. Works immediately after installation. Just navigate to Settings &gt; Technical &gt; PSQL Query.</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="width:50%;vertical-align:top;background-color:#fffbf5;border-top:3px solid #d97706;border-radius:10px;padding:16px;">
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#78350f;font-weight:700;"><i class="fa fa-question-circle" style="color:#d97706;margin-right:6px;"></i>Can I export results to Excel?</h3>
+          <p style="margin:0;font-size:13px;color:#475569;">Yes. Click the XLSX button to download a formatted Excel file with Report Date, Company Name, and styled headers.</p>
+        </td>
+        <td style="width:50%;vertical-align:top;background-color:#fff1f2;border-top:3px solid #e11d48;border-radius:10px;padding:16px;">
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#881337;font-weight:700;"><i class="fa fa-question-circle" style="color:#e11d48;margin-right:6px;"></i>What if my query has an error?</h3>
+          <p style="margin:0;font-size:13px;color:#475569;">A Validation Error dialog shows the exact SQL error message so you can quickly identify and fix the issue.</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="width:50%;vertical-align:top;background-color:#faf5ff;border-top:3px solid #8b5cf6;border-radius:10px;padding:16px;">
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#4c1d95;font-weight:700;"><i class="fa fa-question-circle" style="color:#8b5cf6;margin-right:6px;"></i>Can I save and reuse queries?</h3>
+          <p style="margin:0;font-size:13px;color:#475569;">Yes. Each query is saved as a record with a name. Go back to any saved query, re-execute it, or modify it anytime.</p>
+        </td>
+        <td style="width:50%;vertical-align:top;background-color:#f0f9ff;border-top:3px solid #0891b2;border-radius:10px;padding:16px;">
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;"><i class="fa fa-question-circle" style="color:#0891b2;margin-right:6px;"></i>Which Odoo version is supported?</h3>
+          <p style="margin:0;font-size:13px;color:#475569;">This module is built and tested for Odoo 19. It follows Odoo-native design patterns and workflows.</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ═══════════════════ 11. FREE LIFETIME SUPPORT ═══════════════════ -->
+  <div style="margin-bottom:32px;padding:36px 28px;border-radius:16px;background-color:#0f172a;">
+
+    <div style="text-align:center;margin-bottom:28px;">
+      <span style="display:inline-block;background-color:#065f46;color:#6ee7b7;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:6px 16px;border-radius:12px;margin-bottom:10px;">
+        <i class="fa fa-heart"></i> &nbsp;Lifetime Guarantee
+      </span>
+      <h2 style="font-size:28px;line-height:1.2;margin:0 0 8px 0;color:#ffffff;font-weight:800;letter-spacing:-0.3px;">
+        Free Lifetime Support
+      </h2>
+      <p style="margin:0;color:#94a3b8;font-size:15px;">
+        We stand behind our module. Get <strong style="color:#6ee7b7;">free lifetime bug-fix support</strong> with every installation &mdash; no hidden charges, no expiry.
+      </p>
+    </div>
+
+    <div style="width:60px;height:2px;background-color:#10b981;margin:0 auto 28px;border-radius:1px;"></div>
+
+    <table style="width:100%;border-collapse:separate;border-spacing:12px 0;margin-bottom:24px;">
+      <tr>
+        <td style="width:33%;vertical-align:top;background-color:#1e293b;border-top:4px solid #10b981;border-radius:12px;padding:22px 16px;text-align:center;">
+          <span style="display:inline-block;background-color:#065f46;color:#34d399;width:52px;height:52px;border-radius:26px;text-align:center;line-height:52px;font-size:22px;margin-bottom:12px;"><i class="fa fa-bug"></i></span>
+          <h3 style="font-size:15px;margin:0 0 6px 0;color:#6ee7b7;font-weight:700;">Free Bug Fixes</h3>
+          <p style="margin:0;font-size:13px;color:#94a3b8;">Any bugs found in the module will be fixed free of charge for the lifetime of your installation.</p>
+        </td>
+        <td style="width:33%;vertical-align:top;background-color:#1e293b;border-top:4px solid #06b6d4;border-radius:12px;padding:22px 16px;text-align:center;">
+          <span style="display:inline-block;background-color:#164e63;color:#22d3ee;width:52px;height:52px;border-radius:26px;text-align:center;line-height:52px;font-size:22px;margin-bottom:12px;"><i class="fa fa-refresh"></i></span>
+          <h3 style="font-size:15px;margin:0 0 6px 0;color:#67e8f9;font-weight:700;">Free Version Updates</h3>
+          <p style="margin:0;font-size:13px;color:#94a3b8;">Receive future updates and compatibility patches as new Odoo versions are released.</p>
+        </td>
+        <td style="width:33%;vertical-align:top;background-color:#1e293b;border-top:4px solid #f59e0b;border-radius:12px;padding:22px 16px;text-align:center;">
+          <span style="display:inline-block;background-color:#78350f;color:#fbbf24;width:52px;height:52px;border-radius:26px;text-align:center;line-height:52px;font-size:22px;margin-bottom:12px;"><i class="fa fa-headphones"></i></span>
+          <h3 style="font-size:15px;margin:0 0 6px 0;color:#fcd34d;font-weight:700;">Dedicated Support</h3>
+          <p style="margin:0;font-size:13px;color:#94a3b8;">Reach our technical team via Email, Phone, or WhatsApp for any questions or assistance.</p>
+        </td>
+      </tr>
+    </table>
+
+    <div style="background-color:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px 22px;">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="width:50%;padding:6px 0;color:#cbd5e1;font-size:13px;"><i class="fa fa-check-circle" style="color:#34d399;margin-right:8px;"></i> Lifetime free bug-fix support</td>
+          <td style="width:50%;padding:6px 0;color:#cbd5e1;font-size:13px;"><i class="fa fa-check-circle" style="color:#34d399;margin-right:8px;"></i> No hidden charges or renewal fees</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;color:#cbd5e1;font-size:13px;"><i class="fa fa-check-circle" style="color:#34d399;margin-right:8px;"></i> Quick response from technical team</td>
+          <td style="padding:6px 0;color:#cbd5e1;font-size:13px;"><i class="fa fa-check-circle" style="color:#34d399;margin-right:8px;"></i> Compatible with future Odoo updates</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;color:#cbd5e1;font-size:13px;"><i class="fa fa-check-circle" style="color:#34d399;margin-right:8px;"></i> Multi-channel support (Email, Phone, WhatsApp)</td>
+          <td style="padding:6px 0;color:#cbd5e1;font-size:13px;"><i class="fa fa-check-circle" style="color:#34d399;margin-right:8px;"></i> Documentation and setup guidance included</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ 12. OUR SERVICES ═══════════════════ -->
+  <div style="margin-bottom:32px;padding:32px 26px;border-radius:16px;background-color:#f0f9ff;border:1px solid #bae6fd;">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <span style="display:inline-block;background-color:#ecfeff;color:#0e7490;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:12px;margin-bottom:8px;">What We Do</span>
+      <h2 style="font-size:26px;margin:0 0 4px 0;color:#0c4a6e;font-weight:800;letter-spacing:-0.3px;">
+        Our Services
+      </h2>
+      <p style="margin:0;color:#64748b;font-size:14px;">SDLC Corp provides end-to-end Odoo services for businesses of all sizes.</p>
+    </div>
+
+    <table style="width:100%;border-collapse:separate;border-spacing:12px;">
+      <tr>
+        <td style="width:33%;vertical-align:top;background-color:#ffffff;border-top:4px solid #0891b2;border-radius:12px;padding:22px 16px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.05);">
+          <span style="display:inline-block;background-color:#ecfeff;color:#0891b2;width:50px;height:50px;border-radius:25px;text-align:center;line-height:50px;font-size:22px;margin-bottom:10px;"><i class="fa fa-cogs"></i></span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">Odoo Customization</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Tailor Odoo modules and workflows to match your exact business requirements.</p>
+        </td>
+        <td style="width:33%;vertical-align:top;background-color:#ffffff;border-top:4px solid #0d9488;border-radius:12px;padding:22px 16px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.05);">
+          <span style="display:inline-block;background-color:#f0fdfa;color:#0d9488;width:50px;height:50px;border-radius:25px;text-align:center;line-height:50px;font-size:22px;margin-bottom:10px;"><i class="fa fa-rocket"></i></span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">Odoo Implementation</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Complete end-to-end Odoo setup, configuration, data migration, and go-live support.</p>
+        </td>
+        <td style="width:33%;vertical-align:top;background-color:#ffffff;border-top:4px solid #d97706;border-radius:12px;padding:22px 16px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.05);">
+          <span style="display:inline-block;background-color:#fffbeb;color:#d97706;width:50px;height:50px;border-radius:25px;text-align:center;line-height:50px;font-size:22px;margin-bottom:10px;"><i class="fa fa-life-ring"></i></span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">Odoo Support &amp; Maintenance</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Ongoing technical support, bug fixes, performance tuning, and maintenance plans.</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="width:33%;vertical-align:top;background-color:#ffffff;border-top:4px solid #8b5cf6;border-radius:12px;padding:22px 16px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.05);">
+          <span style="display:inline-block;background-color:#faf5ff;color:#8b5cf6;width:50px;height:50px;border-radius:25px;text-align:center;line-height:50px;font-size:22px;margin-bottom:10px;"><i class="fa fa-plug"></i></span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">Odoo Integration</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Connect Odoo with third-party platforms, APIs, payment gateways, and external systems.</p>
+        </td>
+        <td style="width:33%;vertical-align:top;background-color:#ffffff;border-top:4px solid #e11d48;border-radius:12px;padding:22px 16px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.05);">
+          <span style="display:inline-block;background-color:#fff1f2;color:#e11d48;width:50px;height:50px;border-radius:25px;text-align:center;line-height:50px;font-size:22px;margin-bottom:10px;"><i class="fa fa-users"></i></span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">Hire Odoo Developer</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Dedicated Odoo developers available for short-term or long-term project engagements.</p>
+        </td>
+        <td style="width:33%;vertical-align:top;background-color:#ffffff;border-top:4px solid #0891b2;border-radius:12px;padding:22px 16px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.05);">
+          <span style="display:inline-block;background-color:#ecfeff;color:#0891b2;width:50px;height:50px;border-radius:25px;text-align:center;line-height:50px;font-size:22px;margin-bottom:10px;"><i class="fa fa-exchange"></i></span>
+          <h3 style="font-size:14px;margin:0 0 6px 0;color:#0c4a6e;font-weight:700;">Odoo Migration</h3>
+          <p style="margin:0;font-size:12px;color:#64748b;">Seamless migration from older Odoo versions or other ERPs with data integrity and zero downtime.</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ═══════════════════ 13. COMPANY / CONTACT (SDLC Corp) ═══════════════════ -->
+  <div style="padding:36px 28px;border-radius:20px;background-color:#0a101e;">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <span style="display:inline-block;background-color:#164e63;color:#67e8f9;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:12px;margin-bottom:10px;">
+        Get in Touch
+      </span>
+      <h2 style="font-size:28px;line-height:1.2;margin:0 0 8px 0;color:#ffffff;font-weight:800;letter-spacing:-0.3px;">
+        Need Help or Have Questions?
+      </h2>
+      <p style="margin:0;color:#94a3b8;font-size:15px;">
+        If you need help with setup, compatibility, customization, or have any questions,
+        <strong style="color:#67e8f9;">feel free to contact us</strong>.
+      </p>
+    </div>
+
+    <div style="width:60px;height:2px;background-color:#0891b2;margin:0 auto 24px;border-radius:1px;"></div>
+
+    <table style="width:100%;border-collapse:separate;border-spacing:12px 0;margin-bottom:22px;">
+      <tr>
+        <td style="width:33%;vertical-align:top;background-color:#111a2e;border:1px solid #1e3048;border-radius:12px;padding:22px 14px;text-align:center;">
+          <span style="display:inline-block;background-color:#164e63;color:#22d3ee;width:48px;height:48px;border-radius:24px;text-align:center;line-height:48px;font-size:20px;margin-bottom:10px;"><i class="fa fa-envelope"></i></span>
+          <p style="margin:0 0 4px 0;font-weight:700;color:#e2e8f0;font-size:14px;">Email</p>
+          <a href="mailto:sales@sdlccorp.com" style="color:#67e8f9;text-decoration:none;font-size:13px;">sales@sdlccorp.com</a>
+        </td>
+        <td style="width:33%;vertical-align:top;background-color:#111a2e;border:1px solid #1e3048;border-radius:12px;padding:22px 14px;text-align:center;">
+          <span style="display:inline-block;background-color:#14532d;color:#4ade80;width:48px;height:48px;border-radius:24px;text-align:center;line-height:48px;font-size:20px;margin-bottom:10px;"><i class="fa fa-phone"></i></span>
+          <p style="margin:0 0 4px 0;font-weight:700;color:#e2e8f0;font-size:14px;">Phone</p>
+          <span style="color:#94a3b8;font-size:13px;">+1 415-594-0097</span>
+        </td>
+        <td style="width:33%;vertical-align:top;background-color:#111a2e;border:1px solid #1e3048;border-radius:12px;padding:22px 14px;text-align:center;">
+          <span style="display:inline-block;background-color:#14532d;color:#4ade80;width:48px;height:48px;border-radius:24px;text-align:center;line-height:48px;font-size:20px;margin-bottom:10px;"><i class="fa fa-whatsapp"></i></span>
+          <p style="margin:0 0 4px 0;font-weight:700;color:#e2e8f0;font-size:14px;">WhatsApp</p>
+          <span style="color:#94a3b8;font-size:13px;">+91 89209 44210</span>
+        </td>
+      </tr>
+    </table>
+
+    <div style="background-color:#111a2e;border:1px solid #1e3048;border-radius:12px;padding:20px;margin-bottom:22px;">
+      <p style="margin:0 0 12px 0;font-weight:700;color:#e2e8f0;font-size:14px;">
+        <i class="fa fa-hand-o-right" style="color:#fbbf24;"></i> &nbsp;Contact us for:
+      </p>
+      <table style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="width:50%;vertical-align:top;padding:5px 0;color:#94a3b8;font-size:13px;"><i class="fa fa-check" style="color:#22d3ee;margin-right:8px;"></i> Free consultation</td>
+          <td style="width:50%;vertical-align:top;padding:5px 0;color:#94a3b8;font-size:13px;"><i class="fa fa-check" style="color:#22d3ee;margin-right:8px;"></i> Customization and workflow automation</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 0;color:#94a3b8;font-size:13px;"><i class="fa fa-check" style="color:#22d3ee;margin-right:8px;"></i> Compatibility review</td>
+          <td style="padding:5px 0;color:#94a3b8;font-size:13px;"><i class="fa fa-check" style="color:#22d3ee;margin-right:8px;"></i> Enterprise and multi-instance planning</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 0;color:#94a3b8;font-size:13px;"><i class="fa fa-check" style="color:#22d3ee;margin-right:8px;"></i> Pre-sales questions</td>
+          <td style="padding:5px 0;color:#94a3b8;font-size:13px;"><i class="fa fa-check" style="color:#22d3ee;margin-right:8px;"></i> Priority support and advanced requirements</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 0;color:#94a3b8;font-size:13px;" colspan="2"><i class="fa fa-check" style="color:#22d3ee;margin-right:8px;"></i> Setup and implementation guidance</td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="text-align:center;">
+      <span style="display:inline-block;background-color:#ffffff;color:#0a101e;padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px;margin:0 6px 8px 0;">
+        <i class="fa fa-globe"></i> &nbsp;Visit SDLC Corp
+      </span>
+      <span style="display:inline-block;background-color:#0891b2;color:#ffffff;padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px;margin:0 0 8px 0;">
+        <i class="fa fa-download"></i> &nbsp;Install on Odoo Apps
+      </span>
+    </div>
+  </div>
+
+</section>
