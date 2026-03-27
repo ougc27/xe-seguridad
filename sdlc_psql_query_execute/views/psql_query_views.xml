@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="view_psql_query_form" model="ir.ui.view">
+        <field name="name">psql.query.form</field>
+        <field name="model">psql.query</field>
+        <field name="arch" type="xml">
+            <form string="PostgreSQL Query">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Query Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="query" placeholder="Type the query to execute"
+                               widget="text"/>
+                    </group>
+                    <div>
+                        <button name="action_execute_query"
+                                string="Execute/Refresh"
+                                type="object"
+                                class="btn-primary"
+                                icon="fa-play"/>
+                    </div>
+                    <separator/>
+                    <div class="o_psql_result_container">
+                        <label for="result" string="Result:" class="fw-bold"/>
+                        <field name="result" readonly="1" nolabel="1"/>
+                    </div>
+                    <field name="column_names" invisible="1"/>
+                    <field name="row_data" invisible="1"/>
+                    <div class="text-center mt-3 mb-3">
+                        <button name="action_download_xlsx"
+                                string="XLSX"
+                                type="object"
+                                class="btn-secondary"
+                                icon="fa-file-excel-o"/>
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_psql_query_tree" model="ir.ui.view">
+        <field name="name">psql.query.tree</field>
+        <field name="model">psql.query</field>
+        <field name="arch" type="xml">
+            <tree string="PostgreSQL Queries">
+                <field name="name"/>
+                <field name="query"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_psql_query" model="ir.actions.act_window">
+        <field name="name">PSQL Query</field>
+        <field name="res_model">psql.query</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new PostgreSQL Query
+            </p>
+            <p>Execute SQL queries directly from the Odoo interface.</p>
+        </field>
+    </record>
+
+    <!-- Menu under Settings > Technical -->
+    <menuitem id="menu_psql_query"
+              name="PSQL Query"
+              parent="base.menu_custom"
+              action="action_psql_query"
+              sequence="100"/>
+
+</odoo>
