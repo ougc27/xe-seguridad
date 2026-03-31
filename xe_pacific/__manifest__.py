@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.43",
+    "version": "17.0.0.0.44",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
@@ -25,6 +25,7 @@
     "category": "Accounting",
     "summary": "MX-EDI XE Brands",
     'data': [
+        'report/survey_templates.xml',
         'data/ir_config_parameter.xml',
         'data/email_backorder_to_salesperson.xml',
         'data/email_notify_seller_of_changes.xml',

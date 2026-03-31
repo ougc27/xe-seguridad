@@ -1857,3 +1857,8 @@ msgstr "Asistente"
 #, python-format
 msgid "All lines must have a company."
 msgstr "Todas las líneas deben tener una compañía."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.certification_report_inherit_score
+msgid "with score of"
+msgstr "con una calificación de"
