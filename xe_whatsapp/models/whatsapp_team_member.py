@@ -28,6 +28,11 @@ class WhatsappTeamMember(models.Model):
     is_assigned = fields.Boolean(string="Has assigned equipment", default=False)
     
     is_available = fields.Boolean(compute="_compute_is_available")
+    
+    is_active_for_assignment = fields.Boolean(
+        string="Available for Assignment",
+        default=True
+    )
 
     @api.depends('user_id')
     def _compute_is_available(self):
@@ -58,6 +63,7 @@ class WhatsappTeamMember(models.Model):
             ('team', '=', team),
             ('wa_account_id', '=', wa_account_id.id),
             ('is_assigned', '=', False),
+            ('is_active_for_assignment', '=', True)
         ])
 
         if not members or self.is_blocked_time():

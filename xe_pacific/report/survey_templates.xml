@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="certification_report_inherit_score"
+                  inherit_id="survey.certification_report_view_general">
+            <xpath expr="//span[@class='certification-name']" position="after">
+                <span>
+                    with score of 
+                    <t t-esc="user_input.scoring_percentage"/>
+                </span>
+            </xpath>
+        </template>
+    </data>
+</odoo>
