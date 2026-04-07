@@ -19,6 +19,11 @@ class AccountMove(models.Model):
              "that will give the receiver of the document.",
     )
 
+    skip_sat_update = fields.Boolean(
+        string='Skip SAT Status Update',
+        help='Prevents this invoice from being synchronized with the SAT status.'
+    )
+
     def l10n_mx_edi_cfdi_invoice_try_update_payments(self):
         """ Try to update the state of payments for the current invoices. """
         warehouse_id = self.x_studio_almacen_id

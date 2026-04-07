@@ -1,5 +1,6 @@
 from odoo import models, api
 from odoo.tools import frozendict
+from datetime import date
 from datetime import datetime
 from lxml import etree
 from collections import defaultdict
@@ -36,6 +37,75 @@ USAGE_SELECTION = [
 class L10nMxEdiDocument(models.Model):
 
     _inherit = 'l10n_mx_edi.document'
+
+    def _get_current_month_range(self):
+        today = date.today()
+        date_from = today.replace(day=1)
+
+        if today.month == 12:
+            date_to = today.replace(year=today.year + 1, month=1, day=1)
+        else:
+            date_to = today.replace(month=today.month + 1, day=1)
+
+        return date_from, date_to
+
+    def _update_sat_state(self):
+        self.ensure_one()
+        if self.move_id.skip_sat_update:
+            return
+        return super()._update_sat_state()
+
+    @api.model
+    def _get_update_sat_status_domains(self, from_cron=True):
+        date_from, date_to = self._get_current_month_range()
+        results = [
+            [
+                ('state', 'in', (
+                    'ginvoice_sent',
+                    'invoice_sent',
+                    'payment_sent',
+                    'ginvoice_cancel',
+                    'invoice_cancel',
+                    'invoice_cancel_requested',
+                    'payment_cancel'
+                )),
+                ('sat_state', 'not in', ('valid', 'cancelled', 'skip')),
+                ('move_id.invoice_date', '>=', date_from),
+                ('move_id.invoice_date', '<', date_to),
+                ('move_id.skip_sat_update', '=', False)
+            ],
+            [
+                ('state', '=', 'invoice_received'),
+                ('move_id.state', '=', 'posted'),
+                ('move_id.invoice_date', '>=', date_from),
+                ('move_id.invoice_date', '<', date_to),
+                ('move_id.skip_sat_update', '=', False)
+            ],
+        ]
+
+        # The user still can cancel the document from the SAT portal. In that case, we need
+        # to display the SAT button just in case. However, we don't want to retroactively check
+        # all passed documents so this is happening only for the form view and not for the CRON.
+        if not from_cron:
+            results.extend([
+                [
+                    ('state', 'in', ('invoice_sent', 'payment_sent')),
+                    ('move_id.l10n_mx_edi_cfdi_state', '=', 'sent'),
+                    ('sat_state', '=', 'valid'),
+                    ('move_id.invoice_date', '>=', date_from),
+                    ('move_id.invoice_date', '<', date_to),
+                    ('move_id.skip_sat_update', '=', False)
+                ],
+                [
+                    ('state', '=', 'ginvoice_sent'),
+                    ('invoice_ids', 'any', [('l10n_mx_edi_cfdi_state', '=', 'global_sent')]),
+                    ('sat_state', '=', 'valid'),
+                    ('move_id.invoice_date', '>=', date_from),
+                    ('move_id.invoice_date', '<', date_to),
+                    ('move_id.skip_sat_update', '=', False)
+                ],
+            ])
+        return results
 
     @api.model
     def _add_customer_cfdi_values(self, cfdi_values, customer=None, usage=None, to_public=False):

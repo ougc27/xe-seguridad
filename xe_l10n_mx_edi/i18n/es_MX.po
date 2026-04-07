@@ -275,3 +275,22 @@ msgid ""
 msgstr ""
 "El nombre fiscal del cliente con el que se emitirá la factura al"
 " SAT."
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_account_bank_statement_line__skip_sat_update
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_account_move__skip_sat_update
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_account_payment__skip_sat_update
+msgid "Skip SAT Status Update"
+msgstr "Omitir actualización de estado SAT"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_account_bank_statement_line__skip_sat_update
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_account_move__skip_sat_update
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_account_payment__skip_sat_update
+msgid "Prevents this invoice from being synchronized with the SAT status."
+msgstr "Evita que este documento se sincronice con el estado del SAT."
+
+#. module: xe_l10n_mx_edi
+#: model:res.groups,name:xe_l10n_mx_edi.group_skip_sat_update
+msgid "Can Edit SAT Status Lock"
+msgstr "Puede editar el bloqueo de estado SAT"
