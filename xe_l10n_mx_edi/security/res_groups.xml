@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="group_skip_sat_update" model="res.groups">
+        <field name="name">Can Edit SAT Status Lock</field>
+        <field name="category_id" ref="base.module_category_usability"/>
+    </record>
+</odoo>
