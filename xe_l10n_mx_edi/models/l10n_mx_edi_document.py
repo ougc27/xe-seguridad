@@ -1,6 +1,6 @@
 from odoo import models, api
 from odoo.tools import frozendict
-from datetime import date
+from datetime import date, timedelta
 from datetime import datetime
 from lxml import etree
 from collections import defaultdict
@@ -40,8 +40,8 @@ class L10nMxEdiDocument(models.Model):
 
     def _get_current_month_range(self):
         today = date.today()
-        date_from = today.replace(day=1)
-
+        first_day = today.replace(day=1)
+        date_from = first_day - timedelta(days=3)
         if today.month == 12:
             date_to = today.replace(year=today.year + 1, month=1, day=1)
         else:

@@ -6,7 +6,10 @@ class StockMoveLine(models.Model):
     _inherit = 'stock.move.line'
 
     def write(self, vals):
-        #for rec in self:
+        for rec in self:
+            if rec.picking_id.state == 'done':
+                if 'qty_done' in vals:
+                    raise UserError(_("You cannot modify quantities in moves of a completed picking."))
             #new_quantity = vals.get("quantity", rec.quantity)
             #if new_quantity != rec.quantity:
                 #if rec.picking_id.state == "transit":

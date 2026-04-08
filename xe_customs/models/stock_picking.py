@@ -80,3 +80,10 @@ class StockPicking(models.Model):
         if self.state != 'transit':
             raise UserError(_('You cannot validate a delivery order unless it is in the "Remission" state.'))
         return super(StockPicking, self).button_validate()
+
+    def write(self, vals):
+        if any(p.state == 'done' for p in self):
+            forbidden = {'move_ids', 'move_line_ids', 'move_ids_without_package'}
+            if forbidden.intersection(vals):
+                raise UserError(_("You cannot modify a transfer that is in the done state."))
+        return super().write(vals)
