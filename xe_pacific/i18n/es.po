@@ -1862,3 +1862,11 @@ msgstr "Todas las líneas deben tener una compañía."
 #: model_terms:ir.ui.view,arch_db:xe_pacific.certification_report_inherit_score
 msgid "with score of"
 msgstr "con una calificación de"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/stock_move.py:0
+#: code:addons/xe_pacific/models/stock_move_line.py:0
+#, python-format
+msgid "You cannot modify quantities in moves of a completed picking."
+msgstr "No puedes modificar cantidades en movimientos de un picking finalizado."

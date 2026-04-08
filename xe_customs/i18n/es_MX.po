@@ -951,3 +951,10 @@ msgstr "Categoría de UNSPSC"
 #: model:ir.model.fields,help:xe_customs.field_product_clientinfo__unspsc_code_id
 msgid "UNSPSC code of the product defined specifically for this customer."
 msgstr "Código UNSPSC del producto definido específicamente para este cliente."
+
+#. module: xe_customs
+#. odoo-python
+#: code:addons/xe_customs/models/stock_picking.py:0
+#, python-format
+msgid "You cannot modify a transfer that is in the done state."
+msgstr "No puedes modificar un traslado en estado hecho."

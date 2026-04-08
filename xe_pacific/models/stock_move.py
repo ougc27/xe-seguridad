@@ -44,6 +44,9 @@ class StockMove(models.Model):
 
     def write(self, vals):
         for rec in self:
+            if rec.picking_id.state == 'done':
+                if 'quantity' in vals:
+                    raise UserError(_("You cannot modify quantities in moves of a completed picking."))
             new_quantity = vals.get("quantity", rec.quantity)
             if new_quantity != rec.quantity:
                 if rec.picking_id.state == "transit":
