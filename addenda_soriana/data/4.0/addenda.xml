@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <template id="l10n_mx_edi_addenda_soriana" name="Addenda Soriana">
+            <DSCargaRemisionProv>
+                <t t-set="transformed_name" t-value="record.name.replace('/', '-', 1).replace('/', '')"/>
+                <Remision Id="Remision0" RowOrder="0">
+                    <Proveedor><t t-esc="record.company_id.soriana_vendor_number"/></Proveedor>
+                    <Remision t-raw="transformed_name"/>
+                    <Consecutivo>0</Consecutivo>
+                    <FechaRemision>
+                        <t t-esc="record.invoice_date.strftime('%Y-%m-%dT00:00:00') if record.invoice_date else ''"/>
+                    </FechaRemision>
+                    <Tienda><t t-esc="record.soriana_store_number"/></Tienda>
+                    <TipoMoneda>1</TipoMoneda>
+                    <TipoBulto>1</TipoBulto>
+                    <EntregaMercancia><t t-esc="record.soriana_delivery_place_number"/></EntregaMercancia>
+                    <CumpleReqFiscales>true</CumpleReqFiscales>
+                    <CantidadBultos>1</CantidadBultos>
+                    <Subtotal><t t-esc="'%.2f' % record.amount_untaxed"/></Subtotal>
+                    <Descuentos>0</Descuentos>
+                    <IEPS>0</IEPS>
+                    <IVA><t t-esc="'%.2f' % record.amount_tax"/></IVA>
+                    <OtrosImpuestos>0</OtrosImpuestos>
+                    <Total><t t-esc="'%.2f' % record.amount_total"/></Total>
+                    <CantidadPedidos>1</CantidadPedidos>
+                    <FechaEntregaMercancia>
+                        <t t-esc="record.soriana_delivery_date.strftime('%Y-%m-%dT00:00:00') if record.soriana_delivery_date else ''"/>
+                    </FechaEntregaMercancia>
+                    <Cita><t t-esc="record.soriana_appointment_number"/></Cita>
+                </Remision>
+
+                <Pedidos Id="Pedido0" RowOrder="0">
+                    <Proveedor><t t-esc="record.company_id.soriana_vendor_number"/></Proveedor>
+                    <Remision t-raw="transformed_name"/>
+                    <FolioPedido><t t-esc="record.soriana_order_folio"/></FolioPedido>
+                    <Tienda><t t-esc="record.soriana_store_number"/></Tienda>
+                    <CantidadArticulos><t t-esc="len(record.invoice_line_ids)"/></CantidadArticulos>
+                </Pedidos>
+
+                <t t-set="idx" t-value="0"/>
+                <t t-foreach="record.invoice_line_ids" t-as="line">
+                    <Articulos 
+                        t-att-Id="'Articulo%s' % idx"
+                        t-att-RowOrder="str(idx)"
+                    >
+                        <Proveedor><t t-esc="record.company_id.soriana_vendor_number"/></Proveedor>
+                        <Remision t-raw="transformed_name"/>
+                        <FolioPedido><t t-esc="record.soriana_order_folio"/></FolioPedido>
+                        <Tienda><t t-esc="record.soriana_store_number"/></Tienda>
+                        <Codigo><t t-esc="line.product_id.client_ids.filtered(lambda c: c.name == record.partner_id and c.company_id == record.company_id).product_barcode"/></Codigo>
+                        <CantidadUnidadCompra><t t-esc="'%.2f' % line.quantity"/></CantidadUnidadCompra>
+                        <CostoNetoUnidadCompra><t t-esc="'%.2f' % line.price_unit"/></CostoNetoUnidadCompra>
+                        <PorcentajeIEPS>0</PorcentajeIEPS>
+                        <PorcentajeIVA><t t-esc="'%.2f' % (line.tax_ids[0].amount if line.tax_ids else 0)"/></PorcentajeIVA>
+                    </Articulos>
+                    <t t-set="idx" t-value="idx + 1"/>
+                </t>
+
+            </DSCargaRemisionProv>
+        </template>
+        <record id="l10n_mx_edi_addenda_soriana" model="ir.ui.view">
+            <field name="l10n_mx_edi_addenda_flag">True</field>
+        </record>
+    </data>
+</odoo>

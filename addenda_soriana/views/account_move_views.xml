@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_move_view_form_addenda_soriana" model="ir.ui.view">
+        <field name="name">account.move.view.form.addenda</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="addenda_morwi.account_move_view_form_addenda"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='addenda']" position="inside">
+                <group string="Soriana" name="addenda_soriana">
+                    <group>
+                        <field name="soriana_store_number"/>
+                        <field name="soriana_delivery_place_number"/>
+                        <field name="soriana_delivery_date"/>
+                    </group>
+                    <group>
+                        <field name="soriana_appointment_number"/>
+                        <field name="soriana_order_folio"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
