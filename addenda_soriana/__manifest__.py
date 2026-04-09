@@ -5,7 +5,7 @@
     "license" : "LGPL-3",
     'category': 'Account',
     'summary': "Addenda Soriana",
-    'version': '17.0.0.0.0',
+    'version': '17.0.0.0.1',
     'description': """
 Addendas Soriana
 ===============================================================
