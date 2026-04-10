@@ -255,7 +255,6 @@ class DiscussChannel(models.Model):
             if is_available:
                 user_id = self.env['whatsapp.team.members'].sudo().search(
                     [('is_assigned', '=', True), ('team', '=', 'sales_team'), ('wa_account_id', '=', wa_account.id)], limit=1).user_id.id
-                channel.reset_all_channel_members()
 
         vals = {'is_reassigned_computed': True}
         if user_id:
@@ -282,8 +281,10 @@ class DiscussChannel(models.Model):
                 'reassigned_at': fields.Datetime.now(),
                 'lost_count': lost_count + 1,
             })
-            channel._broadcast(channel.channel_member_ids.partner_id.ids)
-            channel.reload()
+        else:
+            channel.reset_all_channel_members()
+        channel._broadcast(channel.channel_member_ids.partner_id.ids)
+        channel.reload()
         channel.sudo().write(vals)
 
     def _cron_reassign_unanswered(self, only_today=True, batch_limit=100, minutes=4):
@@ -360,7 +361,6 @@ class DiscussChannel(models.Model):
             if is_available:
                 user_id = self.env['whatsapp.team.members'].sudo().search(
                     [('is_assigned', '=', True), ('team', '=', 'sales_team'), ('wa_account_id', '=', wa_account.id)], limit=1).user_id.id
-                channel.reset_all_channel_members()
 
         vals = {'is_reassigned_computed': True}
         if user_id:
@@ -387,8 +387,10 @@ class DiscussChannel(models.Model):
                 'reassigned_at': fields.Datetime.now(),
                 'lost_count': lost_count + 1,
             })
-            channel._broadcast(channel.channel_member_ids.partner_id.ids)
-            channel.reload()
+        else:
+            channel.reset_all_channel_members()
+        channel._broadcast(channel.channel_member_ids.partner_id.ids)
+        channel.reload()
         channel.sudo().write(vals)
 
     def _cron_reassign_out_of_working(self, only_today=True, batch_limit=200):
