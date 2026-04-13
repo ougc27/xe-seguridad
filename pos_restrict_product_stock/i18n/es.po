@@ -2021,3 +2021,13 @@ msgstr ""
 #, python-format
 msgid "You cannot refund an order from the current month."
 msgstr "No puedes hacer un reembolso de una orden del mes actual."
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.pos_order_tree_inherit_pos_restrict_product_stock
+msgid "Invoiced"
+msgstr "Facturado"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order__has_payment_proof
+msgid "Has Payment Proof"
+msgstr "Tiene Comprobantes de Pago"

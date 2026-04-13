@@ -643,3 +643,25 @@ class PosSession(models.Model):
 
     def _get_pos_ui_loyalty_card(self, params):
         return self.env['loyalty.card'].search_read(**params['search_params'])
+
+    def _get_split_statement_line_vals(self, journal_id, amount, payment):
+        accounting_partner = self.env["res.partner"]._find_accounting_partner(payment.partner_id)
+        return {
+            'date': fields.Date.context_today(self, timestamp=payment.payment_date),
+            'amount': amount,
+            'payment_ref': self.name,
+            'pos_session_id': self.id,
+            'journal_id': journal_id,
+            'counterpart_account_id': accounting_partner.property_account_receivable_id.id,
+            'partner_id': accounting_partner.id,
+        }
+
+    def _get_combine_statement_line_vals(self, journal_id, amount, payment_method):
+        return {
+            'date': fields.Date.context_today(self),
+            'amount': amount,
+            'payment_ref': self.name,
+            'pos_session_id': self.id,
+            'journal_id': journal_id,
+            'counterpart_account_id': self._get_receivable_account(payment_method).id,
+        }
