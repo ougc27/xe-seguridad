@@ -4,9 +4,9 @@ from collections import defaultdict
 from odoo import fields, models, api, _
 from odoo.tools import frozendict
 from odoo.tools.float_utils import float_round
+from .l10n_mx_edi_document import USAGE_SELECTION
 from odoo.addons.l10n_mx_edi.models.l10n_mx_edi_document import (
-    CFDI_DATE_FORMAT,
-    USAGE_SELECTION,
+    CFDI_DATE_FORMAT
 )
 
 class AccountMove(models.Model):
