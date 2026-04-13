@@ -1870,3 +1870,9 @@ msgstr "con una calificación de"
 #, python-format
 msgid "You cannot modify quantities in moves of a completed picking."
 msgstr "No puedes modificar cantidades en movimientos de un picking finalizado."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_res_partner__date
+#: model:ir.model.fields,field_description:xe_pacific.field_res_users__date
+msgid "Date"
+msgstr "Fecha"
