@@ -64,4 +64,8 @@
         <field name="name">Can Split Specific Lines</field>
         <field name="category_id" ref="base.module_category_inventory_inventory"/>
     </record>
+    <record id="group_can_see_contacts_tag_menu" model="res.groups">
+            <field name="name">Can see contacts tag menu</field>
+        <field name="category_id" ref="base.module_category_usability"/>
+    </record>
 </odoo>

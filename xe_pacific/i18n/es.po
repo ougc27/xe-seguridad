@@ -1876,3 +1876,13 @@ msgstr "No puedes modificar cantidades en movimientos de un picking finalizado."
 #: model:ir.model.fields,field_description:xe_pacific.field_res_users__date
 msgid "Date"
 msgstr "Fecha"
+
+#. module: xe_pacific
+#: model:res.groups,name:xe_pacific.group_can_see_contacts_tag_menu
+msgid "Can see contacts tag menu"
+msgstr "Puede ver el menú de etiquetas de contactos"
+
+#. module: xe_pacific
+#: model:ir.ui.menu,name:xe_pacific.res_partner_menu_tags
+msgid "Contact Tags"
+msgstr "Etiquetas de contactos"
