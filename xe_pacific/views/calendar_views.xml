@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!--<record id="view_calendar_event_calendar_inherit_opportunity" model="ir.ui.view">
+    <record id="view_calendar_event_calendar_inherit_opportunity" model="ir.ui.view">
         <field name="name">calendar.event.calendar.inherit.opportunity</field>
         <field name="model">calendar.event</field>
         <field name="inherit_id" ref="calendar.view_calendar_event_calendar"/>
@@ -11,7 +11,7 @@
                     invisible="not opportunity_id"/>
             </xpath>
         </field>
-    </record>-->
+    </record>
     <record id="calendar_event_type_view_form" model="ir.ui.view">
         <field name="name">calendar.event.type.view.form</field>
         <field name="model">calendar.event.type</field>
