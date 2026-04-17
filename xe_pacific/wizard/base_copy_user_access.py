@@ -9,7 +9,7 @@ class WizardBaseCopyUserAccess(models.TransientModel):
 
     user_id = fields.Many2one(string="User", comodel_name="res.users", required=True)
 
-    @api.model
+    """@api.model
     def fields_view_get(
         self, view_id=None, view_type="form", toolbar=False, submenu=False
     ):
@@ -22,7 +22,7 @@ class WizardBaseCopyUserAccess(models.TransientModel):
             domain = "[('id', 'not in', " + str(active_ids) + ")]"
             node.set("domain", domain)
         res["arch"] = etree.tostring(doc)
-        return res
+        return res"""
 
     def copy_access_right(self):
         res = []
