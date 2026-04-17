@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.46",
+    "version": "17.0.0.0.47",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
@@ -75,6 +75,7 @@
             "xe_pacific/static/src/web/kanban_header.xml",
             "xe_pacific/static/src/web/templates.xml",
             "xe_pacific/static/src/xml/forecasted_buttons.xml",
+            "xe_pacific/static/src/calendar/xml/attendee_calendar_common_renderer.xml",
         ],
     },
     "demo": [],

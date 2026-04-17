@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="xe_pacific.AttendeeCalendarCommonRenderer.event" t-inherit="calendar.AttendeeCalendarCommonRenderer.event" t-inherit-mode="extension">
+        <xpath expr="//span[@t-esc='title']" position="after">
+            <t t-if="rawRecord.opportunity_id">
+                <br/>
+                <span class="text-muted">
+                    <t t-esc="rawRecord.opportunity_id[1]"/>
+                </span>
+            </t>
+        </xpath>
+    </t>
+</templates>
