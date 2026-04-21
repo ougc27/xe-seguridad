@@ -1886,3 +1886,13 @@ msgstr "Puede ver el menú de etiquetas de contactos"
 #: model:ir.ui.menu,name:xe_pacific.res_partner_menu_tags
 msgid "Contact Tags"
 msgstr "Etiquetas de contactos"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__helpdesk_ticket__remission_incident__yes
+msgid "Yes"
+msgstr "Sí"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__helpdesk_ticket__remission_incident__no
+msgid "No"
+msgstr "No"

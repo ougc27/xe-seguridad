@@ -48,7 +48,15 @@ class HelpdeskTicket(models.Model):
         ('post_sale', 'Post Sale')
     ], copy=False)
 
-    remission_incident = fields.Boolean(string='Incident in remission', copy=False)
+    remission_incident = fields.Selection(
+        [
+            ('yes', 'Yes'),
+            ('no', 'No'),
+        ],
+        string='Incident in Remission',
+        required=True,
+        copy=False,
+    )
 
     customer_locked = fields.Boolean(string='Locked customer', copy=False)
 

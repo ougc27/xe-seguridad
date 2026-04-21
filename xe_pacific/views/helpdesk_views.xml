@@ -28,6 +28,12 @@
                 </button>
             </xpath>
             <xpath expr="//field[@name='team_id']" position="after">
+                <field name="picking_id"
+                    readonly="is_locked"
+                    options="{'no_create':True, 'no_create_edit': True}"
+                    context="{'from_helpdesk_ticket': True}"
+                    domain="['|', (not commercial_partner_id, '=', 1), ('partner_id', 'child_of', commercial_partner_id or []), ('company_id', '=', company_id)]"/>
+                <field name="remission_incident" invisible="not picking_id" required="picking_id"/>
                 <field name="source_id" options="{'no_create':True, 'no_create_edit': True}" required="1"/>
                 <field name="attribution_ids" 
                     widget="many2many_tags"
@@ -45,25 +51,19 @@
                     context="{'from_helpdesk_ticket': True}"
                     options="{'no_create':True, 'no_create_edit': True}" 
                     readonly="is_locked"/>
-                <field name="picking_id"
-                    readonly="is_locked"
-                    options="{'no_create':True, 'no_create_edit': True}"
-                    context="{'from_helpdesk_ticket': True}"
-                    domain="['|', (not commercial_partner_id, '=', 1), ('partner_id', 'child_of', commercial_partner_id or []), ('company_id', '=', company_id)]"/>
                 <field name="scheduled_date" invisible="not scheduled_date"/>
                 <field name="remission_date" invisible="not remission_date"/>
-                <field name="remission_incident" invisible="not picking_id"/>
                 <field name="complete_address" readonly="is_locked"/>
                 <field name="phone_number" widget="phone" readonly="is_locked"/>
-                <field name="product_id" domain="[('detailed_type', '=', 'product'), ('sale_ok', '=', True)]" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked"/>
                 <field name="supervisor_id" invisible="not supervisor_id"/>
                 <field name="installer_id" invisible="not installer_id" />
-            </xpath>
-            <xpath expr="//field[@name='tag_ids']" position="after">
-                <field name="ticket_type_id_domain" invisible="1"/>
                 <field name="crm_team_id" invisible="not crm_team_id"/>
                 <field name="warehouse_id" invisible="not warehouse_id"/>
                 <field name="service_warehouse_id" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked"/>
+            </xpath>
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="product_id" domain="[('detailed_type', '=', 'product'), ('sale_ok', '=', True)]" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked"/>
+                <field name="ticket_type_id_domain" invisible="1"/>
             </xpath>
 
             <xpath expr="//field[@name='tag_ids']" position="attributes">
