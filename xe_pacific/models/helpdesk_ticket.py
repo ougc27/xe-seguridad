@@ -54,7 +54,6 @@ class HelpdeskTicket(models.Model):
             ('no', 'No'),
         ],
         string='Incident in Remission',
-        required=True,
         copy=False,
     )
 
