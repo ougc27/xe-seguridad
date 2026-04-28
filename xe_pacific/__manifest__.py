@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.50",
+    "version": "17.0.0.0.51",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
@@ -39,7 +39,6 @@
         'wizard/generate_ticket_wizard.xml',
         'wizard/split_picking.xml',
         'wizard/generate_purchase_request.xml',
-        'wizard/create_ticket.xml',
         #'views/fsm_project_menus.xml',
         'views/sale_views.xml',
         'views/helpdesk_attribution.xml',
@@ -77,13 +76,7 @@
             "xe_pacific/static/src/web/kanban_header.xml",
             "xe_pacific/static/src/web/templates.xml",
             "xe_pacific/static/src/xml/forecasted_buttons.xml",
-            "xe_pacific/static/src/js/create_ticket.js",
-            "xe_pacific/static/src/xml/systray_create_ticket.xml",
-            "xe_pacific/static/src/css/survey_reports.css"
-        ],
-        'web.report_assets_common': [
-            'xe_pacific/static/src/scss/survey_reports.scss',
-            "xe_pacific/static/src/css/survey_reports.css"
+            "xe_pacific/static/src/calendar/xml/attendee_calendar_common_renderer.xml",
         ],
     },
     "demo": [],
