@@ -21,7 +21,20 @@ patch(Product.prototype, {
         const taxes = this.pos.get_taxes_after_fp(taxId, order && order.fiscal_position);
         const currentTaxes = this.pos.getTaxesByIds(taxId);
         if (this.pos.promotions && this.id) {
-            const promo = this.pos.promotions.find(p => p.product_id === this.id);
+            const promos = this.pos.promotions.filter(p =>
+                p.product_id === this.id &&
+                (
+                    !p.pricelist_ids ||
+                    p.pricelist_ids.includes(pricelist.id)
+                )
+            );
+            let promo = null;
+            if (promos.length) {
+                promo = promos.reduce((min, p) =>
+                    p.price < min.price ? p : min
+                );
+            }
+
             if (
                 promo &&
                 (
@@ -29,7 +42,7 @@ patch(Product.prototype, {
                     promo.pricelist_ids.includes(pricelist.id)
                 )
             ) {
-                const original_price = price;  
+                const original_price = price;
                 price = promo.price;
                 const priceAfterFpOriginal = this.pos.computePriceAfterFp(original_price, currentTaxes);
                 const allPricesOriginal = this.pos.compute_all(taxes, priceAfterFpOriginal, quantity, this.pos.currency.rounding);
