@@ -1896,3 +1896,13 @@ msgstr "Sí"
 #: model:ir.model.fields.selection,name:xe_pacific.selection__helpdesk_ticket__remission_incident__no
 msgid "No"
 msgstr "No"
+
+#. module: xe_pacific
+#: model:ir.ui.menu,name:xe_pacific.crm_menu_tags
+msgid "CRM Tags"
+msgstr "Etiquetas"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__survey_survey__questions_selection__random_all
+msgid "Randomized (All questions)"
+msgstr "Aleatorio (Todas las preguntas)"

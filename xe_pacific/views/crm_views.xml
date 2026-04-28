@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>    
+    <menuitem id="crm_menu_tags"
+        name="CRM Tags"
+        parent="crm.crm_menu_root"
+        groups="xe_pacific.group_can_see_contacts_tag_menu"
+        action="sales_team.sales_team_crm_tag_action"
+        sequence="1"/>
+</odoo>

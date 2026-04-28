@@ -32,3 +32,4 @@ from . import stock_forecasted
 from . import module
 from . import ir_attachment
 from . import crm_lead
+from . import survey_survey

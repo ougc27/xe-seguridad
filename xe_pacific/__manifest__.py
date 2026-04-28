@@ -39,6 +39,7 @@
         'wizard/generate_ticket_wizard.xml',
         'wizard/split_picking.xml',
         'wizard/generate_purchase_request.xml',
+        'wizard/create_ticket.xml',
         #'views/fsm_project_menus.xml',
         'views/sale_views.xml',
         'views/helpdesk_attribution.xml',
@@ -62,6 +63,7 @@
         'views/helpdesk_ticket_type_views.xml',
         'views/crm_team_views.xml',
         'views/calendar_views.xml',
+        'views/crm_views.xml',
         'views/base_partner_merge_views.xml',
     ],
     "assets": {
@@ -75,7 +77,13 @@
             "xe_pacific/static/src/web/kanban_header.xml",
             "xe_pacific/static/src/web/templates.xml",
             "xe_pacific/static/src/xml/forecasted_buttons.xml",
-            "xe_pacific/static/src/calendar/xml/attendee_calendar_common_renderer.xml",
+            "xe_pacific/static/src/js/create_ticket.js",
+            "xe_pacific/static/src/xml/systray_create_ticket.xml",
+            "xe_pacific/static/src/css/survey_reports.css"
+        ],
+        'web.report_assets_common': [
+            'xe_pacific/static/src/scss/survey_reports.scss',
+            "xe_pacific/static/src/css/survey_reports.css"
         ],
     },
     "demo": [],
