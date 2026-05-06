@@ -257,7 +257,19 @@ patch(Order.prototype, {
         );
 
         if (product.promotion_price) {
-            const promo = this.pos.promotions.find(p => p.product_id === product.id);
+            const promos = this.pos.promotions.filter(p =>
+                p.product_id === this.id &&
+                (
+                    !p.pricelist_ids ||
+                    p.pricelist_ids.includes(this.pricelist.id)
+                )
+            );
+            let promo = null;
+            if (promos.length) {
+                promo = promos.reduce((min, p) =>
+                    p.price < min.price ? p : min
+                );
+            }
             if (promo) {
                 const promotion = {
                     promotion_id: promo.promotion_id,
