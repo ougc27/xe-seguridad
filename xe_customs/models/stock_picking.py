@@ -9,8 +9,8 @@ from odoo.exceptions import UserError, ValidationError
 class StockPicking(models.Model):
     _inherit = "stock.picking"
 
-    supervisor_id = fields.Many2one('supervisor.installer', 'Supervisor', help="Define the supervisor of the picking.")
-    installer_id = fields.Many2one('supervisor.installer', 'Installer', help="Define the installer of the picking.")
+    supervisor_id = fields.Many2one('supervisor.installer', 'Supervisor', help="Define the supervisor of the picking.", tracking=True)
+    installer_id = fields.Many2one('supervisor.installer', 'Installer', help="Define the installer of the picking.", tracking=True)
     state = fields.Selection(selection_add=[('transit', 'Transit'), ('done',)])
     remission_date = fields.Datetime(
         'Remission Date', copy=False, readonly=True)
