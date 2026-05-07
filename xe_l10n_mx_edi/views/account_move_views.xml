@@ -9,6 +9,7 @@
             </xpath>
             <xpath expr="//button[@name='l10n_mx_edi_cfdi_try_sat']" position="attributes">
                 <attribute name="groups">account.group_account_manager</attribute>
+                <attribute name="confirm">Esta acción consultará el estado en el SAT. ¿Desea continuar?</attribute>
             </xpath>
         </field>
     </record>
