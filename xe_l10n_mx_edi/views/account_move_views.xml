@@ -7,6 +7,9 @@
             <xpath expr="//field[@name='l10n_mx_edi_usage']" position="after">
                 <field name="skip_sat_update" groups="xe_l10n_mx_edi.group_skip_sat_update"/>
             </xpath>
+            <xpath expr="//button[@name='l10n_mx_edi_cfdi_try_sat']" position="attributes">
+                <attribute name="groups">account.group_account_manager</attribute>
+            </xpath>
         </field>
     </record>
 </odoo>
