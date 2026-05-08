@@ -539,6 +539,8 @@ msgstr "Las remisiones en estado de tránsito o completado no pueden ser separad
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__active
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__active
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__active
 msgid "Active"
 msgstr "Activo"
 
@@ -1568,6 +1570,8 @@ msgstr "Cantidad inválida"
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -1586,6 +1590,8 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -1601,6 +1607,8 @@ msgstr "Creado el"
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -1616,6 +1624,8 @@ msgstr "Nombre para mostrar"
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__id
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__id
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__id
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__id
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__id
 msgid "ID"
 msgstr "ID"
 
@@ -1631,6 +1641,10 @@ msgstr "ID"
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__write_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__write_date
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -1906,3 +1920,60 @@ msgstr "Etiquetas"
 #: model:ir.model.fields.selection,name:xe_pacific.selection__survey_survey__questions_selection__random_all
 msgid "Randomized (All questions)"
 msgstr "Aleatorio (Todas las preguntas)"
+
+#. module: xe_pacific
+#: model:ir.ui.menu,name:xe_pacific.menu_helpdesk_ticket_category
+msgid "Categories"
+msgstr "Categorías"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__category_id
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_ticket_option_view_search
+msgid "Category"
+msgstr "Categoría"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__name
+msgid "Category Name"
+msgstr "Nombre de la Categoría"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__category_ids
+msgid "Issue Categories"
+msgstr "Categorías de Problema"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__option_ids
+msgid "Issue Details"
+msgstr "Detalle de Problemas"
+
+#. module: xe_pacific
+#: model:ir.actions.act_window,name:xe_pacific.helpdesk_ticket_option_action
+msgid "Issue Options"
+msgstr ""
+
+#. module: xe_pacific
+#: model:ir.actions.act_window,name:xe_pacific.helpdesk_ticket_category_action
+msgid "Issue Categories"
+msgstr ""
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__sequence
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_helpdesk_ticket_category
+msgid "Ticket Issue Category"
+msgstr ""
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_helpdesk_ticket_option
+msgid "Ticket Issue Option"
+msgstr ""
+
+#. module: xe_pacific
+#: model:ir.ui.menu,name:xe_pacific.menu_helpdesk_ticket_issues_root
+msgid "Ticket Issues"
+msgstr ""

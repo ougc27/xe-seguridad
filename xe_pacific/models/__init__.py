@@ -33,3 +33,5 @@ from . import module
 from . import ir_attachment
 from . import crm_lead
 from . import survey_survey
+from . import helpdesk_ticket_category
+from . import helpdesk_ticket_option
