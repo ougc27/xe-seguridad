@@ -377,12 +377,6 @@ class HelpdeskTicket(models.Model):
             ticket.display_name = ticket.name
         return super(HelpdeskTicket, self - ticket_with_name)._compute_display_name()
 
-    def write(self, vals):
-        protected_fields = [
-            'team_id', 'user_id', 'priority', 
-            'ticket_type_id', 'tag_ids', 'partner_id', 'description'
-        ]
-
     def migrate_booleans_to_tags(self):
         mapping = {
             'mechanism_review': 'A12 - Revisión de mecanismo',
