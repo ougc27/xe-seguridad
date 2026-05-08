@@ -383,18 +383,6 @@ class HelpdeskTicket(models.Model):
             'ticket_type_id', 'tag_ids', 'partner_id', 'description'
         ]
 
-        is_it_team = self.user_has_groups('xe_pacific.group_helpdesk_it_team')
-
-        for ticket in self:
-            if ticket.team_id.is_it_team and not is_it_team:
-                if any(field in vals for field in protected_fields):
-                    raise UserError(_(
-                            "Access Denied. You do not have permission to edit this ticket's master data. "
-                            "Only the IT team can modify these fields."
-                        ))
-
-        return super(HelpdeskTicket, self).write(vals)
-
     def migrate_booleans_to_tags(self):
         mapping = {
             'mechanism_review': 'A12 - Revisión de mecanismo',
