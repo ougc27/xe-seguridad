@@ -8,8 +8,7 @@
                 <field name="skip_sat_update" groups="xe_l10n_mx_edi.group_skip_sat_update"/>
             </xpath>
             <xpath expr="//button[@name='l10n_mx_edi_cfdi_try_sat']" position="attributes">
-                <attribute name="groups">account.group_account_manager</attribute>
-                <attribute name="confirm">Esta acción consultará el estado en el SAT. ¿Desea continuar?</attribute>
+                <attribute name="confirm">This action will query the status in the SAT. Do you want to continue?</attribute>
             </xpath>
         </field>
     </record>

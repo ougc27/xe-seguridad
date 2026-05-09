@@ -8,6 +8,8 @@ from .l10n_mx_edi_document import USAGE_SELECTION
 from odoo.addons.l10n_mx_edi.models.l10n_mx_edi_document import (
     CFDI_DATE_FORMAT
 )
+from odoo.exceptions import UserError
+
 
 class AccountMove(models.Model):
     
@@ -368,3 +370,25 @@ class AccountMove(models.Model):
             for tax_values in cfdi_values['traslados_list']:
                 if tax_values['tipo_factor'] == 'Exento':
                     tax_values['importe'] = None
+
+    def l10n_mx_edi_cfdi_try_sat(self):
+        self.ensure_one()
+
+        date_from, date_to = self.env['l10n_mx_edi.document'].sudo()._get_current_month_range()
+        if not self.env.user.has_group('account.group_account_manager'):
+            invoice_date = self.invoice_date
+            if not invoice_date or not (date_from <= invoice_date < date_to):
+                raise UserError(_(
+                    "You can only query SAT status for invoices within the current allowed period."
+                ))
+        if self.is_invoice():
+            documents = self.l10n_mx_edi_invoice_document_ids
+        elif self._l10n_mx_edi_is_cfdi_payment():
+            documents = self.l10n_mx_edi_payment_document_ids
+        else:
+            return
+
+        for document in documents.filtered_domain(
+            documents._get_update_sat_status_domain(from_cron=False)
+        ):
+            document._update_sat_state()
