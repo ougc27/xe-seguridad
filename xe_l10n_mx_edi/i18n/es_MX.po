@@ -294,3 +294,19 @@ msgstr "Evita que este documento se sincronice con el estado del SAT."
 #: model:res.groups,name:xe_l10n_mx_edi.group_skip_sat_update
 msgid "Can Edit SAT Status Lock"
 msgstr "Puede editar el bloqueo de estado SAT"
+
+#. module: xe_l10n_mx_edi
+#: model_terms:ir.ui.view,arch_db:xe_l10n_mx_edi.account_move_form_inherit_l10n_mx_edi_skip_sat_update
+msgid "This action will query the status in the SAT. Do you want to continue?"
+msgstr "Esta acción consultará el estado en el SAT. ¿Desea continuar?"
+
+#. module: xe_l10n_mx_edi
+#. odoo-python
+#: code:addons/xe_l10n_mx_edi/models/account_move.py:0
+#, python-format
+msgid ""
+"You can only query SAT status for invoices within the current allowed "
+"period."
+msgstr ""
+"Solo puede consultar el estado ante el SAT para facturas dentro del período "
+"permitido actual."
