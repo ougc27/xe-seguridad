@@ -279,7 +279,6 @@ msgid "Companies"
 msgstr "Empresas"
 
 #. module: commissions
-#: model:ir.model.fields,field_description:commissions.field_xe_agent__company_id
 #: model:ir.model.fields,field_description:commissions.field_xe_commissions__company_id
 #: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__company_id
 #: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__company_id
@@ -574,20 +573,6 @@ msgstr "Fecha inicial"
 #: model:ir.model.fields,field_description:commissions.field_xe_payment_commissions__state
 msgid "State"
 msgstr "Estado"
-
-#. module: commissions
-#. odoo-python
-#: code:addons/commissions/models/xe_agent.py:0
-#, python-format
-msgid "The agent number must be greater than 0."
-msgstr "El número de agente debe ser mayor a 0."
-
-#. module: commissions
-#. odoo-python
-#: code:addons/commissions/models/xe_agent.py:0
-#, python-format
-msgid "The agent's commission must be greater than 0."
-msgstr "La comisión del agente debe ser mayor a 0."
 
 #. module: commissions
 #: model:ir.model.fields,field_description:commissions.field_xe_mass_payment_commissions__total
