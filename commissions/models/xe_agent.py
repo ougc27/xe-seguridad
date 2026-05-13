@@ -25,10 +25,10 @@ class XeAgent(models.Model):
     )
 
     def validate_data(self):
-        if self.number <= 0:
-            raise UserError(_('The agent number must be greater than 0.'))
-        if self.commission <= 0:
-            raise UserError(_("The agent's commission must be greater than 0."))
+        # if self.number <= 0:
+        #     raise UserError(_('The agent number must be greater than 0.'))
+        # if self.commission <= 0:
+        #     raise UserError(_("The agent's commission must be greater than 0."))
         duplicate_agent_ids = self.search([
             ('name', '=', self.name.id),
             ('id', '!=', self.id),
