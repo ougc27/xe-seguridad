@@ -24,3 +24,15 @@ class AccountMove(models.Model):
         string="Order Folio",
         help="Customer or supplier order folio."
     )
+
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
+
+    soriana_purchase_unit_qty = fields.Float(
+        string="Purchase Unit Quantity",
+        digits=(16, 2),
+    )
+    soriana_net_cost_purchase_unit = fields.Float(
+        string="Net Cost Purchase Unit",
+        digits=(16, 2),
+    )

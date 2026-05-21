@@ -50,8 +50,8 @@
                         <FolioPedido><t t-esc="record.soriana_order_folio"/></FolioPedido>
                         <Tienda><t t-esc="record.soriana_store_number"/></Tienda>
                         <Codigo><t t-esc="line.product_id.client_ids.filtered(lambda c: c.name == record.partner_id and c.company_id == record.company_id).product_barcode"/></Codigo>
-                        <CantidadUnidadCompra><t t-esc="'%.2f' % line.quantity"/></CantidadUnidadCompra>
-                        <CostoNetoUnidadCompra><t t-esc="'%.2f' % line.price_unit"/></CostoNetoUnidadCompra>
+                        <CantidadUnidadCompra><t t-esc="'%.2f' % line.soriana_purchase_unit_qty"/></CantidadUnidadCompra>
+                        <CostoNetoUnidadCompra><t t-esc="'%.2f' % line.soriana_net_cost_purchase_unit"/></CostoNetoUnidadCompra>
                         <PorcentajeIEPS>0</PorcentajeIEPS>
                         <PorcentajeIVA><t t-esc="'%.2f' % (line.tax_ids[0].amount if line.tax_ids else 0)"/></PorcentajeIVA>
                     </Articulos>

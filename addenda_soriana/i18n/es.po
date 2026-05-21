@@ -115,3 +115,13 @@ msgstr "Número único que identifica la cita de entrega."
 #: model_terms:ir.ui.view,arch_db:addenda_soriana.l10n_mx_edi_addenda_soriana
 msgid "true"
 msgstr "true"
+
+#. module: addenda_soriana
+#: model:ir.model.fields,field_description:addenda_soriana.field_account_move_line__soriana_net_cost_purchase_unit
+msgid "Net Cost Purchase Unit"
+msgstr "Costo Neto Unidad Compra"
+
+#. module: addenda_soriana
+#: model:ir.model.fields,field_description:addenda_soriana.field_account_move_line__soriana_purchase_unit_qty
+msgid "Purchase Unit Quantity"
+msgstr "Cantidad Unidad Compra"

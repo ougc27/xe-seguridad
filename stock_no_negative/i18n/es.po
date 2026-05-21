@@ -95,6 +95,10 @@ msgid ""
 "location '{complete_name}' and negative stock is not allowed for this "
 "product and/or location."
 msgstr ""
+"No puede validar esta operación de inventario porque el nivel de existencias "
+"del producto '{name}'{name_lot} quedaría negativo ({q_quantity}) en la "
+"ubicación de inventario '{complete_name}', y no se permite inventario "
+"negativo para este producto y/o ubicación."
 
 #, python-format
 #~ msgid " lot '%s'"
@@ -102,16 +106,6 @@ msgstr ""
 
 #~ msgid "Product Template"
 #~ msgstr "Plantilla de producto"
-
-#, python-format
-#~ msgid ""
-#~ "You cannot validate this stock operation because the stock level of the "
-#~ "product '%s'%s would become negative (%s) on the stock location '%s' and "
-#~ "negative stock is not allowed for this product and/or location."
-#~ msgstr ""
-#~ "No se puede validar esta operación de stock porque el nivel de stock del "
-#~ "producto '%s'%s se volvería negativo (%s) en la ubicación de stock '%s' y "
-#~ "no se permite stock negativo para este producto y/o ubicación."
 
 #. module: stock_no_negative
 #. odoo-python

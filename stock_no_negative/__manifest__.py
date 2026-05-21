@@ -5,7 +5,7 @@
 
 {
     "name": "Stock Disallow Negative",
-    "version": "1.1",
+    "version": "1.2",
     "category": "Inventory, Logistic, Storage",
     "license": "AGPL-3",
     "summary": "Disallow negative stock levels by default",
