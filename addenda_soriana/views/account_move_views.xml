@@ -16,6 +16,17 @@
                         <field name="soriana_appointment_number"/>
                         <field name="soriana_order_folio"/>
                     </group>
+                    <field name="invoice_line_ids"
+                           string="Soriana Line Details"
+                           colspan="2"
+                           widget="one2many"
+                           nolabel="1">
+                        <tree editable="bottom">
+                            <field name="product_id" readonly="1"/>
+                            <field name="soriana_purchase_unit_qty"/>
+                            <field name="soriana_net_cost_purchase_unit"/>
+                        </tree>
+                    </field>
                 </group>
             </xpath>
         </field>
