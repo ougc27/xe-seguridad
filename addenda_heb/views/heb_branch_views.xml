@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree / List View -->
+    <record id="view_heb_branch_tree" model="ir.ui.view">
+        <field name="name">heb.branch.tree</field>
+        <field name="model">heb.branch</field>
+        <field name="arch" type="xml">
+            <tree string="HEB Branches">
+                <field name="name"/>
+                <field name="gln"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_heb_branch_form" model="ir.ui.view">
+        <field name="name">heb.branch.form</field>
+        <field name="model">heb.branch</field>
+        <field name="arch" type="xml">
+            <form string="HEB Branch">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="gln"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_heb_branch_search" model="ir.ui.view">
+        <field name="name">heb.branch.search</field>
+        <field name="model">heb.branch</field>
+        <field name="arch" type="xml">
+            <search string="Search HEB Branches">
+                <field name="name" string="Branch Name"/>
+                <field name="gln" string="GLN"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_heb_branch" model="ir.actions.act_window">
+        <field name="name">HEB Branches</field>
+        <field name="res_model">heb.branch</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_heb_branch_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add your first HEB branch!
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_heb_addenda_configuration"
+        name="Addenda Heb"
+        parent="base.menu_custom"
+        sequence="40"
+        groups="base.group_no_one"/>
+
+    <menuitem id="menu_heb_store" 
+        name="HEB Branches" 
+        parent="menu_heb_addenda_configuration" 
+        action="action_heb_branch" 
+        sequence="1"
+        groups="base.group_no_one"/>
+</odoo>
