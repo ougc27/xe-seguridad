@@ -457,3 +457,17 @@ class L10nMxEdiDocument(models.Model):
             cfdi_values['total_impuestos_trasladados'] = None
         if not withholding_tax_amounts:
             cfdi_values['total_impuestos_retenidos'] = None
+
+    def _get_substitution_document(self):
+        """ Get the document substituting the current signed document.
+        This happens when using the cancellation reason 01 in which you need to replace first the CFDI document by another one
+        before cancelling it. In that case, the substitution document is linked to the current one through the origin field.
+
+        :return: Another document if any.
+        """
+        self.ensure_one()
+        uuid = self.attachment_uuid
+        if not uuid:
+            return self.env['l10n_mx_edi.document']
+
+        return self.env['l10n_mx_edi.document']
