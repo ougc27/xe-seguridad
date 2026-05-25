@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <template id="l10n_mx_edi_addenda_heb" name="Addenda HEB">
+            <requestForPayment xmlns="http://www.sat.gob.mx/cfd/4" t-att-DeliveryDate="record.invoice_date" contentVersion="1.3.1" documentStatus="ORIGINAL" documentStructureVersion="AMC7.1" type="SimpleInvoiceType">
+                <requestForPaymentIdentification>
+                    <entityType>INVOICE</entityType>
+                    <uniqueCreatorIdentification t-raw="record.name"></uniqueCreatorIdentification>
+                </requestForPaymentIdentification>
+                <specialInstruction code="ZZZ">
+                    <text t-raw="record.amount_total_words"></text>
+                </specialInstruction>
+                <orderIdentification>
+                    <referenceIdentification type="ON" t-raw="record.payment_reference"></referenceIdentification>
+                    <ReferenceDate t-raw="record.invoice_date"></ReferenceDate>
+                </orderIdentification>
+                <AdditionalInformation>
+                    <referenceIdentification type="ATZ">10</referenceIdentification>
+                </AdditionalInformation>
+                <DeliveryNote>
+                    <referenceIdentification>0</referenceIdentification>
+                    <!--  Campo asignado para el # de Folio de Recibo este campo va si tu facturacion es por Folio de Recibo si no es asi no lo pongas o tambien pudes ponerle un cero (0)  -->
+                    <ReferenceDate t-raw="record.invoice_date"></ReferenceDate>
+                </DeliveryNote>
+                <buyer>
+                    <gln t-raw="record.partner_id.addenda_heb_buyer_gln"></gln>
+                </buyer>
+                <seller>
+                    <gln t-raw="record.partner_id.addenda_heb_seller_gln"></gln>
+                    <alternatePartyIdentification type="SELLER_ASSIGNED_IDENTIFIER_FOR_A_PARTY" t-raw="record.partner_id.addenda_heb_alternate_party_identification"/>
+                </seller>
+                <shipTo>
+                    <gln t-raw="record.heb_branch_id.gln"></gln>
+                    <!--<nameAndAddress>
+                        <name>CENTRO DE ATENCION TIENDAS HEB 2160</name>
+                        <streetAddressOne>ANILLO PERIFCTRO</streetAddressOne>
+                        <city>GENERAL ESCOBEDO</city>
+                        <postalCode>66050</postalCode>
+                    </nameAndAddress>-->
+                </shipTo>
+                <currency currencyISOCode="MXN">
+                    <currencyFunction>BILLING_CURRENCY</currencyFunction>
+                    <rateOfChange t-raw="list(record.currency_id._get_rates(record.company_id, record.invoice_date).values())[0]"></rateOfChange>
+                </currency>
+                <t t-set="discount" t-value="0"/>
+                <t t-set="count" t-value="0"/>
+                <t t-foreach="record.invoice_line_ids" t-as="line">
+                    <t t-set="discount" t-value="discount + line.discount_amount_addenda"/>
+                    <t t-set="count" t-value="count + 1"/>
+                    <lineItem type="SimpleInvoiceLineItemType" t-att-number="count">
+                        <tradeItemIdentification>
+                            <gtin t-raw="line.product_id.client_ids.filtered(lambda c: c.name == record.partner_id and c.company_id == record.company_id).product_code"></gtin>
+                        </tradeItemIdentification>
+                        <alternateTradeItemIdentification type="BUYER_ASSIGNED" t-raw="line.product_id.client_ids.filtered(lambda c: c.name == record.partner_id and c.company_id == record.company_id).product_code"></alternateTradeItemIdentification>
+                        <tradeItemDescriptionInformation language="ES">
+                            <longText t-raw="line.product_id.name"/>
+                        </tradeItemDescriptionInformation>
+                        <invoicedQuantity unitOfMeasure="NMTOKEN" t-raw="line.quantity"></invoicedQuantity>
+                        <grossPrice>
+                            <Amount t-raw="line.price_unit"></Amount>
+                        </grossPrice>
+                        <netPrice>
+                            <Amount t-raw="line.price_unit"/>
+                        </netPrice>
+                        <tradeItemTaxInformation>
+                            <taxTypeDescription>VAT</taxTypeDescription>
+                            <tradeItemTaxAmount>
+                                <taxPercentage t-raw="line.tax_ids[0].amount if line.tax_ids else ''"></taxPercentage>
+                                <taxAmount t-raw="round(line.price_total - line.price_subtotal, 2)"></taxAmount>
+                            </tradeItemTaxAmount>
+                        </tradeItemTaxInformation>
+                        <totalLineAmount>
+                            <grossAmount>
+                                <Amount t-raw="line.price_subtotal"/>
+                            </grossAmount>
+                            <netAmount>
+                                <Amount t-raw="line.price_total"/>
+                            </netAmount>
+                        </totalLineAmount>
+                    </lineItem>
+                </t>
+                <totalAmount>
+                    <Amount t-raw="record.amount_untaxed"/>
+                </totalAmount>
+                <TotalAllowanceCharge allowanceOrChargeType="ALLOWANCE">
+                    <specialServicesType>TD</specialServicesType>
+                    <Amount t-raw="discount"/>
+                </TotalAllowanceCharge>
+                <baseAmount>
+                    <Amount t-raw="record.amount_untaxed"></Amount>
+                </baseAmount>
+                <tax type="VAT">
+                    <taxPercentage t-raw="line.tax_ids[0].amount if line.tax_ids else ''"></taxPercentage>
+                    <taxAmount t-raw="record.amount_tax"></taxAmount>
+                </tax>
+                <payableAmount>
+                    <Amount t-raw="record.amount_total"></Amount>
+                </payableAmount>
+            </requestForPayment>
+        </template>
+        <record id="l10n_mx_edi_addenda_heb" model="ir.ui.view">
+            <field name="l10n_mx_edi_addenda_flag">True</field>
+        </record>
+    </data>
+</odoo>
