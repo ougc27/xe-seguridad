@@ -1,0 +1,117 @@
+<odoo>
+    <record id="view_create_ticket_form" model="ir.ui.view">
+        <field name="name">create.ticket.anywhere.form</field>
+        <field name="model">create.ticket.anywhere</field>
+        <field name="arch" type="xml">
+            <form string="Create Support Ticket">
+                <sheet>
+                    <div class="oe_title mb-2">
+                        <h3>Use this assistant to create a support ticket.</h3>
+                        <p class="text-muted">
+                            Please provide as much detail as possible so we can help you faster.
+                        </p>
+                    </div>
+                    <div class="d-flex flex-column gap-4">
+                        <div invisible="ticket_id">
+                            <div class="d-flex gap-3">
+                                <div class="w-50">
+                                    <label for="ticket_type_id" class="o_form_label">
+                                        Ticket Type
+                                    </label>
+                                    <field name="ticket_type_id_domain" invisible="1"/>
+                                    <field name="ticket_type_id"
+                                        domain="ticket_type_id_domain"
+                                        options="{'no_create': True, 'no_open': True}"
+                                        class="w-100"/>
+                                </div>
+                                <div class="w-50">
+                                    <label for="impact_level" class="o_form_label">
+                                        Impact Level
+                                    </label>
+                                    <field name="impact_level" class="w-100"/>
+                                </div>
+                            </div>
+                            <field name="show_external_url" invisible="1"/>
+                            <div invisible="not show_external_url">
+                                <label for="external_url" class="o_form_label">
+                                    URL where the issue occurs
+                                </label>
+                                <field name="external_url"
+                                       class="w-100"
+                                       placeholder="https://example.com/page"/>
+                            </div>
+                            <div>
+                                <label for="question_reproduce_issue_steps" class="o_form_label">
+                                    Steps to reproduce the issue
+                                </label>
+                                <field name="question_reproduce_issue_steps"
+                                       widget="text"
+                                       nolabel="1"
+                                       placeholder="Step-by-step to reproduce the problem..."
+                                       class="w-100"/>
+                            </div>
+                            <div>
+                                <label for="question_current_behavior" class="o_form_label">
+                                    Current behavior
+                                </label>
+                                <field name="question_current_behavior"
+                                       widget="text"
+                                       nolabel="1"
+                                       placeholder="Describe what is happening..."
+                                       class="w-100"/>
+                                <label for="attachment_ids" class="o_form_label">
+                                    Attachments
+                                </label>
+                                <field name="attachment_ids"
+                                    widget="many2many_binary"
+                                    class="w-100"/>
+                                <p class="text-muted">
+                                    Upload images, videos, or gifs that help explain the issue.
+                                    Please wait until all files are uploaded before submitting.
+                                </p>
+                            </div>
+                        </div>
+                        <div invisible="1">
+                            <field name="technical_info"/>
+                            <field name="current_model"/>
+                            <field name="current_id"/>
+                        </div>
+                        <div invisible="not ticket_id">
+                            <div class="alert alert-success">
+                                Thank you! Your ticket has been created successfully. We'll get back to you soon.
+                            </div>
+                            <field name="ticket_id" readonly="1"/>
+                        </div>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="done"
+                            string="Create Ticket"
+                            type="object"
+                            class="btn-primary"
+                            invisible="ticket_id"/>
+                    <button string="Discard"
+                            class="btn-secondary"
+                            special="cancel"
+                            invisible="ticket_id"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_create_ticket_wizard" model="ir.actions.act_window">
+        <field name="name">Create Ticket</field>
+        <field name="res_model">create.ticket.anywhere</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="xe_pacific.view_create_ticket_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <template id="ticket_message_origin_link">
+        <p>Ticket related:
+            <t t-foreach="origin" t-as="o">
+                <a href="#" t-att-data-oe-model="o._name" t-att-data-oe-id="o.id"> <t t-esc="o.display_name"/></a><span t-if="origin.ids[-1:] != o.ids">, </span>
+            </t>
+        </p>
+    </template>
+</odoo>
