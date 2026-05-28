@@ -15,10 +15,6 @@ export class CreateTicket extends Component {
     }
 
     async onClick() {
-        console.log("este es el window");
-        console.log(window);
-        console.log("este es el session");
-        console.log(session);
         await this.action.doAction("xe_pacific.action_create_ticket_wizard", {
             additionalContext: {
                 'env_values': {
