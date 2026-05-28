@@ -65,45 +65,7 @@
         <field name="category_id" ref="base.module_category_inventory_inventory"/>
     </record>
     <record id="group_can_see_contacts_tag_menu" model="res.groups">
-        <field name="name">Can see contacts tag menu</field>
+            <field name="name">Can see contacts tag menu</field>
         <field name="category_id" ref="base.module_category_usability"/>
-    </record>
-
-    <record id="group_helpdesk_it_team" model="res.groups">
-        <field name="name">Access All Technical Support Tickets</field>
-        <field name="category_id" ref="base.module_category_services_helpdesk"/>
-        <field name="implied_ids" eval="[(4, ref('helpdesk.group_helpdesk_manager'))]"/>
-        <field name="comment">This group can view and edit ALL technical support tickets for systems without restrictions.</field>
-    </record>
-
-    <record id="group_helpdesk_only_own_tickets" model="res.groups">
-        <field name="name">Only Own Technical Support Tickets</field>
-        <field name="category_id" ref="base.module_category_services_helpdesk"/>
-        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
-        <field name="users" eval="[(4, ref('base.group_user'))]"/>
-    </record>
-
-    <record id="rule_technical_support_only_own_it_tickets" model="ir.rule">
-        <field name="name">Only Own IT Technical Support Tickets</field>
-        <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
-        <field name="groups" eval="[(4, ref('group_helpdesk_only_own_tickets'))]"/>
-        <field name="domain_force">[
-            ('create_uid', '=', user.id),
-            ('team_id.is_it_team', '=', True)
-        ]</field>
-        <field name="perm_read" eval="True"/>
-        <field name="perm_write" eval="True"/>
-        <field name="perm_create" eval="True"/>
-        <field name="perm_unlink" eval="False"/>
-    </record>
-    <record id="rule_technical_support_all_it_tickets" model="ir.rule">
-        <field name="name">All IT Technical Support Tickets</field>
-        <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
-        <field name="groups" eval="[(4, ref('group_helpdesk_it_team'))]"/>
-        <field name="domain_force">[(1,'=',1)]</field>
-        <field name="perm_read" eval="True"/>
-        <field name="perm_write" eval="True"/>
-        <field name="perm_create" eval="True"/>
-        <field name="perm_unlink" eval="True"/>
     </record>
 </odoo>

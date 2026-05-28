@@ -9,7 +9,3 @@ class HelpdeskTicketType(models.Model):
         ('paintwork ', 'Paintwork'),
         ('functionality', 'Functionality'),
     ], copy=False)
-
-    is_url_needed = fields.Boolean(string='Is URL needed?', copy=False)
-
-    user_id = fields.Many2one('res.users', string='Responsible', copy=False)
