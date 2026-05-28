@@ -196,6 +196,13 @@ class HelpdeskTicket(models.Model):
         domain="[('category_id', 'in', category_ids)]"
     )
 
+    external_url = fields.Char(
+        help="URL where the issue is occurring.")
+
+    reference = fields.Char(
+        help='Field to save the model and res_id from the record wich belong the ticket',
+        readonly=True, index=True)
+
     @api.onchange('category_ids')
     def _onchange_category_ids(self):
         """Si quitan una categoría, limpiamos las opciones que ya no pertenecen"""
@@ -366,6 +373,10 @@ class HelpdeskTicket(models.Model):
         if vals.get('name', 'New') == 'New':
             company = self.env.company
             vals['name'] = self.env['ir.sequence'].with_company(company).next_by_code('helpdesk.ticket.name')
+        team_id = vals.get('team_id')
+        team = self.env['helpdesk.team'].sudo().browse(team_id)
+        if vals.get('name') == 'TI' or team.is_it_team:
+            vals['name'] = self.env['ir.sequence'].next_by_code('helpdesk.ticket.it.seq')
         return super().create(vals)
 
     @api.depends('ticket_ref', 'partner_name')
@@ -376,6 +387,24 @@ class HelpdeskTicket(models.Model):
         for ticket in ticket_with_name:
             ticket.display_name = ticket.name
         return super(HelpdeskTicket, self - ticket_with_name)._compute_display_name()
+
+    def write(self, vals):
+        protected_fields = [
+            'team_id', 'user_id', 'priority', 
+            'ticket_type_id', 'tag_ids', 'partner_id', 'description'
+        ]
+
+        is_it_team = self.user_has_groups('xe_pacific.group_helpdesk_it_team')
+
+        for ticket in self:
+            if ticket.team_id.is_it_team and not is_it_team:
+                if any(field in vals for field in protected_fields):
+                    raise UserError(_(
+                            "Access Denied. You do not have permission to edit this ticket's master data. "
+                            "Only the IT team can modify these fields."
+                        ))
+
+        return super(HelpdeskTicket, self).write(vals)
 
     def migrate_booleans_to_tags(self):
         mapping = {

@@ -14,3 +14,7 @@ access_purchase_request_wizard,access.purchase.request.wizard,model_purchase_req
 access_purchase_request_wizard_line,access.purchase.request.wizard.line,model_purchase_request_wizard_line,base.group_user,1,1,1,1
 access_helpdesk_ticket_category,helpdesk.ticket.category,model_helpdesk_ticket_category,helpdesk.group_helpdesk_manager,1,1,1,0
 access_helpdesk_ticket_option,helpdesk.ticket.option,model_helpdesk_ticket_option,helpdesk.group_helpdesk_manager,1,1,1,0
+access_create_ticket_anywhere,access.create.ticket.anywhere,model_create_ticket_anywhere,base.group_user,1,1,1,1
+access_helpdesk_ticket_only_own,helpdesk.ticket.only.own,helpdesk.model_helpdesk_ticket,group_helpdesk_only_own_tickets,1,1,1,0
+access_helpdesk_tag_only_own,helpdesk.tag.only.own,helpdesk.model_helpdesk_tag,group_helpdesk_only_own_tickets,1,0,0,0
+access_helpdesk_type_only_own,helpdesk.type.only.own,helpdesk.model_helpdesk_ticket_type,group_helpdesk_only_own_tickets,1,0,0,0
