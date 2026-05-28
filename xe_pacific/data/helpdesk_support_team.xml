@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<odoo noupdate="1">
+    <record id="helpdesk_team_xe_brands_support_it" model="helpdesk.team">
+        <field name="name">Support TI (XE Brands)</field>
+        <field name="alias_name">xe_brands_support_ti</field>
+        <field name="stage_ids" eval="[
+            (4, ref('helpdesk.stage_new')),
+            (4, ref('helpdesk.stage_in_progress')),
+            (4, ref('helpdesk.stage_solved')),
+        ]"/>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+    <record id="helpdesk_team_protecto_home_support_it" model="helpdesk.team">
+        <field name="name">Support TI (Protecto Home)</field>
+        <field name="alias_name">protecto_home_support_ti</field>
+        <field name="stage_ids" eval="[
+            (4, ref('helpdesk.stage_new')),
+            (4, ref('helpdesk.stage_in_progress')),
+            (4, ref('helpdesk.stage_solved')),
+        ]"/>
+        <field name="company_id" ref="__export__.res_company_3_39436e1e"/>
+    </record>
+    <record id="helpdesk_team_pacific_rim_support_it" model="helpdesk.team">
+        <field name="name">Support TI (Pacific Rim)</field>
+        <field name="alias_name">pacific_rim_support_ti</field>
+        <field name="stage_ids" eval="[
+            (4, ref('helpdesk.stage_new')),
+            (4, ref('helpdesk.stage_in_progress')),
+            (4, ref('helpdesk.stage_solved')),
+        ]"/>
+        <field name="company_id" ref="__export__.res_company_4_bf56bc44"/>
+    </record>
+    <record id="helpdesk_team_demo_support_it" model="helpdesk.team">
+        <field name="name">Support TI (Demo)</field>
+        <field name="alias_name">demo_support_ti</field>
+        <field name="stage_ids" eval="[
+            (4, ref('helpdesk.stage_new')),
+            (4, ref('helpdesk.stage_in_progress')),
+            (4, ref('helpdesk.stage_solved')),
+        ]"/>
+        <field name="company_id" ref="__custom__.demo_company"/>
+    </record>
+    <record id="helpdesk_team_xe_brands_llc_support_it" model="helpdesk.team">
+        <field name="name">Support TI (XE Brands LLC)</field>
+        <field name="alias_name">xe_brands_llc_support_ti</field>
+        <field name="stage_ids" eval="[
+            (4, ref('helpdesk.stage_new')),
+            (4, ref('helpdesk.stage_in_progress')),
+            (4, ref('helpdesk.stage_solved')),
+        ]"/>
+        <field name="company_id" ref="__custom__.xe_brands_llc"/>
+    </record>
+    <record id="helpdesk_team_xe_brands_hk_support_it" model="helpdesk.team">
+        <field name="name">Support TI (XE Brands HK)</field>
+        <field name="alias_name">xe_brands_hk_support_ti</field>
+        <field name="stage_ids" eval="[
+            (4, ref('helpdesk.stage_new')),
+            (4, ref('helpdesk.stage_in_progress')),
+            (4, ref('helpdesk.stage_solved')),
+        ]"/>
+        <field name="company_id" ref="__custom__.xe_brands_hk_company"/>
+    </record>
+</odoo>
