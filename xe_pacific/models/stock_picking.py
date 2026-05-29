@@ -110,6 +110,8 @@ class StockPicking(models.Model):
     service_ticket_id = fields.Many2one('helpdesk.ticket', copy=False, tracking=True)
 
     is_full_returned = fields.Boolean(compute='_compute_is_full_returned', copy=False, store=True)
+    
+    exclude_from_uninvoiced_filter = fields.Boolean()
 
     @api.depends('return_ids.state')
     def _compute_is_full_returned(self):
