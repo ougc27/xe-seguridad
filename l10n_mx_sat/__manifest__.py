@@ -3,14 +3,14 @@
 
 {
     "name": "Mexico - SAT Connection",
-    "version": "18.0.1.0.0",
+    "version": "17.0.0.0.1",
     "category": "Accounting/Localizations",
     "summary": "Connect to the SAT portal using FIEL credentials & manage downloads",
     "author": "Open Source Integrators, Odoo Community Association (OCA), Cloud Lotus",
     "website": "https://github.com/OCA/l10n-mexico",
     "license": "AGPL-3",
     "depends": ["base"],
-    "external_dependencies": {"python": ["cfdiclient"]},
+    "external_dependencies": {"python3": ["cfdiclient"]},
     "data": [
         "views/res_config_settings_views.xml",
     ],
