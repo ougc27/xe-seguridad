@@ -904,6 +904,7 @@ msgstr "Canal"
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_call__ticket_id
 #: model:ir.model.fields,field_description:xe_pacific.field_ticket_transfer_wizard__ticket_id
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__ticket_id
 msgid "Ticket"
 msgstr "Ticket"
 
@@ -1312,7 +1313,10 @@ msgid "Ticket Name"
 msgstr "Nombre del ticket"
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__ticket_type_id
 #: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__ticket_type
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
 msgid "Ticket Type"
 msgstr "Tipo de ticket"
 
@@ -1572,6 +1576,7 @@ msgstr "Cantidad inválida"
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__create_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__create_uid
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -1592,6 +1597,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__create_date
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__create_date
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -1609,6 +1615,7 @@ msgstr "Creado el"
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__display_name
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__display_name
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -1626,6 +1633,7 @@ msgstr "Nombre para mostrar"
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__id
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__id
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__id
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__id
 msgid "ID"
 msgstr "ID"
 
@@ -1645,6 +1653,7 @@ msgstr "ID"
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__write_uid
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -1660,6 +1669,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:xe_pacific.field_split_picking_wizard_line__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard__write_date
 #: model:ir.model.fields,field_description:xe_pacific.field_purchase_request_wizard_line__write_date
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__write_date
 msgid "Last Updated on"
 msgstr "Última actualización el"
 
@@ -1977,3 +1987,314 @@ msgstr ""
 #: model:ir.ui.menu,name:xe_pacific.menu_helpdesk_ticket_issues_root
 msgid "Ticket Issues"
 msgstr ""
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "Use this assistant to create a support ticket."
+msgstr "Use este asistente para crear un ticket de soporte."
+
+#. module: xe_pacific
+#: model:ir.actions.act_window,name:xe_pacific.action_create_ticket_wizard
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "Create Ticket"
+msgstr "Crear Ticket"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_type__is_url_needed
+msgid "Is URL needed?"
+msgstr "¿Se requiere URL?"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_type__user_id
+msgid "Responsible"
+msgstr "Responsable"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__impact_level
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "Impact Level"
+msgstr "Nivel de Impacto"
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__create_ticket_anywhere__impact_level__0
+msgid "Low – Only affects me."
+msgstr "Bajo – Solo me afecta a mí."
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__create_ticket_anywhere__impact_level__1
+msgid "Medium – Affects my entire team."
+msgstr "Medio – Afecta a todo mi equipo."
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__create_ticket_anywhere__impact_level__2
+msgid "High – Stops my team and other departments from working."
+msgstr "Alto – Detiene el trabajo de mi equipo y otros departamentos."
+
+#. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__create_ticket_anywhere__impact_level__3
+msgid "Critical – Affects the entire company’s operations."
+msgstr "Crítico – Afecta las operaciones de toda la empresa."
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_create_ticket_anywhere__impact_level
+msgid ""
+"Select the urgency and scope of the issue based on its operational impact."
+msgstr ""
+"Seleccione la urgencia y el alcance del problema según su impacto operativo."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Low Priority"
+msgstr "Prioridad Baja"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Medium Priority"
+msgstr "Prioridad Media"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "High Priority"
+msgstr "Prioridad Alta"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/create_ticket.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__question_reproduce_issue_steps
+#, python-format
+msgid "What are the steps to reproduce your issue?"
+msgstr "¿Cuáles son los pasos para reproducir su problema?"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/create_ticket.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__question_current_behavior
+#, python-format
+msgid "What is the current behavior that you observe?"
+msgstr "¿Cuál es el comportamiento actual que observa?"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "Step-by-step to reproduce the problem..."
+msgstr "Paso a paso para reproducir el problema..."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "Steps to reproduce the issue"
+msgstr "Pasos para reproducir el problema"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__attachment_ids
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "Attachments"
+msgstr "Archivos Adjuntos"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid ""
+"Upload images, videos, or gifs that help explain the issue.\n"
+"                                    Please wait until all files are uploaded before submitting."
+msgstr ""
+"Suba imágenes, videos o gifs que ayuden a explicar el problema.\n"
+"                                    Espere hasta que todos los archivos se hayan cargado antes de enviar."
+
+#. module: xe_pacific
+#: model:res.groups,name:xe_pacific.group_helpdesk_it_team
+msgid "Access All Technical Support Tickets"
+msgstr "Acceder a Todos los Tickets de Soporte Técnico"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/helpdesk_ticket.py:0
+#, python-format
+msgid ""
+"Access Denied. You do not have permission to edit this ticket's master data."
+" Only the IT team can modify these fields."
+msgstr ""
+"Acceso Denegado. No tiene permiso para editar los datos maestros de este "
+"ticket. Solo el equipo de TI puede modificar estos campos."
+
+#. module: xe_pacific
+#: model:res.groups,name:xe_pacific.group_helpdesk_only_own_tickets
+msgid "Only Own Technical Support Tickets"
+msgstr "Solo Propios Tickets de Soporte Técnico"
+
+#. module: xe_pacific
+#: model_terms:ir.actions.act_window,help:xe_pacific.action_helpdesk_it_specialized
+msgid "Only tickets marked as Technical Support will appear here."
+msgstr "Solo aparecerán aquí los tickets marcados como Soporte Técnico."
+
+#. module: xe_pacific
+#: model:ir.actions.act_window,name:xe_pacific.action_helpdesk_it_specialized
+#: model:ir.ui.menu,name:xe_pacific.menu_helpdesk_it_specialized_tickets
+msgid "Technical Support"
+msgstr "Soporte Técnico"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_tree
+msgid "Technical Support Tickets"
+msgstr "Tickets de Soporte Técnico"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/create_ticket.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__technical_info
+#, python-format
+msgid "Technical Info"
+msgstr "Información Técnica"
+
+#. module: xe_pacific
+#: model:res.groups,comment:xe_pacific.group_helpdesk_it_team
+msgid ""
+"This group can view and edit ALL technical support tickets for systems "
+"without restrictions."
+msgstr ""
+"Este grupo puede ver y editar TODOS los tickets de soporte técnico de "
+"sistemas sin restricciones."
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_create_ticket_anywhere__attachment_ids
+msgid ""
+"Add files you consider will help us understanding and fixing your problem "
+"faster. Anything can be helpful, image, video, gif, etc."
+msgstr ""
+"Agregue archivos que considere ayudarán a comprender y solucionar su "
+"problema más rápido. Cualquier cosa puede ser útil, imagen, video, gif, etc."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__current_id
+msgid "Current"
+msgstr "Actual"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__current_model
+msgid "Current Model"
+msgstr "Modelo Actual"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "Current behavior"
+msgstr "Comportamiento Actual"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Customer"
+msgstr "Cliente"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_create_ticket_anywhere__external_url
+msgid "Enter the URL where the issue is occurring."
+msgstr "Ingrese la URL donde ocurre el problema."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__external_url
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__external_url
+msgid "External Url"
+msgstr "URL Externa"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_create_ticket_anywhere__question_reproduce_issue_steps
+msgid ""
+"Field to save answer to question: What are the steps to reproduce your "
+"issue?"
+msgstr ""
+"Campo para guardar la respuesta a la pregunta: ¿Cuáles son los pasos para "
+"reproducir su problema?"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_create_ticket_anywhere__question_current_behavior
+msgid ""
+"Field to save answer to question: What is the current behavior that you "
+"observe?"
+msgstr ""
+"Campo para guardar la respuesta a la pregunta: ¿Cuál es el comportamiento "
+"actual que observa?"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_create_ticket_anywhere__current_id
+#: model:ir.model.fields,help:xe_pacific.field_create_ticket_anywhere__ticket_priority
+msgid "Field to save the current id if there is one"
+msgstr "Campo para guardar el id actual si existe uno"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_create_ticket_anywhere__current_model
+msgid "Field to save the current model if there is one"
+msgstr "Campo para guardar el modelo actual si existe uno"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_create_ticket_anywhere__technical_info
+msgid ""
+"Info added automatically using environment info(Session, Model, Views, Action).\n"
+" This info will be useful to IT team at the momento to solve this ticket."
+msgstr ""
+"Información agregada automáticamente usando información del entorno (Sesión, Modelo, Vistas, Acción).\n"
+" Esta información será útil para el equipo de TI al momento de resolver este ticket."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__show_external_url
+msgid "Show External Url"
+msgstr "Mostrar URL Externa"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_create_ticket_anywhere__ticket_id
+msgid "The new ticket created from this wizard"
+msgstr "El nuevo ticket creado desde este asistente"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__ticket_priority
+msgid "Ticket Priority"
+msgstr "Prioridad del Ticket"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_create_ticket_anywhere
+msgid "Wizard used to allow creting ticket anywhere in the backend"
+msgstr "Asistente utilizado para permitir crear tickets en cualquier parte del backend"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Unassigned"
+msgstr "Sin Asignar"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_helpdesk_ticket__external_url
+msgid "URL where the issue is occurring."
+msgstr "URL donde ocurre el problema."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "URL where the issue occurs"
+msgstr "URL donde ocurre el problema"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "Create Support Ticket"
+msgstr "Crear Ticket de Soporte"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "Describe what is happening..."
+msgstr "Describa lo que está sucediendo..."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "Discard"
+msgstr "Descartar"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "Please provide as much detail as possible so we can help you faster."
+msgstr "Proporcione la mayor cantidad de detalles posible para poder ayudarle más rápido."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid ""
+"Thank you! Your ticket has been created successfully. We'll get back to you "
+"soon."
+msgstr ""
+"¡Gracias! Su ticket ha sido creado correctamente. Nos pondremos en contacto "
+"con usted pronto."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "https://example.com/page"
+msgstr "https://example.com/page"
