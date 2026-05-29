@@ -59,7 +59,7 @@
                 <field name="remission_date" invisible="not remission_date or team_id.is_it_team"/>
                 <field name="complete_address" readonly="is_locked" invisible="team_id.is_it_team"/>
                 <field name="phone_number" widget="phone" readonly="is_locked" invisible="team_id.is_it_team"/>
-                <field name="supervisor_id" invisible="not supervisor_id" invisible="team_id.is_it_team"/>
+                <field name="supervisor_id" invisible="not supervisor_id or team_id.is_it_team"/>
                 <field name="installer_id" invisible="not installer_id or team_id.is_it_team"/>
                 <field name="crm_team_id" invisible="not crm_team_id or team_id.is_it_team"/>
                 <field name="warehouse_id" invisible="not warehouse_id or team_id.is_it_team"/>
