@@ -5,41 +5,43 @@
         <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
+                <field name="is_it_team" invisible="1"/>
                 <field name="service_picking_ids" invisible="1"/>
                 <field name="show_transfer_button" invisible="1"/>
                 <button name="action_open_transfer_wizard"
                         type="object"
                         string="Generate Transfer"
                         class="oe_highlight"
-                        invisible="not show_transfer_button or not is_type_paint_or_function or team_id.is_it_team"
+                        invisible="not show_transfer_button or not is_type_paint_or_function or is_it_team"
                         icon="fa-truck"/>
                 <button name="autofill_from_picking_or_sale"
                     type="object"
                     string="Autofill Information"
-                    invisible="is_locked or team_id.is_it_team"
+                    invisible="is_locked or is_it_team"
                     class="btn-secondary"
                     icon="fa-magic"/>
                 <button type="object"
                     name="action_open_service_picking_ids"
                     class="oe_stat_button"
                     icon="fa-truck"
-                    invisible="not service_picking_ids or team_id.is_it_team">
+                    invisible="not service_picking_ids or is_it_team">
                     Service Delivery
                 </button>
             </xpath>
-            <xpath expr="//field[@name='team_id']" position="after">
+            <xpath expr="//field[@name='team_id']" position="replace">
+                <field name="team_id" context="{'kanban_view_ref': 'helpdesk.helpdesk_team_view_kanban_mobile', 'default_use_sla': True}" options="{'no_create':True, 'no_create_edit': True}" invisible="is_it_team"/>
                 <field name="picking_id"
-                    invisible="team_id.is_it_team"
+                    invisible="is_it_team"
                     readonly="is_locked"
                     options="{'no_create':True, 'no_create_edit': True}"
                     context="{'from_helpdesk_ticket': True}"
                     domain="['|', (not commercial_partner_id, '=', 1), ('partner_id', 'child_of', commercial_partner_id or []), ('company_id', '=', company_id)]"/>
-                <field name="remission_incident" invisible="not picking_id or team_id.is_it_team" required="picking_id or not team_id.is_it_team"/>
-                <field name="source_id" options="{'no_create':True, 'no_create_edit': True}" required="not team_id.is_it_team"/>
+                <field name="remission_incident" invisible="not picking_id or is_it_team" required="picking_id or not is_it_team"/>
+                <field name="source_id" options="{'no_create':True, 'no_create_edit': True}" required="not is_it_team"/>
                 <field name="attribution_ids" 
                     widget="many2many_tags"
                     placeholder="Select attributions..."
-                    invisible="team_id.is_it_team"
+                    invisible="is_it_team"
                     options="{'no_create':True, 'no_create_edit': True}"/>
             </xpath>
             <xpath expr="//field[@name='email_cc']" position="replace">
@@ -49,44 +51,44 @@
                     context="{'from_helpdesk_ticket': True}"
                     options="{'no_create':True, 'no_create_edit': True}" 
                     readonly="is_locked"
-                    invisible="team_id.is_it_team"/>
+                    invisible="is_it_team"/>
                 <field name="pos_order_id"
                     context="{'from_helpdesk_ticket': True}"
                     options="{'no_create':True, 'no_create_edit': True}" 
                     readonly="is_locked"
-                    invisible="team_id.is_it_team"/>
-                <field name="scheduled_date" invisible="not scheduled_date or team_id.is_it_team"/>
-                <field name="remission_date" invisible="not remission_date or team_id.is_it_team"/>
-                <field name="complete_address" readonly="is_locked" invisible="team_id.is_it_team"/>
-                <field name="phone_number" widget="phone" readonly="is_locked" invisible="team_id.is_it_team"/>
-                <field name="supervisor_id" invisible="not supervisor_id or team_id.is_it_team"/>
-                <field name="installer_id" invisible="not installer_id or team_id.is_it_team"/>
-                <field name="crm_team_id" invisible="not crm_team_id or team_id.is_it_team"/>
-                <field name="warehouse_id" invisible="not warehouse_id or team_id.is_it_team"/>
-                <field name="service_warehouse_id" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked" invisible="team_id.is_it_team"/>
+                    invisible="is_it_team"/>
+                <field name="scheduled_date" invisible="not scheduled_date or is_it_team"/>
+                <field name="remission_date" invisible="not remission_date or is_it_team"/>
+                <field name="complete_address" readonly="is_locked" invisible="is_it_team"/>
+                <field name="phone_number" widget="phone" readonly="is_locked" invisible="is_it_team"/>
+                <field name="supervisor_id" invisible="not supervisor_id or is_it_team"/>
+                <field name="installer_id" invisible="not installer_id or is_it_team"/>
+                <field name="crm_team_id" invisible="not crm_team_id or is_it_team"/>
+                <field name="warehouse_id" invisible="not warehouse_id or is_it_team"/>
+                <field name="service_warehouse_id" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked" invisible="is_it_team"/>
             </xpath>
             <xpath expr="//field[@name='tag_ids']" position="after">
-                <field name="product_id" domain="[('detailed_type', '=', 'product'), ('sale_ok', '=', True)]" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked" invisible="team_id.is_it_team"/>
+                <field name="product_id" domain="[('detailed_type', '=', 'product'), ('sale_ok', '=', True)]" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked" invisible="is_it_team"/>
                 <field name="ticket_type_id_domain" invisible="1"/>
             </xpath>
 
             <xpath expr="//field[@name='priority']" position="attributes">
-                <attribute name="readonly">not team_id.is_it_team</attribute>
+                <attribute name="readonly">not is_it_team</attribute>
             </xpath>
 
             <xpath expr="//field[@name='tag_ids']" position="attributes">
-                <attribute name="readonly">is_locked and not team_id.is_it_team</attribute>
+                <attribute name="readonly">is_locked and not is_it_team</attribute>
                 <attribute name="options">{'no_create': True, 'no_create_edit': True}</attribute>
             </xpath>
 
             <xpath expr="//field[@name='partner_id']" position="attributes">
-                <attribute name="readonly">is_locked and not team_id.is_it_team</attribute>
+                <attribute name="readonly">is_locked and not is_it_team</attribute>
                 <attribute name="widget">many2one</attribute>
                 <attribute name="options">{'no_create': True, 'no_create_edit': True}</attribute>
             </xpath>
 
             <xpath expr="//field[@name='user_id']" position="attributes">
-                <attribute name="readonly">is_locked and not team_id.is_it_team</attribute>
+                <attribute name="readonly">is_locked and not is_it_team</attribute>
                 <attribute name="options">{'no_create': True, 'no_create_edit': True}</attribute>
             </xpath>
             
@@ -111,8 +113,8 @@
                 <attribute name="invisible">0</attribute>
             </xpath>
             <xpath expr="//page[@name='extra_info']/group[1]" position="after">
-                <group invisible="team_id.is_it_team">
-                    <field name="category_ids" widget="many2many_tags" options="{'no_create': True}" required="not team_id.is_it_team"/>
+                <group invisible="is_it_team">
+                    <field name="category_ids" widget="many2many_tags" options="{'no_create': True}" required="not is_it_team"/>
                     <field name="option_ids" 
                         widget="many2many_tags" 
                         options="{'no_create': True}"
@@ -122,7 +124,7 @@
                 </group>
             </xpath>
             <xpath expr="//page[@name='extra_info']" position="after">
-                <page string="Construction" name="builder_filling_page" invisible="team_id.is_it_team">
+                <page string="Construction" name="builder_filling_page" invisible="is_it_team">
                     <group name="builder_details_group" col="2">
                         <field name="housing_type" required="crm_team_id == 6" readonly="is_locked"/>
                         <field name="lot" required="crm_team_id == 6" readonly="is_locked"/>
@@ -131,7 +133,7 @@
                         <field name="architect" readonly="is_locked"/>
                     </group>
                 </page>
-                <page string="Follow-up" name="followup" invisible="team_id.is_it_team">
+                <page string="Follow-up" name="followup" invisible="is_it_team">
                     <field name="call_ids" widget="one2many">
                         <tree editable="bottom">
                             <field name="interaction_date"/>
@@ -316,7 +318,7 @@
         <field name="name">Technical Support</field>
         <field name="res_model">helpdesk.ticket</field>
         <field name="view_mode">tree,kanban,form</field>
-        <field name="domain">[('team_id.is_it_team', '=', True)]</field>
+        <field name="domain">[('is_it_team', '=', True)]</field>
         <field name="view_id" ref="view_helpdesk_ticket_it_custom_tree"/>
         <field name="search_view_id" ref="view_helpdesk_ticket_it_custom_search"/>
         <field name="context">{
