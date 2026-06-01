@@ -1960,33 +1960,33 @@ msgstr "Detalle de Problemas"
 #. module: xe_pacific
 #: model:ir.actions.act_window,name:xe_pacific.helpdesk_ticket_option_action
 msgid "Issue Options"
-msgstr ""
+msgstr "Opciones de Problema"
 
 #. module: xe_pacific
 #: model:ir.actions.act_window,name:xe_pacific.helpdesk_ticket_category_action
 msgid "Issue Categories"
-msgstr ""
+msgstr "Categorías de Problema"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__sequence
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__sequence
 msgid "Sequence"
-msgstr ""
+msgstr "Secuencia"
 
 #. module: xe_pacific
 #: model:ir.model,name:xe_pacific.model_helpdesk_ticket_category
 msgid "Ticket Issue Category"
-msgstr ""
+msgstr "Categoría de Problema del Ticket"
 
 #. module: xe_pacific
 #: model:ir.model,name:xe_pacific.model_helpdesk_ticket_option
 msgid "Ticket Issue Option"
-msgstr ""
+msgstr "Opción de Problema del Ticket"
 
 #. module: xe_pacific
 #: model:ir.ui.menu,name:xe_pacific.menu_helpdesk_ticket_issues_root
 msgid "Ticket Issues"
-msgstr ""
+msgstr "Problemas de Tickets"
 
 #. module: xe_pacific
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
@@ -2298,3 +2298,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
 msgid "https://example.com/page"
 msgstr "https://example.com/page"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__exclude_from_uninvoiced_filter
+msgid "Exclude From Uninvoiced Filter"
+msgstr "Excluir del Filtro de No Facturados"
