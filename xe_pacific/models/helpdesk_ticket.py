@@ -203,6 +203,8 @@ class HelpdeskTicket(models.Model):
         help='Field to save the model and res_id from the record wich belong the ticket',
         readonly=True, index=True)
 
+    is_it_team = fields.Boolean(related='team_id.is_it_team', store=False)
+
     @api.onchange('category_ids')
     def _onchange_category_ids(self):
         """Si quitan una categoría, limpiamos las opciones que ya no pertenecen"""
