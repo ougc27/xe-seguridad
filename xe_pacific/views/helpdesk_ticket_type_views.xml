@@ -9,6 +9,7 @@
                 <field name="issue_category"/>
                 <field name="is_url_needed"/>
                 <field name="user_id" options="{'no_create': true, 'no_create_edit': true}"/>
+                <field name="only_description"/>
             </xpath>
         </field>
     </record>

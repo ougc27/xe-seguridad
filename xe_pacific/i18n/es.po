@@ -2303,3 +2303,32 @@ msgstr "https://example.com/page"
 #: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__exclude_from_uninvoiced_filter
 msgid "Exclude From Uninvoiced Filter"
 msgstr "Excluir del Filtro de No Facturados"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_create_ticket_anywhere__ticket_reason_details
+msgid "Field to save answer to question: Please describe the reason for your ticket"
+msgstr "Campo para guardar la respuesta a la pregunta: Por favor describa el motivo de su ticket"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/wizard/create_ticket.py:0
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__ticket_reason_details
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+#, python-format
+msgid "Please describe the reason for your ticket"
+msgstr "Por favor describa el motivo de su ticket"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_create_ticket_anywhere__show_ticket_reason_details
+msgid "Show Ticket Reason Details"
+msgstr "Mostrar detalles del motivo del ticket"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_create_ticket_form
+msgid "Describe what is the reason..."
+msgstr "Describa cuál es el motivo..."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_type__only_description
+msgid "Only Description"
+msgstr "Solo descripción"
