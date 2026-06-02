@@ -5,6 +5,7 @@ from odoo import api, fields, models, _
 
 QUESTION_REPRODUCE_ISSUE_STEPS_TXT = _("What are the steps to reproduce your issue?")
 QUESTION_CURRENT_BEHAVIOR_TXT = _("What is the current behavior that you observe?")
+QUESTION_DESCRIPTION_TXT = _("Please describe the reason for your ticket")
 
 
 class CreateTicketAnywhere(models.TransientModel):
@@ -56,6 +57,21 @@ class CreateTicketAnywhere(models.TransientModel):
         ('3', 'Critical – Affects the entire company’s operations.'),
     ], help="Select the urgency and scope of the issue based on its operational impact.")
 
+    ticket_reason_details = fields.Text(
+        help="Field to save answer to question: Please describe the reason for your ticket",
+        string="Please describe the reason for your ticket")
+
+    show_ticket_reason_details = fields.Boolean(
+        compute="_compute_show_ticket_reason_details",
+    )
+    
+    @api.depends('ticket_type_id', 'ticket_type_id.only_description')
+    def _compute_show_ticket_reason_details(self):
+        for record in self:
+            record.show_ticket_reason_details = bool(
+                record.ticket_type_id and record.ticket_type_id.only_description
+            )
+
     @api.depends('ticket_type_id')
     def _compute_show_external_url(self):
         for rec in self:
@@ -68,7 +84,7 @@ class CreateTicketAnywhere(models.TransientModel):
     @api.depends('technical_info')
     def _compute_ticket_type_id_domain(self):
         for rec in self:
-            team_id = self.env['ir.model.data'].sudo()._xmlid_to_res_id('xe_pacific.helpdesk_team_support_it')
+            team_id = self.env['ir.model.data'].sudo()._xmlid_to_res_id('xe_pacific.helpdesk_team_xe_brands_support_it')
             team = self.env['helpdesk.team'].sudo().browse(team_id)
             if team and team.ticket_type_ids:
                 rec.ticket_type_id_domain = [('id', 'in', team.ticket_type_ids.ids)]
@@ -105,6 +121,7 @@ class CreateTicketAnywhere(models.TransientModel):
         detail_fields = [
             ('question_reproduce_issue_steps', _(QUESTION_REPRODUCE_ISSUE_STEPS_TXT)),
             ('question_current_behavior', _(QUESTION_CURRENT_BEHAVIOR_TXT)),
+            ('ticket_reason_details', _(QUESTION_DESCRIPTION_TXT)),
             ('technical_info', _('Technical Info')),
         ]
 
@@ -156,17 +173,18 @@ class CreateTicketAnywhere(models.TransientModel):
         return action
 
     def post_message_ticket(self, ticket, record):
-        """ Method to post a message on any record
+        """ 
+        Method to post a message on any record
         """
-
         body = self.env['ir.qweb']._render(
             'xe_pacific.ticket_message_origin_link',
             {
                 'origin': ticket,
             }
         )
-        record.sudo().message_post(
-            body=body,
-            message_type='comment',
-            subtype_xmlid='mail.mt_note',
-        )
+        if hasattr(record, 'message_post'):
+            record.sudo().message_post(
+                body=body,
+                message_type='comment',
+                subtype_xmlid='mail.mt_note',
+            )

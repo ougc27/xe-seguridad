@@ -13,3 +13,5 @@ class HelpdeskTicketType(models.Model):
     is_url_needed = fields.Boolean(string='Is URL needed?', copy=False)
 
     user_id = fields.Many2one('res.users', string='Responsible', copy=False)
+
+    only_description = fields.Boolean(copy=False)

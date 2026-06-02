@@ -31,33 +31,15 @@
                                     <field name="impact_level" class="w-100"/>
                                 </div>
                             </div>
-                            <field name="show_external_url" invisible="1"/>
-                            <div invisible="not show_external_url">
-                                <label for="external_url" class="o_form_label">
-                                    URL where the issue occurs
+                            <field name="show_ticket_reason_details" invisible="1"/>
+                            <div invisible="not show_ticket_reason_details">
+                                <label for="ticket_reason_details" class="o_form_label">
+                                    Please describe the reason for your ticket
                                 </label>
-                                <field name="external_url"
-                                       class="w-100"
-                                       placeholder="https://example.com/page"/>
-                            </div>
-                            <div>
-                                <label for="question_reproduce_issue_steps" class="o_form_label">
-                                    Steps to reproduce the issue
-                                </label>
-                                <field name="question_reproduce_issue_steps"
+                                <field name="ticket_reason_details"
                                        widget="text"
                                        nolabel="1"
-                                       placeholder="Step-by-step to reproduce the problem..."
-                                       class="w-100"/>
-                            </div>
-                            <div>
-                                <label for="question_current_behavior" class="o_form_label">
-                                    Current behavior
-                                </label>
-                                <field name="question_current_behavior"
-                                       widget="text"
-                                       nolabel="1"
-                                       placeholder="Describe what is happening..."
+                                       placeholder="Describe what is the reason..."
                                        class="w-100"/>
                                 <label for="attachment_ids" class="o_form_label">
                                     Attachments
@@ -69,6 +51,47 @@
                                     Upload images, videos, or gifs that help explain the issue.
                                     Please wait until all files are uploaded before submitting.
                                 </p>
+                            </div>
+                            <div invisible="show_ticket_reason_details">
+                                <field name="show_external_url" invisible="1"/>
+                                <div invisible="not show_external_url">
+                                    <label for="external_url" class="o_form_label">
+                                        URL where the issue occurs
+                                    </label>
+                                    <field name="external_url"
+                                           class="w-100"
+                                           placeholder="https://example.com/page"/>
+                                </div>
+                                <div>
+                                    <label for="question_reproduce_issue_steps" class="o_form_label">
+                                        Steps to reproduce the issue
+                                    </label>
+                                    <field name="question_reproduce_issue_steps"
+                                           widget="text"
+                                           nolabel="1"
+                                           placeholder="Step-by-step to reproduce the problem..."
+                                           class="w-100"/>
+                                </div>
+                                <div>
+                                    <label for="question_current_behavior" class="o_form_label">
+                                        Current behavior
+                                    </label>
+                                    <field name="question_current_behavior"
+                                           widget="text"
+                                           nolabel="1"
+                                           placeholder="Describe what is happening..."
+                                           class="w-100"/>
+                                    <label for="attachment_ids" class="o_form_label">
+                                        Attachments
+                                    </label>
+                                    <field name="attachment_ids"
+                                        widget="many2many_binary"
+                                        class="w-100"/>
+                                    <p class="text-muted">
+                                        Upload images, videos, or gifs that help explain the issue.
+                                        Please wait until all files are uploaded before submitting.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                         <div invisible="1">
