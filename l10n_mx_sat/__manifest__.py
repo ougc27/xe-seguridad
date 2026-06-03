@@ -10,7 +10,7 @@
     "website": "https://github.com/OCA/l10n-mexico",
     "license": "AGPL-3",
     "depends": ["base"],
-    "external_dependencies": {"python": ["cfdiclient"]},
+    #"external_dependencies": {"python": ["cfdiclient"]},
     "data": [
         "views/res_config_settings_views.xml",
     ],
