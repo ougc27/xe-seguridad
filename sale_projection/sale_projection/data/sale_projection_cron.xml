@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Nightly cron: refresh scheduled/executed quantities and unit prices -->
+        <record id="ir_cron_refresh_projections" model="ir.cron">
+            <field name="name">Sale Projection: Refresh Quantities Nightly</field>
+            <field name="model_id" ref="sale_projection.model_sale_projection_line"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_refresh_all_projections()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+            <!-- Runs every night at 01:00 AM server time -->
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=1, minute=0, second=0)"/>
+            <field name="user_id" ref="base.user_root"/>
+        </record>
+
+        <!-- Sequence for sale.projection references -->
+        <record id="seq_sale_projection" model="ir.sequence">
+            <field name="name">Sale Projection</field>
+            <field name="code">sale.projection</field>
+            <field name="prefix">PROJ/%(year)s/</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+    </data>
+</odoo>

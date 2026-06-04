@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         res.partner — add Projection tab
+         ============================================================ -->
+    <record id="view_partner_form_projection" model="ir.ui.view">
+        <field name="name">res.partner.form.projection</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Insert "Projection" page after the last page -->
+            <xpath expr="//page[last()]" position="after">
+                <page string="Projection" name="projection_tab">
+
+                    <!-- Construction site flag + warehouse -->
+                    <group string="Construction Site Settings">
+                        <group>
+                            <field name="is_obra" widget="boolean_toggle"/>
+                            <field name="warehouse_id"
+                                   attrs="{'invisible': [('is_obra', '=', False)]}"
+                                   options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="projection_count"
+                                   string="Projection Lines"
+                                   widget="statinfo"/>
+                        </group>
+                    </group>
+
+                    <!-- SKU portfolio many2many -->
+                    <group string="SKU Portfolio (Projected Products)">
+                        <field name="projection_product_ids"
+                               nolabel="1"
+                               widget="many2many_tags"
+                               domain="[('sale_ok', '=', True)]"
+                               options="{'color_field': 'color'}"/>
+                    </group>
+
+                    <!-- Quick access button to projections -->
+                    <group>
+                        <button name="action_view_projections"
+                                type="object"
+                                string="View Projections"
+                                class="btn-primary"
+                                icon="fa-table"
+                                attrs="{'invisible': [('projection_count', '=', 0)]}"/>
+                    </group>
+
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Filter obras in partner search views -->
+    <record id="view_partner_list_projection_filter" model="ir.ui.view">
+        <field name="name">res.partner.search.projection</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <filter name="customer" position="after">
+                <filter string="Construction Sites (Obras)"
+                        name="filter_obras"
+                        domain="[('is_obra', '=', True)]"/>
+            </filter>
+        </field>
+    </record>
+
+</odoo>

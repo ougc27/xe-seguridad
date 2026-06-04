@@ -1,0 +1,337 @@
+/* ================================================================
+   Sale Projection Board — Custom Styles
+   Odoo 17 backend widget
+   ================================================================ */
+
+/* ------------------------------------------------------------------
+   Board container
+   ------------------------------------------------------------------ */
+.o_sale_projection_board {
+    padding: 16px;
+    font-family: var(--font-family-sans-serif, 'Roboto', sans-serif);
+    background: var(--o-view-background-color, #f9f9f9);
+    min-height: 100vh;
+}
+
+/* ------------------------------------------------------------------
+   Header / toolbar
+   ------------------------------------------------------------------ */
+.o_projection_board_header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.o_projection_board_header h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--o-main-text-color, #2c3e50);
+    margin: 0;
+    flex: 1;
+}
+
+.o_projection_board_header .o_partner_selector {
+    min-width: 280px;
+}
+
+.o_projection_board_header .o_refresh_btn {
+    white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------
+   Week navigation
+   ------------------------------------------------------------------ */
+.o_projection_week_nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+/* ------------------------------------------------------------------
+   Board table
+   ------------------------------------------------------------------ */
+.o_projection_matrix_wrapper {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    background: #fff;
+}
+
+.o_projection_matrix {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+    font-size: 0.85rem;
+}
+
+/* ------------------------------------------------------------------
+   Table header
+   ------------------------------------------------------------------ */
+.o_projection_matrix thead th {
+    background: var(--o-action-manager-max-width, #2c3e50);
+    background: #2c3e50;
+    color: #fff;
+    padding: 10px 12px;
+    text-align: center;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid #3d4f5d;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.o_projection_matrix thead th.th_sku {
+    text-align: left;
+    min-width: 200px;
+    position: sticky;
+    left: 0;
+    z-index: 20;
+    background: #1a252f;
+}
+
+.o_projection_matrix thead th.th_week {
+    min-width: 130px;
+}
+
+.o_projection_matrix thead th.th_week.current_week {
+    background: #17a2b8;
+    border-color: #138496;
+}
+
+.o_projection_matrix thead th.th_week.past_week {
+    background: #495057;
+}
+
+/* Sub-header row: Proj / Sched / Exec labels */
+.o_projection_matrix thead tr.sub_header th {
+    background: #3d5166;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 5px 6px;
+    font-weight: 500;
+}
+
+.o_projection_matrix thead tr.sub_header th.th_sku_sub {
+    background: #2a3a4a;
+    position: sticky;
+    left: 0;
+    z-index: 20;
+}
+
+/* ------------------------------------------------------------------
+   SKU column (first column, sticky)
+   ------------------------------------------------------------------ */
+.o_projection_matrix td.td_sku {
+    position: sticky;
+    left: 0;
+    background: #f8f9fa;
+    border-right: 2px solid #dee2e6;
+    z-index: 5;
+    padding: 8px 12px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.o_projection_matrix td.td_sku .sku_ref {
+    font-size: 0.75rem;
+    color: #6c757d;
+    display: block;
+}
+
+/* ------------------------------------------------------------------
+   Data cells
+   ------------------------------------------------------------------ */
+.o_projection_matrix td {
+    border: 1px solid #e9ecef;
+    padding: 4px 6px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Cell group: 3 sub-cells per week (Proj / Sched / Exec) */
+.o_projection_cell_group {
+    display: flex;
+    gap: 2px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Individual quantity cell */
+.o_proj_cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 38px;
+}
+
+.o_proj_cell .cell_label {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    color: #adb5bd;
+    margin-bottom: 1px;
+}
+
+/* Editable input for projected qty */
+.o_proj_qty_input {
+    width: 54px;
+    text-align: center;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 2px 4px;
+    font-size: 0.82rem;
+    background: transparent;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.o_proj_qty_input:focus {
+    outline: none;
+    border-color: #007bff;
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+}
+
+.o_proj_qty_input:hover {
+    border-color: #ced4da;
+    background: #f8f9fa;
+}
+
+/* Read-only qty display (scheduled / executed) */
+.o_qty_display {
+    font-size: 0.82rem;
+    min-width: 38px;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+/* Executed: green when > 0 */
+.o_qty_exec.has_value {
+    color: #28a745;
+    font-weight: 600;
+}
+
+/* Scheduled: blue */
+.o_qty_sched.has_value {
+    color: #007bff;
+}
+
+/* Amount cell */
+.o_proj_amount {
+    font-size: 0.78rem;
+    color: #6c757d;
+    display: block;
+    margin-top: 2px;
+}
+
+/* Past week styling */
+td.past_week_col {
+    background: #fafafa;
+}
+td.past_week_col .o_proj_qty_input {
+    color: #999;
+}
+
+/* Current week highlight */
+td.current_week_col {
+    background: #f0fbff;
+    border-left: 2px solid #17a2b8 !important;
+    border-right: 2px solid #17a2b8 !important;
+}
+
+/* ------------------------------------------------------------------
+   Row hover
+   ------------------------------------------------------------------ */
+.o_projection_matrix tbody tr:hover td {
+    background: #f0f4ff;
+}
+
+.o_projection_matrix tbody tr:hover td.td_sku {
+    background: #e8edff;
+}
+
+/* ------------------------------------------------------------------
+   Footer / totals row
+   ------------------------------------------------------------------ */
+.o_projection_matrix tfoot td {
+    background: #f1f3f5;
+    font-weight: 700;
+    border-top: 2px solid #dee2e6;
+    padding: 8px 6px;
+}
+
+.o_projection_matrix tfoot td.td_sku {
+    text-align: left;
+    color: #495057;
+}
+
+/* ------------------------------------------------------------------
+   Loading / empty states
+   ------------------------------------------------------------------ */
+.o_projection_loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    flex-direction: column;
+    gap: 16px;
+    color: #6c757d;
+}
+
+.o_projection_empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: #adb5bd;
+}
+
+.o_projection_empty .empty_icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+}
+
+/* ------------------------------------------------------------------
+   Legend
+   ------------------------------------------------------------------ */
+.o_projection_legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.o_projection_legend .legend_item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.o_projection_legend .legend_dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------------
+   Responsive
+   ------------------------------------------------------------------ */
+@media (max-width: 768px) {
+    .o_projection_board_header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .o_projection_matrix {
+        font-size: 0.78rem;
+    }
+
+    .o_proj_qty_input {
+        width: 42px;
+        font-size: 0.75rem;
+    }
+}

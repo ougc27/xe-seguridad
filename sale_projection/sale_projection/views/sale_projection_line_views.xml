@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         sale.projection.line — Form View
+         ============================================================ -->
+    <record id="view_sale_projection_line_form" model="ir.ui.view">
+        <field name="name">sale.projection.line.form</field>
+        <field name="model">sale.projection.line</field>
+        <field name="arch" type="xml">
+            <form string="Projection Line">
+                <header>
+                    <button name="action_refresh_quantities"
+                            string="Refresh Quantities"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-refresh"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Identification">
+                            <field name="partner_id"
+                                   domain="[('is_obra', '=', True)]"/>
+                            <field name="constructora_id" readonly="1"/>
+                            <field name="product_id"/>
+                            <field name="product_uom_id" readonly="1"/>
+                        </group>
+                        <group string="Week">
+                            <field name="week_label" readonly="1"/>
+                            <field name="week_start"/>
+                            <field name="week_end" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Quantities">
+                            <field name="qty_projected"/>
+                            <field name="qty_scheduled" readonly="1"/>
+                            <field name="qty_executed" readonly="1"/>
+                        </group>
+                        <group string="Financials">
+                            <field name="unit_price"/>
+                            <field name="amount" readonly="1"/>
+                            <field name="currency_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Variances">
+                        <field name="variance_sched_proj" readonly="1"/>
+                        <field name="variance_exec_proj" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         sale.projection.line — Tree View
+         ============================================================ -->
+    <record id="view_sale_projection_line_tree" model="ir.ui.view">
+        <field name="name">sale.projection.line.tree</field>
+        <field name="model">sale.projection.line</field>
+        <field name="arch" type="xml">
+            <tree string="Projection Lines"
+                  editable="top"
+                  decoration-success="qty_executed >= qty_projected and qty_projected > 0"
+                  decoration-warning="qty_scheduled > 0 and qty_scheduled &lt; qty_projected"
+                  decoration-danger="qty_executed == 0 and qty_projected > 0 and week_end &lt; context_today()">
+
+                <field name="partner_id" optional="show"/>
+                <field name="constructora_id" optional="show"/>
+                <field name="product_id"/>
+                <field name="week_label" string="Week" readonly="1"/>
+                <field name="week_start" optional="hide"/>
+                <field name="qty_projected" string="Projected"/>
+                <field name="qty_scheduled" string="Scheduled" readonly="1"/>
+                <field name="qty_executed" string="Executed" readonly="1"/>
+                <field name="unit_price" optional="show"/>
+                <field name="amount" string="Amount" readonly="1"/>
+                <field name="currency_id" optional="hide"/>
+
+                <button name="action_refresh_quantities"
+                        type="object"
+                        icon="fa-refresh"
+                        title="Refresh from stock"/>
+
+                <!-- Column totals -->
+                <groupby name="partner_id">
+                    <button name="action_view_projections"
+                            string="Open Board"
+                            type="object"
+                            class="btn-sm btn-primary"/>
+                </groupby>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         sale.projection.line — Search View
+         ============================================================ -->
+    <record id="view_sale_projection_line_search" model="ir.ui.view">
+        <field name="name">sale.projection.line.search</field>
+        <field name="model">sale.projection.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Projection Lines">
+                <!-- Search fields -->
+                <field name="partner_id" string="Obra / Partner"
+                       filter_domain="['|', ('partner_id', 'ilike', self), ('constructora_id', 'ilike', self)]"/>
+                <field name="product_id" string="SKU / Product"/>
+                <field name="week_label" string="Week Label"/>
+
+                <!-- Favourite / quick filters -->
+                <filter string="This Week" name="filter_this_week"
+                        domain="[
+                            ('week_start', '&lt;=', context_today().strftime('%Y-%m-%d')),
+                            ('week_end', '&gt;=', context_today().strftime('%Y-%m-%d'))
+                        ]"/>
+                <filter string="Previous Week" name="filter_prev_week"
+                        domain="[
+                            ('week_start', '=', (context_today() - datetime.timedelta(days=context_today().weekday() + 7)).strftime('%Y-%m-%d'))
+                        ]"/>
+                <filter string="Projected Only" name="filter_has_projected"
+                        domain="[('qty_projected', '&gt;', 0)]"/>
+                <filter string="Not Yet Executed" name="filter_not_executed"
+                        domain="[('qty_executed', '=', 0), ('qty_projected', '&gt;', 0)]"/>
+                <separator/>
+
+                <!-- Group by options -->
+                <group expand="0" string="Group By">
+                    <filter string="Partner (Obra)" name="group_partner"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter string="Construction Company" name="group_constructora"
+                            context="{'group_by': 'constructora_id'}"/>
+                    <filter string="SKU" name="group_product"
+                            context="{'group_by': 'product_id'}"/>
+                    <filter string="Week" name="group_week"
+                            context="{'group_by': 'week_label'}"/>
+                </group>
+
+                <!-- Default: group by partner then product -->
+                <searchpanel>
+                    <field name="partner_id" string="Obra" icon="fa-building"
+                           domain="[('is_obra', '=', True)]"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         sale.projection.line — Pivot View
+         ============================================================ -->
+    <record id="view_sale_projection_line_pivot" model="ir.ui.view">
+        <field name="name">sale.projection.line.pivot</field>
+        <field name="model">sale.projection.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Projection Analysis">
+                <field name="partner_id" type="row"/>
+                <field name="product_id" type="row"/>
+                <field name="week_label" type="col"/>
+                <field name="qty_projected" type="measure"/>
+                <field name="qty_scheduled" type="measure"/>
+                <field name="qty_executed" type="measure"/>
+                <field name="amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         Action: Projection Lines (standalone, filterable by partner)
+         ============================================================ -->
+    <record id="action_sale_projection_line" model="ir.actions.act_window">
+        <field name="name">Projection Lines</field>
+        <field name="res_model">sale.projection.line</field>
+        <field name="view_mode">tree,form,pivot</field>
+        <field name="search_view_id" ref="view_sale_projection_line_search"/>
+        <field name="context">{
+            'search_default_filter_this_week': 1,
+            'search_default_group_partner': 1
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No projection lines yet.
+            </p>
+            <p>
+                Use the Projection Board to capture projected quantities per week and SKU,
+                or generate lines from a projection header.
+            </p>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         Action: Open Projection Board (client action)
+         ============================================================ -->
+    <record id="action_sale_projection_board" model="ir.actions.client">
+        <field name="name">Projection Board</field>
+        <field name="tag">sale_projection.board</field>
+        <field name="context">{}</field>
+    </record>
+
+</odoo>

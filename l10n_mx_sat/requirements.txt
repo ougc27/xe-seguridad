@@ -1,1 +1,7 @@
 cfdiclient==1.6.2
+cryptography==42.0.8
+lxml==6.1.1
+lxml_html_clean==0.4.5
+pyOpenSSL==25.1.0
+satcfdi==4.4.16
+urllib3==2.7.0

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         QWeb Template: Projection Board
+         Rendered by the OWL component sale_projection_board.js
+         ============================================================ -->
+    <template id="sale_projection_board_template" name="Sale Projection Board">
+        <!-- This template is a placeholder; the actual DOM is built
+             entirely in JavaScript/OWL for performance and interactivity.
+             The <t-component> tag in the JS file points here. -->
+    </template>
+
+</odoo>

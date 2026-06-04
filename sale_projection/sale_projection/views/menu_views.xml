@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Top-level menu: Sale Projection
+         ============================================================ -->
+    <menuitem id="menu_sale_projection_root"
+              name="Projection"
+              sequence="85"
+              web_icon="sale_projection,static/src/img/icon.png"
+              groups="sale_projection.group_sale_projection_user"/>
+
+    <!-- Sub-menu: Board (main entry point) -->
+    <menuitem id="menu_sale_projection_board"
+              name="Projection Board"
+              parent="menu_sale_projection_root"
+              action="sale_projection.action_sale_projection_board"
+              sequence="10"
+              groups="sale_projection.group_sale_projection_user"/>
+
+    <!-- Sub-menu: Projection headers -->
+    <menuitem id="menu_sale_projection_list"
+              name="Projections"
+              parent="menu_sale_projection_root"
+              action="sale_projection.action_sale_projection"
+              sequence="20"
+              groups="sale_projection.group_sale_projection_user"/>
+
+    <!-- Sub-menu: Lines (analysis) -->
+    <menuitem id="menu_sale_projection_lines"
+              name="Projection Lines"
+              parent="menu_sale_projection_root"
+              action="sale_projection.action_sale_projection_line"
+              sequence="30"
+              groups="sale_projection.group_sale_projection_user"/>
+
+    <!-- Separator: Configuration -->
+    <menuitem id="menu_sale_projection_config"
+              name="Configuration"
+              parent="menu_sale_projection_root"
+              sequence="90"
+              groups="sale_projection.group_sale_projection_manager"/>
+
+    <!-- Config: Partners (obras) -->
+    <menuitem id="menu_sale_projection_obras"
+              name="Construction Sites (Obras)"
+              parent="menu_sale_projection_config"
+              action="base.action_partner_form"
+              sequence="10"
+              groups="sale_projection.group_sale_projection_manager"/>
+
+</odoo>

@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sale_projection_user,sale.projection user,model_sale_projection,sale_projection.group_sale_projection_user,1,1,1,0
+access_sale_projection_manager,sale.projection manager,model_sale_projection,sale_projection.group_sale_projection_manager,1,1,1,1
+access_sale_projection_line_user,sale.projection.line user,model_sale_projection_line,sale_projection.group_sale_projection_user,1,1,1,0
+access_sale_projection_line_manager,sale.projection.line manager,model_sale_projection_line,sale_projection.group_sale_projection_manager,1,1,1,1
