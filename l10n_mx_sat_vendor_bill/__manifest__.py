@@ -3,7 +3,7 @@
 
 {
     "name": "Mexico - SAT Vendor Bill Download",
-    "version": "17.0.0.0.1",
+    "version": "17.0.0.0.2",
     "category": "Accounting/Localizations",
     "summary": "Download vendor bills (CFDIs recibidos) from SAT via Descarga Masiva",
     "author": "Open Source Integrators, Odoo Community Association (OCA)",
