@@ -87,10 +87,10 @@
                 <separator/>
                 <filter name="remission_invoice"
                     string="Remission with invoice" 
-                    domain="[('invoice_ids', '!=', False), ('x_studio_canal_de_distribucin', 'ilike', 'CONSTRUCTORAS')]"/>
+                    domain="[('invoice_ids', '!=', False), ('x_studio_canal_de_distribucin', 'ilike', 'CONSTRUCTORAS'), ('sale_id', '!=', False)]"/>
                 <filter name="remission_not_invoice"
                      string="Remission without invoice" 
-                    domain="[('x_studio_folio_rem', '!=', False), ('invoice_ids', '=', False), ('x_studio_canal_de_distribucin', 'ilike', 'CONSTRUCTORAS'), ('is_full_returned', '=', False), ('exclude_from_uninvoiced_filter', '=', False)]"/>
+                    domain="[('x_studio_folio_rem', '!=', False), ('invoice_ids', '=', False), ('x_studio_canal_de_distribucin', 'ilike', 'CONSTRUCTORAS'), ('is_full_returned', '=', False), ('exclude_from_uninvoiced_filter', '=', False), ('sale_id', '!=', False)]"/>
             </xpath>
         </field>
     </record>
