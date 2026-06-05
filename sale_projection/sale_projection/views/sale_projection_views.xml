@@ -14,20 +14,20 @@
                             string="Confirm"
                             type="object"
                             class="btn-primary"
-                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                            invisible="state != 'draft'"/>
                     <button name="action_done"
                             string="Mark as Done"
                             type="object"
-                            attrs="{'invisible': [('state', '!=', 'confirmed')]}"/>
+                            invisible="state != 'confirmed'"/>
                     <button name="action_draft"
                             string="Reset to Draft"
                             type="object"
-                            attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                            invisible="state == 'draft'"/>
                     <button name="action_generate_lines"
                             string="Generate Lines from SKU Portfolio"
                             type="object"
                             class="btn-secondary"
-                            attrs="{'invisible': [('state', '=', 'done')]}"/>
+                            invisible="state == 'done'"/>
                     <field name="state"
                            widget="statusbar"
                            statusbar_visible="draft,confirmed,done"/>

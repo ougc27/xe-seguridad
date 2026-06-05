@@ -9,7 +9,7 @@
     "author": "Open Source Integrators, Odoo Community Association (OCA), Cloud Lotus",
     "website": "https://github.com/OCA/l10n-mexico",
     "license": "AGPL-3",
-    "depends": ["base"],
+    "depends": ["base_setup", "account"],
     "external_dependencies": {"python": ["cfdiclient"]},
     "data": [
         "views/res_config_settings_views.xml",

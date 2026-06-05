@@ -19,7 +19,7 @@
                         <group>
                             <field name="is_obra" widget="boolean_toggle"/>
                             <field name="warehouse_id"
-                                   attrs="{'invisible': [('is_obra', '=', False)]}"
+                                   invisible="not is_obra"
                                    options="{'no_create': True}"/>
                         </group>
                         <group>
@@ -45,7 +45,7 @@
                                 string="View Projections"
                                 class="btn-primary"
                                 icon="fa-table"
-                                attrs="{'invisible': [('projection_count', '=', 0)]}"/>
+                                invisible="not projection_count"/>
                     </group>
 
                 </page>
