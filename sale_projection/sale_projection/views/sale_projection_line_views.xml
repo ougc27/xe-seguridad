@@ -64,7 +64,7 @@
                   decoration-success="qty_executed >= qty_projected and qty_projected > 0"
                   decoration-warning="qty_scheduled > 0 and qty_scheduled &lt; qty_projected"
                   decoration-danger="qty_executed == 0 and qty_projected > 0 and week_end &lt; context_today()">
-
+                <field name="week_end" invisible="1"/>
                 <field name="partner_id" optional="show"/>
                 <field name="constructora_id" optional="show"/>
                 <field name="product_id"/>
@@ -137,8 +137,9 @@
 
                 <!-- Default: group by partner then product -->
                 <searchpanel>
-                    <field name="partner_id" string="Obra" icon="fa-building"
-                           domain="[('is_obra', '=', True)]"/>
+                    <field name="partner_id"
+                           string="Obra"
+                           icon="fa-building"/>
                 </searchpanel>
             </search>
         </field>
