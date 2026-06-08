@@ -14,3 +14,4 @@ access_muk_mcp_generate_key,access_muk_mcp_generate_key,model_muk_mcp_generate_k
 access_muk_mcp_key_show,access_muk_mcp_key_show,model_muk_mcp_key_show,base.group_user,1,0,1,0
 access_muk_mcp_connect,access_muk_mcp_connect,model_muk_mcp_connect,base.group_user,1,1,1,1
 access_mcp_enabled_model_admin,mcp.enabled.model admin,model_mcp_enabled_model,base.group_system,1,1,1,1
+access_mcp_model_selection_wizard_admin,mcp.model.selection.wizard admin,model_mcp_model_selection_wizard,base.group_system,1,1,1,1
