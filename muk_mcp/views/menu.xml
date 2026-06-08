@@ -68,4 +68,13 @@
 		groups="base.group_no_one"
 	/>
 
+	<menuitem
+		id="menu_mcp_enabled_models"
+		name="Enabled Models"
+		parent="menu_mcp_root"
+		action="action_mcp_enabled_models"
+		sequence="55"
+		groups="base.group_system"
+	/>
+
 </odoo>
