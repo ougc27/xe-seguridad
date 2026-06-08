@@ -4,7 +4,7 @@ import time
 
 from functools import partial
 
-from odoo import http
+from odoo import http, _
 from odoo.http import request, Response
 from odoo.tools import SQL, config
 from odoo.service.model import retrying
@@ -17,11 +17,79 @@ from odoo.addons.muk_mcp.tools.content import (
 )
 from odoo.addons.muk_mcp.tools.exception import MCPScopeDenied
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Tool map → (model_argument_key, crud_operation)
+#
+# Tools not listed here have no target model and are always allowed through
+# (list_models, list_modules, get_user_context do not operate on a specific
+# model chosen by the agent).
+# ─────────────────────────────────────────────────────────────────────────────
+_TOOL_MODEL_OP = {
+    # ── Read ──────────────────────────────────────────────────
+    'get_model_schema':      ('model', 'read'),
+    'get_access_rights':     ('model', 'read'),
+    'search_read':           ('model', 'read'),
+    'read_record':           ('model', 'read'),
+    'search_count':          ('model', 'read'),
+    'read_group':            ('model', 'read'),
+    'get_record_messages':   ('model', 'read'),
+    # ── Write ─────────────────────────────────────────────────
+    'create_record':         ('model', 'create'),
+    'update_record':         ('model', 'write'),
+    'delete_record':         ('model', 'unlink'),
+    'post_message':          ('model', 'write'),
+    'execute_method':        ('model', 'write'),
+}
+
+
 class MCPController(http.Controller):
 
     # ----------------------------------------------------------
     # Helper
     # ----------------------------------------------------------
+
+    def _check_enabled_model(self, tool_name, arguments):
+        """Validates against mcp.enabled.model before executing any tool.
+
+        Returns (True, '') if allowed, or (False, msg) if not.
+
+        Only evaluated when the tool operates on a specific model
+        (defined in _TOOL_MODEL_OP). General introspection tools
+        like list_models/list_modules are always allowed through.
+        """
+        entry = _TOOL_MODEL_OP.get(tool_name)
+        if entry is None:
+            # Tool has no target model → restriction does not apply
+            return True, ''
+
+        model_arg_key, operation = entry
+        model_name = (arguments or {}).get(model_arg_key)
+
+        if not model_name:
+            # Without a model name we cannot validate; let the
+            # tool itself fail with its own validation error.
+            return True, ''
+
+        enabled = request.env['mcp.enabled.model'].sudo()
+
+        if not enabled.is_model_enabled(model_name):
+            return False, (
+                _("Model '%s' is not enabled for MCP access. "
+                  "Contact your system administrator.") % model_name
+            )
+
+        if not enabled.check_model_operation_enabled(model_name, operation):
+            op_label = {
+                'read': _('read'), 'create': _('create'),
+                'write': _('write'), 'unlink': _('delete'),
+            }.get(operation, operation)
+            return False, (
+                _("The '%s' operation is not allowed "
+                  "on model '%s' for this MCP connection.") % (op_label, model_name)
+            )
+
+        return True, ''
 
     def _check_rate_limit(self, count=1):
         if key := getattr(request, '_mcp_key', None):
@@ -137,9 +205,6 @@ class MCPController(http.Controller):
                 f'Method not found: {method}',
                 request_id=request_id,
             )
-        # requires_initialized = method not in (
-        #     'ping', 'initialize', 'notifications/initialized',
-        # )
         requires_initialized = method not in (
             'ping', 'initialize', 'notifications/initialized',
             'tools/list', 'resources/list', 'resources/templates/list',
@@ -153,7 +218,7 @@ class MCPController(http.Controller):
                     request_id=request_id,
                 )
             if (
-                not (session := self._get_session(sid)) or 
+                not (session := self._get_session(sid)) or
                 not session.initialized
             ):
                 return protocol.make_jsonrpc_error(
@@ -235,6 +300,21 @@ class MCPController(http.Controller):
                 [protocol.make_text_content('Tool name is required')],
                 is_error=True,
             )
+
+        arguments = params.get('arguments', {})
+
+        allowed, deny_msg = self._check_enabled_model(tool_name, arguments)
+        if not allowed:
+            self._log_request(
+                'tools/call',
+                status='denied',
+                error_message=deny_msg,
+            )
+            return protocol.make_tool_result(
+                [protocol.make_text_content(deny_msg)],
+                is_error=True,
+            )
+
         key = getattr(request, '_mcp_key', None)
         enforce_scope = key.scope if key else None
         try:
@@ -242,7 +322,7 @@ class MCPController(http.Controller):
                 partial(
                     request.env['muk_mcp.tool']._call,
                     tool_name,
-                    params.get('arguments', {}),
+                    arguments,
                     request.env,
                     enforce_scope=enforce_scope,
                 ),
