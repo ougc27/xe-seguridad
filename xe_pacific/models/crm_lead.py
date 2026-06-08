@@ -10,4 +10,6 @@ class Lead(models.Model):
     vambe_brands = fields.Selection([
         ('gott', 'XE Brands'),
         ('protecto_home', 'Romax Comercial SA de CV'),
+        ('tecnodoor', 'Tecnodoor'),
+        ('xe_seguridad', 'XE Seguridad'),
     ], string='Vambe Brands')

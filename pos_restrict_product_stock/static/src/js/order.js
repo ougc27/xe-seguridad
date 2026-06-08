@@ -133,7 +133,19 @@ patch(Order.prototype, {
         orderlines.forEach((line) => {
             let product = line.product;
             if (product.promotion_price) {
-                const promo = this.pos.promotions.find(p => p.product_id === product.id);
+                const promos = this.pos.promotions.filter(p =>
+                    p.product_id === product.id &&
+                    (
+                        !p.pricelist_ids ||
+                        p.pricelist_ids.includes(pricelist.id)
+                    )
+                );
+                let promo = null;
+                if (promos.length) {
+                    promo = promos.reduce((min, p) =>
+                        p.price < min.price ? p : min
+                    );
+                }
                 if (promo) {
                     const promotion = {
                         promotion_id: promo.promotion_id,
@@ -144,7 +156,11 @@ patch(Order.prototype, {
                     };
                     line.set_unit_price(promotion.promotion_price);
                     line.setPromotion(promotion);
-                }
+                    const index = lines_to_recompute.indexOf(line);
+                    if (index !== -1) {
+                        lines_to_recompute.splice(index, 1);
+                    }
+                 }
             }
         });
 
@@ -257,7 +273,19 @@ patch(Order.prototype, {
         );
 
         if (product.promotion_price) {
-            const promo = this.pos.promotions.find(p => p.product_id === product.id);
+            const promos = this.pos.promotions.filter(p =>
+                p.product_id === this.id &&
+                (
+                    !p.pricelist_ids ||
+                    p.pricelist_ids.includes(this.pricelist.id)
+                )
+            );
+            let promo = null;
+            if (promos.length) {
+                promo = promos.reduce((min, p) =>
+                    p.price < min.price ? p : min
+                );
+            }
             if (promo) {
                 const promotion = {
                     promotion_id: promo.promotion_id,

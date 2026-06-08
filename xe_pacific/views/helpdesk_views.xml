@@ -5,33 +5,43 @@
         <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
+                <field name="is_it_team" invisible="1"/>
                 <field name="service_picking_ids" invisible="1"/>
                 <field name="show_transfer_button" invisible="1"/>
                 <button name="action_open_transfer_wizard"
                         type="object"
                         string="Generate Transfer"
                         class="oe_highlight"
-                        invisible="not show_transfer_button or not is_type_paint_or_function"
+                        invisible="not show_transfer_button or not is_type_paint_or_function or is_it_team"
                         icon="fa-truck"/>
                 <button name="autofill_from_picking_or_sale"
                     type="object"
                     string="Autofill Information"
-                    invisible="is_locked"
+                    invisible="is_locked or is_it_team"
                     class="btn-secondary"
                     icon="fa-magic"/>
                 <button type="object"
                     name="action_open_service_picking_ids"
                     class="oe_stat_button"
                     icon="fa-truck"
-                    invisible="not service_picking_ids">
+                    invisible="not service_picking_ids or is_it_team">
                     Service Delivery
                 </button>
             </xpath>
-            <xpath expr="//field[@name='team_id']" position="after">
-                <field name="source_id" options="{'no_create':True, 'no_create_edit': True}" required="1"/>
+            <xpath expr="//field[@name='team_id']" position="replace">
+                <field name="team_id" context="{'kanban_view_ref': 'helpdesk.helpdesk_team_view_kanban_mobile', 'default_use_sla': True}" options="{'no_create':True, 'no_create_edit': True}" invisible="is_it_team"/>
+                <field name="picking_id"
+                    invisible="is_it_team"
+                    readonly="is_locked"
+                    options="{'no_create':True, 'no_create_edit': True}"
+                    context="{'from_helpdesk_ticket': True}"
+                    domain="['|', (not commercial_partner_id, '=', 1), ('partner_id', 'child_of', commercial_partner_id or []), ('company_id', '=', company_id)]"/>
+                <field name="remission_incident" invisible="not picking_id or is_it_team" required="picking_id or not is_it_team"/>
+                <field name="source_id" options="{'no_create':True, 'no_create_edit': True}" required="not is_it_team"/>
                 <field name="attribution_ids" 
                     widget="many2many_tags"
                     placeholder="Select attributions..."
+                    invisible="is_it_team"
                     options="{'no_create':True, 'no_create_edit': True}"/>
             </xpath>
             <xpath expr="//field[@name='email_cc']" position="replace">
@@ -40,45 +50,45 @@
                 <field name="sale_id"
                     context="{'from_helpdesk_ticket': True}"
                     options="{'no_create':True, 'no_create_edit': True}" 
-                    readonly="is_locked"/>
+                    readonly="is_locked"
+                    invisible="is_it_team"/>
                 <field name="pos_order_id"
                     context="{'from_helpdesk_ticket': True}"
                     options="{'no_create':True, 'no_create_edit': True}" 
-                    readonly="is_locked"/>
-                <field name="picking_id"
                     readonly="is_locked"
-                    options="{'no_create':True, 'no_create_edit': True}"
-                    context="{'from_helpdesk_ticket': True}"
-                    domain="['|', (not commercial_partner_id, '=', 1), ('partner_id', 'child_of', commercial_partner_id or []), ('company_id', '=', company_id)]"/>
-                <field name="scheduled_date" invisible="not scheduled_date"/>
-                <field name="remission_date" invisible="not remission_date"/>
-                <field name="remission_incident" invisible="not picking_id"/>
-                <field name="complete_address" readonly="is_locked"/>
-                <field name="phone_number" widget="phone" readonly="is_locked"/>
-                <field name="product_id" domain="[('detailed_type', '=', 'product'), ('sale_ok', '=', True)]" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked"/>
-                <field name="supervisor_id" invisible="not supervisor_id"/>
-                <field name="installer_id" invisible="not installer_id" />
+                    invisible="is_it_team"/>
+                <field name="scheduled_date" invisible="not scheduled_date or is_it_team"/>
+                <field name="remission_date" invisible="not remission_date or is_it_team"/>
+                <field name="complete_address" readonly="is_locked" invisible="is_it_team"/>
+                <field name="phone_number" widget="phone" readonly="is_locked" invisible="is_it_team"/>
+                <field name="supervisor_id" invisible="not supervisor_id or is_it_team"/>
+                <field name="installer_id" invisible="not installer_id or is_it_team"/>
+                <field name="crm_team_id" invisible="not crm_team_id or is_it_team"/>
+                <field name="warehouse_id" invisible="not warehouse_id or is_it_team"/>
+                <field name="service_warehouse_id" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked" invisible="is_it_team"/>
             </xpath>
             <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="product_id" domain="[('detailed_type', '=', 'product'), ('sale_ok', '=', True)]" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked" invisible="is_it_team"/>
                 <field name="ticket_type_id_domain" invisible="1"/>
-                <field name="crm_team_id" invisible="not crm_team_id"/>
-                <field name="warehouse_id" invisible="not warehouse_id"/>
-                <field name="service_warehouse_id" options="{'no_create':True, 'no_create_edit': True}" readonly="is_locked"/>
+            </xpath>
+
+            <xpath expr="//field[@name='priority']" position="attributes">
+                <attribute name="readonly">not is_it_team</attribute>
             </xpath>
 
             <xpath expr="//field[@name='tag_ids']" position="attributes">
-                <attribute name="readonly">is_locked</attribute>
+                <attribute name="readonly">is_locked and not is_it_team</attribute>
                 <attribute name="options">{'no_create': True, 'no_create_edit': True}</attribute>
             </xpath>
 
             <xpath expr="//field[@name='partner_id']" position="attributes">
-                <attribute name="readonly">is_locked</attribute>
+                <attribute name="readonly">is_locked and not is_it_team</attribute>
                 <attribute name="widget">many2one</attribute>
                 <attribute name="options">{'no_create': True, 'no_create_edit': True}</attribute>
             </xpath>
 
             <xpath expr="//field[@name='user_id']" position="attributes">
-                <attribute name="readonly">is_locked</attribute>
+                <attribute name="readonly">is_locked and not is_it_team</attribute>
                 <attribute name="options">{'no_create': True, 'no_create_edit': True}</attribute>
             </xpath>
             
@@ -103,35 +113,18 @@
                 <attribute name="invisible">0</attribute>
             </xpath>
             <xpath expr="//page[@name='extra_info']/group[1]" position="after">
-                <group name="inspection_and_corrections_group">
-                    <group name="hardware_and_mechanism_issues">
-                        <field name="mechanism_review" readonly="ticket_type_id != 3"/>
-                        <field name="accessory_install_pending" readonly="ticket_type_id != 3"/>
-                        <field name="accessory_delivery_pending" readonly="ticket_type_id != 3"/>
-                        <field name="spare_part_replacement" readonly="ticket_type_id != 3"/>
-                        <field name="loose_broken_gaskets" readonly="ticket_type_id != 3"/>
-                        <field name="damaged_interior_profile" readonly="ticket_type_id != 3"/>
-                        <field name="missing_caps" readonly="ticket_type_id != 3"/>
-                        <field name="customer_locked" readonly="ticket_type_id != 3"/>
-                        <field name="smart_lock_inspection" readonly="ticket_type_id != 3"/>
-                        <field name="smart_lock_replacement" readonly="ticket_type_id != 3"/>
-                    </group>
-                    <group name="structural_and_finish_issues">
+                <group invisible="is_it_team">
+                    <field name="category_ids" widget="many2many_tags" options="{'no_create': True}" required="not is_it_team"/>
+                    <field name="option_ids" 
+                        widget="many2many_tags" 
+                        options="{'no_create': True}"
+                        invisible="not category_ids"
+                        required="category_ids"/>
                         <field name="pos_store_id" invisible="not pos_store_id"/>
-                        <field name="deficient_masonry" readonly="ticket_type_id != 3"/>
-                        <field name="loose_door_frame" readonly="ticket_type_id != 3"/>
-                        <field name="door_installation" readonly="ticket_type_id != 3"/>
-                        <field name="door_reinstallation" readonly="ticket_type_id != 3"/>
-                        <field name="door_replacement" readonly="ticket_type_id != 3"/>
-                        <field name="door_dent" readonly="ticket_type_id != 4"/>
-                        <field name="paint_factory_defect" readonly="ticket_type_id != 4"/>
-                        <field name="door_faded_paint" readonly="ticket_type_id != 4"/>
-                        <field name="rusty_paint" readonly="ticket_type_id != 4"/>
-                    </group>
                 </group>
             </xpath>
             <xpath expr="//page[@name='extra_info']" position="after">
-                <page string="Construction" name="builder_filling_page">
+                <page string="Construction" name="builder_filling_page" invisible="is_it_team">
                     <group name="builder_details_group" col="2">
                         <field name="housing_type" required="crm_team_id == 6" readonly="is_locked"/>
                         <field name="lot" required="crm_team_id == 6" readonly="is_locked"/>
@@ -140,7 +133,7 @@
                         <field name="architect" readonly="is_locked"/>
                     </group>
                 </page>
-                <page string="Follow-up" name="followup">
+                <page string="Follow-up" name="followup" invisible="is_it_team">
                     <field name="call_ids" widget="one2many">
                         <tree editable="bottom">
                             <field name="interaction_date"/>
@@ -186,7 +179,7 @@
                 <field name="block" optional="show"/>
                 <field name="subdivision" optional="show"/>
                 <field name="crm_team_id" optional="show"/>
-                <field name="picking_id" optional="show"/>             
+                <field name="picking_id" optional="show"/>
                 <field name="scheduled_date" optional="show"/>
             </field>
         </field>
@@ -202,5 +195,170 @@
                 <field name="block"/>
             </xpath>
         </field>
+    </record>
+
+    <record id="helpdesk_ticket_category_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.category.tree</field>
+        <field name="model">helpdesk.ticket.category</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" multi_edit="1">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="helpdesk_ticket_category_action" model="ir.actions.act_window">
+        <field name="name">Issue Categories</field>
+        <field name="res_model">helpdesk.ticket.category</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="helpdesk_ticket_option_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.option.tree</field>
+        <field name="model">helpdesk.ticket.option</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" multi_edit="1">
+                <field name="sequence" widget="handle"/>
+                <field name="category_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                <field name="name"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="helpdesk_ticket_option_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.option.form</field>
+        <field name="model">helpdesk.ticket.option</field>
+        <field name="arch" type="xml">
+            <form string="Issue Option">
+                <sheet>
+                    <group>
+                        <field name="category_id"
+                            options="{'no_create': True, 'no_create_edit': True}"/>
+                        
+                        <field name="name"/>
+
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="helpdesk_ticket_option_view_search" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.option.search</field>
+        <field name="model">helpdesk.ticket.option</field>
+        <field name="arch" type="xml">
+            <search string="Search Options">
+                <field name="name"/>
+                <field name="category_id"/>
+                <group expand="0" string="Group By">
+                    <filter string="Category" name="group_by_category" context="{'group_by': 'category_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="helpdesk_ticket_option_action" model="ir.actions.act_window">
+        <field name="name">Issue Options</field>
+        <field name="res_model">helpdesk.ticket.option</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_group_by_category': 1}</field>
+    </record>
+
+    <record id="view_helpdesk_ticket_it_custom_tree" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.it.custom.tree</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml">
+            <tree string="Technical Support Tickets" create="false" delete="false">
+                <field name="team_id"/>
+                <field name="name"/>
+                <field name="priority"/>
+                <field name="ticket_type_id"/>
+                <field name="tag_ids"/>
+                <field name="user_id"/>
+                <field name="partner_id"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_helpdesk_ticket_it_custom_search" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.it.custom.search</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml">
+            <search string="Search IT Tickets">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="user_id"/>
+
+                <separator/>
+                <filter string="Low Priority" name="priority_low" domain="[('priority', '=', '0')]"/>
+                <filter string="Medium Priority" name="priority_medium" domain="[('priority', '=', '1')]"/>
+                <filter string="High Priority" name="priority_high" domain="[('priority', '=', '2')]"/>
+                <filter string="Critical Priority" name="priority_critical" domain="[('priority', '=', '3')]"/>
+                
+                <separator/>
+                <filter string="Unassigned" name="unassigned" domain="[('user_id', '=', False)]"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Assigned To" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Ticket Type" name="group_type" context="{'group_by': 'ticket_type_id'}"/>
+                    <filter string="Priority" name="group_priority" context="{'group_by': 'priority'}"/>
+                    <filter string="Creation Date" name="group_create_date" context="{'group_by': 'create_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_helpdesk_it_specialized" model="ir.actions.act_window">
+        <field name="name">Technical Support</field>
+        <field name="res_model">helpdesk.ticket</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('is_it_team', '=', True)]</field>
+        <field name="view_id" ref="view_helpdesk_ticket_it_custom_tree"/>
+        <field name="search_view_id" ref="view_helpdesk_ticket_it_custom_search"/>
+        <field name="context">{
+            'default_is_it_team': True,
+            'search_default_is_it_team': 1
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Everything cleared!
+            </p>
+            <p>
+                Only tickets marked as Technical Support will appear here.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_helpdesk_it_specialized_tickets"
+        name="Technical Support"
+        parent="helpdesk.helpdesk_ticket_menu_main" 
+        action="action_helpdesk_it_specialized"
+        sequence="15"/>
+
+    <menuitem id="menu_helpdesk_ticket_issues_root"
+        name="Ticket Issues"
+        parent="helpdesk.helpdesk_menu_config"
+        sequence="50"/>
+
+    <menuitem id="menu_helpdesk_ticket_category"
+        name="Categories"
+        parent="menu_helpdesk_ticket_issues_root"
+        action="helpdesk_ticket_category_action"
+        sequence="10"/>
+
+    <menuitem id="menu_helpdesk_ticket_option"
+        name="Options"
+        parent="menu_helpdesk_ticket_issues_root"
+        action="helpdesk_ticket_option_action"
+        sequence="20"/>
+
+    <record id="helpdesk.menu_helpdesk_root" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('xe_pacific.group_helpdesk_only_own_tickets'))]"/>
     </record>
 </odoo>

@@ -21,6 +21,8 @@ class ResPartner(models.Model):
         ('otro', 'Otro'),
     ], string="Tipo")
 
+    date = fields.Date(copy=False, index=True)
+
     active = fields.Boolean(default=True, tracking=True)
 
     @api.depends('street', 'zip', 'city', 'country_id', 'l10n_mx_edi_locality')

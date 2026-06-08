@@ -21,4 +21,10 @@
             </xpath>
         </field>
     </record>
+    <menuitem id="res_partner_menu_tags"
+        name="Contact Tags"
+        parent="contacts.menu_contacts"
+        groups="xe_pacific.group_can_see_contacts_tag_menu"
+        action="base.action_partner_category_form"
+        sequence="1"/>
 </odoo>

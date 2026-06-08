@@ -7,7 +7,7 @@
             <field name="arch" type="xml">
                 <form string="Copy Access Right From User">
                     <group colspan="4" cols="2">
-                        <field name="user_id" required="True" options="{'no_create_edit': True, 'no_create': True}"/>
+                        <field name="user_id" context="{'active_test': False}" required="True" options="{'no_create_edit': True, 'no_create': True}"/>
                     </group>
                     <footer>
                         <button

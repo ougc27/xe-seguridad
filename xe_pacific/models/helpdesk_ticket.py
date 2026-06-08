@@ -48,7 +48,14 @@ class HelpdeskTicket(models.Model):
         ('post_sale', 'Post Sale')
     ], copy=False)
 
-    remission_incident = fields.Boolean(string='Incident in remission', copy=False)
+    remission_incident = fields.Selection(
+        [
+            ('yes', 'Yes'),
+            ('no', 'No'),
+        ],
+        string='Incident in Remission',
+        copy=False,
+    )
 
     customer_locked = fields.Boolean(string='Locked customer', copy=False)
 
@@ -177,6 +184,34 @@ class HelpdeskTicket(models.Model):
     )
     
     ticket_type_id_domain = fields.Binary(compute="_compute_ticket_type_id_domain")
+
+    category_ids = fields.Many2many(
+        'helpdesk.ticket.category', 
+        string='Issue Categories',
+    )
+    
+    option_ids = fields.Many2many(
+        'helpdesk.ticket.option', 
+        string='Issue Details',
+        domain="[('category_id', 'in', category_ids)]"
+    )
+
+    external_url = fields.Char(
+        help="URL where the issue is occurring.")
+
+    reference = fields.Char(
+        help='Field to save the model and res_id from the record wich belong the ticket',
+        readonly=True, index=True)
+
+    is_it_team = fields.Boolean(related='team_id.is_it_team', store=False)
+
+    @api.onchange('category_ids')
+    def _onchange_category_ids(self):
+        """Si quitan una categoría, limpiamos las opciones que ya no pertenecen"""
+        if self.option_ids:
+            self.option_ids = self.option_ids.filtered(
+                lambda r: r.category_id.id in self.category_ids.ids
+            )
 
     @api.depends('team_id')
     def _compute_ticket_type_id_domain(self):
@@ -340,6 +375,10 @@ class HelpdeskTicket(models.Model):
         if vals.get('name', 'New') == 'New':
             company = self.env.company
             vals['name'] = self.env['ir.sequence'].with_company(company).next_by_code('helpdesk.ticket.name')
+        team_id = vals.get('team_id')
+        team = self.env['helpdesk.team'].sudo().browse(team_id)
+        if vals.get('name') == 'TI' or team.is_it_team:
+            vals['name'] = self.env['ir.sequence'].next_by_code('helpdesk.ticket.it.seq')
         return super().create(vals)
 
     @api.depends('ticket_ref', 'partner_name')
@@ -350,3 +389,60 @@ class HelpdeskTicket(models.Model):
         for ticket in ticket_with_name:
             ticket.display_name = ticket.name
         return super(HelpdeskTicket, self - ticket_with_name)._compute_display_name()
+
+    def write(self, vals):
+        protected_fields = [
+            'team_id', 'user_id', 'priority', 
+            'ticket_type_id', 'tag_ids', 'partner_id', 'description'
+        ]
+
+        is_it_team = self.user_has_groups('xe_pacific.group_helpdesk_it_team')
+
+        for ticket in self:
+            if ticket.team_id.is_it_team and not is_it_team:
+                if any(field in vals for field in protected_fields):
+                    raise UserError(_(
+                            "Access Denied. You do not have permission to edit this ticket's master data. "
+                            "Only the IT team can modify these fields."
+                        ))
+
+        return super(HelpdeskTicket, self).write(vals)
+
+    def migrate_booleans_to_tags(self):
+        mapping = {
+            'mechanism_review': 'A12 - Revisión de mecanismo',
+            'accessory_install_pending': 'C1 - Accesorio o refaccion pendiente de entrega o instalación',
+            'spare_part_replacement': 'A3 - Cambio de refacción',
+            'loose_broken_gaskets': 'A6 - Empaque roto o suelto',
+            'damaged_interior_profile': 'A8 - Perfil interior dañado',
+            'missing_caps': 'C8 - Tapones faltantes',
+            'customer_locked': 'C2 - Cliente encerrado',
+            'smart_lock_inspection': 'A11 - Revisión de CI',
+            'smart_lock_replacement': 'A1 - Cambio de CI',
+            'deficient_masonry': 'C9 - Trabajo de albañileria deficiente',
+            'loose_door_frame': 'C6 - Marco flojo',
+            'door_installation': 'C4 - Instalación de puerta',
+            'door_reinstallation': 'C7 - Reinstalación de puerta',
+            'door_replacement': 'A2 - Cambio de puerta',
+            'door_dent': 'B3 - Producto dañado en transporte: Origen del daño no identificado',
+            'paint_factory_defect': 'A10 - Pintura con defecto de fabrica/oxido',
+            'door_faded_paint': 'A9 - Pintura con cambio de tono/acabado/despintada',
+        }
+        
+        for ticket in self:
+            options_to_add = []
+            categories_to_add = set()
+
+            for bool_field, option_name in mapping.items():
+                if getattr(ticket, bool_field, False):
+                    option = self.env['helpdesk.ticket.option'].search([('name', '=', option_name)], limit=1)
+                    if option:
+                        options_to_add.append(option.id)
+                        if option.category_id:
+                            categories_to_add.add(option.category_id.id)
+
+            if options_to_add:
+                ticket.write({
+                    'option_ids': [(6, 0, options_to_add)],
+                    'category_ids': [(6, 0, list(categories_to_add))]
+                })

@@ -50,24 +50,23 @@ class PosPromotionController(http.Controller):
 
             net_price = round(net_price, 4)
 
-            product_id = promo.product_id
+            product_id = promo.product_id.id
+
+            promo_data = {
+                "promotion_id": promo.id,
+                "product_id": product_id,
+                "price": net_price,
+                "gross_price": gross_price,
+                "pricelist_ids": promo.pricelist_ids.ids or False
+            }
 
             if product_id not in result:
-                result[product_id] = {
-                    "promotion_id": promo.id,
-                    "product_id": product_id.id,
-                    "price": net_price,
-                    "gross_price": gross_price,
-                    "pricelist_ids": promo.pricelist_ids.ids or False
-                }
-            else:
-                if net_price < result[product_id]["price"]:
-                    result[product_id] = {
-                        "promotion_id": promo.id,
-                        "product_id": product_id,
-                        "price": net_price,
-                        "gross_price": gross_price,
-                        "pricelist_ids": promo.pricelist_ids.ids or False
-                    }
+                result[product_id] = []
 
-        return list(result.values())
+            result[product_id].append(promo_data)
+
+        final_result = []
+        for promos in result.values():
+            final_result.extend(promos)
+
+        return final_result

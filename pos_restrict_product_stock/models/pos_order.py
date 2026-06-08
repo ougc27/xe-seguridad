@@ -38,6 +38,15 @@ class PosOrder(models.Model):
             "is later changed (for example, during global invoicing)."
     )
 
+    has_payment_proof = fields.Boolean(
+        compute="_compute_has_payment_proof",
+    )
+
+    def _compute_has_payment_proof(self):
+        for rec in self:
+            rec.has_payment_proof = bool(rec.payment_proof_attachments)
+
+
     @api.depends('payment_ids', 'lines')
     def _compute_amount_untaxed(self):
         for order in self:

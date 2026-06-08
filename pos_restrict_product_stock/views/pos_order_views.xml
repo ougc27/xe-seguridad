@@ -40,6 +40,10 @@
         <field name="model">pos.order</field>
         <field name="inherit_id" ref="point_of_sale.view_pos_order_tree"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="after">
+                <field name="to_invoice" string="Invoiced"/>
+                <field name="has_payment_proof"/>
+            </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="original_partner_id"/>
             </xpath>

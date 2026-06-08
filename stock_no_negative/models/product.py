@@ -3,7 +3,8 @@
 # @author Alexis de Lattre <alexis.delattre@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo import fields, models
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError
 
 
 class ProductCategory(models.Model):
@@ -15,6 +16,24 @@ class ProductCategory(models.Model):
         "attached to sub-categories of this category.",
     )
 
+    def _check_negative_setting(self, vals):
+        if vals.get('allow_negative_stock'):
+            raise UserError(_(
+                "Operation not allowed: Enabling negative stock is prohibited "
+                "by company inventory policies."
+            ))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            self._check_negative_setting(vals)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        self._check_negative_setting(vals)
+        return super().write(vals)
+
+
 
 class ProductTemplate(models.Model):
     _inherit = "product.template"
@@ -25,3 +44,21 @@ class ProductTemplate(models.Model):
         "then the validation of the related stock moves will be blocked if "
         "the stock level becomes negative with the stock move.",
     )
+
+    def _check_negative_setting(self, vals):
+        if vals.get('allow_negative_stock'):
+            raise UserError(_(
+                "Operation not allowed: Enabling negative stock is prohibited "
+                "by company inventory policies."
+            ))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            self._check_negative_setting(vals)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        self._check_negative_setting(vals)
+        return super().write(vals)
+

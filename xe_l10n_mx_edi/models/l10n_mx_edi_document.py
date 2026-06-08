@@ -87,24 +87,35 @@ class L10nMxEdiDocument(models.Model):
         # to display the SAT button just in case. However, we don't want to retroactively check
         # all passed documents so this is happening only for the form view and not for the CRON.
         if not from_cron:
-            results.extend([
+            results = [
+                [
+                    ('state', 'in', (
+                        'ginvoice_sent',
+                        'invoice_sent',
+                        'payment_sent',
+                        'ginvoice_cancel',
+                        'invoice_cancel',
+                        'invoice_cancel_requested',
+                        'payment_cancel',
+                    )),
+                    ('sat_state', 'not in', ('valid', 'cancelled', 'skip')),
+                ],
+                # always show the 'Update SAT' button for imports, since originator may cancel the invoice anytime
+                [
+                    ('state', '=', 'invoice_received'),
+                    ('move_id.state', '=', 'posted'),
+                ],
                 [
                     ('state', 'in', ('invoice_sent', 'payment_sent')),
                     ('move_id.l10n_mx_edi_cfdi_state', '=', 'sent'),
                     ('sat_state', '=', 'valid'),
-                    ('move_id.invoice_date', '>=', date_from),
-                    ('move_id.invoice_date', '<', date_to),
-                    ('move_id.skip_sat_update', '=', False)
                 ],
                 [
                     ('state', '=', 'ginvoice_sent'),
                     ('invoice_ids', 'any', [('l10n_mx_edi_cfdi_state', '=', 'global_sent')]),
                     ('sat_state', '=', 'valid'),
-                    ('move_id.invoice_date', '>=', date_from),
-                    ('move_id.invoice_date', '<', date_to),
-                    ('move_id.skip_sat_update', '=', False)
                 ],
-            ])
+            ]
         return results
 
     @api.model
