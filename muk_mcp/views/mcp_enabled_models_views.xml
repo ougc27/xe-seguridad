@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <tree string="MCP Enabled Models">
                 <header>
-                    <button name="%(mcp_server.action_mcp_model_selection_wizard)d"
+                    <button name="%(muk_mcp.action_mcp_model_selection_wizard)d"
                         type="action"
                         string="Select Multiple Models"
                         class="btn btn-primary"
