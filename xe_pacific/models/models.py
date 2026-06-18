@@ -26,9 +26,9 @@ class BaseModel(models.AbstractModel):
             raise AccessError(_("You are not allowed to archive/unarchive records."))
         return super().toggle_active()
 
-    def unlink(self):
-        if not self.env.user.has_group("xe_pacific.group_global_unlink"):
-            raise AccessError(
-                _("You are not allowed to delete records.")
-            )
-        return super().unlink()
+    # def unlink(self):
+    #     if not self.env.user.has_group("xe_pacific.group_global_unlink"):
+    #         raise AccessError(
+    #             _("You are not allowed to delete records.")
+    #         )
+    #     return super().unlink()
