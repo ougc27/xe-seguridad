@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ── List view ─────────────────────────────────────────────────────── -->
+    <record id="view_xe_lunch_register_list" model="ir.ui.view">
+        <field name="name">xe.lunch.register.list</field>
+        <field name="model">xe.lunch.register</field>
+        <field name="arch" type="xml">
+            <tree string="Meal Service Records">
+                <field name="employee_id"/>
+                <field name="date"/>
+                <field name="timestamp"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ── Form view ─────────────────────────────────────────────────────── -->
+    <record id="view_xe_lunch_register_form" model="ir.ui.view">
+        <field name="name">xe.lunch.register.form</field>
+        <field name="model">xe.lunch.register</field>
+        <field name="arch" type="xml">
+            <form string="Meal Service Record">
+                <sheet>
+                    <group>
+                        <field name="employee_id"/>
+                        <field name="date"/>
+                        <field name="timestamp"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ── Search view ───────────────────────────────────────────────────── -->
+    <record id="view_xe_lunch_register_search" model="ir.ui.view">
+        <field name="name">xe.lunch.register.search</field>
+        <field name="model">xe.lunch.register</field>
+        <field name="arch" type="xml">
+            <search string="Search Meal Service Records">
+                <field name="employee_id"/>
+                <field name="date"/>
+                <filter string="Today" name="today"
+                        domain="[('date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_employee"
+                            context="{'group_by': 'employee_id'}"/>
+                    <filter string="Date" name="group_date"
+                            context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ── Window action ─────────────────────────────────────────────────── -->
+    <record id="action_xe_lunch_register" model="ir.actions.act_window">
+        <field name="name">Meal Service Records</field>
+        <field name="res_model">xe.lunch.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_xe_lunch_register_search"/>
+    </record>
+
+    <!-- ── URL action (kiosk) – Admin only ──────────────────────────────── -->
+    <record id="action_open_kiosk" model="ir.actions.act_url">
+        <field name="name">Open Kiosk</field>
+        <field name="url">/lunch/kiosk</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ── Menu structure ───────────────────────────────────────────────── -->
+    <!--
+        Root menu: visible to both groups (User sees "Meal Service Records";
+        Admin also sees "Open Kiosk").
+    -->
+    <menuitem id="menu_xe_lunch_kiosk_root"
+              name="Meal Service"
+              sequence="60"
+              web_icon="xe_lunch_kiosk,static/description/icon.png"
+              groups="xe_lunch_kiosk.group_xe_lunch_kiosk_user"/>
+
+    <!-- Records submenu: User and Admin -->
+    <menuitem id="menu_xe_lunch_register"
+              name="Meal Service Records"
+              parent="menu_xe_lunch_kiosk_root"
+              action="action_xe_lunch_register"
+              sequence="10"
+              groups="xe_lunch_kiosk.group_xe_lunch_kiosk_user"/>
+
+    <!-- Kiosk submenu: Admin only -->
+    <menuitem id="menu_xe_lunch_kiosk_open"
+              name="Open Kiosk"
+              parent="menu_xe_lunch_kiosk_root"
+              action="action_open_kiosk"
+              sequence="20"
+              groups="xe_lunch_kiosk.group_xe_lunch_kiosk_admin"/>
+</odoo>

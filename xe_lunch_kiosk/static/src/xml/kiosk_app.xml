@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="xe_lunch_kiosk.LunchKiosk">
+        <div class="o_lunch_kiosk">
+
+            <div class="o_lunch_kiosk_header">
+                <h1>🍽 XE Meal Service</h1>
+                <p>Consumption log for the XE Meal Service</p>
+            </div>
+
+            <div class="o_lunch_kiosk_scan_box">
+                <t t-if="cameraSupported">
+                    <div class="o_lunch_kiosk_scanner">
+                        <LunchBarcodeScanner onBarcodeScanned.bind="onBarcodeScanned"/>
+                    </div>
+                </t>
+                <p t-else="" class="o_lunch_kiosk_camera_hint">
+                    The camera requires HTTPS or opening the kiosk on localhost.
+                </p>
+
+                <h2>Scan your ID</h2>
+
+                <input type="text"
+                       t-ref="barcodeInput"
+                       class="o_lunch_kiosk_input"
+                       placeholder=""
+                       autocomplete="off"
+                       t-on-keydown="onInputKeydown"/>
+            </div>
+
+            <div t-attf-class="o_lunch_kiosk_feedback {{ state.feedback.type }} {{ state.feedback.visible ? 'o_lunch_kiosk_feedback_visible' : '' }}">
+                <div class="o_lunch_kiosk_emp_name" t-esc="state.feedback.title"/>
+                <div class="o_lunch_kiosk_sub_msg" t-esc="state.feedback.subMessage"/>
+            </div>
+
+            <div class="o_lunch_kiosk_date" t-esc="state.currentDate"/>
+
+            <MainComponentsContainer/>
+        </div>
+    </t>
+
+</templates>

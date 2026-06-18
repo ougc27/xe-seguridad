@@ -1,4 +1,5 @@
-from odoo import models
+from odoo.exceptions import AccessError
+from odoo import models, _
 from markupsafe import Markup
 
 
@@ -19,3 +20,15 @@ class BaseModel(models.AbstractModel):
         record_id = self.env.context.get("record_id", self.id)
         return Markup("<a href=# data-oe-model='%s' data-oe-id='%s'>%s</a>") % (
             model_name, record_id, title or self.display_name)
+
+    def toggle_active(self):
+        if not self.env.user.has_group("xe_pacific.group_global_archive"):
+            raise AccessError(_("You are not allowed to archive/unarchive records."))
+        return super().toggle_active()
+
+    def unlink(self):
+        if not self.env.user.has_group("xe_pacific.group_global_unlink"):
+            raise AccessError(
+                _("You are not allowed to delete records.")
+            )
+        return super().unlink()

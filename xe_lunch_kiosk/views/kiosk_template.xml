@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="kiosk_template" name="XE Lunch Kiosk">&lt;!DOCTYPE html&gt;
+        <html lang="es">
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport"
+                      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+                <title>XE Meal Service</title>
+                <t t-call-assets="xe_lunch_kiosk.assets_kiosk" t-js="false"/>
+                <t t-call-assets="xe_lunch_kiosk.assets_kiosk" t-css="false"/>
+                <script type="text/javascript">
+                    odoo.define("xe_lunch_kiosk.boot", ["@xe_lunch_kiosk/js/kiosk_app"], function (require) {
+                        const { createLunchKiosk } = require("@xe_lunch_kiosk/js/kiosk_app");
+                        createLunchKiosk(document);
+                    });
+                </script>
+            </head>
+            <body class="o_lunch_kiosk_body">
+                <div class="o_lunch_kiosk_app"/>
+            </body>
+        </html>
+    </template>
+</odoo>
