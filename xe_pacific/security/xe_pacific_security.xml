@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+    <record id="group_global_archive" model="res.groups">
+        <field name="name">Global Archive Manager</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_system'))]"/>
+    </record>
+    <record id="group_global_unlink" model="res.groups">
+        <field name="name">Global Delete Manager</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_system'))]"/>
+    </record>
     <record model="ir.rule" id="cancelled_remission_comp_rule">
         <field name="name">Cancelled remission multi-company</field>
         <field name="model_id" ref="model_cancelled_remission" />

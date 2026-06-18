@@ -2332,3 +2332,27 @@ msgstr "Describa cuál es el motivo..."
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_type__only_description
 msgid "Only Description"
 msgstr "Solo descripción"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/models.py:0
+#, python-format
+msgid "You are not allowed to archive/unarchive records."
+msgstr "No tiene permisos para archivar o desarchivar registros."
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/models.py:0
+#, python-format
+msgid "You are not allowed to delete records."
+msgstr "No tiene permisos para eliminar registros."
+
+#. module: xe_pacific
+#: model:res.groups,name:xe_pacific.group_global_archive
+msgid "Global Archive Manager"
+msgstr "Administrador Global de Archivado"
+
+#. module: xe_pacific
+#: model:res.groups,name:xe_pacific.group_global_unlink
+msgid "Global Delete Manager"
+msgstr "Administrador Global de Eliminación"
