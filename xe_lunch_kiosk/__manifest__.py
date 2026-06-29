@@ -1,6 +1,6 @@
 {
     'name': 'XE Lunch Kiosk',
-    'version': '17.0.1.1.2',
+    'version': '17.0.1.3.0',
     'summary': 'Meal Service Registration via Barcode',
     'author': 'XE Brands',
     'category': 'Human Resources',
@@ -8,6 +8,7 @@
     'data': [
         'security/xe_lunch_kiosk_groups.xml',
         'security/ir.model.access.csv',
+        'security/xe_lunch_kiosk_company_rules.xml',
         'views/kiosk_views.xml',
         'views/kiosk_template.xml',
     ],

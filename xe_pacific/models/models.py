@@ -22,8 +22,10 @@ class BaseModel(models.AbstractModel):
             model_name, record_id, title or self.display_name)
 
     def toggle_active(self):
-        if not self.env.user.has_group("xe_pacific.group_global_archive"):
-            raise AccessError(_("You are not allowed to archive/unarchive records."))
+        exempt_models = self.env["archive.exception.models"]._get_exempt_model_names()
+        if self._name not in exempt_models:
+            if not self.env.user.has_group("xe_pacific.group_global_archive"):
+                raise AccessError(_("You are not allowed to archive/unarchive records of model '%s'.") % self._name)
         return super().toggle_active()
 
     # def unlink(self):

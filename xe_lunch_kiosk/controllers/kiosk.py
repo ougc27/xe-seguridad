@@ -54,6 +54,7 @@ class LunchKioskController(http.Controller):
             'employee_id': employee.id,
             'date': today,
             'timestamp': fields.Datetime.now(),
+            'company_id': employee.company_id.id,
         })
 
         return {
