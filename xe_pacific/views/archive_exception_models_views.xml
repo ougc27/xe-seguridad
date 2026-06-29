@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List view: inline editable for fast add/remove -->
+    <record id="view_archive_exception_models_list" model="ir.ui.view">
+        <field name="name">archive.exception.models.list</field>
+        <field name="model">archive.exception.models</field>
+        <field name="arch" type="xml">
+            <tree string="Archive Exceptions" editable="bottom">
+                <field name="model_id"/>
+                <field name="model_name"/>
+                <field name="note"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_archive_exception_models_form" model="ir.ui.view">
+        <field name="name">archive.exception.models.form</field>
+        <field name="model">archive.exception.models</field>
+        <field name="arch" type="xml">
+            <form string="Archive Exception">
+                <sheet>
+                    <group>
+                        <field name="model_id"/>
+                        <field name="model_name"/>
+                        <field name="note" placeholder="Why is this model exempt?"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search view -->
+    <record id="view_archive_exception_models_search" model="ir.ui.view">
+        <field name="name">archive.exception.models.search</field>
+        <field name="model">archive.exception.models</field>
+        <field name="arch" type="xml">
+            <search string="Search Archive Exceptions">
+                <field name="model_id"/>
+                <field name="model_name"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inactive" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Window action -->
+    <record id="action_archive_exception_models" model="ir.actions.act_window">
+        <field name="name">Archive Exceptions</field>
+        <field name="res_model">archive.exception.models</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register a model here to let ANY user archive/unarchive its
+                records, regardless of the Global Archive permission.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu item -->
+    <menuitem
+        id="menu_archive_exception_models"
+        name="Archive Exceptions"
+        action="action_archive_exception_models"
+        parent="base.menu_custom"
+        sequence="90"
+        groups="base.group_system"/>
+
+</odoo>

@@ -538,9 +538,12 @@ msgid "Remissions in transit or done states cannot be separated."
 msgstr "Las remisiones en estado de tránsito o completado no pueden ser separadas."
 
 #. module: xe_pacific
-#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__active
+#: model:ir.model.fields,field_description:xe_pacific.field_archive_exception_models__active
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_category__active
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__active
+#: model:ir.model.fields,field_description:xe_pacific.field_inventory_tag__active
+#: model:ir.model.fields,field_description:xe_pacific.field_res_partner__active
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_archive_exception_models_search
 msgid "Active"
 msgstr "Activo"
 
@@ -2337,13 +2340,6 @@ msgstr "Solo descripción"
 #. odoo-python
 #: code:addons/xe_pacific/models/models.py:0
 #, python-format
-msgid "You are not allowed to archive/unarchive records."
-msgstr "No tiene permisos para archivar o desarchivar registros."
-
-#. module: xe_pacific
-#. odoo-python
-#: code:addons/xe_pacific/models/models.py:0
-#, python-format
 msgid "You are not allowed to delete records."
 msgstr "No tiene permisos para eliminar registros."
 
@@ -2356,3 +2352,132 @@ msgstr "Administrador Global de Archivado"
 #: model:res.groups,name:xe_pacific.group_global_unlink
 msgid "Global Delete Manager"
 msgstr "Administrador Global de Eliminación"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_archive_exception_models_form
+msgid "Archive Exception"
+msgstr "Excepción de Archivado"
+
+#. module: xe_pacific
+#: model:ir.actions.act_window,name:xe_pacific.action_archive_exception_models
+#: model:ir.ui.menu,name:xe_pacific.menu_archive_exception_models
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_archive_exception_models_list
+msgid "Archive Exceptions"
+msgstr "Excepciones de Archivado"
+
+#. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_archive_exception_models
+msgid "Archive Restriction Exception Models"
+msgstr "Modelos de Excepción de Restricción de Archivado"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_archive_exception_models_search
+msgid "Inactive"
+msgstr "Inactivo"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_archive_exception_models__model_id
+msgid "Model"
+msgstr "Modelo"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_archive_exception_models__note
+msgid ""
+"Optional explanation of why this model does not require the archive "
+"permission."
+msgstr ""
+"Explicación opcional de por qué este modelo no requiere el permiso de "
+"archivado."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_archive_exception_models__note
+msgid "Reason / Note"
+msgstr "Motivo / Nota"
+
+#. module: xe_pacific
+#: model_terms:ir.actions.act_window,help:xe_pacific.action_archive_exception_models
+msgid ""
+"Register a model here to let ANY user archive/unarchive its\n"
+"                records, regardless of the Global Archive permission."
+msgstr ""
+"Registre un modelo aquí para permitir que CUALQUIER usuario archive/"
+"desarchive sus\n"
+"                registros, sin importar el permiso de Archivado Global."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_archive_exception_models_search
+msgid "Search Archive Exceptions"
+msgstr "Buscar Excepciones de Archivado"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_archive_exception_models__model_name
+msgid ""
+"Stored copy of the model's technical name, used for fast lookups from "
+"toggle_active()."
+msgstr ""
+"Copia almacenada del nombre técnico del modelo, usada para búsquedas "
+"rápidas desde toggle_active()."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_archive_exception_models__model_name
+msgid "Technical Name"
+msgstr "Nombre Técnico"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_archive_exception_models__model_id
+msgid ""
+"Technical model allowed to bypass the archive/unarchive permission check."
+msgstr ""
+"Modelo técnico autorizado para omitir la verificación del permiso de "
+"archivado/desarchivado."
+
+#. module: xe_pacific
+#: model:ir.model.constraint,message:xe_pacific.constraint_archive_exception_models_unique_model_id
+msgid "This model is already registered as an archive exception."
+msgstr "Este modelo ya está registrado como una excepción de archivado."
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_archive_exception_models__active
+msgid ""
+"Uncheck to re-enable the restriction for this model without deleting the "
+"configuration record."
+msgstr ""
+"Desmarque para volver a habilitar la restricción de este modelo sin "
+"eliminar el registro de configuración."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_archive_exception_models_form
+msgid "Why is this model exempt?"
+msgstr "¿Por qué este modelo está exento?"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_archive_exception_models__model_name
+msgid "Technical Name"
+msgstr "Nombre Técnico"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Creation Date"
+msgstr "Fecha de Creación"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Critical Priority"
+msgstr "Prioridad Crítica"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Assigned To"
+msgstr "Asignado A"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Priority"
+msgstr "Prioridad"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/models.py:0
+#, python-format
+msgid "You are not allowed to archive/unarchive records of model '%s'."
+msgstr "No tiene permitido archivar/desarchivar registros del modelo '%s'."

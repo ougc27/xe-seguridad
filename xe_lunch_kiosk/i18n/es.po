@@ -65,6 +65,17 @@ msgid "Date"
 msgstr "Fecha"
 
 #. module: xe_lunch_kiosk
+#: model:ir.model.fields,field_description:xe_lunch_kiosk.field_xe_lunch_register__company_id
+#: model_terms:ir.ui.view,arch_db:xe_lunch_kiosk.view_xe_lunch_register_search
+msgid "Company"
+msgstr "Compañía"
+
+#. module: xe_lunch_kiosk
+#: model:ir.rule,name:xe_lunch_kiosk.xe_lunch_register_company_rule
+msgid "Meal Service Record: multi-company"
+msgstr "Registro de Comedor: multicompañía"
+
+#. module: xe_lunch_kiosk
 #: model:ir.model.fields,field_description:xe_lunch_kiosk.field_xe_lunch_register__display_name
 msgid "Display Name"
 msgstr "Nombre mostrado"
@@ -195,3 +206,65 @@ msgstr "❌ No encontrado"
 #, python-format
 msgid "🍽 XE Meal Service"
 msgstr "🍽 Servicio de Comedor XE"
+
+#. module: xe_lunch_kiosk
+#. odoo-python
+#: code:addons/xe_lunch_kiosk/models/lunch_config.py:0
+#: model:ir.model,name:xe_lunch_kiosk.model_xe_lunch_config
+#: model_terms:ir.ui.view,arch_db:xe_lunch_kiosk.view_xe_lunch_config_form
+#, python-format
+msgid "Meal Service Configuration"
+msgstr "Configuración del Servicio de Comedor"
+
+#. module: xe_lunch_kiosk
+#: model:ir.model.fields,field_description:xe_lunch_kiosk.field_xe_lunch_config__meal_price
+msgid "Meal Price"
+msgstr "Precio de la Comida"
+
+#. module: xe_lunch_kiosk
+#: model:ir.model.fields,field_description:xe_lunch_kiosk.field_xe_lunch_register__meal_price
+msgid "Meal Cost"
+msgstr "Costo de la Comida"
+
+#. module: xe_lunch_kiosk
+#: model:ir.model.fields,field_description:xe_lunch_kiosk.field_xe_lunch_config__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: xe_lunch_kiosk
+#: model:ir.actions.server,name:xe_lunch_kiosk.action_open_lunch_config
+#: model:ir.ui.menu,name:xe_lunch_kiosk.menu_xe_lunch_kiosk_config
+msgid "Configuration"
+msgstr "Configuración"
+
+#. module: xe_lunch_kiosk
+#: model_terms:ir.ui.view,arch_db:xe_lunch_kiosk.view_xe_lunch_register_pivot
+msgid "Meal Service Cost"
+msgstr "Costo del Servicio de Comedor"
+
+#. module: xe_lunch_kiosk
+#: model_terms:ir.ui.view,arch_db:xe_lunch_kiosk.view_xe_lunch_register_list
+msgid "Total Cost"
+msgstr "Costo Total"
+
+#. module: xe_lunch_kiosk
+#: model:ir.model.fields,help:xe_lunch_kiosk.field_xe_lunch_register__meal_price
+msgid ""
+"Meal unit price captured at the moment the record was created. It is a "
+"snapshot: later changes to the configured price do not affect existing "
+"records."
+msgstr ""
+"Precio unitario de la comida capturado en el momento en que se creó el "
+"registro. Es una instantánea: los cambios posteriores al precio configurado "
+"no afectan a los registros existentes."
+
+#. module: xe_lunch_kiosk
+#: model:ir.model.fields,help:xe_lunch_kiosk.field_xe_lunch_config__meal_price
+msgid ""
+"Unit price applied to each new meal service record. Changing this value only"
+" affects records created afterwards; existing records keep the price they "
+"were created with."
+msgstr ""
+"Precio unitario aplicado a cada nuevo registro de comedor. Cambiar este valor"
+" solo afecta a los registros creados posteriormente; los registros "
+"existentes conservan el precio con el que se crearon."

@@ -18,3 +18,5 @@ access_create_ticket_anywhere,access.create.ticket.anywhere,model_create_ticket_
 access_helpdesk_ticket_only_own,helpdesk.ticket.only.own,helpdesk.model_helpdesk_ticket,group_helpdesk_only_own_tickets,1,1,1,0
 access_helpdesk_tag_only_own,helpdesk.tag.only.own,helpdesk.model_helpdesk_tag,group_helpdesk_only_own_tickets,1,0,0,0
 access_helpdesk_type_only_own,helpdesk.type.only.own,helpdesk.model_helpdesk_ticket_type,group_helpdesk_only_own_tickets,1,0,0,0
+access_archive_exception_models_system,archive.exception.models.system,model_archive_exception_models,base.group_system,1,1,1,1
+access_archive_exception_models_user,archive.exception.models.user,model_archive_exception_models,base.group_user,1,0,0,0
