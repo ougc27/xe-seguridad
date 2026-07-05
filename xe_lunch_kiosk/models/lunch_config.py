@@ -19,6 +19,20 @@ class LunchConfig(models.Model):
              'Changing this value only affects records created afterwards; '
              'existing records keep the price they were created with.',
     )
+    barcode_source = fields.Selection(
+        [
+            ('scanner', 'Barcode / RFID Scanner'),
+            ('front',   'Front Camera'),
+            ('back',    'Back Camera'),
+        ],
+        string='Barcode Source',
+        required=True,
+        default='back',
+        help='Choose how barcodes are read in the kiosk:\n'
+             '- Barcode / RFID Scanner: USB or Bluetooth scanner; camera is hidden.\n'
+             '- Front Camera: uses the device\'s front-facing camera.\n'
+             '- Back Camera: uses the device\'s rear-facing camera (recommended for tablets).',
+    )
 
     @api.model
     def get_singleton(self):
@@ -32,6 +46,11 @@ class LunchConfig(models.Model):
     def get_meal_price(self):
         """Return the currently configured meal unit price."""
         return self.get_singleton().meal_price
+
+    @api.model
+    def get_barcode_source(self):
+        """Return the currently configured barcode source."""
+        return self.get_singleton().barcode_source
 
     @api.model
     def action_open_settings(self):

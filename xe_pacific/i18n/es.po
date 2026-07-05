@@ -246,6 +246,7 @@ msgstr "Cancelar remisión"
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__cancelled_reason
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission_wizard__cancelled_reason
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_search
 msgid "Cancellation Reason"
 msgstr "Razón de la cancelación"
 
@@ -256,6 +257,7 @@ msgstr "Cancelado por"
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__cancelled_date
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_search
 msgid "Cancelled Date"
 msgstr "Fecha de cancelación"
 
@@ -333,6 +335,42 @@ msgstr "Razón para cancelar la remisión."
 #: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__remission_folio
 msgid "Remission Folio"
 msgstr "Folio de remisión"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__remission_date
+msgid "Date of the remission before it was cancelled"
+msgstr "Fecha de la remisión antes de ser cancelada"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__partner_id
+msgid "Customer taken from the transfer folio."
+msgstr "Cliente obtenido desde el folio de transferencia."
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__team_id
+msgid "Sales team taken from the transfer folio."
+msgstr "Equipo de ventas obtenido desde el folio de transferencia."
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__warehouse_id
+msgid "Warehouse taken from the transfer folio."
+msgstr "Almacén obtenido desde el folio de transferencia."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__is_from_ticket
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_search
+msgid "From Ticket"
+msgstr "Proviene de un ticket"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__is_from_ticket
+msgid "Indicates if the transfer folio was generated from a helpdesk ticket."
+msgstr "Indica si el folio de transferencia fue generado a partir de un ticket de soporte."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_search
+msgid "Not From Ticket"
+msgstr "No proviene de un ticket"
 
 #. module: xe_pacific
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_wizard
@@ -464,8 +502,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:xe_pacific.field_account_move__x_studio_almacen_id
 #: model:ir.model.fields,field_description:xe_pacific.field_account_payment__warehouse_id
 #: model:ir.model.fields,field_description:xe_pacific.field_account_payment__x_studio_almacen_id
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__warehouse_id
 #: model:ir.model.fields,field_description:xe_pacific.field_generate_ticket_wizard__warehouse_id
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__warehouse_id
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_search
 msgid "Warehouse"
 msgstr "Almacén"
 
@@ -773,6 +813,13 @@ msgid "Sales Team"
 msgstr "Canal"
 
 #. module: xe_pacific
+#: model:ir.model,name:xe_pacific.model_crm_team
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__team_id
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_search
+msgid "Sales Team"
+msgstr "Equipo de ventas"
+
+#. module: xe_pacific
 #. odoo-python
 #: code:addons/xe_pacific/wizard/ticket_transfer_wizard.py:0
 #, python-format
@@ -786,6 +833,7 @@ msgstr "Fecha en la que la remisión ha sido procesada o cancelada."
 
 #. module: xe_pacific
 #: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket__remission_date
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__remission_date
 msgid "Remission Date"
 msgstr "Fecha de remisión"
 
@@ -2180,6 +2228,8 @@ msgid "Current behavior"
 msgstr "Comportamiento Actual"
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__partner_id
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_search
 #: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
 msgid "Customer"
 msgstr "Cliente"
@@ -2481,3 +2531,33 @@ msgstr "Prioridad"
 #, python-format
 msgid "You are not allowed to archive/unarchive records of model '%s'."
 msgstr "No tiene permitido archivar/desarchivar registros del modelo '%s'."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.ticket_message_origin_link
+msgid "Ticket related:"
+msgstr "Ticket de soporte técnico relacionado:"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Open"
+msgstr "Abierto"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Closed"
+msgstr "Cerrado"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_helpdesk_ticket_option__name
+msgid "Option Name"
+msgstr "Nombre Opción"
+
+#. module: xe_pacific
+#: model:ir.ui.menu,name:xe_pacific.menu_helpdesk_ticket_option
+msgid "Options"
+msgstr "Opciones"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_ticket_option_view_search
+msgid "Search Options"
+msgstr "Opciones de búsqueda"

@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
+    <t t-name="xe_lunch_kiosk.KioskCamera">
+        <div class="o_lunch_kiosk_camera_wrap">
+            <CropOverlay onResize.bind="onResize" isReady="state.isReady">
+                <video t-ref="video"
+                       autoplay="true"
+                       muted="true"
+                       playsinline="true"
+                       class="o_lunch_kiosk_video"/>
+            </CropOverlay>
+        </div>
+    </t>
+
     <t t-name="xe_lunch_kiosk.LunchKiosk">
         <div class="o_lunch_kiosk">
 
@@ -10,28 +22,51 @@
             </div>
 
             <div class="o_lunch_kiosk_scan_box">
-                <t t-if="cameraSupported">
-                    <div class="o_lunch_kiosk_scanner">
-                        <LunchBarcodeScanner onBarcodeScanned.bind="onBarcodeScanned"/>
+
+                <t t-if="showCamera">
+                    <t t-if="!state.cameraError">
+                        <KioskCamera
+                            facingMode="facingMode"
+                            onBarcodeScanned.bind="onCameraBarcode"
+                            onError.bind="onCameraError"
+                        />
+                    </t>
+                    <t t-else="">
+                        <div class="o_lunch_kiosk_camera_error">
+                            <span>📷</span>
+                            <p t-esc="state.cameraError"/>
+                            <small>Use your barcode / RFID scanner instead.</small>
+                        </div>
+                    </t>
+                </t>
+
+                <t t-else="">
+                    <div class="o_lunch_kiosk_scanner_placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.5" aria-hidden="true">
+                            <path d="M3 6V4h2M19 4h2v2M3 18v2h2M19 20h2v-2
+                                     M7 4v16M10 4v16M13 4v16M17 4v16"/>
+                        </svg>
+                        <span>Use your barcode / RFID scanner</span>
                     </div>
                 </t>
-                <p t-else="" class="o_lunch_kiosk_camera_hint">
-                    The camera requires HTTPS or opening the kiosk on localhost.
-                </p>
 
-                <h2>Scan your ID</h2>
+                <h2 class="o_lunch_kiosk_scan_label">Scan your ID</h2>
 
-                <input type="text"
-                       t-ref="barcodeInput"
-                       class="o_lunch_kiosk_input"
-                       placeholder=""
-                       autocomplete="off"
-                       t-on-keydown="onInputKeydown"/>
+                <input
+                    type="text"
+                    t-ref="barcodeInput"
+                    class="o_lunch_kiosk_input_hidden"
+                    autocomplete="off"
+                    t-on-keydown="onInputKeydown"
+                />
             </div>
 
-            <div t-attf-class="o_lunch_kiosk_feedback {{ state.feedback.type }} {{ state.feedback.visible ? 'o_lunch_kiosk_feedback_visible' : '' }}">
+            <div t-attf-class="o_lunch_kiosk_feedback
+                                {{ state.feedback.type }}
+                                {{ state.feedback.visible ? 'o_lunch_kiosk_feedback_visible' : '' }}">
                 <div class="o_lunch_kiosk_emp_name" t-esc="state.feedback.title"/>
-                <div class="o_lunch_kiosk_sub_msg" t-esc="state.feedback.subMessage"/>
+                <div class="o_lunch_kiosk_sub_msg"  t-esc="state.feedback.subMessage"/>
             </div>
 
             <div class="o_lunch_kiosk_date" t-esc="state.currentDate"/>

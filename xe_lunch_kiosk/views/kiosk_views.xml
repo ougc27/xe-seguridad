@@ -34,6 +34,7 @@
         </field>
     </record>
 
+    <!-- ── Search view ───────────────────────────────────────────────────── -->
     <record id="view_xe_lunch_register_search" model="ir.ui.view">
         <field name="name">xe.lunch.register.search</field>
         <field name="model">xe.lunch.register</field>
@@ -58,6 +59,7 @@
         </field>
     </record>
 
+    <!-- ── Pivot view (weekly cost report) ───────────────────────────────── -->
     <record id="view_xe_lunch_register_pivot" model="ir.ui.view">
         <field name="name">xe.lunch.register.pivot</field>
         <field name="model">xe.lunch.register</field>
@@ -76,14 +78,19 @@
         <field name="arch" type="xml">
             <form string="Meal Service Configuration">
                 <sheet>
-                    <group>
+                    <group string="Pricing">
                         <field name="meal_price"/>
+                    </group>
+                    <group string="Kiosk Settings">
+                        <field name="barcode_source" required="1"
+                               help="Choose how barcodes are read in the kiosk."/>
                     </group>
                 </sheet>
             </form>
         </field>
     </record>
 
+    <!-- Server action that opens the singleton configuration form -->
     <record id="action_open_lunch_config" model="ir.actions.server">
         <field name="name">Configuration</field>
         <field name="model_id" ref="model_xe_lunch_config"/>
@@ -91,6 +98,7 @@
         <field name="code">action = model.action_open_settings()</field>
     </record>
 
+    <!-- ── Window action ─────────────────────────────────────────────────── -->
     <record id="action_xe_lunch_register" model="ir.actions.act_window">
         <field name="name">Meal Service Records</field>
         <field name="res_model">xe.lunch.register</field>
@@ -98,18 +106,25 @@
         <field name="search_view_id" ref="view_xe_lunch_register_search"/>
     </record>
 
+    <!-- ── URL action (kiosk) – Admin only ──────────────────────────────── -->
     <record id="action_open_kiosk" model="ir.actions.act_url">
         <field name="name">Open Kiosk</field>
         <field name="url">/lunch/kiosk</field>
         <field name="target">new</field>
     </record>
 
+    <!-- ── Menu structure ───────────────────────────────────────────────── -->
+    <!--
+        Root menu: visible to both groups (User sees "Meal Service Records";
+        Admin also sees "Open Kiosk").
+    -->
     <menuitem id="menu_xe_lunch_kiosk_root"
               name="Meal Service"
               sequence="60"
               web_icon="xe_lunch_kiosk,static/description/icon.png"
               groups="xe_lunch_kiosk.group_xe_lunch_kiosk_user"/>
 
+    <!-- Records submenu: User and Admin -->
     <menuitem id="menu_xe_lunch_register"
               name="Meal Service Records"
               parent="menu_xe_lunch_kiosk_root"
@@ -117,6 +132,7 @@
               sequence="10"
               groups="xe_lunch_kiosk.group_xe_lunch_kiosk_user"/>
 
+    <!-- Kiosk submenu: Admin only -->
     <menuitem id="menu_xe_lunch_kiosk_open"
               name="Open Kiosk"
               parent="menu_xe_lunch_kiosk_root"
@@ -124,6 +140,7 @@
               sequence="20"
               groups="xe_lunch_kiosk.group_xe_lunch_kiosk_admin"/>
 
+    <!-- Configuration submenu: Admin only -->
     <menuitem id="menu_xe_lunch_kiosk_config"
               name="Configuration"
               parent="menu_xe_lunch_kiosk_root"

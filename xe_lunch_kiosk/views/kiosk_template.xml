@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="kiosk_template" name="XE Lunch Kiosk">&lt;!DOCTYPE html&gt;
+    <!--
+        Standalone kiosk page — no Odoo web session required.
+
+        The page loads the module's own asset bundle (xe_lunch_kiosk.assets_kiosk)
+        which is built without any dependency on the authenticated Odoo web session.
+
+        barcodeSource is injected by the controller as a Qweb variable and
+        forwarded to the OWL app via document.kiosk, following the same
+        pattern used by hr_attendance's public kiosk.
+
+        barcodeSource values:
+            'scanner' → no camera; USB / Bluetooth reader only
+            'front'   → front-facing camera (facingMode: 'user')
+            'back'    → rear-facing camera  (facingMode: 'environment')  ← default
+    -->
+    <template id="kiosk_template" name="XE Lunch Kiosk">
+        <![CDATA[<!DOCTYPE html>]]>
         <html lang="es">
             <head>
                 <meta charset="utf-8"/>
@@ -9,15 +25,34 @@
                 <title>XE Meal Service</title>
                 <t t-call-assets="xe_lunch_kiosk.assets_kiosk" t-js="false"/>
                 <t t-call-assets="xe_lunch_kiosk.assets_kiosk" t-css="false"/>
-                <script type="text/javascript">
-                    odoo.define("xe_lunch_kiosk.boot", ["@xe_lunch_kiosk/js/kiosk_app"], function (require) {
-                        const { createLunchKiosk } = require("@xe_lunch_kiosk/js/kiosk_app");
-                        createLunchKiosk(document);
-                    });
-                </script>
             </head>
             <body class="o_lunch_kiosk_body">
+
+                <!--
+                    Config block: injects backend values as a plain JS object on
+                    `document.kiosk` so the OWL bootstrap function can read them
+                    before mounting the app — no session, no RPC needed.
+                -->
+                <script>
+                    document.kiosk = {
+                        barcodeSource: "<t t-esc="barcode_source or 'back'"/>",
+                    };
+                </script>
+
+                <!-- OWL app mount target -->
                 <div class="o_lunch_kiosk_app"/>
+
+                <!-- Bootstrap: loads after the bundle CSS/JS are ready -->
+                <script type="text/javascript">
+                    odoo.define(
+                        "xe_lunch_kiosk.boot",
+                        ["@xe_lunch_kiosk/js/kiosk_app"],
+                        function (require) {
+                            const { createLunchKiosk } = require("@xe_lunch_kiosk/js/kiosk_app");
+                            createLunchKiosk(document);
+                        }
+                    );
+                </script>
             </body>
         </html>
     </template>

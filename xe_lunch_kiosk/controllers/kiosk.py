@@ -1,46 +1,45 @@
 from odoo import http, fields
 from odoo.http import request
-from odoo.exceptions import AccessError
 
 
 class LunchKioskController(http.Controller):
 
-    @http.route('/lunch/kiosk', type='http', auth='user', website=False)
+    # ──────────────────────────────────────────────────────────────────────
+    # Public kiosk page  (no login required)
+    # ──────────────────────────────────────────────────────────────────────
+    @http.route('/lunch/kiosk', type='http', auth='public', website=False)
     def kiosk_index(self, **kwargs):
-        """
-        Kiosk page – restricted to Lunch Kiosk Administrators.
-        Regular users (group_xe_lunch_kiosk_user) are redirected to /web.
-        """
-        if not request.env.user.has_group(
-                'xe_lunch_kiosk.group_xe_lunch_kiosk_admin'):
-            return request.redirect('/web')
-        return request.render('xe_lunch_kiosk.kiosk_template', {})
+        """Render the standalone kiosk page (accessible without login)."""
+        config = request.env['xe.lunch.config'].sudo().get_singleton()
+        return request.render('xe_lunch_kiosk.kiosk_template', {
+            'barcode_source': config.barcode_source,   # 'scanner' | 'front' | 'back'
+        })
 
-    @http.route('/lunch/kiosk/scan', type='json', auth='user', csrf=False)
+    # ──────────────────────────────────────────────────────────────────────
+    # Public scan endpoint  (no login required)
+    # ──────────────────────────────────────────────────────────────────────
+    @http.route('/lunch/kiosk/scan', type='json', auth='public', csrf=False)
     def kiosk_scan(self, barcode, **kwargs):
         """
-        Barcode scan endpoint – restricted to Lunch Kiosk Administrators.
-        The kiosk page is only reachable by admins, so this is a second
-        layer of defence.
-        """
-        if not request.env.user.has_group(
-                'xe_lunch_kiosk.group_xe_lunch_kiosk_admin'):
-            raise AccessError(
-                "You must be a Lunch Kiosk Administrator to use this feature."
-            )
+        Register a meal for the employee identified by *barcode*.
 
-        if not barcode:
+        Runs entirely with sudo() because the route is public.  No sensitive
+        data is exposed: the response only contains a status and the
+        employee's display name.
+        """
+        if not barcode or not barcode.strip():
             return {'status': 'not_found'}
 
-        employee = request.env['hr.employee'].sudo().search(
+        env = request.env(su=True)   # Odoo 17 recommended way to sudo
+
+        employee = env['hr.employee'].search(
             [('barcode', '=', barcode.strip())], limit=1)
         if not employee:
             return {'status': 'not_found'}
 
         today = fields.Date.context_today(employee)
-        Register = request.env['xe.lunch.register'].sudo()
 
-        existing = Register.search([
+        existing = env['xe.lunch.register'].search([
             ('employee_id', '=', employee.id),
             ('date', '=', today),
         ], limit=1)
@@ -50,7 +49,7 @@ class LunchKioskController(http.Controller):
                 'name': employee.name,
             }
 
-        Register.create({
+        env['xe.lunch.register'].create({
             'employee_id': employee.id,
             'date': today,
             'timestamp': fields.Datetime.now(),
