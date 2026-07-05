@@ -268,3 +268,36 @@ msgstr ""
 "Precio unitario aplicado a cada nuevo registro de comedor. Cambiar este valor"
 " solo afecta a los registros creados posteriormente; los registros "
 "existentes conservan el precio con el que se crearon."
+
+#. module: xe_lunch_kiosk
+#: model:ir.model.fields,field_description:xe_lunch_kiosk.field_xe_lunch_config__barcode_source
+msgid "Barcode Source"
+msgstr "Fuente de código de barras"
+
+#. module: xe_lunch_kiosk
+#: model:ir.model.fields.selection,name:xe_lunch_kiosk.selection__xe_lunch_config__barcode_source__scanner
+msgid "Barcode / RFID Scanner"
+msgstr "Escáner de código de barras / RFID"
+
+#. module: xe_lunch_kiosk
+#: model:ir.model.fields.selection,name:xe_lunch_kiosk.selection__xe_lunch_config__barcode_source__front
+msgid "Front Camera"
+msgstr "Cámara frontal"
+
+#. module: xe_lunch_kiosk
+#: model:ir.model.fields.selection,name:xe_lunch_kiosk.selection__xe_lunch_config__barcode_source__back
+msgid "Back Camera"
+msgstr "Cámara trasera"
+
+#. module: xe_lunch_kiosk
+#: model:ir.model.fields,help:xe_lunch_kiosk.field_xe_lunch_config__barcode_source
+msgid ""
+"Choose how barcodes are read in the kiosk:\n"
+"- Barcode / RFID Scanner: USB or Bluetooth scanner; camera is hidden.\n"
+"- Front Camera: uses the device's front-facing camera.\n"
+"- Back Camera: uses the device's rear-facing camera (recommended for tablets)."
+msgstr ""
+"Elige cómo se leen los códigos de barras en el kiosko:\n"
+"- Escáner de código de barras / RFID: lector USB o Bluetooth; la cámara se oculta.\n"
+"- Cámara frontal: usa la cámara delantera del dispositivo.\n"
+"- Cámara trasera: usa la cámara trasera del dispositivo (recomendado para tabletas)."

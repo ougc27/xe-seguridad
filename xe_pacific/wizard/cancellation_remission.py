@@ -35,6 +35,7 @@ class CancelledRemissionWizard(models.TransientModel):
         self.env['cancelled.remission'].create({
             'picking_id': self.picking_id.id,
             'remission_folio': self.picking_id.x_studio_folio_rem,
+            'remission_date': self.picking_id.remission_date,
             'cancelled_date': fields.Datetime.now(),
             'user_id': self.env.user.id,
             'cancelled_reason': self.cancelled_reason.id,
