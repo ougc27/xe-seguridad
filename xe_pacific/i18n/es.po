@@ -2561,3 +2561,42 @@ msgstr "Opciones"
 #: model_terms:ir.ui.view,arch_db:xe_pacific.helpdesk_ticket_option_view_search
 msgid "Search Options"
 msgstr "Opciones de búsqueda"
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_picking__block_lot_assignment
+msgid "Block Lot Assignment"
+msgstr "Bloquear asignación de lotes"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_stock_picking__block_lot_assignment
+msgid ""
+"If enabled, lots/serials cannot be selected or assigned on this transfer. "
+"Only available on transfers originated from a purchase order."
+msgstr ""
+"Si está habilitado, no se podrán seleccionar ni asignar lotes/números de serie en esta transferencia. "
+"Solo está disponible para transferencias originadas desde una orden de compra."
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_stock_lot__blocked
+msgid ""
+"If enabled, this lot/serial is hidden from selection and cannot be sent to "
+"Transit or validated in transfers until unblocked."
+msgstr ""
+"Si está habilitado, este lote/número de serie se ocultará de la selección y no podrá enviarse a Tránsito "
+"ni validarse en transferencias hasta que sea desbloqueado."
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/stock_picking.py:0
+#, python-format
+msgid ""
+"This transfer contains blocked lots/serials (%s). It cannot be moved to "
+"Transit or validated until they are unblocked."
+msgstr ""
+"Esta transferencia contiene lotes/números de serie bloqueados (%s). No puede enviarse a Tránsito "
+"ni validarse hasta que sean desbloqueados."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_stock_lot__blocked
+msgid "Blocked for Transfers"
+msgstr "Bloqueado para transferencias"

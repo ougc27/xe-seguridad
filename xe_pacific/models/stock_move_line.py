@@ -1,19 +1,32 @@
-from odoo import models, _
+from odoo import api, models, _
 from odoo.exceptions import UserError
 
 
 class StockMoveLine(models.Model):
     _inherit = 'stock.move.line'
 
-    def write(self, vals):
+    def _apply_picking_lot_block(self):
+        """If a lot is assigned on a purchase transfer flagged with
+        block_lot_assignment, mark that lot as blocked."""
         for rec in self:
-            if rec.picking_id.state == 'done':
-                if 'qty_done' in vals:
-                    raise UserError(_("You cannot modify quantities in moves of a completed picking."))
-            #new_quantity = vals.get("quantity", rec.quantity)
-            #if new_quantity != rec.quantity:
-                #if rec.picking_id.state == "transit":
-                    #raise UserError(_("You cannot change the demanded quantity in transit state"))
-                #if new_quantity > rec.move_id.product_uom_qty:
-                    #raise UserError(_("You cannot update the quantity with a quantity greater than the demand"))
-        return super().write(vals)
+            if (rec.lot_id
+                    and rec.picking_id.block_lot_assignment
+                    and not rec.lot_id.blocked):
+                rec.lot_id.blocked = True
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        lines = super().create(vals_list)
+        lines._apply_picking_lot_block()
+        return lines
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'lot_id' in vals:
+            self._apply_picking_lot_block()
+        for rec in self:
+            if rec.picking_id.state == 'done' and 'qty_done' in vals:
+                raise UserError(_(
+                    "You cannot modify quantities in moves of a completed picking."
+                ))
+        return res

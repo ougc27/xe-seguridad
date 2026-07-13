@@ -36,3 +36,4 @@ from . import survey_survey
 from . import helpdesk_ticket_category
 from . import helpdesk_ticket_option
 from . import archive_exception_models
+from . import stock_lot
