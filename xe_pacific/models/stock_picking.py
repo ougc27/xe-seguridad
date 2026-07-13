@@ -113,6 +113,13 @@ class StockPicking(models.Model):
     
     exclude_from_uninvoiced_filter = fields.Boolean()
 
+    block_lot_assignment = fields.Boolean(
+        string="Block Lot Assignment",
+        copy=False,
+        help="If enabled, lots/serials cannot be selected or assigned on this "
+            "transfer. Only available on transfers originated from a purchase order.",
+    )
+
     @api.depends('return_ids.state')
     def _compute_is_full_returned(self):
         for record in self:
@@ -645,6 +652,8 @@ class StockPicking(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
+        if 'block_lot_assignment' in vals:
+            self._sync_blocked_lots()
         for picking in self:
             service_ticket_id = picking.service_ticket_id
             if service_ticket_id:
@@ -875,3 +884,33 @@ class StockPicking(models.Model):
             'kanban_task_status': 'to_scheduled',
             'shipment_task_status': 'to_scheduled',
         })
+
+    def _check_blocked_lots(self):
+        """Raise if any picking has reserved/assigned blocked lots. Used as the
+        hard stop for the Transit and Done transitions, independent of the UI
+        domain (covers auto-reservation and action_assign_serial)."""
+        for picking in self:
+            blocked_lots = picking.move_line_ids.lot_id.filtered(lambda l: l.blocked)
+            if blocked_lots:
+                raise UserError(_(
+                    "This transfer contains blocked lots/serials (%s). It cannot "
+                    "be moved to Transit or validated until they are unblocked.",
+                    ", ".join(blocked_lots.mapped("name")),
+                ))
+    
+    def button_validate(self):
+        self._check_blocked_lots()
+        return super().button_validate()
+
+    def action_transit(self):
+        self._check_blocked_lots()
+        return super().action_transit()
+
+    def _sync_blocked_lots(self):
+        """Propagate this reception's block_lot_assignment flag onto the lots
+        received on it, so they get blocked/unblocked for downstream transfers."""
+        for picking in self:
+            lots = picking.move_line_ids.lot_id
+            to_update = lots.filtered(lambda l: l.blocked != picking.block_lot_assignment)
+            if to_update:
+                to_update.write({'blocked': picking.block_lot_assignment})
