@@ -116,6 +116,7 @@ class StockPicking(models.Model):
     block_lot_assignment = fields.Boolean(
         string="Block Lot Assignment",
         copy=False,
+        tracking=True,
         help="If enabled, lots/serials cannot be selected or assigned on this "
             "transfer. Only available on transfers originated from a purchase order.",
     )
@@ -654,6 +655,7 @@ class StockPicking(models.Model):
         res = super().write(vals)
         if 'block_lot_assignment' in vals:
             self._sync_blocked_lots()
+            self._sync_blocked_returns()
         for picking in self:
             service_ticket_id = picking.service_ticket_id
             if service_ticket_id:
@@ -898,12 +900,31 @@ class StockPicking(models.Model):
                     ", ".join(blocked_lots.mapped("name")),
                 ))
     
+    def _is_return_picking(self):
+        self.ensure_one()
+        return any(self.move_ids.mapped('origin_returned_move_id'))
+      
+    def _check_blocked_returns(self):
+        for picking in self:
+            if not picking._is_return_picking():
+                continue
+            blocked = picking.move_ids.product_id.filtered(
+                lambda p: p.product_tmpl_id.block_return
+            )
+            if blocked:
+                raise UserError(_(
+                    "Returns cannot be validated for blocked products: %s.",
+                    ", ".join(blocked.mapped("display_name")),
+                ))
+
     def button_validate(self):
         self._check_blocked_lots()
+        self._check_blocked_returns()
         return super().button_validate()
 
     def action_transit(self):
         self._check_blocked_lots()
+        self._check_blocked_returns()
         return super().action_transit()
 
     def _sync_blocked_lots(self):
@@ -914,3 +935,10 @@ class StockPicking(models.Model):
             to_update = lots.filtered(lambda l: l.blocked != picking.block_lot_assignment)
             if to_update:
                 to_update.write({'blocked': picking.block_lot_assignment})
+
+    def _sync_blocked_returns(self):
+        """Propagate the reception's block flag onto its products' block_return."""
+        for picking in self:
+            products = picking.move_ids.product_id.product_tmpl_id
+            if products:
+                products.write({'block_return': picking.block_lot_assignment})

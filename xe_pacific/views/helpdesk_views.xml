@@ -272,7 +272,7 @@
         <field name="name">helpdesk.ticket.it.custom.tree</field>
         <field name="model">helpdesk.ticket</field>
         <field name="arch" type="xml">
-            <tree string="Technical Support Tickets" create="false" delete="false">
+            <tree string="Technical Support Tickets" create="false" delete="false" default_order="create_date desc">
                 <field name="team_id"/>
                 <field name="name"/>
                 <field name="priority"/>
@@ -295,6 +295,8 @@
                 <field name="user_id"/>
 
                 <separator/>
+                <filter string="Open" domain="[('stage_id.fold', '=', False)]" name="is_open"/>
+                <filter string="Closed" domain="[('stage_id.fold', '=', True)]" name="is_close"/>
                 <filter string="Low Priority" name="priority_low" domain="[('priority', '=', '0')]"/>
                 <filter string="Medium Priority" name="priority_medium" domain="[('priority', '=', '1')]"/>
                 <filter string="High Priority" name="priority_high" domain="[('priority', '=', '2')]"/>
@@ -323,7 +325,7 @@
         <field name="search_view_id" ref="view_helpdesk_ticket_it_custom_search"/>
         <field name="context">{
             'default_is_it_team': True,
-            'search_default_is_it_team': 1
+            'search_default_is_open': True,
         }</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
