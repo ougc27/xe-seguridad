@@ -2600,3 +2600,27 @@ msgstr ""
 #: model:ir.model.fields,field_description:xe_pacific.field_stock_lot__blocked
 msgid "Blocked for Transfers"
 msgstr "Bloqueado para transferencias"
+
+#. module: xe_pacific
+#. odoo-python
+#: code:addons/xe_pacific/models/stock_picking.py:0
+#, python-format
+msgid "Returns cannot be validated for blocked products: %s."
+msgstr "No se pueden validar devoluciones de productos bloqueados: %s."
+
+#. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_product_product__block_return
+#: model:ir.model.fields,field_description:xe_pacific.field_product_template__block_return
+msgid "Blocked for Returns"
+msgstr "Bloqueado para devoluciones"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_product_product__block_return
+#: model:ir.model.fields,help:xe_pacific.field_product_template__block_return
+msgid ""
+"While enabled, returns of this product cannot be validated. Set "
+"automatically by purchase receptions flagged as blocked."
+msgstr ""
+"Cuando esta opción está habilitada, no se podrán validar devoluciones de "
+"este producto. Se establece automáticamente por recepciones de compra "
+"marcadas como bloqueadas."
