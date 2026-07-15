@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_heb_branch_system,heb.branch system,model_heb_branch,base.group_no_one,1,1,1,1
+access_heb_branch_invoice,heb.branch invoice user,model_heb_branch,account.group_account_invoice,1,0,0,0
+access_heb_branch_user,heb.branch internal user,model_heb_branch,base.group_user,1,0,0,0
+access_heb_invoice_log_system,heb.invoice.log system,model_heb_invoice_log,base.group_system,1,1,1,1
+access_heb_invoice_log_invoice,heb.invoice.log invoice user,model_heb_invoice_log,account.group_account_invoice,0,0,1,0

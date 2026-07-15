@@ -1,0 +1,568 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* addenda_heb
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-08 23:28+0000\n"
+"PO-Revision-Date: 2026-07-08 23:28+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#, python-format
+msgid "(empty)"
+msgstr "(vacía)"
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#, python-format
+msgid "(not available)"
+msgstr "(no disponible)"
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#, python-format
+msgid "(not returned)"
+msgstr "(no devuelto)"
+
+#. module: addenda_heb
+#: model:ir.model.fields.selection,name:addenda_heb.selection__account_move__heb_send_state__sent
+msgid "Accepted"
+msgstr "Aceptada"
+
+#. module: addenda_heb
+#: model:ir.model.fields,help:addenda_heb.field_account_bank_statement_line__heb_reference
+#: model:ir.model.fields,help:addenda_heb.field_account_move__heb_reference
+#: model:ir.model.fields,help:addenda_heb.field_account_payment__heb_reference
+msgid ""
+"Acknowledgment number (referenceIdentification) returned by HEB when the "
+"document is accepted."
+msgstr ""
+"Número de acuse (referenceIdentification) que devuelve HEB cuando el "
+"documento es aceptado."
+
+#. module: addenda_heb
+#: model_terms:ir.actions.act_window,help:addenda_heb.action_heb_branch
+msgid "Add your first HEB branch!"
+msgstr "¡Agrega tu primera sucursal HEB!"
+
+#. module: addenda_heb
+#: model:ir.ui.menu,name:addenda_heb.menu_heb_addenda_configuration
+msgid "Addenda Heb"
+msgstr "Addenda HEB"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.l10n_mx_edi_addenda_heb
+msgid "BILLING_CURRENCY"
+msgstr "BILLING_CURRENCY"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_branch__name
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_branch_search
+msgid "Branch Name"
+msgstr "Nombre de la sucursal"
+
+#. module: addenda_heb
+#: model:ir.model.fields,help:addenda_heb.field_account_bank_statement_line__heb_branch_id
+#: model:ir.model.fields,help:addenda_heb.field_account_move__heb_branch_id
+#: model:ir.model.fields,help:addenda_heb.field_account_payment__heb_branch_id
+msgid "Branch for the HEB addenda."
+msgstr "Sucursal para la addenda de HEB."
+
+#. module: addenda_heb
+#: model:ir.model,name:addenda_heb.model_res_company
+msgid "Companies"
+msgstr "Empresas"
+
+#. module: addenda_heb
+#: model:ir.actions.act_window,name:addenda_heb.action_heb_ws_config_form
+msgid "Configuración HEB"
+msgstr "Configuración HEB"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_company_form_heb
+msgid "Connection"
+msgstr "Conexión"
+
+#. module: addenda_heb
+#: model:ir.model,name:addenda_heb.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/heb_webservice.py:0
+#, python-format
+msgid ""
+"Could not connect to the HEB web service.\n"
+"URL: %s\n"
+"Detail: %s"
+msgstr ""
+"No se pudo conectar con el web service de HEB.\n"
+"URL: %s\n"
+"Detalle: %s"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_branch__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_branch__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_company_form_heb
+msgid "Credentials"
+msgstr "Credenciales"
+
+#. module: addenda_heb
+#: model:ir.model.fields,help:addenda_heb.field_res_company__heb_ws_verify_ssl
+msgid ""
+"Disable in the test environment if the server certificate cannot be "
+"validated."
+msgstr ""
+"Desactívalo en el ambiente de pruebas si el certificado del servidor no "
+"puede validarse."
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_branch__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/heb_webservice.py:0
+#, python-format
+msgid "Empty response."
+msgstr "Respuesta vacía."
+
+#. module: addenda_heb
+#: model:ir.model.fields,help:addenda_heb.field_res_company__heb_ws_url_invoice
+msgid ""
+"Endpoint for CFDI 4.0 invoice submission. In the test environment it uses "
+"port 50012 (setDigitalInvoice)."
+msgstr ""
+"Endpoint para el envío de facturas CFDI 4.0. En el ambiente de pruebas "
+"usa el puerto 50012 (setDigitalInvoice)."
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_branch__gln
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_branch_search
+msgid "GLN"
+msgstr "GLN"
+
+#. module: addenda_heb
+#: model:ir.model.fields,help:addenda_heb.field_heb_branch__gln
+msgid "Global Location Number"
+msgstr "Número de Localización Global"
+
+#. module: addenda_heb
+#: model:ir.model.fields,help:addenda_heb.field_res_partner__addenda_heb_seller_gln
+#: model:ir.model.fields,help:addenda_heb.field_res_users__addenda_heb_seller_gln
+msgid "Global Location Number of the seller, used in HEB addenda."
+msgstr "Número de Localización Global del vendedor, usado en la addenda de HEB."
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#: model_terms:ir.ui.view,arch_db:addenda_heb.account_move_view_form_addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_company_form_heb
+#, python-format
+msgid "HEB"
+msgstr "HEB"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_account_bank_statement_line__heb_reference
+#: model:ir.model.fields,field_description:addenda_heb.field_account_move__heb_reference
+#: model:ir.model.fields,field_description:addenda_heb.field_account_payment__heb_reference
+msgid "HEB - Acknowledgment Reference"
+msgstr "HEB - Acuse (referencia)"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_res_company__heb_ws_url_invoice
+msgid "HEB - Invoice Service URL"
+msgstr "HEB - URL del servicio de facturas"
+
+#. module: addenda_heb
+#: model:ir.model,name:addenda_heb.model_heb_invoice_ws
+msgid "HEB - Invoice Web Service Client"
+msgstr "HEB - Cliente del web service de facturación"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_res_company__heb_ws_password
+msgid "HEB - Password"
+msgstr "HEB - Contraseña"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_account_bank_statement_line__heb_send_state
+#: model:ir.model.fields,field_description:addenda_heb.field_account_move__heb_send_state
+#: model:ir.model.fields,field_description:addenda_heb.field_account_payment__heb_send_state
+msgid "HEB - Status"
+msgstr "HEB - Estado"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_account_bank_statement_line__heb_transaction_id
+#: model:ir.model.fields,field_description:addenda_heb.field_account_move__heb_transaction_id
+#: model:ir.model.fields,field_description:addenda_heb.field_account_payment__heb_transaction_id
+msgid "HEB - Transaction ID"
+msgstr "HEB - ID de transacción"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_res_company__heb_ws_username
+msgid "HEB - Username"
+msgstr "HEB - Usuario"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_res_company__heb_ws_verify_ssl
+msgid "HEB - Verify SSL"
+msgstr "HEB - Verificar SSL"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_res_partner__addenda_heb_alternate_party_identification
+#: model:ir.model.fields,field_description:addenda_heb.field_res_users__addenda_heb_alternate_party_identification
+msgid "HEB Alternate Party Identification"
+msgstr "HEB - Identificación alterna del proveedor"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_account_bank_statement_line__heb_branch_id
+#: model:ir.model.fields,field_description:addenda_heb.field_account_move__heb_branch_id
+#: model:ir.model.fields,field_description:addenda_heb.field_account_payment__heb_branch_id
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_branch_form
+msgid "HEB Branch"
+msgstr "Sucursal HEB"
+
+#. module: addenda_heb
+#: model:ir.model,name:addenda_heb.model_heb_branch
+msgid "HEB Branch Catalog"
+msgstr "Catálogo de sucursales HEB"
+
+#. module: addenda_heb
+#: model:ir.actions.act_window,name:addenda_heb.action_heb_branch
+#: model:ir.ui.menu,name:addenda_heb.menu_heb_store
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_branch_tree
+msgid "HEB Branches"
+msgstr "Sucursales HEB"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_res_partner__addenda_heb_seller_gln
+#: model:ir.model.fields,field_description:addenda_heb.field_res_users__addenda_heb_seller_gln
+msgid "HEB Seller GLN"
+msgstr "GLN Vendedor HEB"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.account_move_view_form_addenda_heb
+msgid "HEB Submission"
+msgstr "Envío a HEB"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_company_form_heb
+msgid "HEB Web Service Endpoint"
+msgstr "Endpoint del web service HEB"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_branch__id
+msgid "ID"
+msgstr "ID"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.l10n_mx_edi_addenda_heb
+msgid "INVOICE"
+msgstr "INVOICE"
+
+#. module: addenda_heb
+#: model:ir.model.fields,help:addenda_heb.field_account_bank_statement_line__heb_transaction_id
+#: model:ir.model.fields,help:addenda_heb.field_account_move__heb_transaction_id
+#: model:ir.model.fields,help:addenda_heb.field_account_payment__heb_transaction_id
+msgid ""
+"Internal transaction identifier on the HEB side "
+"(uniqueCreatorIdentification). Used to track the submission with HEB "
+"support."
+msgstr ""
+"Identificador interno de la transacción del lado de HEB "
+"(uniqueCreatorIdentification). Sirve para rastrear el envío con el soporte "
+"de HEB."
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#, python-format
+msgid ""
+"Invoice %s has no signed CFDI. Stamp the invoice before sending it to HEB."
+msgstr ""
+"La factura %s no tiene un CFDI firmado. Timbra la factura antes de "
+"enviarla a HEB."
+
+#. module: addenda_heb
+#: model:ir.model,name:addenda_heb.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento contable"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_branch__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_branch__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/heb_webservice.py:0
+#, python-format
+msgid "Missing HEB web service URL in Settings."
+msgstr "Falta la URL del web service de HEB en Ajustes."
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/heb_webservice.py:0
+#, python-format
+msgid ""
+"Missing HEB web service username and/or password in the company Settings "
+"(HEB section)."
+msgstr ""
+"Faltan el usuario y/o la contraseña del web service de HEB en Ajustes de "
+"la compañía (sección HEB)."
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#, python-format
+msgid "Only customer invoices can be sent to HEB."
+msgstr "Solo se pueden enviar facturas de cliente a HEB."
+
+#. module: addenda_heb
+#: model:ir.model.fields.selection,name:addenda_heb.selection__account_move__heb_send_state__error
+msgid "Rejected / Error"
+msgstr "Rechazada / Error"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_branch_search
+msgid "Search HEB Branches"
+msgstr "Buscar sucursales HEB"
+
+#. module: addenda_heb
+#: model:ir.model.fields,help:addenda_heb.field_res_partner__addenda_heb_alternate_party_identification
+#: model:ir.model.fields,help:addenda_heb.field_res_users__addenda_heb_alternate_party_identification
+msgid "Seller assigned identifier for a party, used in HEB addenda."
+msgstr "Identificador asignado por el vendedor para la parte, usado en la addenda de HEB."
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.account_move_view_form_addenda_heb_buttons
+msgid "Send to HEB"
+msgstr "Enviar a HEB"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.l10n_mx_edi_addenda_heb
+msgid "TD"
+msgstr "TD"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_company_form_heb
+msgid "Test HEB Connection"
+msgstr "Probar conexión HEB"
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/res_company.py:0
+#, python-format
+msgid "Connection OK (HTTP %s). Service available."
+msgstr "Conexión correcta (HTTP %s). Servicio disponible."
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/res_company.py:0
+#, python-format
+msgid "No expected response (HTTP %s). Check the log."
+msgstr "Sin respuesta esperada (HTTP %s). Revisa la bitácora."
+
+#. module: addenda_heb
+#: model:ir.model.constraint,message:addenda_heb.constraint_heb_branch_gln_unique
+msgid "The GLN must be unique per branch."
+msgstr "El GLN debe ser único por sucursal."
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#, python-format
+msgid "The invoice must be posted."
+msgstr "La factura debe estar publicada (posted)."
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#, python-format
+msgid "The invoice must be stamped (CFDI sent) before sending it to HEB."
+msgstr "La factura debe estar timbrada (CFDI enviado) antes de mandarla a HEB."
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#, python-format
+msgid "The signed CFDI content of invoice %s could not be retrieved."
+msgstr "No se pudo obtener el contenido del CFDI firmado de la factura %s."
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#, python-format
+msgid ""
+"The signed CFDI of invoice %s does not contain the HEB addenda (requestForPayment node).\n"
+"Make sure the customer has the HEB addenda assigned and stamp the invoice again."
+msgstr ""
+"El CFDI firmado de la factura %s no contiene la addenda de HEB (nodo requestForPayment).\n"
+"Verifica que el cliente tenga la addenda HEB asignada y vuelve a timbrar."
+
+#. module: addenda_heb
+#: model:ir.model.fields.selection,name:addenda_heb.selection__account_move__heb_send_state__to_send
+msgid "To Send"
+msgstr "Por enviar"
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/heb_webservice.py:0
+#, python-format
+msgid "Unable to parse the HEB response."
+msgstr "No se pudo interpretar la respuesta de HEB."
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#, python-format
+msgid "Unrecognized response."
+msgstr "Respuesta no reconocida."
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#, python-format
+msgid "VALID DOCUMENT"
+msgstr "DOCUMENTO VÁLIDO"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.l10n_mx_edi_addenda_heb
+msgid "VAT"
+msgstr "VAT"
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#, python-format
+msgid "✅ <b>Invoice accepted by HEB.</b> Acknowledgment reference: <b>%s</b>"
+msgstr "✅ <b>Factura aceptada por HEB.</b> Acuse de recibo (referencia): <b>%s</b>"
+
+#. module: addenda_heb
+#. odoo-python
+#: code:addons/addenda_heb/models/account_move.py:0
+#, python-format
+msgid "❌ <b>HEB rejected or did not accept the document.</b> %s"
+msgstr "❌ <b>HEB rechazó o no aceptó el documento.</b> %s"
+
+#. module: addenda_heb
+#: model:ir.model,name:addenda_heb.model_heb_invoice_log
+msgid "HEB Submission Log"
+msgstr "Bitácora de envíos a HEB"
+
+#. module: addenda_heb
+#: model:ir.actions.act_window,name:addenda_heb.action_heb_invoice_log
+#: model:ir.ui.menu,name:addenda_heb.menu_heb_invoice_log
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_invoice_log_form
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_invoice_log_tree
+msgid "HEB Submission Log"
+msgstr "Bitácora de envíos a HEB"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_invoice_log_search
+msgid "Search HEB Submission Log"
+msgstr "Buscar en la bitácora de envíos a HEB"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_invoice_log__move_id
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_invoice_log_search
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_invoice_log__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_invoice_log__operation
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_invoice_log_search
+msgid "Operation"
+msgstr "Operación"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_invoice_log__accepted
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_invoice_log_search
+msgid "Accepted"
+msgstr "Aceptada"
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_invoice_log_search
+msgid "Rejected"
+msgstr "Rechazada"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_invoice_log__document_status
+msgid "Document Status"
+msgstr "Estado del documento"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_invoice_log__error_code
+msgid "Code"
+msgstr "Código"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_invoice_log__error_text
+msgid "Message"
+msgstr "Mensaje"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_invoice_log__reference
+msgid "Acknowledgment Reference"
+msgstr "Acuse (referencia)"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_invoice_log__transaction_id
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_invoice_log_search
+msgid "Transaction ID"
+msgstr "ID de transacción"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_invoice_log__request_xml
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_invoice_log_form
+msgid "Sent Request"
+msgstr "Petición enviada"
+
+#. module: addenda_heb
+#: model:ir.model.fields,field_description:addenda_heb.field_heb_invoice_log__response_xml
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_invoice_log_form
+msgid "HEB Response"
+msgstr "Respuesta de HEB"
+
+#. module: addenda_heb
+#: model_terms:ir.actions.act_window,help:addenda_heb.action_heb_invoice_log
+msgid "No HEB submissions logged yet."
+msgstr "Aún no hay envíos a HEB registrados."
+
+#. module: addenda_heb
+#: model_terms:ir.ui.view,arch_db:addenda_heb.view_heb_invoice_log_search
+msgid "Date"
+msgstr "Fecha"

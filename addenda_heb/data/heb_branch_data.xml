@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="heb_branch_7504000225461" model="heb.branch">
+        <field name="name">HEB MTY LA PUERTA</field>
+        <field name="gln">7504000225461</field>
+    </record>
+
+    <record id="heb_branch_7504000225447" model="heb.branch">
+        <field name="name">HEB SAL SAN PATRICIO</field>
+        <field name="gln">7504000225447</field>
+    </record>
+
+    <record id="heb_branch_7504000225454" model="heb.branch">
+        <field name="name">MT MTY CABEZADA</field>
+        <field name="gln">7504000225454</field>
+    </record>
+
+    <record id="heb_branch_7504000225478" model="heb.branch">
+        <field name="name">MT REY AEROPUERTO</field>
+        <field name="gln">7504000225478</field>
+    </record>
+
+    <record id="heb_branch_7504000225492" model="heb.branch">
+        <field name="name">HEB MAT LAURO VILLAR</field>
+        <field name="gln">7504000225492</field>
+    </record>
+
+    <record id="heb_branch_7504000225485" model="heb.branch">
+        <field name="name">MT MTY METROPLEX</field>
+        <field name="gln">7504000225485</field>
+    </record>
+
+    <record id="heb_branch_7504000225539" model="heb.branch">
+        <field name="name">HEB TOR REVOLUCION</field>
+        <field name="gln">7504000225539</field>
+    </record>
+
+    <record id="heb_branch_7504000225546" model="heb.branch">
+        <field name="name">HEB MTY LAS PUENTES</field>
+        <field name="gln">7504000225546</field>
+    </record>
+
+    <record id="heb_branch_7504000225515" model="heb.branch">
+        <field name="name">HEB MTY PUERTA DE HIERRO</field>
+        <field name="gln">7504000225515</field>
+    </record>
+
+    <record id="heb_branch_7504000225553" model="heb.branch">
+        <field name="name">HEB TAM MADERO</field>
+        <field name="gln">7504000225553</field>
+    </record>
+
+    <record id="heb_branch_7504000225560" model="heb.branch">
+        <field name="name">HEB AGS AGUASCALIENTES</field>
+        <field name="gln">7504000225560</field>
+    </record>
+
+    <record id="heb_branch_7504000225577" model="heb.branch">
+        <field name="name">HEB LEO CERRO GORDO</field>
+        <field name="gln">7504000225577</field>
+    </record>
+
+    <record id="heb_branch_7504000225509" model="heb.branch">
+        <field name="name">MT MTY GARCIA</field>
+        <field name="gln">7504000225509</field>
+    </record>
+
+    <record id="heb_branch_7504000225614" model="heb.branch">
+        <field name="name">MT SAL FUNDADORES</field>
+        <field name="gln">7504000225614</field>
+    </record>
+
+    <record id="heb_branch_7504000225621" model="heb.branch">
+        <field name="name">MT MTY PLAZA DEL BOSQUE</field>
+        <field name="gln">7504000225621</field>
+    </record>
+
+    <record id="heb_branch_7504000225645" model="heb.branch">
+        <field name="name">MT SAL SATELITE</field>
+        <field name="gln">7504000225645</field>
+    </record>
+
+    <record id="heb_branch_7504000225690" model="heb.branch">
+        <field name="name">HEB MTY TEC</field>
+        <field name="gln">7504000225690</field>
+    </record>
+
+    <record id="heb_branch_7504000225706" model="heb.branch">
+        <field name="name">HEB MTY EL URO</field>
+        <field name="gln">7504000225706</field>
+    </record>
+
+    <record id="heb_branch_7504000225713" model="heb.branch">
+        <field name="name">MT NVO REVOLUCION</field>
+        <field name="gln">7504000225713</field>
+    </record>
+
+    <record id="heb_branch_7504000225720" model="heb.branch">
+        <field name="name">HEB QRO EL REFUGIO</field>
+        <field name="gln">7504000225720</field>
+    </record>
+
+    <record id="heb_branch_7504000225669" model="heb.branch">
+        <field name="name">HEB MTY CERRADAS DE ANAHUAC</field>
+        <field name="gln">7504000225669</field>
+    </record>
+
+    <record id="heb_branch_7504000225584" model="heb.branch">
+        <field name="name">HEB TOR SENDEROS</field>
+        <field name="gln">7504000225584</field>
+    </record>
+
+    <record id="heb_branch_7504000225737" model="heb.branch">
+        <field name="name">eFC MTY AARON SAENZ</field>
+        <field name="gln">7504000225737</field>
+    </record>
+
+    <record id="heb_branch_7504000225744" model="heb.branch">
+        <field name="name">HEB SLP LOS PINOS</field>
+        <field name="gln">7504000225744</field>
+    </record>
+
+    <record id="heb_branch_7504000225751" model="heb.branch">
+        <field name="name">HEB SAN PEDRO IV</field>
+        <field name="gln">7504000225751</field>
+    </record>
+
+    <record id="heb_branch_7504000225003" model="heb.branch">
+        <field name="name">CORPORATIVO</field>
+        <field name="gln">7504000225003</field>
+    </record>
+
+    <record id="heb_branch_7504000225607" model="heb.branch">
+        <field name="name">HEB QRO JURIQUILLA</field>
+        <field name="gln">7504000225607</field>
+    </record>
+
+    <record id="heb_branch_7504000225829" model="heb.branch">
+        <field name="name">Planta MAP</field>
+        <field name="gln">7504000225829</field>
+    </record>
+
+    <record id="heb_branch_7504000225775" model="heb.branch">
+        <field name="name">HEB IRA IRAPUATO</field>
+        <field name="gln">7504000225775</field>
+    </record>
+
+    <record id="heb_branch_7504000225850" model="heb.branch">
+        <field name="name">GANADO GORDO</field>
+        <field name="gln">7504000225850</field>
+    </record>
+
+    <record id="heb_branch_7504000225782" model="heb.branch">
+        <field name="name">BODEGA EQUIPO</field>
+        <field name="gln">7504000225782</field>
+    </record>
+
+    <record id="heb_branch_7504000225799" model="heb.branch">
+        <field name="name">MT MTY ELOY CAVAZOS</field>
+        <field name="gln">7504000225799</field>
+    </record>
+
+    <record id="heb_branch_7504000225812" model="heb.branch">
+        <field name="name">CAT MEX FRESCOS</field>
+        <field name="gln">7504000225812</field>
+    </record>
+
+    <record id="heb_branch_7504000225805" model="heb.branch">
+        <field name="name">CAT MEX SECOS</field>
+        <field name="gln">7504000225805</field>
+    </record>
+
+    <record id="heb_branch_7504000225836" model="heb.branch">
+        <field name="name">HEB QRO EL MIRADOR</field>
+        <field name="gln">7504000225836</field>
+    </record>
+
+    <record id="heb_branch_7504000225980" model="heb.branch">
+        <field name="name">MT REY SAN FERNANDO</field>
+        <field name="gln">7504000225980</field>
+    </record>
+
+    <record id="heb_branch_7504000225843" model="heb.branch">
+        <field name="name">COMISARIATO</field>
+        <field name="gln">7504000225843</field>
+    </record>
+
+    <record id="heb_branch_7504000225867" model="heb.branch">
+        <field name="name">HEB AGS SANTA MONICA</field>
+        <field name="gln">7504000225867</field>
+    </record>
+
+    <record id="heb_branch_7504000225874" model="heb.branch">
+        <field name="name">MT REFORMA</field>
+        <field name="gln">7504000225874</field>
+    </record>
+
+    <record id="heb_branch_7504000225881" model="heb.branch">
+        <field name="name">HEB SLP LOMAS</field>
+        <field name="gln">7504000225881</field>
+    </record>
+
+    <record id="heb_branch_7504000225898" model="heb.branch">
+        <field name="name">EFC QRO QUERETARO</field>
+        <field name="gln">7504000225898</field>
+    </record>
+
+    <record id="heb_branch_7504000225683" model="heb.branch">
+        <field name="name">MT MTY MARGARITAS</field>
+        <field name="gln">7504000225683</field>
+    </record>
+
+    <record id="heb_branch_7504000225676" model="heb.branch">
+        <field name="name">HEB MTY BOSQUES DE LAS LOMAS</field>
+        <field name="gln">7504000225676</field>
+    </record>
+
+    <record id="heb_branch_7504000225904" model="heb.branch">
+        <field name="name">HEB LEO TORRES LANDA</field>
+        <field name="gln">7504000225904</field>
+    </record>
+
+    <record id="heb_branch_7504000225928" model="heb.branch">
+        <field name="name">HEB QRO BERNARDO QUINTANA</field>
+        <field name="gln">7504000225928</field>
+    </record>
+
+    <record id="heb_branch_7504000225911" model="heb.branch">
+        <field name="name">MT MAT LAS BRISAS</field>
+        <field name="gln">7504000225911</field>
+    </record>
+
+    <record id="heb_branch_7504000225973" model="heb.branch">
+        <field name="name">HEB MTY DIEGO DIAZ</field>
+        <field name="gln">7504000225973</field>
+    </record>
+
+    <record id="heb_branch_7504000225935" model="heb.branch">
+        <field name="name">Satélite CAT Mty Frescos</field>
+        <field name="gln">7504000225935</field>
+    </record>
+
+    <record id="heb_branch_7504000225959" model="heb.branch">
+        <field name="name">HEB QRO EL JACAL</field>
+        <field name="gln">7504000225959</field>
+    </record>
+
+    <record id="heb_branch_7504000225966" model="heb.branch">
+        <field name="name">HEB QRO SAN JUAN DEL RIO</field>
+        <field name="gln">7504000225966</field>
+    </record>
+
+    <record id="heb_branch_7504000225997" model="heb.branch">
+        <field name="name">HEB MTY RINCONADA</field>
+        <field name="gln">7504000225997</field>
+    </record>
+
+    <record id="heb_branch_7504000226031" model="heb.branch">
+        <field name="name">HEB POP MANUFACTURA</field>
+        <field name="gln">7504000226031</field>
+    </record>
+
+    <record id="heb_branch_7504000225768" model="heb.branch">
+        <field name="name">HEB QRO ZIBATA</field>
+        <field name="gln">7504000225768</field>
+    </record>
+
+    <record id="heb_branch_7504000226000" model="heb.branch">
+        <field name="name">HEB MTY CUMBRES DOMINIO</field>
+        <field name="gln">7504000226000</field>
+    </record>
+
+    <record id="heb_branch_7504000226024" model="heb.branch">
+        <field name="name">HEB GTO SAN MIGUEL DE ALLENDE</field>
+        <field name="gln">7504000226024</field>
+    </record>
+
+    <record id="heb_branch_7504000226048" model="heb.branch">
+        <field name="name">HEB QRO CANADAS</field>
+        <field name="gln">7504000226048</field>
+    </record>
+
+    <record id="heb_branch_7504000225942" model="heb.branch">
+        <field name="name">MT MTY BUENA VISTA</field>
+        <field name="gln">7504000225942</field>
+    </record>
+
+    <record id="heb_branch_7504000226017" model="heb.branch">
+        <field name="name">MTA MTY LINCOLN</field>
+        <field name="gln">7504000226017</field>
+    </record>
+
+    <record id="heb_branch_7504000225010" model="heb.branch">
+        <field name="name">CAT MEXICO</field>
+        <field name="gln">7504000225010</field>
+    </record>
+
+    <record id="heb_branch_7504000225034" model="heb.branch">
+        <field name="name">HEB MTY CHIPINQUE</field>
+        <field name="gln">7504000225034</field>
+    </record>
+
+    <record id="heb_branch_7504000225041" model="heb.branch">
+        <field name="name">HEB MTY CONTRY</field>
+        <field name="gln">7504000225041</field>
+    </record>
+
+    <record id="heb_branch_7504000225058" model="heb.branch">
+        <field name="name">HEB MTY SAN NICOLAS</field>
+        <field name="gln">7504000225058</field>
+    </record>
+
+    <record id="heb_branch_7504000225065" model="heb.branch">
+        <field name="name">HEB MTY LOS MORALES</field>
+        <field name="gln">7504000225065</field>
+    </record>
+
+    <record id="heb_branch_7504000225072" model="heb.branch">
+        <field name="name">HEB SAL REPUBLICA</field>
+        <field name="gln">7504000225072</field>
+    </record>
+
+    <record id="heb_branch_7504000225089" model="heb.branch">
+        <field name="name">MT MTY AZTLAN</field>
+        <field name="gln">7504000225089</field>
+    </record>
+
+    <record id="heb_branch_7504000225096" model="heb.branch">
+        <field name="name">HEB MTY CHAPULTEPEC</field>
+        <field name="gln">7504000225096</field>
+    </record>
+
+    <record id="heb_branch_7504000225140" model="heb.branch">
+        <field name="name">HEB MAT MATAMOROS</field>
+        <field name="gln">7504000225140</field>
+    </record>
+
+    <record id="heb_branch_7504000225195" model="heb.branch">
+        <field name="name">HEB NVO NUEVO LAREDO</field>
+        <field name="gln">7504000225195</field>
+    </record>
+
+    <record id="heb_branch_7504000225126" model="heb.branch">
+        <field name="name">HEB REY MORELOS</field>
+        <field name="gln">7504000225126</field>
+    </record>
+
+    <record id="heb_branch_7504000225188" model="heb.branch">
+        <field name="name">HEB MTY GUADALUPE JUAREZ</field>
+        <field name="gln">7504000225188</field>
+    </record>
+
+    <record id="heb_branch_7504000225102" model="heb.branch">
+        <field name="name">HEB MTY LINCOLN</field>
+        <field name="gln">7504000225102</field>
+    </record>
+
+    <record id="heb_branch_7504000225225" model="heb.branch">
+        <field name="name">HEB MTY ESCOBEDO</field>
+        <field name="gln">7504000225225</field>
+    </record>
+
+    <record id="heb_branch_7504000225157" model="heb.branch">
+        <field name="name">HEB MTY SANTA CATARINA</field>
+        <field name="gln">7504000225157</field>
+    </record>
+
+    <record id="heb_branch_7504000225249" model="heb.branch">
+        <field name="name">HEB MTY ACAPULCO</field>
+        <field name="gln">7504000225249</field>
+    </record>
+
+    <record id="heb_branch_7504000225256" model="heb.branch">
+        <field name="name">HEB MTY GUADALUPE LIVAS</field>
+        <field name="gln">7504000225256</field>
+    </record>
+
+    <record id="heb_branch_7504000225119" model="heb.branch">
+        <field name="name">HEB MTY GONZALITOS</field>
+        <field name="gln">7504000225119</field>
+    </record>
+
+    <record id="heb_branch_7504000225164" model="heb.branch">
+        <field name="name">HEB TAM EJERCITO</field>
+        <field name="gln">7504000225164</field>
+    </record>
+
+    <record id="heb_branch_7504000225263" model="heb.branch">
+        <field name="name">HEB MTY CUMBRES</field>
+        <field name="gln">7504000225263</field>
+    </record>
+
+    <record id="heb_branch_7504000225270" model="heb.branch">
+        <field name="name">HEB MTY SENDERO</field>
+        <field name="gln">7504000225270</field>
+    </record>
+
+    <record id="heb_branch_7504000225317" model="heb.branch">
+        <field name="name">HEB SLP SAN LUIS POTOSI</field>
+        <field name="gln">7504000225317</field>
+    </record>
+
+    <record id="heb_branch_7504000225027" model="heb.branch">
+        <field name="name">Cat Monterrey</field>
+        <field name="gln">7504000225027</field>
+    </record>
+
+    <record id="heb_branch_7504000225324" model="heb.branch">
+        <field name="name">HEB REY LAS FUENTES</field>
+        <field name="gln">7504000225324</field>
+    </record>
+
+    <record id="heb_branch_7504000225300" model="heb.branch">
+        <field name="name">HEB LEO LOPEZ MATEOS</field>
+        <field name="gln">7504000225300</field>
+    </record>
+
+    <record id="heb_branch_7504000225331" model="heb.branch">
+        <field name="name">HEB SAL LA NOGALERA</field>
+        <field name="gln">7504000225331</field>
+    </record>
+
+    <record id="heb_branch_7504000225171" model="heb.branch">
+        <field name="name">HEB MTY SOLIDARIDAD</field>
+        <field name="gln">7504000225171</field>
+    </record>
+
+    <record id="heb_branch_7504000225201" model="heb.branch">
+        <field name="name">HEB TOR INDEPENDENCIA</field>
+        <field name="gln">7504000225201</field>
+    </record>
+
+    <record id="heb_branch_7504000225294" model="heb.branch">
+        <field name="name">HEB MTY VALLE ALTO</field>
+        <field name="gln">7504000225294</field>
+    </record>
+
+    <record id="heb_branch_7504000225232" model="heb.branch">
+        <field name="name">HEB MTY SAN PEDRO</field>
+        <field name="gln">7504000225232</field>
+    </record>
+
+    <record id="heb_branch_7504000225218" model="heb.branch">
+        <field name="name">MT REY RIO BRAVO</field>
+        <field name="gln">7504000225218</field>
+    </record>
+
+    <record id="heb_branch_7504000225133" model="heb.branch">
+        <field name="name">HEB MTY LINDA VISTA</field>
+        <field name="gln">7504000225133</field>
+    </record>
+
+    <record id="heb_branch_7504000225287" model="heb.branch">
+        <field name="name">HEB MTY CONCORDIA</field>
+        <field name="gln">7504000225287</field>
+    </record>
+
+    <record id="heb_branch_7504000225355" model="heb.branch">
+        <field name="name">HEB PIE PIEDRAS NEGRAS</field>
+        <field name="gln">7504000225355</field>
+    </record>
+
+    <record id="heb_branch_7504000225393" model="heb.branch">
+        <field name="name">MT MTY SAN ROQUE</field>
+        <field name="gln">7504000225393</field>
+    </record>
+
+    <record id="heb_branch_7504000225362" model="heb.branch">
+        <field name="name">MT MTY HUINALA</field>
+        <field name="gln">7504000225362</field>
+    </record>
+
+    <record id="heb_branch_7504000225386" model="heb.branch">
+        <field name="name">MT MTY CIUDADELA</field>
+        <field name="gln">7504000225386</field>
+    </record>
+
+    <record id="heb_branch_7504000225348" model="heb.branch">
+        <field name="name">MT REY PERIFERICO</field>
+        <field name="gln">7504000225348</field>
+    </record>
+
+    <record id="heb_branch_7504000225379" model="heb.branch">
+        <field name="name">MT MTY ZUAZUA</field>
+        <field name="gln">7504000225379</field>
+    </record>
+
+    <record id="heb_branch_7504000225409" model="heb.branch">
+        <field name="name">HEB MTY VALLE ORIENTE</field>
+        <field name="gln">7504000225409</field>
+    </record>
+
+    <record id="heb_branch_7504000225638" model="heb.branch">
+        <field name="name">HEB SLP CARRETERA 57</field>
+        <field name="gln">7504000225638</field>
+    </record>
+
+    <record id="heb_branch_7504000225416" model="heb.branch">
+        <field name="name">HEB TAM HIDALGO</field>
+        <field name="gln">7504000225416</field>
+    </record>
+
+    <record id="heb_branch_7504000225430" model="heb.branch">
+        <field name="name">HEB VIC CAMPESTRE</field>
+        <field name="gln">7504000225430</field>
+    </record>
+
+    <record id="heb_branch_7504000225423" model="heb.branch">
+        <field name="name">HEB MVA PAPE</field>
+        <field name="gln">7504000225423</field>
+    </record>
+
+    <record id="heb_branch_7504000225522" model="heb.branch">
+        <field name="name">MT REY BUGAMBILIAS</field>
+        <field name="gln">7504000225522</field>
+    </record>
+
+    <record id="heb_branch_7504000225652" model="heb.branch">
+        <field name="name">MT MTY VALLE DE SANTA MARIA</field>
+        <field name="gln">7504000225652</field>
+    </record>
+
+    <record id="heb_branch_7504000225027" model="heb.branch">
+        <field name="name">CAT MTY SECOS</field>
+        <field name="gln">7504000225027</field>
+    </record>
+
+    <record id="heb_branch_7504000225027" model="heb.branch">
+        <field name="name">CAT MTY FRESCOS</field>
+        <field name="gln">7504000225027</field>
+    </record>
+
+</odoo>
