@@ -7,6 +7,11 @@
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
                 <page string="HEB" name="heb_addenda">
+                    <button name="action_heb_test_connection"
+                            type="object"
+                            string="Test HEB Connection"
+                            class="btn-secondary"
+                            icon="fa-plug"/>
                     <group string="HEB Web Service Endpoint">
                         <field name="heb_ws_url_invoice"/>
                     </group>
@@ -16,11 +21,6 @@
                     </group>
                     <group string="Connection">
                         <field name="heb_ws_verify_ssl"/>
-                        <button name="action_heb_test_connection"
-                                type="object"
-                                string="Test HEB Connection"
-                                class="btn-secondary"
-                                icon="fa-plug"/>
                     </group>
                 </page>
             </xpath>
