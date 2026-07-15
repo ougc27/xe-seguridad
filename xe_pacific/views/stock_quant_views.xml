@@ -1,0 +1,13 @@
+<odoo>
+    <record id="view_stock_quant_tree_blocked_flag" model="ir.ui.view">
+        <field name="name">stock.quant.tree.blocked.flag</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="stock.view_stock_quant_tree"/>
+        <field name="arch" type="xml">
+            <field name="lot_id" position="after">
+                <field name="lot_blocked" optional="show"
+                    decoration-danger="lot_blocked == True"/>
+            </field>
+        </field>
+    </record>
+</odoo>

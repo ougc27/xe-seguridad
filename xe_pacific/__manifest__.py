@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI Pacific Rim",
-    "version": "17.0.0.0.74",
+    "version": "17.0.0.0.75",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
@@ -68,6 +68,7 @@
         'views/crm_views.xml',
         'views/base_partner_merge_views.xml',
         'views/archive_exception_models_views.xml',
+        'views/stock_quant_views.xml',
     ],
     "assets": {
         "hr_attendance.assets_public_attendance": [
@@ -83,6 +84,7 @@
             "xe_pacific/static/src/calendar/xml/attendee_calendar_common_renderer.xml",
             "xe_pacific/static/src/js/create_ticket.js",
             "xe_pacific/static/src/xml/systray_create_ticket.xml",
+            "xe_pacific/static/src/js/sml_x2_many_patch.js",
         ],
     },
     "demo": [],

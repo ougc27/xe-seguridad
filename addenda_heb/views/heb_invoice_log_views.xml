@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_heb_invoice_log_tree" model="ir.ui.view">
+        <field name="name">heb.invoice.log.tree</field>
+        <field name="model">heb.invoice.log</field>
+        <field name="arch" type="xml">
+            <tree string="HEB Submission Log" create="false" default_order="create_date desc">
+                <field name="create_date"/>
+                <field name="move_id"/>
+                <field name="company_id" optional="hide"/>
+                <field name="operation"/>
+                <field name="accepted"/>
+                <field name="error_code"/>
+                <field name="reference"/>
+                <field name="transaction_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_heb_invoice_log_form" model="ir.ui.view">
+        <field name="name">heb.invoice.log.form</field>
+        <field name="model">heb.invoice.log</field>
+        <field name="arch" type="xml">
+            <form string="HEB Submission Log" create="false" edit="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="move_id"/>
+                            <field name="company_id"/>
+                            <field name="create_date"/>
+                            <field name="operation"/>
+                        </group>
+                        <group>
+                            <field name="accepted"/>
+                            <field name="document_status"/>
+                            <field name="error_code"/>
+                            <field name="error_text"/>
+                            <field name="reference"/>
+                            <field name="transaction_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Sent Request" name="request">
+                            <field name="request_xml" widget="text"/>
+                        </page>
+                        <page string="HEB Response" name="response">
+                            <field name="response_xml" widget="text"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_heb_invoice_log_search" model="ir.ui.view">
+        <field name="name">heb.invoice.log.search</field>
+        <field name="model">heb.invoice.log</field>
+        <field name="arch" type="xml">
+            <search string="Search HEB Submission Log">
+                <field name="move_id"/>
+                <field name="reference"/>
+                <field name="transaction_id"/>
+                <field name="error_code"/>
+                <filter string="Accepted" name="accepted" domain="[('accepted', '=', True)]"/>
+                <filter string="Rejected" name="rejected" domain="[('accepted', '=', False)]"/>
+                <filter string="Date" name="filter_date" date="create_date"/>
+                <group expand="0" string="Group By">
+                    <filter string="Invoice" name="group_move" context="{'group_by': 'move_id'}"/>
+                    <filter string="Operation" name="group_operation" context="{'group_by': 'operation'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_heb_invoice_log" model="ir.actions.act_window">
+        <field name="name">HEB Submission Log</field>
+        <field name="res_model">heb.invoice.log</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_heb_invoice_log_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No HEB submissions logged yet.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_heb_invoice_log"
+        name="HEB Submission Log"
+        parent="menu_heb_addenda_configuration"
+        action="action_heb_invoice_log"
+        sequence="2"
+        groups="base.group_system"/>
+
+</odoo>

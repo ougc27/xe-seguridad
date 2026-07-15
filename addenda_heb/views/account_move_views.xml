@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_move_view_form_addenda_heb_buttons" model="ir.ui.view">
+        <field name="name">account.move.view.form.addenda.heb.buttons</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_send_addenda_heb"
+                        type="object"
+                        string="Send to HEB"
+                        class="btn-primary"
+                        invisible="move_type not in ('out_invoice', 'out_refund') or l10n_mx_edi_cfdi_state != 'sent' or partner_id.l10n_mx_edi_addenda == False or heb_send_state == 'sent'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="account_move_view_form_addenda_heb" model="ir.ui.view">
+        <field name="name">account.move.view.form.addenda.heb</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="addenda_morwi.account_move_view_form_addenda"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='addenda']" position="inside">
+                <group string="HEB" name="addenda_heb">
+                    <group>
+                        <field name="heb_branch_id" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    </group>
+                    <group string="HEB Submission" name="addenda_heb_send">
+                        <field name="heb_send_state" groups_readonly="base.group_system"/>
+                        <field name="heb_reference" readonly="1"/>
+                        <field name="heb_transaction_id" readonly="1"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

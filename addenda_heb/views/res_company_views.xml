@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_company_form_heb" model="ir.ui.view">
+        <field name="name">res.company.form.heb</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="HEB" name="heb_addenda">
+                    <group string="HEB Web Service Endpoint">
+                        <field name="heb_ws_url_invoice"/>
+                    </group>
+                    <group string="Credentials">
+                        <field name="heb_ws_username"/>
+                        <field name="heb_ws_password" password="True"/>
+                    </group>
+                    <group string="Connection">
+                        <field name="heb_ws_verify_ssl"/>
+                        <button name="action_heb_test_connection"
+                                type="object"
+                                string="Test HEB Connection"
+                                class="btn-secondary"
+                                icon="fa-plug"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
