@@ -4,7 +4,7 @@
     'license': 'LGPL-3',
     'category': 'Account',
     'summary': 'HEB Addenda – CFDI 4.0 invoice submission via SOAP 1.2',
-    'version': '17.0.1.2.3',
+    'version': '17.0.1.2.4',
     'description': """
 Addenda HEB (AMC GS1 v7.1)
 ===========================
