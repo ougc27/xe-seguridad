@@ -84,6 +84,15 @@ class LoyaltyCard(models.Model):
     )
 
     program_name = fields.Char(compute="_compute_program_name")
+    
+    manual_price = fields.Float(
+        string="Manual Price",
+        groups="base.group_system",
+        help="Tax-included unit price set manually for a specific use case. "
+            "Only visible/editable by users with the highest (Settings) access "
+            "rights. When both a pricelist price and a manual price are set, "
+            "the lowest of the two is applied.",
+    )
 
     @api.depends('program_id.name', 'damage_type')
     def _compute_program_name(self):

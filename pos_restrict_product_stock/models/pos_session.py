@@ -576,7 +576,9 @@ class PosSession(models.Model):
         moves = super()._get_related_account_moves()
         reversal_moves = self.env['account.move'].search([
             ('pos_session_id', '=', self.id),
-            ('ref', 'ilike', 'Reversal')
+            '|',
+            ('ref', 'ilike', 'Reversal'),
+            ('ref', 'ilike', 'Reversión'),
         ])
         origin_move_ids = list(set(moves.ids + reversal_moves.ids))
         cash_origin_moves = self.env['account.move'].search([

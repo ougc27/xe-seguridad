@@ -58,6 +58,12 @@ class LoyaltyGenerateWizard(models.TransientModel):
         string="Pricelist",
         help="Pricelist associated with this loyalty program."
     )
+    
+    manual_price = fields.Float(
+        string="Manual Price",
+        groups="base.group_system",
+        help="Tax-included unit price set manually. See loyalty.card.manual_price.",
+    )
 
     def _get_coupon_values(self, partner):
         self.ensure_one()
@@ -75,7 +81,8 @@ class LoyaltyGenerateWizard(models.TransientModel):
             'warehouse_id': warehouse_id,
             'pos_config_id': pos.id,
             'damage_type': self.damage_type,
-            'pricelist_id': self.pricelist_id.id
+            'pricelist_id': self.pricelist_id.id,
+            'manual_price': self.manual_price,
         }
 
     def generate_coupons(self):

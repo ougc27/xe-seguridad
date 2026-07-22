@@ -9,6 +9,7 @@
                 <field name="product_id" options="{'no_create': True, 'no_create_edit': True}"/>
                 <field name="warehouse_id" options="{'no_create': True, 'no_create_edit': True}"/>
                 <field name="pricelist_id" required="damage_type == 'damage_2'" invisible="not damage_type or damage_type == 'damage_1'" options="{'no_create': True, 'no_create_edit': True}"/>
+                <field name="manual_price"/>
                 <field name="damage_type"/>
             </xpath>
         </field>
