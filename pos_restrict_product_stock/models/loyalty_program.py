@@ -229,7 +229,17 @@ class LoyaltyProgram(models.Model):
 
         discount_amount_tax = 0
         tax_ratio = line_subtotal / price_with_tax
-        if card.price_from_pricelist:
+        if card.manual_price:
+            # manual_price is captured tax-included (final price). Convert it to
+            # a net unit price using the line's own tax ratio, so it works for
+            # any POS tax rate (8% border or 16% inland) without hardcoding it.
+            gross_to_net = (line_subtotal / price_with_tax) if price_with_tax else 1.0
+            price_with_discount = card.manual_price * gross_to_net
+            new_line_subtotal = qty * price_with_discount
+            discount_net = line_subtotal - new_line_subtotal
+            tax_ratio = price_with_tax / line_subtotal if line_subtotal else 1
+            discount_amount_tax = discount_net * tax_ratio
+        elif card.price_from_pricelist:
             price_with_discount = card.price_from_pricelist
             new_line_subtotal = qty * price_with_discount
             discount_net = line_subtotal - new_line_subtotal

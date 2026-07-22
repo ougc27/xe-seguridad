@@ -14,6 +14,7 @@
                 <field name="damage_type" readonly="externally_managed"/>
                 <field name="pricelist_id" readonly="externally_managed" options="{'no_create_edit': True, 'no_create': True}"/>
                 <field name="price_from_pricelist"/>
+                <field name="manual_price"/>
             </xpath>
             <xpath expr="//field[@name='partner_id']" position="attributes">
                 <attribute name="readonly">externally_managed</attribute>

@@ -2031,3 +2031,19 @@ msgstr "Facturado"
 #: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order__has_payment_proof
 msgid "Has Payment Proof"
 msgstr "Tiene Comprobantes de Pago"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_loyalty_card__manual_price
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_loyalty_generate_wizard__manual_price
+msgid "Manual Price"
+msgstr "Precio manual"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_loyalty_card__manual_price
+msgid "Tax-included unit price set manually for a specific use case. Only visible/editable by users with the highest (Settings) access rights. When both a pricelist price and a manual price are set, the lowest of the two is applied."
+msgstr "Precio unitario con impuestos incluidos, establecido manualmente para un caso de uso específico. Solo visible/editable por usuarios con los permisos más altos (Ajustes). Cuando se configuran una lista de precios y un precio manual a la vez, se aplica el menor de los dos."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_loyalty_generate_wizard__manual_price
+msgid "Tax-included unit price set manually. See loyalty.card.manual_price."
+msgstr "Precio unitario con impuestos incluidos, establecido manualmente. Ver loyalty.card.manual_price."
