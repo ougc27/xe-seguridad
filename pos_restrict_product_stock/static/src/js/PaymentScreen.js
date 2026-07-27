@@ -250,6 +250,30 @@ patch(PaymentScreen.prototype, {
             ev.preventDefault();
         }
     },
+    async _finalizeValidation() {
+        // Capture the order being validated before delegating to the base method.
+        const order = this.currentOrder;
+
+        await super._finalizeValidation(...arguments);
+
+        // Odoo 17.0 core commit f09383b0de ("handle empty array in sync result
+        // validation") makes the base _finalizeValidation return early whenever
+        // push_single_order resolves to an EMPTY array. That happens in
+        // _save_to_server when the order is filtered out as "already syncing"
+        // (this.syncingOrders) -- e.g. because our flow already saved it as a
+        // draft before validating. On that early return the base method never
+        // reaches afterOrderValidation, so the UI stays frozen on the
+        // PaymentScreen even though the order is finalized and already stored on
+        // the server.
+        //
+        // If we are still on the PaymentScreen with a finalized order, finish the
+        // flow ourselves so the ReceiptScreen is shown. When the base method
+        // advances normally the current screen is no longer the PaymentScreen, so
+        // this block is skipped and afterOrderValidation is never run twice.
+        if (order && order.finalized && this.pos.mainScreen?.component === PaymentScreen) {
+            await this.afterOrderValidation(true);
+        }
+    },
     async afterOrderValidation(suggestToSync = true) {
         const order = this.pos.get_order();
         const lines = order.get_orderlines();
