@@ -56,7 +56,15 @@
                         invisible="service_ticket_id or state != 'done' or picking_type_code != 'outgoing'"
                         icon="fa-ticket"/>
             </xpath>
-            
+            <xpath expr="//button[@name='action_cancel']" position="after">
+                <button name="action_cancel"
+                    string="Cancel"
+                    type="object"
+                    groups="xe_pacific.group_can_cancel_sac_ticket_transfers"
+                    confirm="Are you sure you want to cancel this transfer?"
+                    invisible="not service_ticket_id or picking_type_code not in ['internal','outgoing','incoming'] or state in ['transit','done','cancel']"
+                    data-hotkey="x"/>
+            </xpath>
         </field>
     </record>
     <record id="stock_picking_tree_inherit" model="ir.ui.view">

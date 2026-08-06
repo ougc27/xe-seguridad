@@ -1815,6 +1815,21 @@ msgid "Can Split Specific Lines"
 msgstr "Puede separar partidas específicas"
 
 #. module: xe_pacific
+#: model:res.groups,name:xe_pacific.group_can_cancel_sac_ticket_transfers
+msgid "Can Cancel SAC Ticket Transfers"
+msgstr "Puede cancelar traslados de tickets SAC"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_picking_form_inherit
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_picking_form_inherit
+msgid "Are you sure you want to cancel this transfer?"
+msgstr "¿Está seguro de que desea cancelar este traslado?"
+
+#. module: xe_pacific
 #. odoo-python
 #: code:addons/xe_pacific/models/helpdesk_ticket.py:0
 #: model_terms:ir.ui.view,arch_db:xe_pacific.custom_helpdesk_ticket_view_form
@@ -2624,3 +2639,8 @@ msgstr ""
 "Cuando esta opción está habilitada, no se podrán validar devoluciones de "
 "este producto. Se establece automáticamente por recepciones de compra "
 "marcadas como bloqueadas."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_order_form_inherit_information_tab
+msgid "Customer Payments"
+msgstr "Pagos del cliente"

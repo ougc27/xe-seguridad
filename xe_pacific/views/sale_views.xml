@@ -45,6 +45,13 @@
                     type="object"
                     class="btn-primary"
                     invisible="state != 'sale' or has_purchase_request or team_id != 5 or invoice_status == 'invoiced'"/>
+                <button
+                    name="action_open_customer_payments"
+                    type="object"
+                    string="Customer Payments"
+                    class="oe_highlight"
+                    invisible="state != 'sale'"
+                    groups="__export__.res_groups_120_271b5106"/>
             </xpath>
             <xpath expr="//button[@name='action_view_delivery']" position="before">
                 <button type="object"
