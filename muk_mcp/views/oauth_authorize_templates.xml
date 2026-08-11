@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+
+	<template id="oauth_authorize_consent" name="MCP OAuth Authorize">
+		<html>
+			<head>
+				<meta charset="utf-8"/>
+				<title t-esc="i18n['title']"/>
+				<style>
+					body {
+						font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+						background: #f4f4f5;
+						margin: 0;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						min-height: 100vh;
+					}
+					.card {
+						background: #fff;
+						border-radius: 12px;
+						padding: 32px;
+						max-width: 420px;
+						box-shadow: 0 2px 12px rgba(0,0,0,.08);
+					}
+					h1 { font-size: 20px; margin: 0 0 8px; }
+					p { color: #555; font-size: 14px; line-height: 1.5; }
+					.scope {
+						background: #f0f0f5;
+						border-radius: 8px;
+						padding: 12px 16px;
+						margin: 16px 0;
+						font-size: 13px;
+					}
+					.scope > div { margin-bottom: 6px; font-weight: 600; }
+					.scope .radio {
+						display: block;
+						font-weight: normal;
+						margin: 4px 0;
+						cursor: pointer;
+					}
+					.scope .radio input { margin-right: 6px; }
+					.actions { display: flex; gap: 12px; margin-top: 24px; }
+					button {
+						flex: 1;
+						padding: 10px 16px;
+						border-radius: 8px;
+						border: none;
+						font-size: 14px;
+						cursor: pointer;
+					}
+					.allow { background: #714B67; color: #fff; }
+					.deny { background: #eee; color: #333; }
+				</style>
+			</head>
+			<body>
+				<div class="card">
+					<h1><t t-esc="client.client_name"/> <t t-esc="i18n['wants_to_connect']"/></h1>
+					<p>
+						<t t-esc="i18n['signing_in_as']"/>
+						<strong t-esc="user.name"/> (<t t-esc="user.login"/>).
+					</p>
+					<div class="scope" t-if="is_admin">
+						<div t-esc="i18n['connection_scope']"/>
+						<label class="radio">
+							<input type="radio" name="scope" value="write" t-att-checked="'checked' if scope == 'write' else None"/>
+							<t t-esc="i18n['read_write']"/>
+						</label>
+						<label class="radio">
+							<input type="radio" name="scope" value="read" t-att-checked="'checked' if scope == 'read' else None"/>
+							<t t-esc="i18n['read_only']"/>
+						</label>
+					</div>
+					<div class="scope" t-else="" t-esc="i18n['read_only_notice']"/>
+					<p t-esc="i18n['authorize_notice']"/>
+					<form method="post" action="/oauth/authorize">
+						<input type="hidden" name="csrf_token" t-att-value="csrf_token"/>
+						<input type="hidden" name="client_id" t-att-value="client.client_id"/>
+						<input type="hidden" name="redirect_uri" t-att-value="redirect_uri"/>
+						<input type="hidden" name="state" t-att-value="state"/>
+						<input type="hidden" name="code_challenge" t-att-value="code_challenge"/>
+						<div class="actions">
+							<button class="deny" name="decision" value="deny" type="submit" t-esc="i18n['cancel']"/>
+							<button class="allow" name="decision" value="allow" type="submit" t-esc="i18n['authorize']"/>
+						</div>
+					</form>
+				</div>
+			</body>
+		</html>
+	</template>
+
+	<template id="oauth_authorize_error" name="MCP OAuth Authorize Error">
+		<html>
+			<head>
+				<meta charset="utf-8"/>
+				<title>Odoo</title>
+				<style>
+					body {
+						font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+						background: #f4f4f5;
+						margin: 0;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						min-height: 100vh;
+					}
+					.card {
+						background: #fff;
+						border-radius: 12px;
+						padding: 32px;
+						max-width: 420px;
+						box-shadow: 0 2px 12px rgba(0,0,0,.08);
+						text-align: center;
+					}
+					h1 { font-size: 18px; margin: 0 0 12px; }
+					p { color: #555; font-size: 14px; }
+				</style>
+			</head>
+			<body>
+				<div class="card">
+					<h1 t-esc="title"/>
+					<p t-esc="message"/>
+				</div>
+			</body>
+		</html>
+	</template>
+
+</odoo>

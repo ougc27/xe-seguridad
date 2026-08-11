@@ -32,6 +32,9 @@ class CancelledRemissionWizard(models.TransientModel):
         return res
 
     def action_confirm(self):
+        installation_codes = ('INS10', 'INSBAS')
+        is_installation = bool(self.picking_id.move_ids.filtered(
+            lambda m: m.product_id.default_code in installation_codes))
         self.env['cancelled.remission'].create({
             'picking_id': self.picking_id.id,
             'remission_folio': self.picking_id.x_studio_folio_rem,
@@ -40,7 +43,8 @@ class CancelledRemissionWizard(models.TransientModel):
             'user_id': self.env.user.id,
             'cancelled_reason': self.cancelled_reason.id,
             'comments': self.comments,
-            'tag_ids': self.tag_ids
+            'tag_ids': self.tag_ids,
+            'is_installation': is_installation,
         })
         self.picking_id.write({
             'x_studio_folio_rem': False,

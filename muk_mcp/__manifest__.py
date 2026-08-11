@@ -8,7 +8,7 @@
         or Codex CLI. The server speaks MCP Streamable HTTP at a single
         endpoint using MCP API keys for authentication.
     ''',
-    'version': '17.0.1.5.5',
+    'version': '17.0.1.6.0',
     'category': 'Tools/API',
     'license': 'LGPL-3',
     'author': 'MuK IT',
@@ -38,6 +38,9 @@
         'views/res_config_settings.xml',
         'views/res_users.xml',
         'views/mcp_enabled_models_views.xml',
+        'views/oauth_client.xml',
+        'views/oauth_token.xml',
+        'views/oauth_authorize_templates.xml',
         'views/playground.xml',
         'views/menu.xml',
     ],

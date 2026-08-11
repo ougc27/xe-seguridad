@@ -68,6 +68,29 @@
                             class="btn-link mt-3"
                         />
 					</setting>
+					<setting
+						id="mcp_oauth_enabled"
+						string="OAuth (Custom Connectors)"
+						help="Lets AI clients that support OAuth 'custom connectors' (e.g. Claude Desktop/Claude.ai) connect by URL only, with the user logging in through Odoo instead of pasting a bearer key into a config file."
+					>
+						<field name="mcp_oauth_enabled"/>
+						<div class="content-group mt16" invisible="not mcp_oauth_enabled">
+							<div class="row">
+								<div class="o_light_label">
+									<label class="fw-bold col-6 col-sm-4 col-md-2 col-lg-4" string="Access Tokens" for="mcp_oauth_access_token_minutes"/>
+									<field name="mcp_oauth_access_token_minutes" class="w-25 text-center" nolabel="1"/>
+									<span class="col-auto ms-2">minutes</span>
+								</div>
+							</div>
+							<div class="row mt8">
+								<div class="o_light_label">
+									<label class="fw-bold col-6 col-sm-4 col-md-2 col-lg-4" string="Refresh Tokens" for="mcp_oauth_refresh_token_days"/>
+									<field name="mcp_oauth_refresh_token_days" class="w-25 text-center" nolabel="1"/>
+									<span class="col-auto ms-2">days</span>
+								</div>
+							</div>
+						</div>
+					</setting>
 				</block>
 			</xpath>
 		</field>

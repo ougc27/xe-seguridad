@@ -2,6 +2,9 @@ import json
 
 from odoo.tests import HttpCase, tagged
 
+from odoo.addons.muk_mcp.controllers.mcp import _TOOL_MODEL_OP
+from odoo.addons.muk_mcp.core.tool import get_tool_index
+
 
 @tagged('post_install', '-at_install')
 class TestMcpController(HttpCase):
@@ -40,3 +43,20 @@ class TestMcpController(HttpCase):
             'Accept': 'text/event-stream',
         })
         self.assertNotEqual(response.status_code, 200)
+
+    def test_tool_model_op_keys_match_registered_tools(self):
+        # _TOOL_MODEL_OP is what gates create_records/update_records/
+        # delete_records/etc. against mcp.enabled.model. It previously
+        # used stale tool names (get_model_schema, read_record,
+        # create_record, update_record, delete_record,
+        # get_record_messages, execute_method) that don't exist in the
+        # registry, which silently disabled that restriction for every
+        # write operation. This guards against that class of drift.
+        registered = set(get_tool_index(self.env).keys())
+        mapped = set(_TOOL_MODEL_OP.keys())
+        unknown = mapped - registered
+        self.assertFalse(
+            unknown,
+            f"_TOOL_MODEL_OP references tool names that don't exist "
+            f"in the registry: {unknown}",
+        )
