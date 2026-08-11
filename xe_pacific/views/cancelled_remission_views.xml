@@ -16,6 +16,7 @@
                             <field name="warehouse_id" readonly="1"/>
                             <field name="cancelled_date" readonly="1"/>
                             <field name="user_id" readonly="1"/>
+                            <field name="is_installation" readonly="1"/>
                         </group>
                         <group>
                             <field name="cancelled_reason" readonly="1" options="{'no_create': True, 'no_create_edit': True}"/>
@@ -46,6 +47,7 @@
                 <field name="cancelled_date"/>
                 <field name="user_id"/>
                 <field name="cancelled_reason"/>
+                <field name="is_installation"/>
                 <field name="tag_ids" widget="many2many_tags"/>
                 <field name="comments"/>
                 <field name="company_id"/>
@@ -91,12 +93,16 @@
                 <separator/>
                 <filter string="From Ticket" name="filter_from_ticket_yes" domain="[('is_from_ticket', '=', True)]"/>
                 <filter string="Not From Ticket" name="filter_from_ticket_no" domain="[('is_from_ticket', '=', False)]"/>
+                <separator/>
+                <filter string="Has Installation" name="filter_installation_yes" domain="[('is_installation', '=', True)]"/>
+                <filter string="No Installation" name="filter_installation_no" domain="[('is_installation', '=', False)]"/>
                 <group expand="0" string="Group By">
                     <filter string="Cancellation Reason" name="group_cancelled_reason" context="{'group_by': 'cancelled_reason'}"/>
                     <filter string="Customer" name="group_partner_id" context="{'group_by': 'partner_id'}"/>
                     <filter string="Sales Team" name="group_team_id" context="{'group_by': 'team_id'}"/>
                     <filter string="Warehouse" name="group_warehouse_id" context="{'group_by': 'warehouse_id'}"/>
                     <filter string="From Ticket" name="group_from_ticket" context="{'group_by': 'is_from_ticket'}"/>
+                    <filter string="Has Installation" name="group_installation" context="{'group_by': 'is_installation'}"/>
                     <filter string="Cancelled Date" name="group_cancelled_date" context="{'group_by': 'cancelled_date:week'}"/>
                 </group>
             </search>

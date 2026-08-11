@@ -1,6 +1,7 @@
 import json
 
 from odoo import _, api, fields, models
+from odoo.tools.misc import str2bool
 
 
 class Connect(models.TransientModel):
@@ -15,6 +16,10 @@ class Connect(models.TransientModel):
     mcp_url = fields.Char(
         compute='_compute_mcp_url',
         string="MCP URL",
+    )
+
+    oauth_enabled = fields.Boolean(
+        compute='_compute_oauth_enabled',
     )
 
     claude_code_cmd = fields.Text(
@@ -73,6 +78,16 @@ class Connect(models.TransientModel):
     def _compute_mcp_url(self):
         for record in self:
             record.mcp_url = (record.get_base_url() or '').rstrip('/') + '/mcp'
+
+    def _compute_oauth_enabled(self):
+        enabled = str2bool(
+            self.env['ir.config_parameter'].sudo().get_param(
+                'muk_mcp.oauth_enabled', 'False',
+            ),
+            default=False,
+        )
+        for record in self:
+            record.oauth_enabled = enabled
 
     @api.depends('mcp_url', 'bearer_key')
     def _compute_snippets(self):

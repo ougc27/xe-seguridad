@@ -347,6 +347,27 @@ msgid "Customer taken from the transfer folio."
 msgstr "Cliente obtenido desde el folio de transferencia."
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__is_installation
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_search
+msgid "Has Installation"
+msgstr "Tiene instalación"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__is_installation
+msgid ""
+"Indicates if the transfer folio includes an installation product (INS10 "
+"or INSBAS). Set from the cancellation wizard when the record is created."
+msgstr ""
+"Indica si el folio de transferencia incluye un producto de instalación "
+"(INS10 o INSBAS). Se establece desde el asistente de cancelación al crear "
+"el registro."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_search
+msgid "No Installation"
+msgstr "No tiene instalación"
+
+#. module: xe_pacific
 #: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__team_id
 msgid "Sales team taken from the transfer folio."
 msgstr "Equipo de ventas obtenido desde el folio de transferencia."

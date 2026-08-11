@@ -16,10 +16,12 @@
                             connect via a bearer key.
 						</p>
 					</div>
+					<field name="oauth_enabled" invisible="1"/>
 					<group>
 						<field name="mcp_url" readonly="1"/>
 						<field name="bearer_key" readonly="1" invisible="not bearer_key"/>
 					</group>
+					<div class="alert alert-info" role="alert" invisible="not oauth_enabled"><strong>Claude Desktop / Claude.ai:</strong> OAuth is enabled on this server. Instead of using a bearer key below, open Settings &gt; Connectors in Claude, add a custom connector, and paste the MCP URL above. Claude will open a browser window to log in with your own Odoo account &#8212; no Node.js, no config file editing.</div>
 					<button
 						name="action_generate_key"
 						type="object"
@@ -31,7 +33,7 @@
 						<page string="Claude Code" name="claude_code">
 							<field name="claude_code_cmd" widget="text" readonly="1" nolabel="1"/>
 						</page>
-						<page string="Claude Desktop" name="claude_desktop">
+						<page string="Claude Desktop (Bearer Key)" name="claude_desktop">
 							<field name="claude_desktop_json" widget="text" readonly="1" nolabel="1"/>
 						</page>
 						<page string="Codex CLI" name="codex">
