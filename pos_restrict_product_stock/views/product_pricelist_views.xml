@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="product_pricelist_view_pos_incl" model="ir.ui.view">
+        <field name="name">product.pricelist.form.pos.incl</field>
+        <field name="model">product.pricelist</field>
+        <field name="inherit_id" ref="product.product_pricelist_view"/>
+        <field name="arch" type="xml">
+            <!-- Control flag on the pricelist -->
+            <xpath expr="//group[@name='pricelist_settings']" position="inside">
+                <field name="pos_price_included"/>
+            </xpath>
+
+            <!-- POS Price (Tax Included) column on the advanced rules tree.
+                 Only shown when the pricelist has the flag enabled. -->
+            <xpath expr="//tree[@groups='product.group_sale_pricelist']//field[@name='price']" position="after">
+                <field name="pos_price_incl" string="POS Price (Tax Incl.)"
+                       column_invisible="not parent.pos_price_included"/>
+            </xpath>
+
+            <!-- Same column on the basic tree (inline editable). -->
+            <xpath expr="//tree[@groups='!product.group_sale_pricelist']//field[@name='fixed_price']" position="after">
+                <field name="pos_price_incl" string="POS Price (Tax Incl.)"
+                       column_invisible="not parent.pos_price_included"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

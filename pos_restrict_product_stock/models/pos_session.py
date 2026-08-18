@@ -48,6 +48,28 @@ class PosSession(models.Model):
         result['search_params']['fields'].append('virtual_available')
         return result
 
+    def _create_account_move(self, *args, **kwargs):
+        """Compute the POS closing entry in 'tax included' mode when the POS tax
+        (config.tax_id) carries pos_price_include, so the closing entry taxes are
+        computed backwards exactly like the invoice (see account.tax.compute_all).
+        """
+        session = self
+        if self.config_id.tax_id.pos_price_include:
+            session = self.with_context(pos_price_include_mode=True)
+        return super(PosSession, session)._create_account_move(*args, **kwargs)
+
+    def _prepare_line(self, order_line):
+        """The closing entry recomputes the tax of each line via compute_all on
+        the order_line. The session-level context does NOT reach that call
+        (order_line has its own env), so we set 'pos_price_include_mode' right
+        on the order_line here. Without this the tax is computed 'excluded'
+        (forward) while the sales base uses price_subtotal (backwards), leaving
+        an imbalance at closing.
+        """
+        if order_line.tax_ids_after_fiscal_position.filtered(lambda t: t.pos_price_include):
+            order_line = order_line.with_context(pos_price_include_mode=True)
+        return super()._prepare_line(order_line)
+
     def get_current_cash(self):
         orders = self._get_closed_orders()
         payments = orders.payment_ids.filtered(lambda p: p.payment_method_id.type != "pay_later")
@@ -618,6 +640,28 @@ class PosSession(models.Model):
     def _pos_ui_models_to_load(self):
         result = super()._pos_ui_models_to_load()
         result.append('loyalty.card')
+        return result
+
+    def _product_pricelist_item_fields(self):
+        """Load the POS tax-included price on the pricelist rules sent to the POS."""
+        fields = super()._product_pricelist_item_fields()
+        if 'pos_price_incl' not in fields:
+            fields.append('pos_price_incl')
+        return fields
+
+    def _loader_params_product_pricelist(self):
+        """Send the 'POS Price Tax Included' flag of the pricelist to the POS."""
+        result = super()._loader_params_product_pricelist()
+        if 'pos_price_included' not in result['search_params']['fields']:
+            result['search_params']['fields'].append('pos_price_included')
+        return result
+
+    def _loader_params_account_tax(self):
+        """Send the POS 'tax included' flag to the frontend so the POS screen can
+        compute those taxes backwards, matching the invoice (see orderline.js)."""
+        result = super()._loader_params_account_tax()
+        if 'pos_price_include' not in result['search_params']['fields']:
+            result['search_params']['fields'].append('pos_price_include')
         return result
 
     def _loader_params_loyalty_card(self):

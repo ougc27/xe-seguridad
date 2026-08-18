@@ -42,9 +42,68 @@ class PosOrder(models.Model):
         compute="_compute_has_payment_proof",
     )
 
+    invoice_history_ids = fields.Many2many(
+        'account.move',
+        'pos_order_invoice_history_rel',
+        'order_id',
+        'move_id',
+        string='Invoice History',
+        copy=False,
+        help="Keeps track of every accounting move related to this order's invoicing "
+             "(the invoice itself, credit notes, cancellation/reversal entries, etc.), "
+             "even when the original invoice link (account_move) has changed or been replaced."
+    )
+
+    invoice_history_count = fields.Integer(
+        string='Invoice History Count',
+        compute='_compute_invoice_history_count',
+    )
+
     def _compute_has_payment_proof(self):
         for rec in self:
             rec.has_payment_proof = bool(rec.payment_proof_attachments)
+
+    @api.depends('invoice_history_ids')
+    def _compute_invoice_history_count(self):
+        for order in self:
+            order.invoice_history_count = len(order.invoice_history_ids)
+
+    def _add_to_invoice_history(self, moves):
+        """Register one or more account.move records in this order's invoice
+        history, and make sure they carry this order's session so they also
+        show up in the session's related journal entries (see
+        pos.session._get_related_account_moves, which filters by
+        pos_session_id).
+        """
+        self.ensure_one()
+        moves = moves.filtered(lambda m: m.id)
+        if not moves:
+            return
+        self.sudo().write({'invoice_history_ids': [(4, move.id) for move in moves]})
+        moves_without_session = moves.filtered(lambda m: not m.pos_session_id)
+        if moves_without_session and self.session_id:
+            moves_without_session.sudo().write({'pos_session_id': self.session_id.id})
+
+    def action_view_invoice_history(self):
+        self.ensure_one()
+        moves = self.invoice_history_ids
+        action = {
+            'name': _('Invoice History'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'context': {'create': False},
+        }
+        if len(moves) == 1:
+            action.update({
+                'view_mode': 'form',
+                'res_id': moves.id,
+            })
+        else:
+            action.update({
+                'view_mode': 'tree,form',
+                'domain': [('id', 'in', moves.ids)],
+            })
+        return action
 
 
     @api.depends('payment_ids', 'lines')
@@ -122,13 +181,18 @@ class PosOrder(models.Model):
             order.partner_id.write({'property_account_receivable_id': order.config_id.property_account_receivable_id.id})
 
             move_vals = order._prepare_invoice_vals(partner_id)
-            new_move = order._create_invoice(move_vals)
+            # Modo "IVA incluido en POS": si el impuesto del POS (config.tax_id)
+            # trae pos_price_include, la factura se calcula hacia atrás (incluido)
+            # vía el override de account.tax.compute_all, sin duplicar impuesto.
+            pos_incl = bool(order.config_id.tax_id.pos_price_include)
+            new_move = order.with_context(pos_price_include_mode=pos_incl)._create_invoice(move_vals)
             new_move.write({
                 'l10n_mx_edi_payment_method_id': order.l10n_mx_edi_payment_method_id.id,
             })
 
             order.write({'account_move': new_move.id})
-            new_move.sudo().with_company(order.company_id).with_context(skip_invoice_sync=True)._post()
+            order._add_to_invoice_history(new_move)
+            new_move.sudo().with_company(order.company_id).with_context(skip_invoice_sync=True, pos_price_include_mode=pos_incl)._post()
 
             payment_moves = order._apply_invoice_payments(order.session_id.state == 'closed')
 
@@ -140,6 +204,8 @@ class PosOrder(models.Model):
 
             if order.session_id.state == 'closed':  # If the session isn't closed this isn't needed.
                 # If a client requires the invoice later, we need to revers the amount from the closing entry, by making a new entry for that.
+                # Nota: este asiento es misceláneo (POSS), no factura ni nota de
+                # crédito, por lo que no se agrega a invoice_history_ids.
                 order._create_misc_reversal_move(payment_moves)
 
             new_move.partner_id.write({
@@ -302,14 +368,6 @@ class PosOrder(models.Model):
             partner_id = order.partner_id.id
             if partner_id:
                 order.sudo().write({'original_partner_id': partner_id})
-            difference = order.amount_total - (order.amount_untaxed + order.amount_tax)
-            if abs(difference) >= order.currency_id.rounding:
-                line = order.lines[-1]
-                tax_multiplier = 1 + sum(line.tax_ids_after_fiscal_position.mapped("amount")) / 100.0
-                base_adjustment = difference / tax_multiplier
-                line.write({
-                    "price_subtotal": line.price_subtotal + base_adjustment,
-                })
         return orders
 
     def check_moves(self):
@@ -346,7 +404,7 @@ class PosOrder(models.Model):
     def check_invoice(self):
         if self.to_invoice:
             raise UserError(_("You cannot cancel this order because its accounting entry (invoice) is not cancelled."))
-
+        
     def action_pos_order_cancel(self):
         for rec in self:
             rec.check_moves()
@@ -365,33 +423,68 @@ class PosOrder(models.Model):
                     lambda p: p.payment_method_id.l10n_mx_edi_payment_method_id.id == 1
                 )
                 total_cash = sum(cash_payments.mapped('amount'))
-                if len(session_id.order_ids) > 1:
-                    moves = session_id.get_moves_to_cancel().filtered(lambda m: m.state != 'cancel')
-                    for move in moves:
-                        try:
-                            if move.state != 'draft':
-                                move.button_draft()
-                            move.button_cancel()
-                        except Exception as e:
-                            raise UserError(
-                                _("Error en asiento contable %s: %s") % (move.id, str(e))
-                            )            
-                    session_id.sudo().action_pos_session_close()
-                    stop_at = session_id.stop_at
-                    if not stop_at:
-                        stop_at = fields.Datetime.now()
-                    session_id.sudo().write({'stop_at': stop_at})
-                else:
-                    moves = session_id.get_moves_to_cancel().filtered(lambda m: m.state != 'cancel')
-                    for move in moves:
-                        try:
-                            if move.state != 'draft':
-                                move.button_draft()
-                            move.button_cancel()
-                        except Exception as e:
-                            raise UserError(
-                                _("Error en asiento contable %s: %s") % (move.id, str(e))
-                            )
+
+                # Localizar los asientos de pago de ESTA orden. No hay FK al
+                # pos.payment, así que se ubican por partner + monto entre:
+                #  - los pagos de banco (account.payment.move_id -> bank_payment_ids)
+                #  - los pagos en efectivo (statement_line_ids.move_id)
+                partner = rec.partner_id.commercial_partner_id
+                candidate_moves = (
+                    session_id.bank_payment_ids.move_id
+                    | session_id.statement_line_ids.move_id
+                ).filtered(lambda m: m.state == 'posted' and m.partner_id == partner)
+
+                payment_moves = self.env['account.move']
+                for pay in rec.payment_ids:
+                    match = candidate_moves.filtered(
+                        lambda m: m.amount_total == pay.amount and m not in payment_moves
+                    )[:1]
+                    payment_moves |= match
+
+                # Cancelar los asientos de pago de ESTA orden (banco y efectivo)
+                # en lugar de crear una contrapartida/reversa. Esto rompe la
+                # conciliación con el cierre (comportamiento aceptado): el pago
+                # queda anulado (state=cancel) y no se ven dos asientos publicados.
+                # La CxC se cuadra más abajo (cierre vs reverso de la venta).
+                if payment_moves:
+                    to_cancel = payment_moves.filtered(lambda m: m.state == 'posted')
+                    if to_cancel:
+                        to_cancel.button_draft()
+                        to_cancel.filtered(lambda m: m.state == 'draft').button_cancel()
+
+                # Reverso de la venta para sacar SOLO esta orden del cierre, y solo
+                # si la orden NUNCA se facturó (si tuvo factura, su venta ya salió
+                # del cierre al facturar y volver a reversar la duplicaría). Ya no
+                # se pasa el pago porque fue cancelado; la CxC se concilia abajo.
+                if not rec.account_move:
+                    rec._create_misc_reversal_move(self.env['account.move'])
+
+                # Conciliar las partidas de CxC de esta orden que quedaron abiertas
+                # (cargo del cierre + crédito de su reversa + reversa del pago), que
+                # netean a cero pero no se concilian solas por el cancel=True.
+                receivable = rec.config_id.property_account_receivable_id
+                related_moves = (
+                    session_id.move_id if session_id.move_id else self.env['account.move']
+                )
+                # Asientos POSS de reversa de ESTA orden (por ref con el nombre de la orden).
+                reversal_moves = self.env['account.move'].search([
+                    ('pos_session_id', '=', session_id.id),
+                    ('ref', 'ilike', rec.name),
+                    '|',
+                    ('ref', 'ilike', 'Reversal'),
+                    ('ref', 'ilike', 'Reversión'),
+                ])
+                related_moves |= reversal_moves
+
+                cxc_open = related_moves.line_ids.filtered(
+                    lambda l: l.account_id == receivable and not l.reconciled
+                )
+                if len(cxc_open) > 1 and abs(sum(cxc_open.mapped('balance'))) < 0.01:
+                    try:
+                        cxc_open.reconcile()
+                    except Exception:
+                        pass
+
                 session_id.sudo().write({
                     'cash_register_balance_end': session_id.cash_register_balance_end - total_cash,
                     'cash_register_balance_end_real': session_id.cash_register_balance_end_real - total_cash,
@@ -401,6 +494,259 @@ class PosOrder(models.Model):
                 rec.payment_ids.unlink()
 
         return True
+        
+    """def action_pos_order_cancel(self):
+        for rec in self:
+            rec.check_moves()
+            rec.check_invoice()
+            session_id = rec.session_id
+
+            coupon_lines = rec.lines.filtered(lambda l: l.coupon_id)
+            for line in coupon_lines:
+                if line.coupon_id.source_pos_order_id:
+                    line.coupon_id.sudo().write({'source_pos_order_id': False})
+
+            rec.sudo().write({'state': 'cancel'})
+
+            if session_id.state == 'closed':
+                cash_payments = rec.payment_ids.filtered(
+                    lambda p: p.payment_method_id.l10n_mx_edi_payment_method_id.id == 1
+                )
+                total_cash = sum(cash_payments.mapped('amount'))
+
+                # Localizar los asientos de banco (PBINMX) de ESTA orden entre los
+                # bank_payment_ids de la sesión (por partner + monto): account.payment
+                # -> move_id, y ese asiento trae pos_session_id lleno. No hay FK
+                # directo al pos.payment.
+                partner = rec.partner_id.commercial_partner_id
+                non_cash = rec.payment_ids.filtered(
+                    lambda p: not p.payment_method_id.is_cash_count
+                )
+                candidates = session_id.bank_payment_ids.move_id.filtered(
+                    lambda m: m.state == 'posted' and m.partner_id == partner
+                )
+                payment_moves = self.env['account.move']
+                for pay in non_cash:
+                    match = candidates.filtered(
+                        lambda m: m.amount_total == pay.amount and m not in payment_moves
+                    )[:1]
+                    payment_moves |= match
+
+                # Reversar (cancelar) esos pagos. cancel=True contabiliza la reversa
+                # y concilia Ingresos por Conciliar contra el original -> queda en
+                # cero y el PBINMX queda marcado como revertido. Se le pone ref con
+                # "Reversión" y pos_session_id para que aparezca en los apuntes de la
+                # sesión (_get_related_account_moves).
+                payment_reversals = self.env['account.move']
+                if payment_moves:
+                    payment_reversals = payment_moves._reverse_moves(
+                        default_values_list=[{
+                            'date': fields.Date.context_today(rec),
+                            'ref': _('Reversión de pago %s') % rec.name,
+                            'pos_session_id': session_id.id,
+                        } for move in payment_moves],
+                        cancel=True,
+                    )
+
+                # Sacar SOLO esta orden del cierre. Pasando las reversas del pago, la
+                # conciliación interna del método liga el crédito de CxC del reverso
+                # de la venta contra el cargo de CxC de la reversa del pago -> CxC en
+                # cero. Nunca pone en borrador session.move_id ni toca las hermanas.
+                rec._create_misc_reversal_move(payment_reversals or payment_moves)
+
+                # Nota: el asiento misceláneo (POSS) y las reversas de pago NO se
+                # agregan a invoice_history_ids; ese historial es exclusivamente
+                # para facturas y notas de crédito.
+
+                session_id.sudo().write({
+                    'cash_register_balance_end': session_id.cash_register_balance_end - total_cash,
+                    'cash_register_balance_end_real': session_id.cash_register_balance_end_real - total_cash,
+                    'cash_register_total_entry_encoding': session_id.cash_register_total_entry_encoding - total_cash,
+                })
+            else:
+                rec.payment_ids.unlink()
+
+        return True"""
+        
+    """def action_pos_order_cancel(self):
+        for rec in self:
+            rec.check_moves()
+            rec.check_invoice()
+            session_id = rec.session_id
+
+            coupon_lines = rec.lines.filtered(lambda l: l.coupon_id)
+            for line in coupon_lines:
+                if line.coupon_id.source_pos_order_id:
+                    line.coupon_id.sudo().write({'source_pos_order_id': False})
+
+            rec.sudo().write({'state': 'cancel'})
+
+            if session_id.state == 'closed':
+                cash_payments = rec.payment_ids.filtered(
+                    lambda p: p.payment_method_id.l10n_mx_edi_payment_method_id.id == 1
+                )
+                total_cash = sum(cash_payments.mapped('amount'))
+
+                payment_moves = rec.payment_ids.account_move_id.filtered(
+                    lambda m: m.state == 'posted'
+                )
+
+                # Saca SOLO esta orden del cierre. Devuelve el asiento compensatorio.
+                reversal_entry = rec._create_misc_reversal_move(payment_moves)
+
+                # MATAR EL PAGO: contrapartida Dr CxC / Cr cuenta de tránsito por
+                # cada pago no-efectivo, sin depender de encontrar el asiento de
+                # banco (que no está ligado a la orden).
+                non_cash = rec.payment_ids.filtered(
+                    lambda p: not p.payment_method_id.is_cash_count
+                )
+                if non_cash and reversal_entry:
+                    receivable = rec.config_id.property_account_receivable_id
+                    partner = rec.partner_id.commercial_partner_id
+                    void_lines = []
+                    for pay in non_cash:
+                        outstanding = (
+                            pay.payment_method_id.outstanding_account_id
+                            or rec.company_id.account_journal_payment_debit_account_id
+                        )
+                        void_lines += [
+                            (0, 0, {
+                                'name': _('Cancelación de pago %s') % rec.name,
+                                'account_id': receivable.id,
+                                'debit': pay.amount, 'credit': 0.0,
+                                'partner_id': partner.id,
+                            }),
+                            (0, 0, {
+                                'name': _('Cancelación de pago %s') % rec.name,
+                                'account_id': outstanding.id,
+                                'debit': 0.0, 'credit': pay.amount,
+                                'partner_id': partner.id,
+                            }),
+                        ]
+                    void_entry = self.env['account.move'].sudo().create({
+                        'journal_id': rec.config_id.journal_id.id,
+                        'pos_session_id': rec.session_id.id,
+                        'date': fields.Date.context_today(rec),
+                        'ref': _('Cancelación de pago %s') % rec.name,
+                        'line_ids': void_lines,
+                    })
+                    void_entry.action_post()
+
+                    # Conciliar CxC: Dr de la contrapartida contra el Cr de CxC del
+                    # reverso de la venta -> la cuenta por cobrar queda en cero.
+                    cxc = (reversal_entry.line_ids | void_entry.line_ids).filtered(
+                        lambda l: l.account_id == receivable and not l.reconciled
+                    )
+                    if len(cxc) > 1:
+                        try:
+                            cxc.reconcile()
+                        except Exception:
+                            pass
+
+                    # Conciliar la cuenta de tránsito contra el pago de banco de la
+                    # sesión (localizado por sesión + partner + cuenta, ya que no
+                    # hay FK directo) -> Ingresos por Conciliar queda en cero.
+                    for pay in non_cash:
+                        outstanding = (
+                            pay.payment_method_id.outstanding_account_id
+                            or rec.company_id.account_journal_payment_debit_account_id
+                        )
+                        bank = rec.session_id.bank_payment_ids.move_id.line_ids.filtered(
+                            lambda l: l.account_id == outstanding
+                            and l.partner_id == partner and not l.reconciled
+                        )
+                        vout = void_entry.line_ids.filtered(
+                            lambda l: l.account_id == outstanding and not l.reconciled
+                        )
+                        if len((bank | vout)) > 1:
+                            try:
+                                (bank | vout).reconcile()
+                            except Exception:
+                                pass
+
+                session_id.sudo().write({
+                    'cash_register_balance_end': session_id.cash_register_balance_end - total_cash,
+                    'cash_register_balance_end_real': session_id.cash_register_balance_end_real - total_cash,
+                    'cash_register_total_entry_encoding': session_id.cash_register_total_entry_encoding - total_cash,
+                })
+            else:
+                rec.payment_ids.unlink()
+
+        return True"""
+
+    """def action_pos_order_cancel(self):
+        for rec in self:
+            rec.check_moves()
+            rec.check_invoice()
+            session_id = rec.session_id
+
+            coupon_lines = rec.lines.filtered(lambda l: l.coupon_id)
+            for line in coupon_lines:
+                if line.coupon_id.source_pos_order_id:
+                    line.coupon_id.sudo().write({'source_pos_order_id': False})
+
+            rec.sudo().write({'state': 'cancel'})
+
+            if session_id.state == 'closed':
+                cash_payments = rec.payment_ids.filtered(
+                    lambda p: p.payment_method_id.l10n_mx_edi_payment_method_id.id == 1
+                )
+                total_cash = sum(cash_payments.mapped('amount'))
+
+                # Saca SOLO esta orden del cierre. No pone en borrador
+                # session.move_id ni los asientos de las hermanas, así que sus
+                # pagos conciliados con sus facturas se conservan.
+                payment_moves = rec.payment_ids.account_move_id.filtered(
+                    lambda m: m.state == 'posted'
+                )
+                rec._create_misc_reversal_move(payment_moves)
+
+                session_id.sudo().write({
+                    'cash_register_balance_end': session_id.cash_register_balance_end - total_cash,
+                    'cash_register_balance_end_real': session_id.cash_register_balance_end_real - total_cash,
+                    'cash_register_total_entry_encoding': session_id.cash_register_total_entry_encoding - total_cash,
+                })
+            else:
+                rec.payment_ids.unlink()
+
+        return True"""
+    
+    """def action_pos_order_cancel(self):
+        for rec in self:
+            rec.check_moves()
+            rec.check_invoice()
+            session_id = rec.session_id
+
+            coupon_lines = rec.lines.filtered(lambda l: l.coupon_id)
+            for line in coupon_lines:
+                if line.coupon_id.source_pos_order_id:
+                    line.coupon_id.sudo().write({'source_pos_order_id': False})
+
+            rec.sudo().write({'state': 'cancel'})
+
+            if session_id.state == 'closed':
+                cash_payments = rec.payment_ids.filtered(
+                    lambda p: p.payment_method_id.l10n_mx_edi_payment_method_id.id == 1
+                )
+                total_cash = sum(cash_payments.mapped('amount'))
+
+                # Saca SOLO esta orden del cierre. No pone en borrador
+                # session.move_id ni los asientos de las hermanas, así que sus
+                # pagos conciliados con sus facturas se conservan.
+                payment_moves = rec.payment_ids.account_move_id.filtered(
+                    lambda m: m.state == 'posted'
+                )
+                rec._create_misc_reversal_move(payment_moves)
+
+                session_id.sudo().write({
+                    'cash_register_balance_end': session_id.cash_register_balance_end - total_cash,
+                    'cash_register_balance_end_real': session_id.cash_register_balance_end_real - total_cash,
+                    'cash_register_total_entry_encoding': session_id.cash_register_total_entry_encoding - total_cash,
+                })
+            else:
+                rec.payment_ids.unlink()
+
+        return True"""
 
     def write(self, vals):
         res = super().write(vals)
@@ -419,6 +765,18 @@ class PosOrder(models.Model):
 
         # Concert each order line to a dictionary containing business values. Also, prepare for taxes computation.
         base_line_vals_list = self._prepare_tax_base_line_values(sign=-1)
+        # POS "tax included" mode: for lines whose tax carries pos_price_include,
+        # force the NATIVE 'force_price_include' in the base line's extra_context
+        # so _compute_taxes computes the tax backwards (base = price / (1 + rate)),
+        # matching the order and the invoice. Without this the reversal recomputes
+        # the tax 'excluded' (forward) and the entry does not balance.
+        for base_line in base_line_vals_list:
+            taxes = base_line.get('taxes')
+            if taxes and all(t.pos_price_include for t in taxes):
+                base_line['extra_context'] = {
+                    **(base_line.get('extra_context') or {}),
+                    'force_price_include': True,
+                }
         tax_results = self.env['account.tax']._compute_taxes(base_line_vals_list)
 
         total_balance = 0.0
@@ -589,6 +947,8 @@ class PosOrder(models.Model):
             lines_to_reconcile[line.account_id] |= line
         for line in lines_to_reconcile.values():
             line.filtered(lambda l: not l.reconciled).reconcile()
+
+        return reversal_entry
 
     def refund(self):
         today = fields.Date.context_today(self)

@@ -17,6 +17,30 @@ class LoyaltyProgram(models.Model):
             "cannot be generated or edited manually."
     )
 
+    restrict_coupon_creation = fields.Boolean(
+        string="Restrict Coupon Creation to Managers",
+        default=False,
+        help="When enabled, only users in the 'Loyalty & Coupon Programs "
+            "Manager' group can create coupons for this program. Only "
+            "Settings administrators can enable or disable this option."
+    )
+
+    coupon_creation_locked_for_user = fields.Boolean(
+        string="Coupon Creation Locked For Current User",
+        compute="_compute_coupon_creation_locked_for_user",
+        help="Technical field: True when coupon creation is restricted and the "
+            "current user is not a Loyalty Manager. Used to hide the coupon "
+            "generation button in the view."
+    )
+
+    @api.depends("restrict_coupon_creation")
+    def _compute_coupon_creation_locked_for_user(self):
+        is_manager = self.env.user.has_group(
+            "pos_restrict_product_stock.group_loyalty_manager")
+        for program in self:
+            program.coupon_creation_locked_for_user = (
+                program.restrict_coupon_creation and not is_manager)
+
     @api.model
     def pos_validate_coupon_per_line(
         self,

@@ -61,7 +61,7 @@ class LoyaltyGenerateWizard(models.TransientModel):
     
     manual_price = fields.Float(
         string="Manual Price",
-        groups="base.group_system",
+        groups="pos_restrict_product_stock.group_loyalty_manager",
         help="Tax-included unit price set manually. See loyalty.card.manual_price.",
     )
 

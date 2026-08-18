@@ -74,11 +74,15 @@ class ProjectTask(models.Model):
                     func='_get_company_and_program'
                 )
                 return action, None, None
-
-            program = self.env['loyalty.program'].search([
-                ('company_id', '=', company.id),
-                ('externally_managed', '=', True),
-            ], limit=1)
+            
+            if company.id == 3:
+                program = self.env['loyalty.program'].browse(2).exists()
+                
+            else:
+                program = self.env['loyalty.program'].search([
+                    ('company_id', '=', company.id),
+                    ('externally_managed', '=', True),
+                ], limit=1)
 
             if not program:
                 self._log_warning(

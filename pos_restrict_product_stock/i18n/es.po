@@ -2040,10 +2040,125 @@ msgstr "Precio manual"
 
 #. module: pos_restrict_product_stock
 #: model:ir.model.fields,help:pos_restrict_product_stock.field_loyalty_card__manual_price
-msgid "Tax-included unit price set manually for a specific use case. Only visible/editable by users with the highest (Settings) access rights. When both a pricelist price and a manual price are set, the lowest of the two is applied."
-msgstr "Precio unitario con impuestos incluidos, establecido manualmente para un caso de uso específico. Solo visible/editable por usuarios con los permisos más altos (Ajustes). Cuando se configuran una lista de precios y un precio manual a la vez, se aplica el menor de los dos."
+msgid "Tax-included unit price set manually for a specific use case. Only visible/editable by users with the Loyalty Manager access rights. When both a pricelist price and a manual price are set, the lowest of the two is applied."
+msgstr "Precio unitario con impuestos incluidos, establecido manualmente para un caso de uso específico. Solo visible/editable por usuarios con permisos de Administrador de Programas de Cupones y Lealtad. Cuando se configuran una lista de precios y un precio manual a la vez, se aplica el menor de los dos."
 
 #. module: pos_restrict_product_stock
 #: model:ir.model.fields,help:pos_restrict_product_stock.field_loyalty_generate_wizard__manual_price
 msgid "Tax-included unit price set manually. See loyalty.card.manual_price."
 msgstr "Precio unitario con impuestos incluidos, establecido manualmente. Ver loyalty.card.manual_price."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/js/order.js:0
+#, python-format
+msgid "This coupon has already been applied to another line in this order."
+msgstr "El cupón ya ha sido aplicado a este pedido."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_loyalty_program__restrict_coupon_creation
+msgid "Restrict Coupon Creation to Managers"
+msgstr "Restringir la creación de cupones a los gestores"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_loyalty_program__restrict_coupon_creation
+msgid "When enabled, only users in the 'Loyalty & Coupon Programs Manager' group can create coupons for this program. Only Settings administrators can enable or disable this option."
+msgstr "Cuando está activo, solo los usuarios del grupo 'Administrador de Programas de Cupones y Lealtad' pueden crear cupones para este programa. Solo los administradores de Ajustes pueden activar o desactivar esta opción."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_loyalty_program__coupon_creation_locked_for_user
+msgid "Coupon Creation Locked For Current User"
+msgstr "Creación de cupones bloqueada para el usuario actual"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_loyalty_program__coupon_creation_locked_for_user
+msgid "Technical field: True when coupon creation is restricted and the current user is not a Loyalty Manager. Used to hide the coupon generation button in the view."
+msgstr "Campo técnico: es verdadero cuando la creación de cupones está restringida y el usuario actual no es Administrador de Programas de Cupones y Lealtad. Se usa para ocultar el botón de generación de cupones en la vista."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_card.py:0
+#, python-format
+msgid "Coupon creation for this loyalty program is restricted. Only users in the 'Loyalty & Coupon Programs Manager' group are allowed to create coupons."
+msgstr "La creación de cupones para este programa de lealtad está restringida. Solo los usuarios del grupo 'Administrador de Programas de Cupones y Lealtad' pueden crear cupones."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_pricelist__pos_price_included
+msgid "POS Price Tax Included"
+msgstr "Precio POS con IVA incluido"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_product_pricelist__pos_price_included
+msgid "If enabled, the rules of this pricelist use the 'POS Price (Tax Included)' field. In the POS, when the point of sale tax is set as 'Included in Price', that price is used instead of the normal one. The POS price column is only shown when this box is checked."
+msgstr "Si está activo, las reglas de esta lista usan el campo 'Precio POS (IVA incluido)'. En el POS, cuando el impuesto del punto de venta está marcado como 'Incluido en el precio', se usa ese precio en lugar del normal. La columna del precio POS solo se muestra cuando este check está activo."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_product_pricelist_item__pos_price_incl
+msgid "POS Price (Tax Included)"
+msgstr "Precio POS (IVA incluido)"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_product_pricelist_item__pos_price_incl
+msgid "Tax-included price used by the POS when the point of sale tax is set as 'Included in Price'. Usually the fixed price x 1.16 rounded to the nearest whole unit."
+msgstr "Precio con IVA incluido que usa el POS cuando el impuesto del punto de venta está marcado como 'Incluido en el precio'. Normalmente es el precio fijo x 1.16 redondeado al entero más cercano."
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.product_pricelist_view_pos_incl
+msgid "POS Price (Tax Incl.)"
+msgstr "Precio POS (IVA incl.)"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_account_tax__pos_price_include
+msgid "Tax Included in POS Price"
+msgstr "IVA incluido en el precio del POS"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_account_tax__pos_price_include
+msgid "Point of Sale flag: when the tax is used inside a POS context (order, closing entry and the invoice generated from the POS), the price is treated as tax-included and the tax is computed backwards, even though 'Included in Price' stays off for every other channel. This lets the same tax be tax-excluded on regular sales and tax-included only in the Point of Sale, without duplicating the tax."
+msgstr "Bandera para el Punto de Venta: cuando el impuesto se usa en el contexto del POS (orden, asiento de cierre y la factura generada desde el POS), el precio se trata como IVA incluido y el impuesto se calcula hacia atrás, aunque 'Incluido en el precio' siga apagado para los demás canales. Permite que el mismo impuesto sea IVA por fuera en ventas normales e IVA incluido solo en el Punto de Venta, sin duplicar el impuesto."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_order.py:0
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order__invoice_history_ids
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.pos_order_form_inherit_pos_restrict_product_stock
+#, python-format
+msgid "Invoice History"
+msgstr "Historial de facturas"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order__invoice_history_count
+msgid "Invoice History Count"
+msgstr "Cantidad de facturas en el historial"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_order__invoice_history_ids
+msgid ""
+"Keeps track of every accounting move related to this order's invoicing (the "
+"invoice itself, credit notes, cancellation/reversal entries, etc.), even "
+"when the original invoice link (account_move) has changed or been replaced."
+msgstr ""
+"Registra todos los asientos contables relacionados con la facturación de "
+"este pedido (la propia factura, notas de crédito, asientos de cancelación/"
+"reversión, etc.), incluso cuando el vínculo de la factura original "
+"(account_move) haya cambiado o haya sido reemplazado."
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "Today"
+msgstr "Hoy"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "This Month"
+msgstr "Este mes"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "This Week"
+msgstr "Esta semana"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
+msgid "Search POS Order Lines"
+msgstr "Buscar líneas de pedido de TPV"
