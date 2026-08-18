@@ -181,10 +181,10 @@ class PosOrder(models.Model):
             order.partner_id.write({'property_account_receivable_id': order.config_id.property_account_receivable_id.id})
 
             move_vals = order._prepare_invoice_vals(partner_id)
-            # Modo "IVA incluido en POS": si el impuesto del POS (config.tax_id)
-            # trae pos_price_include, la factura se calcula hacia atrás (incluido)
-            # vía el override de account.tax.compute_all, sin duplicar impuesto.
-            pos_incl = bool(order.config_id.tax_id.pos_price_include)
+            # Modo "IVA incluido en POS": solo aplica a ordenes NUEVAS (cuyo
+            # price_unit ya trae IVA). Las ordenes viejas guardaron price_unit
+            # como base sin IVA y deben facturarse por fuera como se crearon.
+            pos_incl = bool(order.config_id.tax_id.pos_price_include) and order._pos_is_tax_included_order()
             new_move = order.with_context(pos_price_include_mode=pos_incl)._create_invoice(move_vals)
             new_move.write({
                 'l10n_mx_edi_payment_method_id': order.l10n_mx_edi_payment_method_id.id,
@@ -756,6 +756,34 @@ class PosOrder(models.Model):
                 partner_id.write({'property_account_receivable_id': record.config_id.property_account_receivable_id.id})
         return res
 
+    def _pos_line_is_tax_included_priced(self, line):
+        """True when the line's price_unit ALREADY includes the tax (orders
+        created under the 'IVA incluido en POS' scheme). Old orders stored
+        price_unit as the tax-EXCLUDED base and must keep the forward tax
+        computation; otherwise invoicing/reversing them applies a backward
+        computation to an excluded price and the totals break.
+
+        Detection is data-driven: compare price_unit*qty (after discount) with
+        the stored tax-included vs tax-excluded subtotals and pick the closest.
+        """
+        if not line:
+            return False
+        qty = line.qty or 1.0
+        unit = line.price_unit * (1.0 - (line.discount or 0.0) / 100.0)
+        base_amount = abs(unit * qty)
+        dist_incl = abs(base_amount - abs(line.price_subtotal_incl))
+        dist_excl = abs(base_amount - abs(line.price_subtotal))
+        return dist_incl <= dist_excl
+
+    def _pos_is_tax_included_order(self):
+        """True when this order was priced tax-included (new scheme). Used to
+        decide whether the 'IVA incluido en POS' backward computation applies
+        when (re)invoicing; old orders must be left computing forward.
+        """
+        self.ensure_one()
+        lines = self.lines.filtered(lambda l: l.price_subtotal_incl or l.price_subtotal)
+        return bool(lines) and all(self._pos_line_is_tax_included_priced(l) for l in lines)
+
     def _prepare_aml_values_list_per_nature(self):
         self.ensure_one()
         sign = 1 if self.amount_total < 0 else -1
@@ -772,7 +800,8 @@ class PosOrder(models.Model):
         # the tax 'excluded' (forward) and the entry does not balance.
         for base_line in base_line_vals_list:
             taxes = base_line.get('taxes')
-            if taxes and all(t.pos_price_include for t in taxes):
+            line = base_line.get('record')
+            if taxes and all(t.pos_price_include for t in taxes) and self._pos_line_is_tax_included_priced(line):
                 base_line['extra_context'] = {
                     **(base_line.get('extra_context') or {}),
                     'force_price_include': True,

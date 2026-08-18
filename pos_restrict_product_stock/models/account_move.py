@@ -71,3 +71,57 @@ class AccountMove(models.Model):
                 'target': 'current',
                 'context': {'create': False},
             }
+
+
+class AccountMoveLine(models.Model):
+    _inherit = "account.move.line"
+
+    def _pos_needs_price_include(self):
+        """Durable check (independent of any transient context): True when this
+        invoice/credit-note line comes from a POS order priced under the 'IVA
+        incluido en POS' scheme. In that case the tax must be computed backwards
+        (the price already includes tax) on EVERY (re)computation -- not only at
+        creation time -- otherwise reopening/posting/editing the invoice makes
+        Odoo recompute the tax 'excluded' (forward) and it adds the IVA twice.
+        """
+        self.ensure_one()
+        if self.move_id.move_type not in ('out_invoice', 'out_refund'):
+            return False
+        order = self.move_id.pos_order_ids[:1]
+        if not order or not order.config_id.tax_id.pos_price_include:
+            return False
+        if not order._pos_is_tax_included_order():
+            return False
+        return bool(self.tax_ids.filtered(lambda t: t.pos_price_include))
+
+    def _compute_all_tax(self):
+        # Durable POS 'IVA incluido' computation: the stored tax lines / move
+        # totals come from here (it calls line.tax_ids.compute_all directly).
+        # For POS included lines we force the native 'force_price_include' so
+        # the tax is computed backwards on EVERY recompute (create, post, open,
+        # edit), never adding the IVA twice.
+        incl = self.filtered(lambda l: l._pos_needs_price_include())
+        if incl:
+            super(AccountMoveLine, incl.with_context(force_price_include=True))._compute_all_tax()
+        rest = self - incl
+        if rest:
+            super(AccountMoveLine, rest)._compute_all_tax()
+
+    def _compute_totals(self):
+        # Same durable treatment for the line subtotal/total (price_subtotal,
+        # price_total) which also call tax_ids.compute_all directly.
+        incl = self.filtered(lambda l: l._pos_needs_price_include())
+        if incl:
+            super(AccountMoveLine, incl.with_context(force_price_include=True))._compute_totals()
+        rest = self - incl
+        if rest:
+            super(AccountMoveLine, rest)._compute_totals()
+
+    def _convert_to_tax_base_line_dict(self):
+        res = super()._convert_to_tax_base_line_dict()
+        if self._pos_needs_price_include():
+            res['extra_context'] = {
+                **(res.get('extra_context') or {}),
+                'force_price_include': True,
+            }
+        return res

@@ -66,7 +66,8 @@ class PosSession(models.Model):
         (forward) while the sales base uses price_subtotal (backwards), leaving
         an imbalance at closing.
         """
-        if order_line.tax_ids_after_fiscal_position.filtered(lambda t: t.pos_price_include):
+        if (order_line.tax_ids_after_fiscal_position.filtered(lambda t: t.pos_price_include)
+                and order_line.order_id._pos_line_is_tax_included_priced(order_line)):
             order_line = order_line.with_context(pos_price_include_mode=True)
         return super()._prepare_line(order_line)
 
