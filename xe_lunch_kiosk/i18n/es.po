@@ -301,3 +301,52 @@ msgstr ""
 "- Escáner de código de barras / RFID: lector USB o Bluetooth; la cámara se oculta.\n"
 "- Cámara frontal: usa la cámara delantera del dispositivo.\n"
 "- Cámara trasera: usa la cámara trasera del dispositivo (recomendado para tabletas)."
+
+#. module: xe_lunch_kiosk
+#. odoo-javascript
+#: code:addons/xe_lunch_kiosk/static/src/js/kiosk_app.js:0
+#, python-format
+msgid "No camera device can be found."
+msgstr "No se encontró ningún dispositivo de cámara."
+
+#. module: xe_lunch_kiosk
+#: model_terms:ir.ui.view,arch_db:xe_lunch_kiosk.view_xe_lunch_config_form
+msgid "Pricing"
+msgstr "Precios"
+
+#. module: xe_lunch_kiosk
+#. odoo-javascript
+#: code:addons/xe_lunch_kiosk/static/src/xml/kiosk_app.xml:0
+#, python-format
+msgid "Use your barcode / RFID scanner"
+msgstr "Utiliza tu lector de códigos de barras / RFID"
+
+#. module: xe_lunch_kiosk
+#. odoo-javascript
+#: code:addons/xe_lunch_kiosk/static/src/xml/kiosk_app.xml:0
+#, python-format
+msgid "Use your barcode / RFID scanner instead."
+msgstr "Utiliza tu lector de códigos de barras / RFID en su lugar."
+
+#. module: xe_lunch_kiosk
+#. odoo-javascript
+#: code:addons/xe_lunch_kiosk/static/src/js/kiosk_app.js:0
+#, python-format
+msgid "Camera permission denied. Please allow camera access."
+msgstr "Permiso de cámara denegado. Permite el acceso a la cámara."
+
+#. module: xe_lunch_kiosk
+#: model_terms:ir.ui.view,arch_db:xe_lunch_kiosk.view_xe_lunch_config_form
+msgid "Choose how barcodes are read in the kiosk."
+msgstr "Elige cómo se leen los códigos de barras en el quiosco."
+
+#. module: xe_lunch_kiosk
+#: model:ir.model.fields,field_description:xe_lunch_kiosk.field_xe_lunch_config__id
+#: model:ir.model.fields,field_description:xe_lunch_kiosk.field_xe_lunch_register__id
+msgid "ID"
+msgstr "ID"
+
+#. module: xe_lunch_kiosk
+#: model_terms:ir.ui.view,arch_db:xe_lunch_kiosk.view_xe_lunch_config_form
+msgid "Kiosk Settings"
+msgstr "Configuración del quiosco"

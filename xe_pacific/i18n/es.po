@@ -2345,6 +2345,16 @@ msgid "Unassigned"
 msgstr "Sin Asignar"
 
 #. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Created by me"
+msgstr "Creados por mí"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Followed by me"
+msgstr "Seguidos por mí"
+
+#. module: xe_pacific
 #: model:ir.model.fields,help:xe_pacific.field_helpdesk_ticket__external_url
 msgid "URL where the issue is occurring."
 msgstr "URL donde ocurre el problema."

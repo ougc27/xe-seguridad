@@ -63,7 +63,7 @@
                     <h2>Aditional Configuration</h2>
                     <div class="col-12 col-lg-6 o_setting_box">
                         <div class="o_setting_right_pane">
-                            <label for="pos_general_warehouse_id"/>
+                        <label for="pos_general_warehouse_id"/>
                             <br/>
                             <field name="pos_general_warehouse_id" readonly="False"/>
                             <div class="text-muted">

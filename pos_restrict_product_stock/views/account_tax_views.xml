@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_tax_form_pos_incl" model="ir.ui.view">
+        <field name="name">account.tax.form.pos.incl</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='price_include']" position="after">
+                <field name="pos_price_include"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
