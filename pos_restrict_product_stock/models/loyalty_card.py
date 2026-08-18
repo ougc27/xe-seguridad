@@ -132,7 +132,7 @@ class LoyaltyCard(models.Model):
         if not pricelist.pos_price_included:
             return standard_price
 
-        price_rule = pricelist._compute_price_rule([(product, 1.0, False)])
+        price_rule = pricelist._compute_price_rule(product, 1.0)
         rule_id = price_rule.get(product.id, (0, False))[1]
         if not rule_id:
             return standard_price
