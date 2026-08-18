@@ -264,6 +264,13 @@ class LoyaltyProgram(models.Model):
             tax_ratio = price_with_tax / line_subtotal if line_subtotal else 1
             discount_amount_tax = discount_net * tax_ratio
         elif card.price_from_pricelist:
+            # card.price_from_pricelist is already in the same unit as
+            # price_unit: when the coupon's pricelist has
+            # 'pos_price_included' enabled, it comes from the matching
+            # pricelist item's pos_price_incl (tax-included), matching what
+            # product.js sends as price_unit in that POS tax mode. Otherwise
+            # it's the standard tax-excluded pricelist price, same as a
+            # normal (non tax-included) POS tax setup.
             price_with_discount = card.price_from_pricelist
             new_line_subtotal = qty * price_with_discount
             discount_net = line_subtotal - new_line_subtotal

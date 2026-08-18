@@ -109,13 +109,36 @@ class LoyaltyCard(models.Model):
     def _compute_price_from_pricelist(self):
         for record in self:
             if record.pricelist_id and record.product_id:
-                record.price_from_pricelist = record.pricelist_id._get_product_price(
-                    record.product_id,
-                    1.0,
-                    False,
-                )
+                record.price_from_pricelist = record._get_pricelist_price()
             else:
                 record.price_from_pricelist = 0.0
+
+    def _get_pricelist_price(self):
+        """Price used by the coupon when it carries its own pricelist_id.
+
+        Normally this is the standard (tax-excluded) price computed by
+        product.pricelist. However, when the pricelist has the
+        'POS Price Tax Included' flag (pos_price_included) enabled, the POS
+        sends/expects tax-included unit prices (see product.js get_price /
+        pos_price_incl), so the matching pricelist.item's pos_price_incl is
+        used instead, keeping both values in the same unit. If that field is
+        not set on the matching rule, we fall back to the standard price.
+        """
+        self.ensure_one()
+        pricelist = self.pricelist_id
+        product = self.product_id
+        standard_price = pricelist._get_product_price(product, 1.0, False)
+
+        if not pricelist.pos_price_included:
+            return standard_price
+
+        price_rule = pricelist._compute_price_rule([(product, 1.0, False)])
+        rule_id = price_rule.get(product.id, (0, False))[1]
+        if not rule_id:
+            return standard_price
+
+        item = self.env['product.pricelist.item'].browse(rule_id)
+        return item.pos_price_incl or standard_price
 
     def _check_manager_coupon_restriction(self, vals):
         """Block manual coupon creation on restricted programs.
