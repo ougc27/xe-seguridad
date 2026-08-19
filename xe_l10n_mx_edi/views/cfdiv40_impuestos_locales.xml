@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Renders the <implocal:ImpuestosLocales> complement.
+
+        Mirrors exactly the pattern l10n_mx_edi_extended uses for the
+        Comercio Exterior (cce20) complement (view
+        l10n_mx_edi_extended.cfdiv40_extended): a <cfdi:Complemento> is added
+        "inside" <cfdi:Comprobante>, and the complement namespace is declared
+        inline on the complement element.
+
+        'implocales' is populated in
+        account_move._xe_add_implocal_cfdi_values.
+    -->
+    <template id="cfdiv40_impuestos_locales" inherit_id="l10n_mx_edi.cfdiv40">
+        <xpath expr="//*[name()='cfdi:Comprobante']" position="inside">
+            <t t-if="implocales and (implocales['retenciones_list'] or implocales['traslados_list'])">
+                <cfdi:Complemento xmlns:cfdi="http://www.sat.gob.mx/cfd/4">
+                    <implocal:ImpuestosLocales
+                        xmlns:implocal="http://www.sat.gob.mx/implocal"
+                        t-att-version="implocales['version']"
+                        t-att-TotaldeRetenciones="format_float(implocales['total_retenciones'])"
+                        t-att-TotaldeTraslados="format_float(implocales['total_traslados'])">
+                        <t t-foreach="implocales['retenciones_list']" t-as="ret">
+                            <implocal:RetencionesLocales
+                                t-att-ImpLocRetenido="ret['impuesto']"
+                                t-att-TasadeRetencion="format_float(ret['tasa'], precision=2)"
+                                t-att-Importe="format_float(ret['importe'])"/>
+                        </t>
+                        <t t-foreach="implocales['traslados_list']" t-as="tras">
+                            <implocal:TrasladosLocales
+                                t-att-ImpLocTrasladado="tras['impuesto']"
+                                t-att-TasadeTraslado="format_float(tras['tasa'], precision=2)"
+                                t-att-Importe="format_float(tras['importe'])"/>
+                        </t>
+                    </implocal:ImpuestosLocales>
+                </cfdi:Complemento>
+            </t>
+        </xpath>
+    </template>
+</odoo>
