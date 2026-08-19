@@ -310,3 +310,54 @@ msgid ""
 msgstr ""
 "Solo puede consultar el estado ante el SAT para facturas dentro del período "
 "permitido actual."
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_account_tax__l10n_mx_local_tax
+msgid "Local Tax (ImpuestosLocales)"
+msgstr "Impuesto local (ImpuestosLocales)"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_account_tax__l10n_mx_local_tax
+msgid "If enabled, this tax is reported inside the CFDI 'implocal:ImpuestosLocales' complement instead of the federal 'cfdi:Impuestos' node. The label printed as 'ImpLocRetenido' / 'ImpLocTrasladado' is taken from the tax 'Label on Invoices' (invoice_label) field."
+msgstr "Si se activa, este impuesto se reporta dentro del complemento CFDI 'implocal:ImpuestosLocales' en lugar del nodo federal 'cfdi:Impuestos'. La etiqueta que se imprime como 'ImpLocRetenido' / 'ImpLocTrasladado' se toma del campo 'Etiqueta en facturas' (invoice_label) del impuesto."
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_account_tax__l10n_mx_local_type
+msgid "Local Tax Type"
+msgstr "Tipo de impuesto local"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_tax__l10n_mx_local_type__retencion
+msgid "Local retention (RetencionesLocales)"
+msgstr "Retención local (RetencionesLocales)"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_tax__l10n_mx_local_type__traslado
+msgid "Local transfer (TrasladosLocales)"
+msgstr "Traslado local (TrasladosLocales)"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_account_tax__l10n_mx_local_base
+msgid "Local Tax Base"
+msgstr "Base del impuesto local"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_tax__l10n_mx_local_base__gross
+msgid "Subtotal before discount (gross)"
+msgstr "Subtotal antes de descuento (bruto)"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields.selection,name:xe_l10n_mx_edi.selection__account_tax__l10n_mx_local_base__net
+msgid "Subtotal after discount (net)"
+msgstr "Subtotal después de descuento (neto)"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_account_tax__l10n_mx_local_base
+msgid ""
+"Base used to compute the amount reported in the complement.\n"
+"- gross: the line amount BEFORE any line discount (e.g. anticipo amortization). This matches the '5 al millar' rule where the retention is computed over the full estimated work value.\n"
+"- net: the line amount after discount (standard Odoo behaviour)."
+msgstr ""
+"Base utilizada para calcular el importe reportado en el complemento.\n"
+"- bruto: el importe de la línea ANTES de cualquier descuento de línea (por ejemplo, la amortización del anticipo). Corresponde a la regla del '5 al millar', donde la retención se calcula sobre el valor total de la obra.\n"
+"- neto: el importe de la línea después del descuento (comportamiento estándar de Odoo)."

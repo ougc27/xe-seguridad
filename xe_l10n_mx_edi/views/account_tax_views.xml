@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_tax_form_implocal" model="ir.ui.view">
+        <field name="name">account.tax.form.implocal</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_form"/>
+        <field name="arch" type="xml">
+            <!-- Anchor on 'type_tax_use', which exists in the base
+                 account.view_tax_form (l10n_mx_tax_type is added by the
+                 localization in a different inherited view, so it is not a
+                 safe anchor here). -->
+            <field name="type_tax_use" position="after">
+                <field name="l10n_mx_local_tax"/>
+                <field name="l10n_mx_local_type"
+                       invisible="not l10n_mx_local_tax"/>
+                <field name="l10n_mx_local_base"
+                       invisible="not l10n_mx_local_tax"/>
+            </field>
+        </field>
+    </record>
+</odoo>
