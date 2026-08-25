@@ -9,5 +9,5 @@ def migrate(cr, version):
     """
     if not version:
         return
-    env = api.Environment(cr, SUPERUSER_ID, {})
-    env['calendar.event'].sudo().search([('opportunity_id', '!=', False)])._sync_tags_from_opportunity()
+    #env = api.Environment(cr, SUPERUSER_ID, {})
+    #env['calendar.event'].sudo().search([('opportunity_id', '!=', False)])._sync_tags_from_opportunity()
