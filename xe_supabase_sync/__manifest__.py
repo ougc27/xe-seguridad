@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'XE Supabase Sync',
-    'version': '17.0.1.0.1',
+    'version': '17.0.0.0.0',
     'summary': 'Syncs Odoo tables (stock.quant, sale.order, pos.order, etc.) to Supabase',
     'description': """
 Configurable sync of Odoo data into dedicated tables in Supabase.
