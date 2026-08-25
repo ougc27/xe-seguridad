@@ -1,0 +1,543 @@
+# Translation of xe_supabase_sync.
+# This file contains the translation of the following modules:
+# 	* xe_supabase_sync
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: xe_supabase_sync
+#: model:ir.model,name:xe_supabase_sync.model_supabase_sync_job
+msgid "Odoo -> Supabase sync job"
+msgstr "Job de sincronización Odoo -> Supabase"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__sequence
+msgid "Sequence"
+msgstr "Secuencia"
+
+#. module: xe_supabase_sync
+#: model:ir.model,name:xe_supabase_sync.model_supabase_sync_log
+msgid "Supabase sync run history"
+msgstr "Historial de corridas de sincronización a Supabase"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__extraction_mode
+msgid "Extraction Mode"
+msgstr "Modo de extracción"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,help:xe_supabase_sync.field_supabase_sync_job__extraction_mode
+msgid ""
+"Direct SQL: fast, ideal for columns that actually live in the database "
+"(most of stock.quant/sale.order/pos.order). ORM: slower but required to "
+"read computed fields with store=False, since those values don't exist as "
+"a real column and only Odoo can compute them."
+msgstr ""
+"SQL directo: rápido, ideal para columnas que sí viven en la base de datos "
+"(la gran mayoría de stock.quant/sale.order/pos.order). ORM: más lento "
+"pero necesario para leer campos computados con store=False, ya que esos "
+"valores no existen como columna real y solo Odoo los puede calcular."
+
+#. module: xe_supabase_sync
+#: selection:supabase.sync.job,extraction_mode:0
+msgid "Direct SQL"
+msgstr "SQL directo"
+
+#. module: xe_supabase_sync
+#: selection:supabase.sync.job,extraction_mode:0
+msgid "ORM (computed / non-stored fields)"
+msgstr "ORM (campos calculados / no-stored)"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__source_sql
+msgid "Extraction Query (SQL)"
+msgstr "Query de extracción (SQL)"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,help:xe_supabase_sync.field_supabase_sync_job__source_sql
+msgid ""
+"SELECT against Odoo's own database. Must include %(last_id)s and "
+"%(batch_size)s (and %(last_write_date)s if applicable), and end with "
+"ORDER BY the same checkpoint column(s). Column aliases (AS) define the "
+"final column name in Supabase."
+msgstr ""
+"SELECT contra la propia base de datos de Odoo. Debe incluir %(last_id)s "
+"y %(batch_size)s (y %(last_write_date)s si aplica), y terminar con ORDER "
+"BY por la(s) misma(s) columna(s) del checkpoint. Los alias de columna "
+"(AS) definen el nombre final de columna en Supabase."
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__orm_model
+msgid "Odoo Model (technical name)"
+msgstr "Modelo de Odoo (nombre técnico)"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,help:xe_supabase_sync.field_supabase_sync_job__orm_model
+msgid "E.g. sale.order. Only used in ORM mode."
+msgstr "Ej. sale.order. Solo se usa en modo ORM."
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__orm_domain
+msgid "Extra Domain"
+msgstr "Dominio adicional"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,help:xe_supabase_sync.field_supabase_sync_job__orm_domain
+msgid ""
+"Standard Odoo domain, e.g. [('state','=','sale')]. The pagination "
+"filter (id, or write_date+id for incremental sync) is appended "
+"automatically."
+msgstr ""
+"Dominio estándar de Odoo, ej. [('state','=','sale')]. El filtro de "
+"paginación (id, o write_date+id para sincronización incremental) se "
+"agrega automáticamente."
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__orm_field_map
+msgid "Column Mapping (JSON)"
+msgstr "Mapeo de columnas (JSON)"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,help:xe_supabase_sync.field_supabase_sync_job__orm_field_map
+msgid ""
+"{\"supabase_column\": \"python_expression\"}, evaluated with \"record\" "
+"in context. E.g.: {\"odoo_id\": \"record.id\", \"margin\": "
+"\"record.margin\", \"salesperson\": \"record.user_id.name\"}. For "
+"incremental_upsert, must also include a key matching Write Date Column "
+"(e.g. \"fecha_modificacion_odoo\": \"record.write_date\") — otherwise "
+"the checkpoint cannot advance and updates never get re-synced."
+msgstr ""
+"{\"columna_supabase\": \"expresión_python\"}, evaluada con \"record\" en "
+"contexto. Ej.: {\"odoo_id\": \"record.id\", \"margin\": "
+"\"record.margin\", \"salesperson\": \"record.user_id.name\"}. Para "
+"incremental_upsert, también debe incluir una clave que coincida con "
+"Write Date Column (ej. \"fecha_modificacion_odoo\": "
+"\"record.write_date\") — de lo contrario el checkpoint no puede "
+"avanzar y las actualizaciones nunca se vuelven a sincronizar."
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/supabase_sync_job.py:0
+msgid ""
+"For incremental sync in ORM mode, the mapping must include the write "
+"date column '%s' (job: %s) — otherwise the checkpoint can never move "
+"past the epoch and the same batch repeats forever."
+msgstr ""
+"Para sincronización incremental en modo ORM, el mapeo debe incluir la "
+"columna de write date '%s' (job: %s) — de lo contrario el checkpoint "
+"nunca puede avanzar más allá del epoch y el mismo lote se repite para "
+"siempre."
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__target_table
+msgid "Target Table"
+msgstr "Tabla destino"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,help:xe_supabase_sync.field_supabase_sync_job__target_table
+msgid "Schema-qualified destination table. E.g. odoo_sync.sale_orders"
+msgstr "Tabla destino con schema. Ej. odoo_sync.sale_orders"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__conflict_column
+msgid "Conflict Column"
+msgstr "Columna de conflicto"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,help:xe_supabase_sync.field_supabase_sync_job__conflict_column
+msgid ""
+"Column with a PRIMARY KEY/UNIQUE constraint in Supabase, used for the "
+"upsert. Comma-separated for a composite key (e.g. 'modelo,odoo_id' when "
+"unifying more than one Odoo model into the same table) — put the "
+"auto-increment id-like column LAST, since it's also the one used for "
+"checkpoint pagination."
+msgstr ""
+"Columna con restricción PRIMARY KEY/UNIQUE en Supabase, usada para el "
+"upsert. Separada por comas para una llave compuesta (ej. "
+"'modelo,odoo_id' cuando se unifican varios modelos de Odoo en la misma "
+"tabla) — pon al final la columna tipo id autoincremental, porque también "
+"es la que se usa para la paginación del checkpoint."
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__write_date_column
+msgid "Write Date Column"
+msgstr "Columna de write date"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,help:xe_supabase_sync.field_supabase_sync_job__write_date_column
+msgid ""
+"Column (among the ones returned by the query/mapping) that carries "
+"Odoo's write_date. Used together with the id for the incremental "
+"checkpoint, so updates get captured too, not just new records."
+msgstr ""
+"Columna (entre las que regresa la query/mapeo) que trae el write_date de "
+"Odoo. Se usa junto con el id para el checkpoint incremental, así "
+"también se capturan actualizaciones, no solo altas nuevas."
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__sync_mode
+msgid "Sync Mode"
+msgstr "Modo de sincronización"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,help:xe_supabase_sync.field_supabase_sync_job__sync_mode
+msgid ""
+"Full snapshot: meant for tables where Odoo constantly deletes and "
+"creates rows (e.g. stock.quant) — avoids leaving orphaned rows in "
+"Supabase. Uses a staging table plus an atomic swap, so the table is "
+"never seen empty or half-loaded."
+msgstr ""
+"Foto completa: pensado para tablas donde Odoo borra y crea filas "
+"constantemente (ej. stock.quant) — evita que queden filas huérfanas en "
+"Supabase. Usa una tabla de staging más un swap atómico, así la tabla "
+"nunca se ve vacía ni a medio cargar."
+
+#. module: xe_supabase_sync
+#: selection:supabase.sync.job,sync_mode:0
+msgid "Incremental (checkpoint upsert)"
+msgstr "Incremental (upsert por checkpoint)"
+
+#. module: xe_supabase_sync
+#: selection:supabase.sync.job,sync_mode:0
+msgid "Full snapshot (replaces the whole table every run)"
+msgstr "Foto completa (reemplaza toda la tabla en cada corrida)"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__batch_size
+msgid "Batch Size"
+msgstr "Tamaño de lote"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__frequency_minutes
+msgid "Frequency (minutes)"
+msgstr "Frecuencia (minutos)"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,help:xe_supabase_sync.field_supabase_sync_job__frequency_minutes
+msgid ""
+"How often this job is considered 'due' in the module's single cron tick "
+"(no need to create a separate ir.cron per table)."
+msgstr ""
+"Cada cuánto se considera 'debido' este job en el tick de cron único del "
+"módulo (no hace falta crear un ir.cron por tabla)."
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__last_sync_id
+msgid "Last Synced ID"
+msgstr "Último ID sincronizado"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__last_sync_write_date
+msgid "Last Synced Write Date"
+msgstr "Último write date sincronizado"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__last_run_at
+msgid "Last Run At"
+msgstr "Última corrida"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__last_status
+msgid "Last Status"
+msgstr "Último estado"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__last_row_count
+msgid "Last Row Count"
+msgstr "Últimas filas sincronizadas"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__consecutive_errors
+msgid "Consecutive Errors"
+msgstr "Errores consecutivos"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__log_ids
+msgid "History"
+msgstr "Historial"
+
+#. module: xe_supabase_sync
+#: selection:supabase.sync.job,last_status:0
+#: selection:supabase.sync.log,status:0
+msgid "OK"
+msgstr "OK"
+
+#. module: xe_supabase_sync
+#: selection:supabase.sync.job,last_status:0
+#: selection:supabase.sync.log,status:0
+msgid "Error"
+msgstr "Error"
+
+#. module: xe_supabase_sync
+#: selection:supabase.sync.job,last_status:0
+#: selection:supabase.sync.log,status:0
+msgid "Running"
+msgstr "Corriendo"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_log__job_id
+msgid "Job"
+msgstr "Job"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_log__started_at
+msgid "Started At"
+msgstr "Inicio"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_log__finished_at
+msgid "Finished At"
+msgstr "Fin"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_log__status
+msgid "Status"
+msgstr "Estado"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_log__rows_synced
+msgid "Rows Synced"
+msgstr "Filas sincronizadas"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_log__error_message
+msgid "Error Message"
+msgstr "Mensaje de error"
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/supabase_sync_job.py:0
+msgid ""
+"The extraction SQL must include %%(last_id)s and %%(batch_size)s for "
+"batch pagination to work (job: %s)."
+msgstr ""
+"El SQL de extracción debe incluir %%(last_id)s y %%(batch_size)s para "
+"que la paginación por lotes funcione (job: %s)."
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/supabase_sync_job.py:0
+msgid "Missing the technical Odoo model for ORM mode (job: %s)."
+msgstr "Falta el modelo técnico de Odoo para el modo ORM (job: %s)."
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/supabase_sync_job.py:0
+msgid "Missing the column mapping for ORM mode (job: %s)."
+msgstr "Falta el mapeo de columnas para el modo ORM (job: %s)."
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/supabase_sync_job.py:0
+msgid "The column mapping is not valid JSON (job: %s): %s"
+msgstr "El mapeo de columnas no es JSON válido (job: %s): %s"
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/supabase_sync_job.py:0
+msgid "The mapping must include the conflict column(s) '%s' (job: %s)."
+msgstr "El mapeo debe incluir la(s) columna(s) de conflicto '%s' (job: %s)."
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/supabase_sync_job.py:0
+msgid "(no rows)"
+msgstr "(sin filas)"
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/supabase_sync_job.py:0
+msgid "Test extraction — %s"
+msgstr "Prueba de extracción — %s"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_supabase_sync_job__test_extraction_result
+msgid "Test Extraction Result"
+msgstr "Resultado de la prueba de extracción"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_supabase_sync_job_form
+msgid "Preview"
+msgstr "Vista previa"
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/supabase_sync_job.py:0
+msgid "Error evaluating '%(expr)s' on record id=%(id)s: %(err)s"
+msgstr "Error al evaluar '%(expr)s' en el registro id=%(id)s: %(err)s"
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/supabase_sync_job.py:0
+msgid ""
+"Missing Supabase credentials. Set them under Settings > Technical > "
+"Parameters > System Parameters: either xe_supabase_sync.db_url (full "
+"connection string), or xe_supabase_sync.db_host + "
+"xe_supabase_sync.db_password (optionally also xe_supabase_sync.db_port, "
+"xe_supabase_sync.db_name, xe_supabase_sync.db_user)."
+msgstr ""
+"Faltan las credenciales de Supabase. Configúralas en Settings > "
+"Technical > Parameters > System Parameters: xe_supabase_sync.db_url "
+"(cadena de conexión completa), o bien xe_supabase_sync.db_host + "
+"xe_supabase_sync.db_password (opcionalmente también "
+"xe_supabase_sync.db_port, xe_supabase_sync.db_name, "
+"xe_supabase_sync.db_user)."
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_supabase_sync_job_form
+msgid "Supabase Sync Job"
+msgstr "Job de sincronización a Supabase"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_supabase_sync_job_form
+msgid "Run Now"
+msgstr "Ejecutar ahora"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_supabase_sync_job_form
+msgid ""
+"This runs the sync for real: it reads from Odoo and writes to Supabase "
+"(upsert). Continue?"
+msgstr ""
+"Esto corre la sincronización de verdad: lee de Odoo y escribe en "
+"Supabase (upsert). ¿Continuar?"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_supabase_sync_job_form
+msgid "Test Extraction"
+msgstr "Probar extracción"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_supabase_sync_job_form
+msgid ""
+"This only reads a small sample from Odoo. It never touches Supabase. "
+"Continue?"
+msgstr ""
+"Esto solo lee una muestra chica de Odoo. Nunca toca Supabase. "
+"¿Continuar?"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_supabase_sync_job_form
+msgid "Reset Checkpoint"
+msgstr "Reiniciar checkpoint"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_supabase_sync_job_form
+msgid ""
+"This makes the next run resync from the beginning. Existing rows in "
+"Supabase get updated in place (upsert), not duplicated. Continue?"
+msgstr ""
+"Esto hace que la siguiente corrida sincronice todo desde el principio. "
+"Las filas que ya existen en Supabase se actualizan (upsert), no se "
+"duplican. ¿Continuar?"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_supabase_sync_job_form
+msgid "General"
+msgstr "General"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_supabase_sync_job_form
+msgid "Supabase Target"
+msgstr "Destino en Supabase"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_supabase_sync_job_form
+msgid "SQL Extraction"
+msgstr "Extracción SQL"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_supabase_sync_job_form
+msgid "ORM Extraction"
+msgstr "Extracción ORM"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_supabase_sync_job_form
+msgid "E.g. Sales -> odoo_sync.sale_orders"
+msgstr "Ej. Ventas -> odoo_sync.sale_orders"
+
+#. module: xe_supabase_sync
+#: model:ir.actions.act_window,name:xe_supabase_sync.action_supabase_sync_job
+msgid "Sync Jobs"
+msgstr "Jobs de sincronización"
+
+#. module: xe_supabase_sync
+#: model:ir.actions.act_window,name:xe_supabase_sync.action_supabase_sync_log
+msgid "Sync History"
+msgstr "Historial de sincronización"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.menu,name:xe_supabase_sync.menu_supabase_sync_root
+msgid "Supabase Sync"
+msgstr "Sincronización Supabase"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,field_description:xe_supabase_sync.field_res_config_settings__supabase_db_url
+msgid "Supabase Connection String"
+msgstr "Cadena de conexión a Supabase"
+
+#. module: xe_supabase_sync
+#: model:ir.model.fields,help:xe_supabase_sync.field_res_config_settings__supabase_db_url
+msgid ""
+"Full Postgres connection string for Supabase's pooler, used by every "
+"Supabase Sync job on this database. Get it from the Supabase dashboard: "
+"Project Settings > Database > Connection string > Transaction pooler."
+msgstr ""
+"Cadena de conexión completa de Postgres para el pooler de Supabase, "
+"usada por todos los jobs de Supabase Sync en esta base de datos. Se "
+"obtiene en el dashboard de Supabase: Project Settings > Database > "
+"Connection string > Transaction pooler."
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_res_config_settings_form
+msgid "Supabase Connection"
+msgstr "Conexión a Supabase"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_res_config_settings_form
+msgid "Test Connection"
+msgstr "Probar conexión"
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_res_config_settings_form
+msgid "Save first, then test — the button checks the saved value."
+msgstr "Guarda primero y luego prueba — el botón revisa el valor ya guardado."
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/res_config_settings.py:0
+msgid "Save a connection string first, then test it."
+msgstr "Primero guarda una cadena de conexión, luego pruébala."
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/res_config_settings.py:0
+msgid "Connection failed: %s"
+msgstr "Falló la conexión: %s"
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/res_config_settings.py:0
+msgid "Supabase connection OK"
+msgstr "Conexión a Supabase correcta"
+
+#. module: xe_supabase_sync
+#: code:addons/xe_supabase_sync/models/res_config_settings.py:0
+msgid "Connected as '%(user)s' to database '%(db)s' (server time: %(now)s)."
+msgstr "Conectado como '%(user)s' a la base '%(db)s' (hora del servidor: %(now)s)."
+
+#. module: xe_supabase_sync
+#: model:ir.ui.view,arch_db:xe_supabase_sync.view_res_config_settings_form
+msgid ""
+"Used by every Supabase Sync job on this database. Set it once here — "
+"never in code, never in the repo. Each database (local, staging, "
+"production) keeps its own value."
+msgstr ""
+"Lo usan todos los jobs de Supabase Sync en esta base de datos. "
+"Configúralo una sola vez aquí — nunca en código, nunca en el "
+"repositorio. Cada base de datos (local, staging, producción) guarda su "
+"propio valor."
