@@ -429,23 +429,29 @@ class PosOrder(models.Model):
                 #  - los pagos de banco (account.payment.move_id -> bank_payment_ids)
                 #  - los pagos en efectivo (statement_line_ids.move_id)
                 partner = rec.partner_id.commercial_partner_id
-                candidate_moves = (
-                    session_id.bank_payment_ids.move_id
-                    | session_id.statement_line_ids.move_id
-                ).filtered(lambda m: m.state == 'posted' and m.partner_id == partner)
+                # Solo pagos NO efectivo. El efectivo se registra como línea de
+                # extracto de caja, y ese asiento NO se puede poner en borrador ni
+                # cancelar (rebota con "Falta la cuenta requerida..."). El efectivo
+                # se descuenta de la caja de la sesión más abajo (cash_register_*),
+                # así que su asiento no se toca aquí.
+                non_cash_payments = rec.payment_ids.filtered(
+                    lambda p: not p.payment_method_id.is_cash_count
+                )
+                candidate_moves = session_id.bank_payment_ids.move_id.filtered(
+                    lambda m: m.state == 'posted' and m.partner_id == partner
+                )
 
                 payment_moves = self.env['account.move']
-                for pay in rec.payment_ids:
+                for pay in non_cash_payments:
                     match = candidate_moves.filtered(
                         lambda m: m.amount_total == pay.amount and m not in payment_moves
                     )[:1]
                     payment_moves |= match
 
-                # Cancelar los asientos de pago de ESTA orden (banco y efectivo)
-                # en lugar de crear una contrapartida/reversa. Esto rompe la
-                # conciliación con el cierre (comportamiento aceptado): el pago
-                # queda anulado (state=cancel) y no se ven dos asientos publicados.
-                # La CxC se cuadra más abajo (cierre vs reverso de la venta).
+                # Cancelar los asientos de pago de BANCO de ESTA orden en lugar de
+                # crear una contrapartida/reversa. Rompe la conciliación con el
+                # cierre (aceptado): el pago queda anulado (state=cancel). El
+                # efectivo NO se toca aquí (ver arriba).
                 if payment_moves:
                     to_cancel = payment_moves.filtered(lambda m: m.state == 'posted')
                     if to_cancel:
@@ -786,6 +792,7 @@ class PosOrder(models.Model):
 
     def _prepare_aml_values_list_per_nature(self):
         self.ensure_one()
+        self = self.with_company(self.company_id)
         sign = 1 if self.amount_total < 0 else -1
         commercial_partner = self.partner_id.commercial_partner_id
         company_currency = self.company_id.currency_id
@@ -941,6 +948,7 @@ class PosOrder(models.Model):
         This is done by taking data from the order and using it to somewhat replicate the resulting entry in order to
         reverse partially the movements done ine the POS closing entry.
         """
+        self = self.with_company(self.company_id)
         aml_values_list_per_nature = self._prepare_aml_values_list_per_nature()
         move_lines = []
         for aml_values_list in aml_values_list_per_nature.values():
