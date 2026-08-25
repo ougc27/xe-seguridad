@@ -17,5 +17,5 @@ class Lead(models.Model):
     def write(self, vals):
         res = super().write(vals)
         if 'tag_ids' in vals:
-            self.calendar_event_ids._sync_tags_from_opportunity()
+            self.sudo().calendar_event_ids._sync_tags_from_opportunity()
         return res
