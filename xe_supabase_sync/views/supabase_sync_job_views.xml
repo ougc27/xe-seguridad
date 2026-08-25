@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_supabase_sync_job_form" model="ir.ui.view">
+        <field name="name">supabase.sync.job.form</field>
+        <field name="model">supabase.sync.job</field>
+        <field name="arch" type="xml">
+            <form string="Supabase Sync Job">
+                <header>
+                    <button name="action_run_now" type="object" string="Run Now"
+                            class="btn-primary"
+                            confirm="This runs the sync for real: it reads from Odoo and writes to Supabase (upsert). Continue?"/>
+                    <button name="action_test_extraction" type="object" string="Test Extraction"
+                            class="btn-secondary"
+                            confirm="This only reads a small sample from Odoo. It never touches Supabase. Continue?"/>
+                    <button name="action_reset_checkpoint" type="object" string="Reset Checkpoint"
+                            class="btn-secondary"
+                            confirm="This makes the next run resync from the beginning. Existing rows in Supabase get updated in place (upsert), not duplicated. Continue?"/>
+                    <field name="last_status" widget="badge"
+                           decoration-success="last_status == 'success'"
+                           decoration-danger="last_status == 'error'"
+                           decoration-info="last_status == 'running'"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="E.g. Sales -&gt; odoo_sync.sale_orders"/></h1>
+                    </div>
+                    <group>
+                        <group string="General">
+                            <field name="active"/>
+                            <field name="sequence"/>
+                            <field name="extraction_mode"/>
+                            <field name="sync_mode"/>
+                        </group>
+                        <group string="Supabase Target">
+                            <field name="target_table"/>
+                            <field name="conflict_column"/>
+                            <field name="write_date_column"
+                                   invisible="sync_mode == 'full_snapshot'"/>
+                            <field name="batch_size"/>
+                            <field name="frequency_minutes"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="SQL Extraction" invisible="extraction_mode != 'sql'">
+                            <field name="source_sql"/>
+                        </page>
+                        <page string="ORM Extraction" invisible="extraction_mode != 'orm'">
+                            <group>
+                                <field name="orm_model"/>
+                                <field name="orm_domain"/>
+                            </group>
+                            <field name="orm_field_map" placeholder='{"odoo_id": "record.id", "margin": "record.margin", "salesperson": "record.user_id.name"}'/>
+                        </page>
+                        <page string="Preview" name="preview">
+                            <field name="test_extraction_result"/>
+                        </page>
+                        <page string="Status">
+                            <group>
+                                <field name="last_sync_id" readonly="1"/>
+                                <field name="last_sync_write_date" readonly="1"/>
+                                <field name="last_run_at" readonly="1"/>
+                                <field name="last_row_count" readonly="1"/>
+                                <field name="consecutive_errors" readonly="1"/>
+                            </group>
+                        </page>
+                        <page string="History">
+                            <field name="log_ids" readonly="1">
+                                <tree>
+                                    <field name="started_at"/>
+                                    <field name="finished_at"/>
+                                    <field name="status" widget="badge"
+                                           decoration-success="status == 'success'"
+                                           decoration-danger="status == 'error'"/>
+                                    <field name="rows_synced"/>
+                                    <field name="error_message"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_supabase_sync_job_tree" model="ir.ui.view">
+        <field name="name">supabase.sync.job.tree</field>
+        <field name="model">supabase.sync.job</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="sync_mode"/>
+                <field name="target_table"/>
+                <field name="frequency_minutes"/>
+                <field name="last_run_at"/>
+                <field name="last_row_count"/>
+                <field name="last_status" widget="badge"
+                       decoration-success="last_status == 'success'"
+                       decoration-danger="last_status == 'error'"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_supabase_sync_job" model="ir.actions.act_window">
+        <field name="name">Sync Jobs</field>
+        <field name="res_model">supabase.sync.job</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

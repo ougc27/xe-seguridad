@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_res_config_settings_form" model="ir.ui.view">
+        <field name="name">res.config.settings.form.supabase.sync</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='integration']" position="after">
+                <block title="Supabase Sync" name="supabase_sync_settings">
+                    <setting id="supabase_sync_db_url" string="Supabase Connection">
+                        <div class="text-muted">
+                            Used by every Supabase Sync job on this database. Set it
+                            once here — never in code, never in the repo. Each
+                            database (local, staging, production) keeps its own
+                            value.
+                        </div>
+                        <div class="content-group mt16">
+                            <div class="row">
+                                <field name="supabase_db_url" widget="password"
+                                       placeholder="postgresql://postgres.xxxx:PASSWORD@aws-0-region.pooler.supabase.com:6543/postgres"
+                                       class="o_light_label col-lg-8"/>
+                                <button name="action_test_supabase_connection" type="object"
+                                        string="Test Connection" class="btn-secondary col-auto ms-2"/>
+                            </div>
+                            <div class="text-muted mt-1">
+                                Save first, then test — the button checks the saved value.
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
