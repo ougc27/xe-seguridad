@@ -12,43 +12,49 @@
                             Purchase Request
                             <span t-field="o.name" />
                         </h2>
-                        <div class="row mt32 mb32">
-                            <div class="col-auto">
-                                <strong>Request Reference:</strong>
-                                <br />
-                                <span t-field="o.name" />
-                            </div>
-                            <div class="col-auto">
-                                <strong>Creation Date:</strong>
-                                <br />
-                                <span t-field="o.date_start" />
-                            </div>
-                            <div class="col-auto">
-                                <strong>Source:</strong>
-                                <br />
-                                <span t-field="o.origin" />
-                            </div>
-                            <div class="col-auto">
-                                <strong>Description:</strong>
-                                <br />
-                                <span t-field="o.description" />
-                            </div>
-                            <div class="col-auto">
-                                <strong>Requested by:</strong>
-                                <br />
-                                <span t-field="o.requested_by" />
-                            </div>
-                            <div class="col-auto">
-                                <strong>Assigned to:</strong>
-                                <br />
-                                <span t-field="o.assigned_to" />
-                            </div>
-                            <div class="col-auto">
-                                <strong>Picking Type:</strong>
-                                <br />
-                                <span t-field="o.picking_type_id" />
-                            </div>
-                        </div>
+                        <table style="width: 100%; margin-top: 20px; margin-bottom: 20px;">
+                            <tr>
+                                <td style="width: 33%; vertical-align: top; padding-bottom: 10px;">
+                                    <strong>Request Reference:</strong>
+                                    <br />
+                                    <span t-field="o.name" />
+                                </td>
+                                <td style="width: 33%; vertical-align: top; padding-bottom: 10px;">
+                                    <strong>Creation Date:</strong>
+                                    <br />
+                                    <span t-field="o.date_start" />
+                                </td>
+                                <td style="width: 34%; vertical-align: top; padding-bottom: 10px;">
+                                    <strong>Source:</strong>
+                                    <br />
+                                    <span t-field="o.origin" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 33%; vertical-align: top; padding-bottom: 10px;">
+                                    <strong>Requested by:</strong>
+                                    <br />
+                                    <span t-field="o.requested_by" />
+                                </td>
+                                <td style="width: 33%; vertical-align: top; padding-bottom: 10px;">
+                                    <strong>Assigned to:</strong>
+                                    <br />
+                                    <span t-field="o.assigned_to" />
+                                </td>
+                                <td style="width: 34%; vertical-align: top; padding-bottom: 10px;">
+                                    <strong>Picking Type:</strong>
+                                    <br />
+                                    <span t-field="o.picking_type_id" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" style="vertical-align: top;">
+                                    <strong>Description:</strong>
+                                    <br />
+                                    <span t-field="o.description" />
+                                </td>
+                            </tr>
+                        </table>
                         <t t-if="o.line_ids">
                             <h3>Products</h3>
                             <table class="table table-condensed">

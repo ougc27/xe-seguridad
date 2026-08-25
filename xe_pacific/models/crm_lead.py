@@ -13,3 +13,9 @@ class Lead(models.Model):
         ('tecnodoor', 'Tecnodoor'),
         ('xe_seguridad', 'XE Seguridad'),
     ], string='Vambe Brands')
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'tag_ids' in vals:
+            self.calendar_event_ids._sync_tags_from_opportunity()
+        return res
