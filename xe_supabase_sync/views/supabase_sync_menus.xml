@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_supabase_sync_root"
+              name="Supabase Sync"
+              parent="base.menu_custom"
+              sequence="101"/>
+
+    <menuitem id="menu_supabase_sync_job"
+              name="Sync Jobs"
+              parent="menu_supabase_sync_root"
+              action="action_supabase_sync_job"
+              sequence="10"/>
+
+    <menuitem id="menu_supabase_sync_log"
+              name="History"
+              parent="menu_supabase_sync_root"
+              action="action_supabase_sync_log"
+              sequence="20"/>
+
+</odoo>
