@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_supabase_sync_log_tree" model="ir.ui.view">
+        <field name="name">supabase.sync.log.tree</field>
+        <field name="model">supabase.sync.log</field>
+        <field name="arch" type="xml">
+            <tree create="false" edit="false" delete="false">
+                <field name="job_id"/>
+                <field name="started_at"/>
+                <field name="finished_at"/>
+                <field name="status" widget="badge"
+                       decoration-success="status == 'success'"
+                       decoration-danger="status == 'error'"
+                       decoration-info="status == 'running'"/>
+                <field name="rows_synced"/>
+                <field name="error_message"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_supabase_sync_log" model="ir.actions.act_window">
+        <field name="name">Sync History</field>
+        <field name="res_model">supabase.sync.log</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+</odoo>
