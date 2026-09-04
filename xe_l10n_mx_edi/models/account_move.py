@@ -57,14 +57,14 @@ class AccountMove(models.Model):
     @api.depends(
         'move_type', 'company_currency_id', 'payment_id', 'statement_line_id',
         'partner_id', 'l10n_mx_edi_cfdi_uuid',
-        'commercial_partner_id.cfdi_issued_by_third_party',
     )
     def _compute_l10n_mx_edi_is_cfdi_needed(self):
         # EXTENDS l10n_mx_edi: keeps the checkbox off the send/print wizard and out of
-        # automated processes for moves whose CFDI is issued by a third party. The extra
-        # depends on the partner flag matters for a move that already existed when
-        # the flag got set on the customer afterwards - without it, the stored value
-        # never gets recomputed and stays wrong forever.
+        # automated processes for moves whose CFDI is issued by a third party.
+        # Deliberately NOT depending on the partner flag itself: for a customer with a
+        # large invoice history (e.g. a marketplace), toggling it would force Odoo to
+        # recompute every invoice ever created for that partner in one shot - only
+        # invoices created (or re-assigned to that partner) from here on are affected.
         super()._compute_l10n_mx_edi_is_cfdi_needed()
         for move in self:
             if not move._is_cfdi_issued_by_third_party():
