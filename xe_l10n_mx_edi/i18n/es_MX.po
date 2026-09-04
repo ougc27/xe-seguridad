@@ -277,6 +277,30 @@ msgstr ""
 " SAT."
 
 #. module: xe_l10n_mx_edi
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_partner__cfdi_issued_by_third_party
+#: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_res_users__cfdi_issued_by_third_party
+msgid "CFDI Issued by Third Party"
+msgstr "CFDI emitido por tercero"
+
+#. module: xe_l10n_mx_edi
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_partner__cfdi_issued_by_third_party
+#: model:ir.model.fields,help:xe_l10n_mx_edi.field_res_users__cfdi_issued_by_third_party
+msgid ""
+"If checked, Odoo will not stamp invoices or credit notes for this customer. "
+"Used when the CFDI is issued by a marketplace platform on the company's "
+"behalf (e.g. Mercado Libre). The XML is related to the document afterwards."
+msgstr ""
+"Si está marcado, Odoo no timbrará las facturas ni las notas de crédito de "
+"este cliente. Se usa cuando el CFDI lo emite una plataforma de marketplace "
+"por cuenta de la empresa (ej. Mercado Libre). El XML se relaciona con el "
+"documento después."
+
+#. module: xe_l10n_mx_edi
+#: model_terms:ir.ui.view,arch_db:xe_l10n_mx_edi.view_partner_form_border_zone_inherit
+msgid "CFDI"
+msgstr "CFDI"
+
+#. module: xe_l10n_mx_edi
 #: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_account_bank_statement_line__skip_sat_update
 #: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_account_move__skip_sat_update
 #: model:ir.model.fields,field_description:xe_l10n_mx_edi.field_account_payment__skip_sat_update
@@ -289,6 +313,40 @@ msgstr "Omitir actualización de estado SAT"
 #: model:ir.model.fields,help:xe_l10n_mx_edi.field_account_payment__skip_sat_update
 msgid "Prevents this invoice from being synchronized with the SAT status."
 msgstr "Evita que este documento se sincronice con el estado del SAT."
+
+#. module: xe_l10n_mx_edi
+#. odoo-python
+#: code:addons/xe_l10n_mx_edi/models/account_move.py:0
+#, python-format
+msgid ""
+"CFDI stamping skipped: the customer %(partner)s has its CFDI issued by a "
+"third party (marketplace platform). The XML issued by the platform should "
+"be related to this document instead."
+msgstr ""
+"Timbrado de CFDI omitido: el cliente %(partner)s tiene su CFDI emitido por "
+"un tercero (plataforma del marketplace). El XML emitido por la plataforma "
+"debe relacionarse con este documento en su lugar."
+
+#. module: xe_l10n_mx_edi
+#. odoo-python
+#: code:addons/xe_l10n_mx_edi/models/account_move.py:0
+#, python-format
+msgid ""
+"Cannot stamp %(doc)s.\n"
+"\n"
+"The CFDI for customer %(partner)s is issued by a third party (marketplace "
+"platform). Stamping it from Odoo would create a duplicate document before "
+"the SAT.\n"
+"\n"
+"The XML issued by the platform is related to this document afterwards."
+msgstr ""
+"No se puede timbrar %(doc)s.\n"
+"\n"
+"El CFDI del cliente %(partner)s lo emite un tercero (plataforma del "
+"marketplace). Timbrarlo desde Odoo generaría un comprobante duplicado ante "
+"el SAT.\n"
+"\n"
+"El XML emitido por la plataforma se relaciona con este documento después."
 
 #. module: xe_l10n_mx_edi
 #: model:res.groups,name:xe_l10n_mx_edi.group_skip_sat_update

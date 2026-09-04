@@ -10,6 +10,9 @@
                 <group string="Border Zone Taxpayer" name="border_zone_iva">
                     <field name="is_border_zone_iva"/>
                 </group>
+                <group string="CFDI" name="xe_cfdi_third_party">
+                    <field name="cfdi_issued_by_third_party"/>
+                </group>
             </xpath>
         </field>
     </record>

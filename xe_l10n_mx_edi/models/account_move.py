@@ -11,8 +11,11 @@ from odoo.addons.l10n_mx_edi.models.l10n_mx_edi_document import (
 from odoo.exceptions import UserError
 
 
+THIRD_PARTY_CFDI_MOVE_TYPES = ('out_invoice', 'out_refund')
+
+
 class AccountMove(models.Model):
-    
+
     _inherit = 'account.move'
 
     l10n_mx_edi_usage = fields.Selection(
@@ -32,6 +35,79 @@ class AccountMove(models.Model):
         string='Skip SAT Status Update',
         help='Prevents this invoice from being synchronized with the SAT status.'
     )
+
+    def _is_cfdi_issued_by_third_party(self):
+        """Whether this move must not be stamped by Odoo because its CFDI is issued by a
+        marketplace on the company's behalf.
+
+        Stays False once the move already has a UUID, so a move that later gets the
+        marketplace's own CFDI related to it is never blocked again.
+        """
+        self.ensure_one()
+        if self.move_type not in THIRD_PARTY_CFDI_MOVE_TYPES:
+            return False
+        if self.l10n_mx_edi_cfdi_uuid:
+            return False
+        # cfdi_issued_by_third_party is restricted to base.group_system: sudo() so
+        # this check keeps working for any user posting/sending an invoice, not just
+        # system administrators.
+        partner = self.commercial_partner_id.with_company(self.company_id).sudo()
+        return bool(partner.cfdi_issued_by_third_party)
+
+    @api.depends(
+        'move_type', 'company_currency_id', 'payment_id', 'statement_line_id',
+        'partner_id', 'l10n_mx_edi_cfdi_uuid',
+        'commercial_partner_id.cfdi_issued_by_third_party',
+    )
+    def _compute_l10n_mx_edi_is_cfdi_needed(self):
+        # EXTENDS l10n_mx_edi: keeps the checkbox off the send/print wizard and out of
+        # automated processes for moves whose CFDI is issued by a third party. The extra
+        # depends on the partner flag matters for a move that already existed when
+        # the flag got set on the customer afterwards - without it, the stored value
+        # never gets recomputed and stays wrong forever.
+        super()._compute_l10n_mx_edi_is_cfdi_needed()
+        for move in self:
+            if not move._is_cfdi_issued_by_third_party():
+                continue
+            was_needed = move._origin and move._origin.l10n_mx_edi_is_cfdi_needed
+            move.l10n_mx_edi_is_cfdi_needed = False
+            # Only a real, persisted record can receive a chatter message - this
+            # compute also runs against an in-memory NewId record during onchange
+            # previews (e.g. opening the send/print wizard), and message_post raises
+            # on those.
+            if was_needed and isinstance(move.id, int):
+                move.message_post(body=_(
+                    "CFDI stamping skipped: the customer %(partner)s has its CFDI "
+                    "issued by a third party (marketplace platform). The XML issued "
+                    "by the platform should be related to this document instead.",
+                    partner=move.commercial_partner_id.display_name,
+                ))
+
+    def _check_cfdi_not_issued_by_third_party(self):
+        """Hard guard against stamping a move bypassing the send/print wizard (RPC,
+        server action, custom button)."""
+        for move in self:
+            if move._is_cfdi_issued_by_third_party():
+                raise UserError(_(
+                    "Cannot stamp %(doc)s.\n\n"
+                    "The CFDI for customer %(partner)s is issued by a third party "
+                    "(marketplace platform). Stamping it from Odoo would create a "
+                    "duplicate document before the SAT.\n\n"
+                    "The XML issued by the platform is related to this document "
+                    "afterwards.",
+                    doc=move.display_name,
+                    partner=move.commercial_partner_id.display_name,
+                ))
+
+    def _l10n_mx_edi_cfdi_invoice_try_send(self):
+        # EXTENDS l10n_mx_edi
+        self._check_cfdi_not_issued_by_third_party()
+        return super()._l10n_mx_edi_cfdi_invoice_try_send()
+
+    def _l10n_mx_edi_cfdi_global_invoice_try_send(self, *args, **kwargs):
+        # EXTENDS l10n_mx_edi
+        self._check_cfdi_not_issued_by_third_party()
+        return super()._l10n_mx_edi_cfdi_global_invoice_try_send(*args, **kwargs)
 
     def l10n_mx_edi_cfdi_invoice_try_update_payments(self):
         """ Try to update the state of payments for the current invoices. """
