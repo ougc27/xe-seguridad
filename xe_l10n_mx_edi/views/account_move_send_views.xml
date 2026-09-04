@@ -1,0 +1,16 @@
+<odoo>
+    <record id="account_move_send_form_inherit_cfdi_third_party" model="ir.ui.view">
+        <field name="name">account.move.send.form.inherit.cfdi.third.party</field>
+        <field name="model">account.move.send</field>
+        <field name="inherit_id" ref="l10n_mx_edi.account_move_send_form"/>
+        <!-- Higher than product_custom's account_move_send_form_inherit (default priority
+             16, which forces invisible="0" on this same node): applied after it, so this
+             is the value that actually reaches the client for every company. -->
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='option_cfdi_xml']" position="attributes">
+                <attribute name="invisible">not l10n_mx_edi_enable_cfdi</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -2,6 +2,7 @@ from . import res_partner
 from . import l10n_mx_edi_document
 from . import sale_order_line
 from . import account_move
+from . import account_move_send
 from . import account_tax
 from . import account_move_implocal
 from . import l10n_mx_edi_document_implocal
