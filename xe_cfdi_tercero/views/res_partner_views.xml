@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_property_form_cfdi_tercero" model="ir.ui.view">
+        <field name="name">res.partner.form.cfdi.tercero</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <!-- Se ancla en la ficha contable del contacto: es un ajuste fiscal,
+                 no comercial, y asi queda visible solo para contabilidad. -->
+            <xpath expr="//field[@name='property_account_receivable_id']" position="after">
+                <field name="xe_cfdi_issued_by_third_party"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
