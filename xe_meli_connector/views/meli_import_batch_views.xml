@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_meli_import_batch_form" model="ir.ui.view">
+        <field name="name">meli.import.batch.form</field>
+        <field name="model">meli.import.batch</field>
+        <field name="arch" type="xml">
+            <form string="Mercado Libre Bulk Import" create="0" delete="0">
+                <header>
+                    <button name="action_retry_pending" type="object"
+                            string="Retry Pending/Failed" class="btn-primary"
+                            invisible="pending_count + error_count == 0"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="company_id" readonly="1"/>
+                    </group>
+                    <group col="4">
+                        <field name="total_count"/>
+                        <field name="imported_count"/>
+                        <field name="pending_count"/>
+                        <field name="error_count"/>
+                    </group>
+                    <field name="line_ids" readonly="1">
+                        <tree create="0" edit="0" delete="0">
+                            <field name="order_id"/>
+                            <field name="raw_value" optional="hide"/>
+                            <field name="status" decoration-success="status in ('imported', 'already_existed')"
+                                   decoration-warning="status == 'pending'"
+                                   decoration-danger="status in ('error', 'not_paid', 'invalid', 'duplicate')"/>
+                            <field name="sale_order_id"/>
+                            <field name="message"/>
+                        </tree>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_meli_import_batch_tree" model="ir.ui.view">
+        <field name="name">meli.import.batch.tree</field>
+        <field name="model">meli.import.batch</field>
+        <field name="arch" type="xml">
+            <tree string="Mercado Libre Bulk Imports" create="0" delete="0">
+                <field name="create_date"/>
+                <field name="total_count"/>
+                <field name="imported_count"/>
+                <field name="pending_count"/>
+                <field name="error_count"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_meli_import_batches" model="ir.actions.act_window">
+        <field name="name">Bulk Imports</field>
+        <field name="res_model">meli.import.batch</field>
+        <field name="view_mode">tree,form</field>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_import_batches"
+        name="Bulk Imports"
+        parent="menu_meli_root"
+        action="action_meli_import_batches"
+        sequence="9"
+        groups="group_meli_user"/>
+
+</odoo>

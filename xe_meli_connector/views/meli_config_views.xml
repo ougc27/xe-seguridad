@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_meli_config_form" model="ir.ui.view">
+        <field name="name">meli.config.form</field>
+        <field name="model">meli.config</field>
+        <field name="arch" type="xml">
+            <form string="Mercado Libre">
+                <header>
+                    <button name="action_connect" type="object"
+                            string="Connect to Mercado Libre"
+                            class="btn-primary"
+                            invisible="state == 'connected'"/>
+                    <button name="action_refresh_now" type="object"
+                            string="Refresh token now"
+                            invisible="state == 'not_connected'"/>
+                    <button name="action_toggle_active" type="object"
+                            string="Turn integration off" class="btn-secondary"
+                            confirm="This completely stops sales import and automatic token refresh for this company (the webhook and polling will ignore this connection). Are you sure you want to turn off the Mercado Libre integration?"
+                            invisible="not active"/>
+                    <button name="action_toggle_active" type="object"
+                            string="Turn integration on" class="btn-primary"
+                            confirm="Are you sure you want to turn the Mercado Libre integration back on?"
+                            invisible="active"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="not_connected,connected,error"/>
+                </header>
+                <sheet>
+                    <field name="active" invisible="1"/>
+                    <widget name="web_ribbon" title="Off"
+                            bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <field name="company_id"/>
+                        <field name="state"/>
+                        <field name="site_id"/>
+                        <field name="redirect_uri" readonly="1"/>
+                    </group>
+                    <group string="Credentials">
+                        <field name="client_id"/>
+                        <field name="client_secret" password="True"/>
+                    </group>
+                    <group string="Sales Import">
+                        <field name="partner_id"/>
+                        <field name="sale_team_id"/>
+                        <field name="salesperson_id"/>
+                        <field name="returns_manager_id"/>
+                        <field name="delivery_contact_manager_id"/>
+                        <field name="warehouse_fulfillment_id"/>
+                        <field name="warehouse_default_id"/>
+                        <field name="shipping_item_id"/>
+                    </group>
+                    <group string="Tokens" invisible="state == 'not_connected'">
+                        <field name="access_token" password="True"/>
+                        <field name="refresh_token" password="True"/>
+                        <field name="token_expires_at"/>
+                        <field name="ml_user_id"/>
+                        <field name="last_connected_at"/>
+                        <field name="last_refreshed_at"/>
+                    </group>
+                    <group string="Error" invisible="state != 'error'">
+                        <field name="consecutive_refresh_failures"/>
+                        <field name="last_error"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_meli_config_tree" model="ir.ui.view">
+        <field name="name">meli.config.tree</field>
+        <field name="model">meli.config</field>
+        <field name="arch" type="xml">
+            <tree string="Mercado Libre">
+                <field name="company_id"/>
+                <field name="state"/>
+                <field name="last_refreshed_at"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_meli_config" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">meli.config</field>
+        <field name="view_mode">tree,form</field>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_admin')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_root"
+        name="Mercado Libre"
+        sequence="70"
+        web_icon="xe_meli_connector,static/description/icon.png"
+        groups="group_meli_user"/>
+
+    <menuitem id="menu_meli_config_root"
+        name="Settings"
+        parent="menu_meli_root"
+        action="action_meli_config"
+        sequence="20"
+        groups="group_meli_admin"/>
+
+</odoo>

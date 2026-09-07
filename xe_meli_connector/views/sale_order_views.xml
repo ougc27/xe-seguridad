@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_order_form_meli" model="ir.ui.view">
+        <field name="name">sale.order.form.meli</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button type="object" name="action_open_meli_claims"
+                        class="oe_stat_button" icon="fa-undo"
+                        invisible="not meli_claim_count">
+                    <field name="meli_claim_count" widget="statinfo"
+                           string="Reclamos ML"/>
+                </button>
+            </xpath>
+            <field name="client_order_ref" position="after">
+                <field name="meli_order_id" invisible="not meli_order_id" readonly="1"/>
+                <field name="meli_pack_id" invisible="not meli_pack_id" readonly="1"/>
+                <field name="meli_sync_source" invisible="not meli_sync_source" readonly="1"/>
+                <field name="meli_last_status" invisible="not meli_last_status" readonly="1"/>
+                <field name="meli_order_date_created" invisible="not meli_order_date_created" readonly="1"/>
+                <field name="meli_order_date_closed" invisible="not meli_order_date_closed" readonly="1"/>
+                <field name="meli_portal_url" widget="url" string="Abrir en Mercado Libre"
+                       invisible="not meli_portal_url" text="Abrir mensajería"/>
+            </field>
+            <group name="sale_shipping" position="inside">
+                <field name="meli_shipping_id" invisible="not meli_shipping_id" readonly="1"/>
+            </group>
+            <xpath expr="//header/button[1]" position="before">
+                <button name="action_meli_retry_sku_mapping" type="object"
+                        string="Retry SKU mapping (Mercado Libre)"
+                        class="btn-secondary"
+                        invisible="state != 'draft' or not meli_sync_source"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_meli_orders_server" model="ir.actions.server">
+        <field name="name">Orders</field>
+        <field name="model_id" ref="model_meli_config"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_meli_orders()</field>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_orders"
+        name="Orders"
+        parent="menu_meli_root"
+        action="action_meli_orders_server"
+        sequence="5"
+        groups="group_meli_user"/>
+
+</odoo>

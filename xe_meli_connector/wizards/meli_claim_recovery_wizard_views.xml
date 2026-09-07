@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_meli_claim_recovery_wizard_form" model="ir.ui.view">
+        <field name="name">meli.claim.recovery.wizard.form</field>
+        <field name="model">meli.claim.recovery.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Recover Mercado Libre Claims">
+                <p>
+                    Searches Mercado Libre for every claim/return updated in this
+                    date range and queues it for (re)import — use this to recover
+                    claims a failed or missing webhook notification never
+                    delivered.
+                </p>
+                <group>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                </group>
+                <footer>
+                    <button name="action_recover" type="object"
+                            string="Recover" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_meli_claim_recovery_wizard" model="ir.actions.act_window">
+        <field name="name">Recover Claims</field>
+        <field name="res_model">meli.claim.recovery.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_claim_recovery"
+        name="Recover Claims"
+        parent="menu_meli_root"
+        action="action_meli_claim_recovery_wizard"
+        sequence="10"
+        groups="group_meli_user"/>
+
+</odoo>

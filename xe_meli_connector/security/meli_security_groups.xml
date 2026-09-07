@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="module_category_meli" model="ir.module.category">
+            <field name="name">Mercado Libre</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="group_meli_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="module_category_meli"/>
+        </record>
+
+        <record id="group_meli_advanced" model="res.groups">
+            <field name="name">Advanced User</field>
+            <field name="category_id" ref="module_category_meli"/>
+            <field name="implied_ids" eval="[(4, ref('group_meli_user'))]"/>
+        </record>
+
+        <record id="group_meli_admin" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="category_id" ref="module_category_meli"/>
+            <field name="implied_ids" eval="[(4, ref('group_meli_advanced'))]"/>
+        </record>
+
+    </data>
+</odoo>

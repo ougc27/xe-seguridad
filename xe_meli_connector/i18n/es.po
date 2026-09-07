@@ -1,0 +1,1751 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* xe_meli_connector
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-28 10:00+0000\n"
+"PO-Revision-Date: 2026-08-28 10:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__access_token
+msgid "Access Token"
+msgstr "Token de Acceso"
+
+#. module: xe_meli_connector
+#: model:res.groups,name:xe_meli_connector.group_meli_admin
+msgid "Administrator"
+msgstr "Administrador"
+
+#. module: xe_meli_connector
+#: model:res.groups,name:xe_meli_connector.group_meli_advanced
+msgid "Advanced User"
+msgstr "Usuario avanzado"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "All Mercado Libre SKUs are now mapped — order confirmed."
+msgstr "Todos los SKUs de Mercado Libre ya están mapeados — pedido confirmado."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/wizards/meli_import_batch_wizard.py:0
+msgid "Already listed earlier in this same file."
+msgstr "Ya aparece antes en este mismo archivo."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form
+msgid "Are you sure you want to turn the Mercado Libre integration back on?"
+msgstr "¿Seguro que quieres volver a activar la integración de Mercado Libre?"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "Channel"
+msgstr "Canal"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__client_id
+msgid "Client ID"
+msgstr "ID de Cliente"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__client_secret
+msgid "Client Secret"
+msgstr "Secreto del Cliente"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Configure '%(field)s' on the Mercado Libre connection (Mercado Libre > Settings) before importing sales."
+msgstr "Configura '%(field)s' en la conexión de Mercado Libre (Mercado Libre > Configuración) antes de importar ventas."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"Configure 'Shipping Item' on the Mercado Libre connection (Mercado "
+"Libre > Settings) before importing an order with custom shipping "
+"(Mercado Libre order %s)."
+msgstr ""
+"Configura el 'Ítem de envío' en la conexión de Mercado Libre (Mercado "
+"Libre > Configuración) antes de importar un pedido con envío custom "
+"(pedido de Mercado Libre %s)."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "Configure the 'Mercado Libre Customer' on the connection (Mercado Libre > Settings) before importing sales."
+msgstr "Configura el 'Cliente de Mercado Libre' en la conexión (Mercado Libre > Configuración) antes de importar ventas."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form
+msgid "Connect to Mercado Libre"
+msgstr "Conectar con Mercado Libre"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/meli_config.py:0
+msgid "Connected successfully."
+msgstr "Conectado correctamente."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_config__state__connected
+msgid "Connected"
+msgstr "Conectado"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__consecutive_refresh_failures
+msgid "Consecutive Refresh Failures"
+msgstr "Fallos consecutivos de refresh"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__consecutive_refresh_failures
+msgid "Number of network-level refresh failures in a row (DNS, timeout, connection refused). Resets to 0 on any successful refresh. Only reaching 3 in a row marks the connection as 'Error' — a single transient network blip no longer permanently disables the integration."
+msgstr "Número de fallos de refresh a nivel de red, seguidos (DNS, timeout, conexión rechazada). Se reinicia a 0 en cualquier refresh exitoso. Solo al llegar a 3 seguidos se marca la conexión como 'Error' — un solo corte de red transitorio ya no desactiva la integración de forma permanente."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__redirect_uri
+msgid "Copy this exact value into the app's redirect_uri in the Mercado Libre DevCenter."
+msgstr "Copia este valor exacto en el redirect_uri de la app en el DevCenter de Mercado Libre."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/wizards/meli_import_batch_wizard.py:0
+#, python-format
+msgid "Could not read %(filename)s as an Excel file: %(error)s"
+msgstr "No se pudo leer %(filename)s como archivo de Excel: %(error)s"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "Created by xe_meli_connector"
+msgstr "Creado por xe_meli_connector"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Custom shipping"
+msgstr "Envío custom"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Could not verify the Mercado Libre shipping mode for this order; if "
+"it's a custom shipment the freight surcharge line is missing."
+msgstr ""
+"No se pudo verificar el modo de envío de Mercado Libre para este "
+"pedido; si es un envío custom, falta la línea de recargo de flete."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form
+msgid "Credentials"
+msgstr "Credenciales"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__warehouse_default_id
+msgid "Default Warehouse (non-Full)"
+msgstr "Almacén por defecto (no Full)"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__shipping_item_id
+msgid "Shipping Item"
+msgstr "Ítem de envío"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__shipping_item_id
+msgid "Service product used for the shipping-surcharge line added to orders whose Mercado Libre shipment is 'custom' (the seller manages logistics directly — today only XE's oversized security doors). Mirrors Ventiapp's 'Ítem de envío' setting, but configurable instead of hardcoded. Note: xe_pacific's qty_delivered sync and cancel handling for this line still match on the literal default_code 'SHIPPING-VA' — changing this field to a product with a different default_code requires updating that logic too."
+msgstr "Producto de servicio usado para la línea de recargo de envío que se agrega a pedidos cuyo envío de Mercado Libre es 'custom' (el vendedor gestiona la logística directamente — hoy solo las puertas de seguridad sobredimensionadas de XE). Replica el ajuste 'Ítem de envío' de Ventiapp, pero configurable en vez de fijo en el código. Nota: la sincronización de qty_delivered y el manejo de cancelaciones de xe_pacific para esta línea siguen usando el default_code literal 'SHIPPING-VA' — cambiar este campo a un producto con un default_code distinto requiere actualizar también esa lógica."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_config__state__error
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form
+msgid "Error"
+msgstr "Error"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__salesperson_id
+msgid "Fixed salesperson assigned to imported orders."
+msgstr "Vendedor fijo asignado a los pedidos importados."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__warehouse_fulfillment_id
+msgid "Fulfillment Warehouse (Full)"
+msgstr "Almacén Full (Fulfillment)"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__partner_id
+msgid "Generic contact used as the customer on sales orders imported from Mercado Libre."
+msgstr "Contacto genérico usado como cliente en las órdenes de venta importadas desde Mercado Libre."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_sync_source
+msgid "Identifies that this order was created by xe_meli_connector, as opposed to legacy orders imported by Ventiapp."
+msgstr "Identifica que este pedido fue creado por xe_meli_connector, a diferencia de los pedidos legacy importados por Ventiapp."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/controllers/main.py:0
+msgid "Invalid or expired connection request. Please try again from the 'Connect to Mercado Libre' button in Odoo."
+msgstr "Solicitud de conexión inválida o expirada. Vuelve a intentar desde el botón 'Conectar con Mercado Libre' en Odoo."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__last_connected_at
+msgid "Last Connected At"
+msgstr "Última Conexión El"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__last_error
+msgid "Last Error"
+msgstr "Último Error"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_last_status
+msgid "Last Mercado Libre Status"
+msgstr "Último estatus de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__last_refreshed_at
+msgid "Last Refreshed At"
+msgstr "Última Actualización El"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_last_status
+msgid "Last status of the order as reported by Mercado Libre. Used only to detect changes (e.g. cancellations) — never triggers any automatic action in Odoo."
+msgstr "Último estatus del pedido reportado por Mercado Libre. Solo se usa para detectar cambios (ej. cancelaciones) — nunca dispara ninguna acción automática en Odoo."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_order_date_created
+msgid "Mercado Libre Order Created At"
+msgstr "Fecha de creación del pedido en Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_order_date_created
+msgid "date_created from the Mercado Libre order resource — when the order was originally placed, regardless of when it was paid."
+msgstr "date_created del recurso de la orden de Mercado Libre — cuándo se colocó originalmente el pedido, sin importar cuándo se pagó."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_order_date_closed
+msgid "Mercado Libre Order Paid At"
+msgstr "Fecha de pago del pedido en Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_order_date_closed
+msgid "date_closed from the Mercado Libre order resource — when the order first reached confirmed/paid and stock was discounted on Mercado Libre's side. Compare against Created At to tell a genuinely late payment (large gap) from an order that landed here for another reason."
+msgstr "date_closed del recurso de la orden de Mercado Libre — cuándo el pedido llegó por primera vez a confirmed/paid y se descontó el stock del lado de Mercado Libre. Compáralo con la fecha de creación para distinguir un pago genuinamente tardío (brecha grande) de un pedido que llegó aquí por otra razón."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "Logistics"
+msgstr "Logística"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__ml_user_id
+msgid "ML User ID"
+msgstr "ID de Usuario de ML"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/meli_config.py:0
+#: model:ir.module.category,name:xe_meli_connector.module_category_meli
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_root
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_tree
+msgid "Mercado Libre"
+msgstr "Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_config
+msgid "Mercado Libre Connection"
+msgstr "Conexión de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__partner_id
+msgid "Mercado Libre Customer"
+msgstr "Cliente de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_pack_id
+msgid "Mercado Libre Pack ID"
+msgstr "ID de Pack de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_pack_id
+msgid "Mercado Libre pack ID, when the order is part of a cart. Used to upload the invoice via /packs/$PACK_ID/fiscal_documents."
+msgstr "ID de pack de Mercado Libre, cuando el pedido forma parte de un carrito. Se usa para subir la factura vía /packs/$PACK_ID/fiscal_documents."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre reports that this order changed to status <b>%(status)s</b>."
+msgstr "Mercado Libre reporta que este pedido cambió a estado <b>%(status)s</b>."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__meli_sku
+msgid "Mercado Libre SKU"
+msgstr "SKU de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_sku_mapping
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_sku_mapping_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_sku_mapping_tree
+msgid "Mercado Libre SKU Mapping"
+msgstr "Mapeo de SKU de Mercado Libre"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "No Mercado Libre SKU mapping found for: %s. Add the mapping under Mercado Libre > SKU Mapping and confirm this order manually."
+msgstr "No se encontró mapeo de SKU de Mercado Libre para: %s. Agrega el mapeo en Mercado Libre > Mapeo de SKUs y confirma este pedido manualmente."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_config__state__not_connected
+msgid "Not Connected"
+msgstr "No Conectado"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form
+msgid "Off"
+msgstr "Apagada"
+
+#. module: xe_meli_connector
+#: model:ir.model.constraint,message:xe_meli_connector.constraint_meli_config_company_id_uniq
+msgid "Only one Mercado Libre connection is allowed per company."
+msgstr "Solo se permite una conexión de Mercado Libre por compañía."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/meli_config.py:0
+#: model:ir.actions.server,name:xe_meli_connector.action_meli_orders_server
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_orders
+msgid "Orders"
+msgstr "Pedidos"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__product_id
+msgid "Product"
+msgstr "Producto"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Reason: %(description)s (requested by %(requested_by)s)."
+msgstr "Motivo: %(description)s (solicitado por %(requested_by)s)."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__redirect_uri
+msgid "Redirect URI"
+msgstr "URI de Redirección"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form
+msgid "Refresh token now"
+msgstr "Refrescar token ahora"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__refresh_token
+msgid "Refresh Token"
+msgstr "Token de Actualización"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__returns_manager_id
+msgid "Returns Manager"
+msgstr "Responsable de devoluciones"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__returns_manager_id
+msgid "Person notified when Mercado Libre reports a new return or cancellation claim on a non-Full order. Deliberately separate from the order's salesperson."
+msgstr "Persona a la que se le notifica cuando Mercado Libre reporta un nuevo reclamo de devolución o cancelación en un pedido no-Full. Deliberadamente distinta del vendedor del pedido."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_order_form_meli
+msgid "Retry SKU mapping (Mercado Libre)"
+msgstr "Reintentar mapeo de SKU (Mercado Libre)"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "Review manually whether the sale needs to be cancelled, stock returned, and/or a credit note issued."
+msgstr "Revisa manualmente si hace falta cancelar el pedido, regresar inventario y/o generar nota de crédito."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form
+msgid "Sales Import"
+msgstr "Importación de ventas"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__sale_team_id
+msgid "Sales Team"
+msgstr "Equipo de venta"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__sale_team_id
+msgid "Sales team assigned to imported orders."
+msgstr "Equipo de venta asignado a los pedidos importados."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__salesperson_id
+msgid "Salesperson"
+msgstr "Vendedor"
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_config
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_config_root
+msgid "Settings"
+msgstr "Configuración"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__site_id
+msgid "Site ID"
+msgstr "ID del Sitio"
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_sku_mapping
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_sku_mapping
+msgid "SKU Mapping"
+msgstr "Mapeo de SKUs"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__state
+msgid "Status"
+msgstr "Estado"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Still missing a mapping for: %s."
+msgstr "Todavía falta mapear: %s."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_sync_source
+msgid "Sync Source"
+msgstr "Origen de sincronización"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/controllers/main.py:0
+msgid "The configured connection no longer exists. Please try again from the 'Connect to Mercado Libre' button in Odoo."
+msgstr "La conexión configurada ya no existe. Vuelve a intentar desde el botón 'Conectar con Mercado Libre' en Odoo."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "The order was created, but something in this database cancelled it automatically before we could confirm it. Please review manually."
+msgstr "El pedido se creó, pero algo en esta base lo canceló automáticamente antes de que pudiéramos confirmarlo. Por favor revisa manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "There is no active Mercado Libre connection for company %s."
+msgstr "No hay una conexión activa de Mercado Libre para la compañía %s."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "There is no active Mercado Libre connection for this company."
+msgstr "No hay una conexión activa de Mercado Libre para esta compañía."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form
+msgid "This completely stops sales import and automatic token refresh for this company (the webhook and polling will ignore this connection). Are you sure you want to turn off the Mercado Libre integration?"
+msgstr "Esto detiene por completo la importación de ventas y el refresco automático de tokens para esta compañía (el webhook y el polling van a ignorar esta conexión). ¿Seguro que quieres apagar la integración de Mercado Libre?"
+
+#. module: xe_meli_connector
+#: model:ir.model.constraint,message:xe_meli_connector.constraint_meli_sku_mapping_meli_sku_uniq
+msgid "This Mercado Libre SKU is already mapped to another product."
+msgstr "Este SKU de Mercado Libre ya está mapeado a otro producto."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "This order doesn't have a Mercado Libre reference."
+msgstr "Este pedido no tiene una referencia de Mercado Libre."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__token_expires_at
+msgid "Token Expires At"
+msgstr "El Token Expira El"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form
+msgid "Tokens"
+msgstr "Tokens"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form
+msgid "Turn integration off"
+msgstr "Apagar integración"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form
+msgid "Turn integration on"
+msgstr "Prender integración"
+
+#. module: xe_meli_connector
+#: model:res.groups,name:xe_meli_connector.group_meli_user
+msgid "User"
+msgstr "Usuario"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__warehouse_default_id
+msgid "Warehouse used for any other shipment type (Mercado Envíos, Traditional, etc.)."
+msgstr "Almacén usado para cualquier otro tipo de envío (Mercado Envíos, Tradicional, etc.)."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__warehouse_fulfillment_id
+msgid "Warehouse used when the order's shipment is Full (logistic_type = fulfillment)."
+msgstr "Almacén usado cuando el envío del pedido es Full (logistic_type = fulfillment)."
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_claim
+msgid "Mercado Libre Claim (Return/Cancellation)"
+msgstr "Reclamo de Mercado Libre (Devolución/Cancelación)"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__claim_id
+msgid "Mercado Libre Claim ID"
+msgstr "ID de reclamo de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__meli_order_id
+msgid "Mercado Libre Order ID"
+msgstr "ID de pedido de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__meli_order_id
+msgid "resource_id from the claim, when resource == 'order'."
+msgstr "resource_id del reclamo, cuando resource == 'order'."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__sale_order_id
+msgid "Sale Order"
+msgstr "Pedido de venta"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__claim_type
+msgid "Claim Type"
+msgstr "Tipo de reclamo"
+
+#. module: xe_meli_connector
+#: selection:meli.claim,claim_type:return
+msgid "Return"
+msgstr "Devolución"
+
+#. module: xe_meli_connector
+#: selection:meli.claim,claim_type:cancel_sale
+msgid "Cancelled by Seller"
+msgstr "Cancelada por el vendedor"
+
+#. module: xe_meli_connector
+#: selection:meli.claim,claim_type:cancel_purchase
+msgid "Cancelled by Buyer"
+msgstr "Cancelada por el comprador"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__claim_status
+msgid "Claim Status"
+msgstr "Estatus del reclamo"
+
+#. module: xe_meli_connector
+#: selection:meli.claim,claim_status:opened
+msgid "Opened"
+msgstr "Abierto"
+
+#. module: xe_meli_connector
+#: selection:meli.claim,claim_status:closed
+msgid "Closed"
+msgstr "Cerrado"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__stage
+msgid "Stage"
+msgstr "Etapa"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__stage
+msgid "Raw stage from Mercado Libre: claim, dispute, recontact, stale, or none."
+msgstr "Etapa cruda de Mercado Libre: claim, dispute, recontact, stale, o none."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__resolution_reason
+msgid "Resolution Reason"
+msgstr "Motivo de resolución"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__resolution_reason
+msgid "resolution.reason from Mercado Libre, once the claim is closed."
+msgstr "resolution.reason de Mercado Libre, una vez que el reclamo se cierra."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__is_full
+msgid "Is Full"
+msgstr "Es Full"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__is_full
+msgid "Whether the related order was fulfilled from the Full warehouse, as of when this claim was processed — a snapshot, not a live value."
+msgstr "Si el pedido relacionado se surtió desde la bodega Full, al momento en que se procesó este reclamo — es una foto puntual, no un valor en vivo."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__last_synced_at
+msgid "Last Synced At"
+msgstr "Última sincronización"
+
+#. module: xe_meli_connector
+#: model:ir.model.constraint,message:xe_meli_connector.constraint_meli_claim_claim_id_uniq
+msgid "This Mercado Libre claim is already registered."
+msgstr "Este reclamo de Mercado Libre ya está registrado."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/meli_claim.py:0
+#, python-format
+msgid "Mercado Libre reports a new %(claim_type)s claim (%(claim_id)s) on this order. Review it, and once the return is physically received, handle stock and invoicing manually."
+msgstr "Mercado Libre reporta un nuevo reclamo de %(claim_type)s (%(claim_id)s) en este pedido. Revísalo, y una vez que la devolución se reciba físicamente, gestiona inventario y facturación manualmente."
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_claims
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_claims
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_tree
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_search
+msgid "Returns &amp; Cancellations"
+msgstr "Devoluciones y cancelaciones"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "No return location is configured for warehouse %s."
+msgstr "No hay una ubicación de devolución configurada para el almacén %s."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"Automatic validation of the return transfer %s needs manual confirmation "
+"(e.g. insufficient stock) — cannot auto-cancel this order."
+msgstr ""
+"La validación automática de la transferencia de devolución %s necesita "
+"confirmación manual (ej. inventario insuficiente) — no se puede cancelar "
+"esta venta automáticamente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"Mercado Libre reports this order was <b>cancelled</b>. Handled "
+"automatically:<br/>%s"
+msgstr ""
+"Mercado Libre reporta que este pedido fue <b>cancelado</b>. Se manejó "
+"automáticamente:<br/>%s"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Invoice resolution failed and needs manual review — the stock return and "
+"sale cancellation above were still completed successfully."
+msgstr ""
+"La resolución de la factura falló y necesita revisión manual — la devolución "
+"de inventario y la cancelación de la venta arriba se completaron "
+"correctamente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"Stock was returned to warehouse %(warehouse)s via transfer(s) "
+"%(pickings)s."
+msgstr ""
+"El inventario se devolvió al almacén %(warehouse)s vía la(s) "
+"transferencia(s) %(pickings)s."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "The sale order was cancelled."
+msgstr "La venta se canceló."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"CFDI cancellation was requested for invoice %s (stamped this month)."
+msgstr ""
+"Se solicitó la cancelación del CFDI de la factura %s (timbrada este mes)."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"Automatic reversal — Mercado Libre order %s was cancelled outside the "
+"invoice's issuance month."
+msgstr ""
+"Reversión automática — el pedido de Mercado Libre %s se canceló fuera del "
+"mes de emisión de la factura."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"A full credit note (%s) was issued for invoice %s (stamped in a previous "
+"month)."
+msgstr ""
+"Se generó una nota de crédito completa (%s) para la factura %s (timbrada en "
+"un mes anterior)."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_search
+msgid "Pending, non-Full"
+msgstr "Pendientes, no-Full"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_search
+msgid "Full"
+msgstr "Full"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_search
+msgid "Group By"
+msgstr "Agrupar por"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_search
+msgid "Claim Type"
+msgstr "Tipo de reclamo"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_search
+msgid "Status"
+msgstr "Estatus"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/meli_config.py:0
+#, python-format
+msgid ""
+"The Mercado Libre connection for %(company)s is now in <b>Error</b> "
+"state and needs manual attention.<br/>Reason: %(reason)s"
+msgstr ""
+"La conexión de Mercado Libre de %(company)s ahora está en estado "
+"<b>Error</b> y necesita atención manual.<br/>Motivo: %(reason)s"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_res_partner__meli_buyer_id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_buyer_id
+msgid "Mercado Libre Buyer ID"
+msgstr "ID de comprador de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_res_partner__meli_buyer_id
+msgid "Mercado Libre's numeric buyer ID (from the order's buyer.id). Identifies the 'master' contact created for a Mercado Libre buyer on custom-shipping orders (XE manages delivery itself) — see res.partner._meli_find_or_create_delivery_contact(). Left empty on every other contact."
+msgstr "ID numérico del comprador en Mercado Libre (del buyer.id de la orden). Identifica el contacto 'maestro' creado para un comprador de Mercado Libre en pedidos de envío custom (XE gestiona la entrega) — ver res.partner._meli_find_or_create_delivery_contact(). Queda vacío en cualquier otro contacto."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_delivery_contact_status
+msgid "Delivery Contact Status"
+msgstr "Estatus del contacto de entrega"
+
+#. module: xe_meli_connector
+#: selection:sale.order,meli_delivery_contact_status:not_applicable
+msgid "Not Applicable"
+msgstr "No aplica"
+
+#. module: xe_meli_connector
+#: selection:sale.order,meli_delivery_contact_status:resolved
+msgid "Resolved"
+msgstr "Resuelto"
+
+#. module: xe_meli_connector
+#: selection:sale.order,meli_delivery_contact_status:failed
+msgid "Failed"
+msgstr "Falló"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_shipping_id
+msgid "Mercado Libre Shipping ID"
+msgstr "ID de envío de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__delivery_contact_manager_id
+msgid "Delivery Contact Manager"
+msgstr "Responsable de contacto de entrega"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Could not resolve a real delivery contact for this custom-shipping order — using the generic Mercado Libre contact for now. This is retried automatically every 30 minutes; no further action needed unless it keeps failing."
+msgstr "No se pudo resolver un contacto de entrega real para este pedido de envío custom — se está usando el contacto genérico de Mercado Libre por ahora. Esto se reintenta automáticamente cada 30 minutos; no requiere acción a menos que siga fallando."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Delivery contact resolved on retry: %s."
+msgstr "Contacto de entrega resuelto en el reintento: %s."
+
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/wizards/meli_claim_recovery_wizard.py:0
+msgid "%(count)s claim(s) found and queued for re-import."
+msgstr "%(count)s reclamo(s) encontrado(s) y encolado(s) para reimportar."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/meli_invoice_document.py:0
+msgid "%(skipped)s omitido(s): Mercado Libre nunca da su Invoice ID (fueron rescatados por rango de fechas)."
+msgstr "%(skipped)s omitido(s): Mercado Libre nunca da su Invoice ID (fueron rescatados por rango de fechas)."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/meli_invoice_document.py:0
+msgid "%(updated)s documento(s) actualizado(s)."
+msgstr "%(updated)s documento(s) actualizado(s)."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/wizards/meli_claim_recovery_wizard.py:0
+#: code:addons/xe_meli_connector/wizards/meli_invoice_recovery_wizard.py:0
+msgid "'From' must be earlier than 'To'."
+msgstr "'Desde' debe ser anterior a 'Hasta'."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "A full credit note (%(credit_note)s) was issued and stamped for invoice %(invoice)s (stamped in a previous month)."
+msgstr "Se emitió y timbró una nota de crédito completa (%(credit_note)s) para la factura %(invoice)s (timbrada en un mes anterior)."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "A full credit note (%(credit_note)s) was issued for invoice %(invoice)s (stamped in a previous month), but its CFDI could NOT be stamped: %(error)s. The credit note is posted in Odoo without a valid CFDI — review manually."
+msgstr "Se generó una nota de crédito completa (%(credit_note)s) para la factura %(invoice)s (timbrada en un mes anterior), pero su CFDI NO pudo timbrarse: %(error)s. La nota de crédito quedó registrada en Odoo sin un CFDI válido — revisar manualmente."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_form
+msgid "Abrir chat del reclamo"
+msgstr "Abrir chat del reclamo"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_order_form_meli
+msgid "Abrir en Mercado Libre"
+msgstr "Abrir en Mercado Libre"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_order_form_meli
+msgid "Abrir mensajería"
+msgstr "Abrir mensajería"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__message_needaction
+msgid "Action Needed"
+msgstr "Acción requerida"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__active
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_form
+msgid "Actualizar Status"
+msgstr "Actualizar Status"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_search
+msgid "Afecta Reputación"
+msgstr "Afecta Reputación"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__affects_reputation
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_claim__affects_reputation__affected
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_search
+msgid "Affects Reputation"
+msgstr "Afecta la Reputación"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_import_batch_line__status__already_existed
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_invoice_import_batch_line__status__already_existed
+msgid "Already Existed"
+msgstr "Ya Existía"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__message_attachment_count
+msgid "Attachment Count"
+msgstr "Número de archivos adjuntos"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__batch_id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__batch_id
+msgid "Batch"
+msgstr "Lote"
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_import_batches
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_import_batches
+msgid "Bulk Imports"
+msgstr "Cargas Masivas"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_invoice_import_batch_wizard
+msgid "Bulk-import Mercado Libre Invoices from an Excel file, by Invoice ID"
+msgstr "Carga masiva de facturas de Mercado Libre desde un archivo Excel, por Invoice ID"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_import_batch_wizard
+msgid "Bulk-import Mercado Libre Orders from an Excel file"
+msgstr "Carga masiva de pedidos de Mercado Libre desde un archivo Excel"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_recovery_wizard_form
+msgid "Busca, entre las ventas de Mercado Libre en este rango de\n                    fechas, cualquier factura o nota de crédito que Mercado\n                    Libre ya haya emitido y la importa a\n                    \"Facturación Mercado Libre\"."
+msgstr "Busca, entre las ventas de Mercado Libre en este rango de\n                    fechas, cualquier factura o nota de crédito que Mercado\n                    Libre ya haya emitido y la importa a\n                    \"Facturación Mercado Libre\"."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_recovery_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_import_batch_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_manual_import_wizard_form
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
+msgid "Canceladas/Rechazadas"
+msgstr "Canceladas/Rechazadas"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_import_batch_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_recovery_wizard_form
+msgid "Cancelar"
+msgstr "Cancelar"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_import_batch_form
+msgid "Carga de Facturas Mercado Libre"
+msgstr "Carga de Facturas Mercado Libre"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_import_batch_tree
+msgid "Cargas de Facturas Mercado Libre"
+msgstr "Cargas de Facturas Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_invoice_import_batches
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_invoice_import_batches
+msgid "Cargas de Facturas por Excel"
+msgstr "Cargas de Facturas por Excel"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__create_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__create_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__create_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__create_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__create_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__create_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__create_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__create_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__create_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__create_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__create_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_manual_import_wizard__create_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__create_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__create_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__create_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__create_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__create_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__create_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__create_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__create_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__create_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__create_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__create_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_manual_import_wizard__create_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_invoice_document__document_type__nota_de_credito
+msgid "Credit Note"
+msgstr "Nota de Crédito"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__reputation_due_date
+msgid "Deadline to respond before the reputation impact becomes final."
+msgstr "Fecha límite para responder antes de que el impacto en la reputación se vuelva definitivo."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__message
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__message
+msgid "Detail"
+msgstr "Detalle"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__meli_portal_url
+msgid "Direct link to this claim's own chat/messaging thread on Mercado Libre's seller portal — confirmed working pattern (2026-09-07): https://vendedores.mercadolibre.com.mx/ventas/nueva/mensajeria/$ORDER_ID/reclamo/$CLAIM_ID. MLM-only, like the rest of this module."
+msgstr "Liga directa al chat/mensajería de este reclamo en el portal de vendedores de Mercado Libre — patrón confirmado (2026-09-07): https://vendedores.mercadolibre.com.mx/ventas/nueva/mensajeria/$ORDER_ID/reclamo/$CLAIM_ID. Solo para MLM, igual que el resto de este módulo."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_portal_url
+msgid "Direct link to this order's own chat/messaging thread on Mercado Libre's seller portal. Derived from the pattern confirmed working for a specific claim's thread (2026-09-07, see meli.claim.meli_portal_url) by dropping its /reclamo/$CLAIM_ID suffix — this order-level variant (no claim) hasn't itself been confirmed against a real page yet, so double check it opens the right thread once deployed. MLM-only, like the rest of this module."
+msgstr "Liga directa al chat/mensajería de este pedido en el portal de vendedores de Mercado Libre. Se obtiene con el mismo patrón ya confirmado para el chat de un reclamo (2026-09-07, ver meli.claim.meli_portal_url), quitando el sufijo /reclamo/$CLAIM_ID — esta variante a nivel de pedido (sin reclamo) todavía no se ha confirmado contra una página real, así que verifica que abra el chat correcto una vez desplegado. Solo para MLM, igual que el resto de este módulo."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__display_name
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__display_name
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__display_name
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__display_name
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__display_name
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__display_name
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__display_name
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__display_name
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__display_name
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__display_name
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__display_name
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_manual_import_wizard__display_name
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__document_type
+msgid "Document Type"
+msgstr "Tipo de Documento"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_claim__affects_reputation__not_affected
+msgid "Does Not Affect Reputation"
+msgstr "No Afecta la Reputación"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_import_batch_line__status__duplicate
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_invoice_import_batch_line__status__duplicate
+msgid "Duplicate in File"
+msgstr "Duplicado en el Archivo"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__last_poll_at
+msgid "End of the window the backup polling cron last checked successfully. The next run always resumes from here — not a fixed lookback — so an outage of any length (webhook disabled, server down, etc.) never leaves a permanent gap."
+msgstr "Fin de la ventana que el cron de respaldo revisó exitosamente por última vez. La siguiente corrida siempre retoma desde aquí — no es una ventana fija hacia atrás — así que una interrupción de cualquier duración (webhook desactivado, servidor caído, etc.) nunca deja un hueco permanente."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__error_count
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__error_count
+msgid "Error Count"
+msgstr "Cantidad de Errores"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__excel_file
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__excel_file
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_import_batch_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_import_batch_wizard_form
+msgid "Excel File"
+msgstr "Archivo Excel"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__raw_value
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__raw_value
+msgid "Excel Value"
+msgstr "Valor del Excel"
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_invoice_documents
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_invoice_documents
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_tree
+msgid "Facturación Mercado Libre"
+msgstr "Facturación Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__issue_date
+msgid "Fecha de Emisión"
+msgstr "Fecha de Emisión"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__filename
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__filename
+msgid "Filename"
+msgstr "Nombre de Archivo"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__message_follower_ids
+msgid "Followers"
+msgstr "Seguidores"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Seguidores (Contactos)"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__date_from
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__date_from
+msgid "From"
+msgstr "Desde"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__has_message
+msgid "Has Message"
+msgstr "Tiene un mensaje"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_manual_import_wizard__id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__id
+msgid "ID"
+msgstr "ID"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Si está marcada, hay nuevos mensajes que requieren su atención."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__message_has_error
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Si está marcada, algunos mensajes tienen error de envío."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_import_batch_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_manual_import_wizard_form
+msgid "Import"
+msgstr "Importar"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_manual_import_wizard_form
+msgid "Import Mercado Libre Order"
+msgstr "Importar Pedido de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_manual_import_wizard
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_manual_import
+msgid "Import Order"
+msgstr "Importar Pedido"
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_import_batch_wizard
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_import_batch_wizard
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_import_batch_wizard_form
+msgid "Import Orders from Excel"
+msgstr "Importar Pedidos desde Excel"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_import_batch_wizard_form
+msgid "Importar"
+msgstr "Importar"
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_invoice_import_batch_wizard
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_invoice_import_batch_wizard
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_import_batch_wizard_form
+msgid "Importar Facturas por Excel"
+msgstr "Importar Facturas por Excel"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_import_batch_line__status__imported
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_invoice_import_batch_line__status__imported
+msgid "Imported"
+msgstr "Importado"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__imported_count
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__imported_count
+msgid "Imported Count"
+msgstr "Cantidad Importada"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_import_batch_line__status__invalid
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_invoice_import_batch_line__status__invalid
+msgid "Invalid Row"
+msgstr "Fila Inválida"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_invoice_document__document_type__factura
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "Invoice %s could not be resolved automatically (unexpected error) — review manually."
+msgstr "La factura %s no pudo resolverse automáticamente (error inesperado) — revisar manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "Invoice %s was stamped this month, but it has no active CFDI document to cancel — review manually."
+msgstr "La factura %s se timbró este mes, pero no tiene un documento CFDI activo para cancelar — revisar manualmente."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__document_id
+msgid "Invoice Document"
+msgstr "Documento de Factura"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "Invoice resolution did not fully succeed and needs manual review — the stock return and sale cancellation above were still completed successfully."
+msgstr "La resolución de la factura no se completó del todo y necesita revisión manual — la devolución de inventario y la cancelación de la venta de arriba sí se completaron correctamente."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__message_is_follower
+msgid "Is Follower"
+msgstr "Es un seguidor"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_import_batch_wizard_form
+msgid "La primera columna de la primera hoja debe contener un\n                    Invoice ID de Mercado Libre por fila. Cualquier otra\n                    columna se ignora. Úsalo para emparejar documentos que\n                    ya no se pueden recuperar por rango de fechas (por\n                    ejemplo, facturas canceladas/reemplazadas) — necesitas\n                    obtener esos Invoice ID directamente del panel de\n                    Mercado Libre."
+msgstr "La primera columna de la primera hoja debe contener un\n                    Invoice ID de Mercado Libre por fila. Cualquier otra\n                    columna se ignora. Úsalo para emparejar documentos que\n                    ya no se pueden recuperar por rango de fechas (por\n                    ejemplo, facturas canceladas/reemplazadas) — necesitas\n                    obtener esos Invoice ID directamente del panel de\n                    Mercado Libre."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__last_claim_poll_at
+msgid "Last Claim Poll At"
+msgstr "Última Consulta de Reclamos"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__last_poll_at
+msgid "Last Poll At"
+msgstr "Última Consulta"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__write_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__write_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__write_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__write_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__write_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__write_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__write_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__write_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__write_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__write_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__write_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_manual_import_wizard__write_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__write_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__write_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__write_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__write_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__write_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__write_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__write_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__write_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__write_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__write_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__write_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_manual_import_wizard__write_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__line_ids
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__line_ids
+msgid "Lines"
+msgstr "Líneas"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_manual_import_wizard
+msgid "Manually Import a Mercado Libre Order"
+msgstr "Importar Manualmente un Pedido de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__sale_order_id
+msgid "Matched by meli_order_id first (orders imported by xe_meli_connector), falling back to client_order_ref/reference (today's Ventiapp-created orders, which don't populate meli_order_id at all), and finally to meli_pack_id — covers a resale/pack invoice whose own metadata reports the pack's id rather than one specific sibling order's id."
+msgstr "Se enlaza primero por meli_order_id (pedidos importados por xe_meli_connector), y si no encuentra nada usa client_order_ref/reference (pedidos creados hoy por Ventiapp, que nunca llenan meli_order_id), y por último meli_pack_id — cubre una factura de reventa/pack cuya propia metadata reporta el id del pack en vez del id de un pedido hermano específico."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__delivery_contact_manager_id
+msgid "Mentioned in the chatter when a custom-shipping order's delivery contact (recipient's real name/phone/address) could not be resolved. Falls back to the order's own salesperson if left empty."
+msgstr "Se le menciona en el chatter cuando no se pudo resolver el contacto de entrega (nombre/teléfono/dirección real del destinatario) de un pedido con envío personalizado. Si se deja vacío, usa al vendedor del propio pedido."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_import_batch_form
+msgid "Mercado Libre Bulk Import"
+msgstr "Carga Masiva de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_import_batch_tree
+msgid "Mercado Libre Bulk Imports"
+msgstr "Cargas Masivas de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_invoice_import_batch
+msgid "Mercado Libre Bulk Invoice Import (from Excel, by Invoice ID)"
+msgstr "Carga Masiva de Facturas de Mercado Libre (desde Excel, por Invoice ID)"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_invoice_import_batch_line
+msgid "Mercado Libre Bulk Invoice Import Line"
+msgstr "Línea de Carga Masiva de Facturas de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_import_batch
+msgid "Mercado Libre Bulk Order Import (from Excel)"
+msgstr "Carga Masiva de Pedidos de Mercado Libre (desde Excel)"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_import_batch_line
+msgid "Mercado Libre Bulk Order Import Line"
+msgstr "Línea de Carga Masiva de Pedidos de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_claim_count
+msgid "Mercado Libre Claim Count"
+msgstr "Cantidad de Reclamos de Mercado Libre"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_claim_ids
+msgid "Mercado Libre Claims"
+msgstr "Reclamos de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__meli_invoice_id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__invoice_id
+msgid "Mercado Libre Invoice ID"
+msgstr "ID de Factura de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_invoice_document
+msgid "Mercado Libre Invoice/Credit Note (native invoicer XML)"
+msgstr "Factura/Nota de Crédito de Mercado Libre (XML del facturador nativo)"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__meli_portal_url
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_portal_url
+msgid "Mercado Libre Portal Link"
+msgstr "Liga al Portal de Mercado Libre"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/wizards/meli_manual_import_wizard.py:0
+msgid "Mercado Libre order %s could not be imported — it may not be 'paid' yet. Check its status directly on Mercado Libre."
+msgstr "El pedido de Mercado Libre %s no pudo importarse — puede que todavía no esté 'paid'. Revisa su estatus directamente en Mercado Libre."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__status
+msgid "Mercado Libre's own status for this document — seen in practice (2026-09-04): 'authorized'. The seller-panel UI also shows 'rechazado'/'cancelado' as possible states (a document can be cancelled outright by Mercado Libre, independent of transaction_type — noticed by the user 2026-09-04: not every reversal shows up as a nota_de_credito). Only known when this document arrived via the 'invoices' webhook (the metadata call that provides it) — never populated for documents fetched by the date-range recovery wizard, which only gets the raw XML, not this metadata."
+msgstr "El status propio de Mercado Libre para este documento — visto en la práctica (2026-09-04): 'authorized'. El panel de vendedores también muestra 'rechazado'/'cancelado' como posibles estados (un documento puede ser cancelado directamente por Mercado Libre, independiente del transaction_type — detectado por el usuario 2026-09-04: no toda reversión aparece como nota_de_credito). Solo se conoce cuando este documento llegó por el webhook de 'invoices' (la llamada de metadata que lo provee) — nunca se llena para documentos obtenidos por el asistente de rescate por rango de fechas, que solo trae el XML crudo, no esta metadata."
+
+#. module: xe_meli_connector
+#: model:ir.actions.server,name:xe_meli_connector.ir_cron_meli_poll_claims_ir_actions_server
+msgid "Mercado Libre: Poll Recent Claims (backup)"
+msgstr "Mercado Libre: Consultar Reclamos Recientes (respaldo)"
+
+#. module: xe_meli_connector
+#: model:ir.actions.server,name:xe_meli_connector.ir_cron_meli_poll_orders_ir_actions_server
+msgid "Mercado Libre: Poll Recent Orders (backup)"
+msgstr "Mercado Libre: Consultar Pedidos Recientes (respaldo)"
+
+#. module: xe_meli_connector
+#: model:ir.actions.server,name:xe_meli_connector.ir_cron_meli_poll_invoices_ir_actions_server
+msgid "Mercado Libre: Reconcile Missed Invoice Notifications (backup)"
+msgstr "Mercado Libre: Reconciliar Notificaciones de Facturas Perdidas (respaldo)"
+
+#. module: xe_meli_connector
+#: model:ir.actions.server,name:xe_meli_connector.ir_cron_meli_refresh_tokens_ir_actions_server
+msgid "Mercado Libre: Refresh OAuth Tokens"
+msgstr "Mercado Libre: Renovar Tokens OAuth"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__message_has_error
+msgid "Message Delivery error"
+msgstr "Error de envío de mensaje"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__message_ids
+msgid "Messages"
+msgstr "Mensajes"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_invoice_import_batch_line__status__not_found
+msgid "Not Found on Mercado Libre"
+msgstr "No Encontrado en Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_import_batch_line__status__not_paid
+msgid "Not Paid Yet"
+msgstr "Aún No Pagado"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Número de acciones"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__message_has_error_counter
+msgid "Number of errors"
+msgstr "Número de errores"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Número de mensajes que requieren una acción"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Número de mensajes con error de envío"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__meli_invoice_id
+msgid "Only known when this document arrived via the 'invoices' webhook — the date-range recovery wizard fetches straight by order_id/transaction_type and never learns this id."
+msgstr "Solo se conoce cuando este documento llegó por el webhook de 'invoices' — el asistente de rescate por rango de fechas lo obtiene directo por order_id/transaction_type y nunca llega a saber este id."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_delivery_contact_status
+msgid "Only meaningful for custom-shipping orders (XE manages delivery itself). 'Failed' means the real delivery contact (recipient's name/phone/address) could not be resolved — the order keeps the generic Mercado Libre contact meanwhile, and the polling cron (meli.config._retry_failed_delivery_contacts) retries automatically every 30 minutes, with no attempt limit."
+msgstr "Solo tiene sentido para pedidos con envío personalizado (XE maneja la entrega directamente). 'Failed' significa que no se pudo resolver el contacto de entrega real (nombre/teléfono/dirección del destinatario) — mientras tanto, el pedido conserva el contacto genérico de Mercado Libre, y el cron de consulta (meli.config._retry_failed_delivery_contacts) reintenta automáticamente cada 30 minutos, sin límite de intentos."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__issue_date
+msgid "Parsed straight from the CFDI's own Fecha attribute (the Comprobante root node) — never from Mercado Libre's invoices metadata endpoint, which is only ever fetched on the webhook path. Reading it from the XML itself means it's populated for every document without exception, including ones the date-range recovery wizard fetched and that never had metadata to begin with."
+msgstr "Se obtiene directo del propio atributo Fecha del CFDI (el nodo raíz Comprobante) — nunca del endpoint de metadata de facturas de Mercado Libre, que solo se consulta en el camino del webhook. Leerlo directo del XML significa que se llena para todo documento sin excepción, incluyendo los que obtuvo el asistente de rescate por rango de fechas y que nunca tuvieron metadata desde un inicio."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_import_batch_line__status__pending
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_invoice_import_batch_line__status__pending
+msgid "Pending"
+msgstr "Pendiente"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__pending_count
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__pending_count
+msgid "Pending Count"
+msgstr "Cantidad Pendiente"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__reason_code
+msgid "Raw reason_id from Mercado Libre (e.g. PDD9549) — why the claim was opened by the complainant. Category prefixes: PNR (Producto No Recibido), PDD (Producto Diferente o Defectuoso), CS (Compra Cancelada). Not the same as resolution_reason above, which is how the claim was closed."
+msgstr "reason_id crudo de Mercado Libre (ej. PDD9549) — por qué el reclamante abrió el reclamo. Prefijos de categoría: PNR (Producto No Recibido), PDD (Producto Diferente o Defectuoso), CS (Compra Cancelada). No es lo mismo que resolution_reason (arriba), que indica cómo se cerró el reclamo."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__transaction_type
+msgid "Raw value from Mercado Libre: sale, resale, disposal_sale, loan, devolution, resale_devolution or disposal_sale_return."
+msgstr "Valor crudo de Mercado Libre: sale, resale, disposal_sale, loan, devolution, resale_devolution o disposal_sale_return."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__reason_code
+msgid "Reason Code"
+msgstr "Código de Motivo"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__reason_detail
+msgid "Reason Detail"
+msgstr "Detalle del Motivo"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__reason_name
+msgid "Reason Name"
+msgstr "Nombre del Motivo"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_order_form_meli
+msgid "Reclamos ML"
+msgstr "Reclamos ML"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_recovery_wizard_form
+msgid "Recover"
+msgstr "Rescatar"
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_claim_recovery_wizard
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_claim_recovery
+msgid "Recover Claims"
+msgstr "Rescatar Reclamos"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_recovery_wizard_form
+msgid "Recover Mercado Libre Claims"
+msgstr "Rescatar Reclamos de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_claim_recovery_wizard
+msgid "Recover Mercado Libre Claims for a Date Range"
+msgstr "Rescatar Reclamos de Mercado Libre para un Rango de Fechas"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_invoice_recovery_wizard
+msgid "Recover Mercado Libre Invoice Documents for a Date Range"
+msgstr "Rescatar Documentos de Factura de Mercado Libre para un Rango de Fechas"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__reputation_due_date
+msgid "Reputation Due Date"
+msgstr "Fecha Límite de Reputación"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_recovery_wizard_form
+msgid "Rescatar"
+msgstr "Rescatar"
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_invoice_recovery_wizard
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_invoice_recovery
+msgid "Rescatar Facturas"
+msgstr "Rescatar Facturas"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_recovery_wizard_form
+msgid "Rescatar Facturas Mercado Libre"
+msgstr "Rescatar Facturas Mercado Libre"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_import_batch_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_import_batch_form
+msgid "Retry Pending/Failed"
+msgstr "Reintentar Pendientes/Fallidos"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_form
+msgid "Return / Cancellation"
+msgstr "Devolución / Cancelación"
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_claims
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_claims
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_search
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_tree
+msgid "Returns & Cancellations"
+msgstr "Devoluciones y Cancelaciones"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Error de envío del SMS"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_sale_order
+msgid "Sales Order"
+msgstr "Pedido de venta"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__last_claim_poll_at
+msgid "Same checkpoint idea as last_poll_at, for the claims backup polling cron — see _poll_recent_claims."
+msgstr "Misma idea de punto de control que last_poll_at, para el cron de respaldo de reclamos — ver _poll_recent_claims."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/wizards/meli_invoice_recovery_wizard.py:0
+msgid "Se encoló la búsqueda de facturas para el rango seleccionado — revisa 'Facturación Mercado Libre' en unos minutos."
+msgstr "Se encoló la búsqueda de facturas para el rango seleccionado — revisa 'Facturación Mercado Libre' en unos minutos."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_recovery_wizard_form
+msgid "Searches Mercado Libre for every claim/return updated in this\n                    date range and queues it for (re)import — use this to recover\n                    claims a failed or missing webhook notification never\n                    delivered."
+msgstr "Busca en Mercado Libre cada reclamo/devolución actualizado en este\n                    rango de fechas y lo encola para (re)importar — úsalo para rescatar\n                    reclamos que una notificación de webhook fallida o faltante\n                    nunca entregó."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
+msgid "Sin venta ligada"
+msgstr "Sin venta ligada"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__reputation_has_incentive
+msgid "Still Within Grace Window"
+msgstr "Aún Dentro de la Ventana de Gracia"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "The CFDI cancellation for invoice %(invoice)s (stamped this month) was REJECTED: %(error)s. Review manually."
+msgstr "La cancelación del CFDI para la factura %(invoice)s (timbrada este mes) fue RECHAZADA: %(error)s. Revisar manualmente."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_import_batch_wizard_form
+msgid "The first column of the first sheet must contain one\n                    Mercado Libre order ID per row. Any other column is\n                    ignored."
+msgstr "La primera columna de la primera hoja debe contener un\n                    ID de pedido de Mercado Libre por fila. Cualquier otra\n                    columna se ignora."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_order_id
+msgid "The individual Mercado Libre order ID (the 'id' field from GET /orders/$ORDER_ID) — always set, unlike 'OC Cliente' / 'Ref. Cliente' below, which show the pack ID instead when the order is part of a cart (matching Ventiapp's own convention, confirmed 2026-09-01), so those two can be shared by several sibling sale orders from the same pack. This field is what every lookup by Mercado Libre order (idempotency, the SKU-mapping retry re-fetch, claims linking) actually keys on."
+msgstr "El ID individual del pedido de Mercado Libre (el campo 'id' de GET /orders/$ORDER_ID) — siempre tiene valor, a diferencia de 'OC Cliente' / 'Ref. Cliente' de abajo, que muestran el ID del pack cuando el pedido es parte de un carrito (siguiendo la propia convención de Ventiapp, confirmada 2026-09-01), por lo que esos dos pueden compartirse entre varios pedidos hermanos del mismo pack. Este campo es el que usa toda búsqueda por pedido de Mercado Libre (idempotencia, el reintento de mapeo de SKU, el enlace de reclamos)."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__meli_pack_id
+msgid "The linked sale order's own pack id, when it's part of a cart — kept here too (not just on sale.order) so this document can be found by pack id directly, without first having to open its sale order. Found in practice 2026-09-08: a resale pack can be invoiced as ONE document covering every sibling order, so searching by pack id is often the only way to see 'everything for this cart'."
+msgstr "El pack id del pedido de venta ligado, cuando es parte de un carrito — se guarda también aquí (no solo en sale.order) para poder encontrar este documento directo por pack id, sin tener que abrir primero su pedido de venta. Detectado en la práctica 2026-09-08: un pack de reventa puede facturarse como UN solo documento que cubre a todos los pedidos hermanos, así que buscar por pack id suele ser la única forma de ver 'todo lo de este carrito'."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_import_batch_line__raw_value
+msgid "The raw value read from the Excel row, as-is — kept even for rows that couldn't be parsed as a Mercado Libre invoice ID, so nothing from the file disappears silently."
+msgstr "El valor crudo leído de la fila del Excel, tal cual — se conserva incluso para filas que no se pudieron interpretar como un Invoice ID de Mercado Libre, para que nada del archivo desaparezca silenciosamente."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_import_batch_line__raw_value
+msgid "The raw value read from the Excel row, as-is — kept even for rows that couldn't be parsed as a Mercado Libre order ID, so nothing from the file disappears silently."
+msgstr "El valor crudo leído de la fila del Excel, tal cual — se conserva incluso para filas que no se pudieron interpretar como un ID de pedido de Mercado Libre, para que nada del archivo desaparezca silenciosamente."
+
+#. module: xe_meli_connector
+#: model:ir.model.constraint,message:xe_meli_connector.constraint_meli_invoice_document_invoice_id_uniq
+msgid "This Mercado Libre invoice is already registered."
+msgstr "Esta factura de Mercado Libre ya está registrada."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_buyer_id
+msgid "This order's buyer id, saved only for custom-shipping orders — same purpose as meli_shipping_id, and the same value res.partner.meli_buyer_id uses to identify the buyer's master contact."
+msgstr "El buyer id de este pedido, guardado solo para pedidos con envío personalizado — mismo propósito que meli_shipping_id, y el mismo valor que usa res.partner.meli_buyer_id para identificar el contacto maestro del comprador."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__meli_pack_id
+msgid "This order's pack id, when it's part of a cart — fetched with one extra, best-effort call to /orders/$ORDER_ID at import time (2026-09-07: meli_order_id alone doesn't match what Ventiapp/the Mercado Libre portal show as 'the' order number for a pack order, which is the pack id, not the individual order id)."
+msgstr "El pack id de este pedido, cuando es parte de un carrito — se obtiene con una llamada extra, best-effort, a /orders/$ORDER_ID al momento de importar (2026-09-07: meli_order_id por sí solo no coincide con lo que Ventiapp/el portal de Mercado Libre muestran como 'el' número de pedido para un pedido de pack, que es el pack id, no el id individual del pedido)."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_shipping_id
+msgid "This order's shipment id — saved for every order regardless of shipment type (2026-09-08, needed for a Google Sheets report), and also lets a later delivery-contact retry (for custom-shipping orders) skip re-fetching the whole Mercado Libre order."
+msgstr "El shipment id de este pedido — se guarda para todo pedido sin importar el tipo de envío (2026-09-08, necesario para un reporte de Google Sheets), y además permite que un reintento posterior de contacto de entrega (para pedidos con envío personalizado) no tenga que volver a consultar todo el pedido de Mercado Libre."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
+msgid "Tipo de documento"
+msgstr "Tipo de documento"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__date_to
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__date_to
+msgid "To"
+msgstr "Hasta"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__total_count
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__total_count
+msgid "Total Count"
+msgstr "Cantidad Total"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__transaction_type
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
+msgid "Transaction Type"
+msgstr "Tipo de Transacción"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__reputation_has_incentive
+msgid "True while there is still time (typically 48h from reputation_due_date) to respond without the seller's reputation being affected, even if affects_reputation currently says 'affected'."
+msgstr "Verdadero mientras todavía haya tiempo (típicamente 48h desde reputation_due_date) para responder sin que se afecte la reputación del vendedor, aunque affects_reputation diga actualmente 'affected'."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__website_message_ids
+msgid "Website Messages"
+msgstr "Mensajes del sitio web"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__website_message_ids
+msgid "Website communication history"
+msgstr "Historial de comunicación del sitio web"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__xml_file
+msgid "XML File"
+msgstr "Archivo XML"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__xml_filename
+msgid "XML Filename"
+msgstr "Nombre del Archivo XML"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__reason_detail
+msgid "detail (human-readable, Spanish) from the same reasons lookup."
+msgstr "detail (legible para humanos, en español) de la misma consulta de motivos."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_manual_import_wizard_form
+msgid "e.g. 2000018165886068"
+msgstr "p. ej. 2000018165886068"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__reason_name
+msgid "name from /post-purchase/v1/claims/reasons/$REASON_ID, resolved from reason_code — best-effort, blank if the lookup ever fails."
+msgstr "name de /post-purchase/v1/claims/reasons/$REASON_ID, resuelto a partir de reason_code — best-effort, queda vacío si la consulta llega a fallar."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "no error message was recorded"
+msgstr "no se registró ningún mensaje de error"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__meli_order_id
+msgid "resource_id from the claim, when resource == 'order' — always the individual order id (needed to reliably link to its sale.order), never the pack id. See meli_pack_id below for the id a person would actually recognize from Ventiapp or the Mercado Libre portal when this order is part of a cart."
+msgstr "resource_id del reclamo, cuando resource == 'order' — siempre es el id individual del pedido (necesario para enlazar de forma confiable con su sale.order), nunca el pack id. Ver meli_pack_id más abajo para el id que una persona reconocería de Ventiapp o el portal de Mercado Libre cuando este pedido es parte de un carrito."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__claim_date_created
+msgid "Claim/Return Date"
+msgstr "Fecha del Reclamo/Devolución"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__claim_date_created
+msgid "date_created from Mercado Libre — when this claim or return was actually opened on their side (not when this record was synced into Odoo, see Last Synced At above)."
+msgstr "date_created de Mercado Libre — cuándo se abrió realmente este reclamo o devolución de su lado (no cuándo se sincronizó este registro en Odoo, ver Última sincronización arriba)."

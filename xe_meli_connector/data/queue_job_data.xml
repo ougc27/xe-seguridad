@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="channel_meli_sales" model="queue.job.channel">
+            <field name="name">meli_sales</field>
+            <field name="parent_id" ref="queue_job.channel_root"/>
+        </record>
+
+        <record id="job_function_sale_order_meli_import" model="queue.job.function">
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="method">_meli_import_order</field>
+            <field name="channel_id" ref="channel_meli_sales"/>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_meli_claim_tree" model="ir.ui.view">
+        <field name="name">meli.claim.tree</field>
+        <field name="model">meli.claim</field>
+        <field name="arch" type="xml">
+            <tree string="Returns &amp; Cancellations" create="0" edit="0">
+                <field name="sale_order_id"/>
+                <field name="meli_order_id"/>
+                <field name="meli_pack_id" optional="hide"/>
+                <field name="claim_type"/>
+                <field name="claim_status" decoration-warning="claim_status == 'opened'"/>
+                <field name="claim_date_created"/>
+                <field name="stage"/>
+                <field name="reason_name"/>
+                <field name="affects_reputation" decoration-danger="affects_reputation == 'affected'"
+                       decoration-success="affects_reputation == 'not_affected'"/>
+                <field name="is_full"/>
+                <field name="last_synced_at"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_meli_claim_form" model="ir.ui.view">
+        <field name="name">meli.claim.form</field>
+        <field name="model">meli.claim</field>
+        <field name="arch" type="xml">
+            <form string="Return / Cancellation" create="0" edit="0">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="sale_order_id"/>
+                            <field name="meli_order_id"/>
+                            <field name="meli_pack_id" invisible="not meli_pack_id"/>
+                            <field name="claim_id"/>
+                            <field name="meli_portal_url" widget="url" string="Abrir en Mercado Libre"
+                                   invisible="not meli_portal_url" text="Abrir chat del reclamo"/>
+                        </group>
+                        <group>
+                            <field name="claim_type"/>
+                            <field name="claim_status"/>
+                            <field name="claim_date_created"/>
+                            <field name="stage"/>
+                            <field name="is_full"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="reason_code"/>
+                            <field name="reason_name"/>
+                            <field name="reason_detail"/>
+                            <field name="resolution_reason"/>
+                        </group>
+                        <group>
+                            <field name="affects_reputation"/>
+                            <field name="reputation_has_incentive"/>
+                            <field name="reputation_due_date"/>
+                            <field name="last_synced_at"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_meli_claim_search" model="ir.ui.view">
+        <field name="name">meli.claim.search</field>
+        <field name="model">meli.claim</field>
+        <field name="arch" type="xml">
+            <search string="Returns &amp; Cancellations">
+                <field name="sale_order_id"/>
+                <field name="meli_order_id"/>
+                <field name="meli_pack_id"/>
+                <field name="claim_date_created"/>
+                <filter name="pending_non_full" string="Pending, non-Full"
+                        domain="[('is_full', '=', False), ('claim_status', '=', 'opened')]"/>
+                <filter name="is_full" string="Full"
+                        domain="[('is_full', '=', True)]"/>
+                <filter name="affects_reputation" string="Afecta Reputación"
+                        domain="[('affects_reputation', '=', 'affected')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_claim_type" string="Claim Type" context="{'group_by': 'claim_type'}"/>
+                    <filter name="group_by_claim_status" string="Status" context="{'group_by': 'claim_status'}"/>
+                    <filter name="group_by_affects_reputation" string="Affects Reputation" context="{'group_by': 'affects_reputation'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_meli_claims" model="ir.actions.act_window">
+        <field name="name">Returns &amp; Cancellations</field>
+        <field name="res_model">meli.claim</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_meli_claim_search"/>
+        <field name="context">{'search_default_pending_non_full': 1}</field>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_claims"
+        name="Returns &amp; Cancellations"
+        parent="menu_meli_root"
+        action="action_meli_claims"
+        sequence="6"
+        groups="group_meli_user"/>
+
+</odoo>
