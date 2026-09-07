@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_meli_sku_mapping_form" model="ir.ui.view">
+        <field name="name">meli.sku.mapping.form</field>
+        <field name="model">meli.sku.mapping</field>
+        <field name="arch" type="xml">
+            <form string="Mercado Libre SKU Mapping">
+                <sheet>
+                    <group>
+                        <field name="product_id"
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                        <field name="meli_sku"/>
+                        <field name="active" invisible="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_meli_sku_mapping_tree" model="ir.ui.view">
+        <field name="name">meli.sku.mapping.tree</field>
+        <field name="model">meli.sku.mapping</field>
+        <field name="arch" type="xml">
+            <tree string="Mercado Libre SKU Mapping" editable="bottom">
+                <field name="product_id"
+                       options="{'no_create': True, 'no_create_edit': True}"/>
+                <field name="meli_sku"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_meli_sku_mapping" model="ir.actions.act_window">
+        <field name="name">SKU Mapping</field>
+        <field name="res_model">meli.sku.mapping</field>
+        <field name="view_mode">tree,form</field>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_advanced')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_sku_mapping"
+        name="SKU Mapping"
+        parent="menu_meli_root"
+        action="action_meli_sku_mapping"
+        sequence="10"
+        groups="group_meli_advanced"/>
+
+</odoo>

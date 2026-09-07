@@ -2,3 +2,7 @@
 	path = morwi/addons-morwi
 	url = git@github.com:ougc27/addons-morwi.git
 	branch = 17.0
+[submodule "queue"]
+	path = queue
+	url = https://github.com/OCA/queue.git
+	branch = 17.0

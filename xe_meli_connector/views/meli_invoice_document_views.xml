@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_meli_invoice_document_tree" model="ir.ui.view">
+        <field name="name">meli.invoice.document.tree</field>
+        <field name="model">meli.invoice.document</field>
+        <field name="arch" type="xml">
+            <tree string="Facturación Mercado Libre" create="0" edit="0"
+                  decoration-danger="status in ('rejected', 'cancelled')">
+                <field name="meli_order_id"/>
+                <field name="meli_pack_id" optional="hide"/>
+                <field name="sale_order_id"/>
+                <field name="transaction_type"/>
+                <field name="document_type"/>
+                <field name="status"/>
+                <field name="issue_date"/>
+                <field name="last_synced_at"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_meli_invoice_document_form" model="ir.ui.view">
+        <field name="name">meli.invoice.document.form</field>
+        <field name="model">meli.invoice.document</field>
+        <field name="arch" type="xml">
+            <form string="Facturación Mercado Libre" create="0" edit="0">
+                <header>
+                    <button name="action_meli_refresh_status" type="object"
+                            string="Actualizar Status" class="oe_highlight"
+                            invisible="not meli_invoice_id"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="meli_order_id"/>
+                            <field name="meli_pack_id" invisible="not meli_pack_id"/>
+                            <field name="sale_order_id"/>
+                            <field name="meli_invoice_id"/>
+                        </group>
+                        <group>
+                            <field name="transaction_type"/>
+                            <field name="document_type"/>
+                            <field name="status"/>
+                            <field name="issue_date"/>
+                            <field name="last_synced_at"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="xml_filename"/>
+                        <field name="xml_file" filename="xml_filename"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_meli_invoice_document_search" model="ir.ui.view">
+        <field name="name">meli.invoice.document.search</field>
+        <field name="model">meli.invoice.document</field>
+        <field name="arch" type="xml">
+            <search string="Facturación Mercado Libre">
+                <field name="sale_order_id"/>
+                <field name="meli_order_id"/>
+                <field name="meli_pack_id"/>
+                <filter name="unlinked" string="Sin venta ligada"
+                        domain="[('sale_order_id', '=', False)]"/>
+                <filter name="cancelled_or_rejected" string="Canceladas/Rechazadas"
+                        domain="[('status', 'in', ('cancelled', 'rejected'))]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_document_type" string="Tipo de documento" context="{'group_by': 'document_type'}"/>
+                    <filter name="group_by_transaction_type" string="Transaction Type" context="{'group_by': 'transaction_type'}"/>
+                    <filter name="group_by_status" string="Status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_meli_invoice_documents" model="ir.actions.act_window">
+        <field name="name">Facturación Mercado Libre</field>
+        <field name="res_model">meli.invoice.document</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_meli_invoice_document_search"/>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_invoice_documents"
+        name="Facturación Mercado Libre"
+        parent="menu_meli_root"
+        action="action_meli_invoice_documents"
+        sequence="11"
+        groups="group_meli_user"/>
+
+</odoo>

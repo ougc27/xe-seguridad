@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_meli_invoice_recovery_wizard_form" model="ir.ui.view">
+        <field name="name">meli.invoice.recovery.wizard.form</field>
+        <field name="model">meli.invoice.recovery.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Rescatar Facturas Mercado Libre">
+                <p>
+                    Busca, entre las ventas de Mercado Libre en este rango de
+                    fechas, cualquier factura o nota de crédito que Mercado
+                    Libre ya haya emitido y la importa a
+                    "Facturación Mercado Libre".
+                </p>
+                <group>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                </group>
+                <footer>
+                    <button name="action_recover" type="object"
+                            string="Rescatar" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_meli_invoice_recovery_wizard" model="ir.actions.act_window">
+        <field name="name">Rescatar Facturas</field>
+        <field name="res_model">meli.invoice.recovery.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_invoice_recovery"
+        name="Rescatar Facturas"
+        parent="menu_meli_root"
+        action="action_meli_invoice_recovery_wizard"
+        sequence="12"
+        groups="group_meli_user"/>
+
+</odoo>

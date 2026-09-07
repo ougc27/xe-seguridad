@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_meli_import_batch_wizard_form" model="ir.ui.view">
+        <field name="name">meli.import.batch.wizard.form</field>
+        <field name="model">meli.import.batch.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Orders from Excel">
+                <group>
+                    <field name="filename" invisible="1"/>
+                    <field name="excel_file" filename="filename"
+                           string="Excel File"/>
+                </group>
+                <p class="text-muted">
+                    The first column of the first sheet must contain one
+                    Mercado Libre order ID per row. Any other column is
+                    ignored.
+                </p>
+                <footer>
+                    <button name="action_import" type="object"
+                            string="Import" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_meli_import_batch_wizard" model="ir.actions.act_window">
+        <field name="name">Import Orders from Excel</field>
+        <field name="res_model">meli.import.batch.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_import_batch_wizard"
+        name="Import Orders from Excel"
+        parent="menu_meli_root"
+        action="action_meli_import_batch_wizard"
+        sequence="8"
+        groups="group_meli_user"/>
+
+</odoo>

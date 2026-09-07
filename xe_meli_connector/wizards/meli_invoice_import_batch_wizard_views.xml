@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_meli_invoice_import_batch_wizard_form" model="ir.ui.view">
+        <field name="name">meli.invoice.import.batch.wizard.form</field>
+        <field name="model">meli.invoice.import.batch.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importar Facturas por Excel">
+                <group>
+                    <field name="filename" invisible="1"/>
+                    <field name="excel_file" filename="filename"
+                           string="Excel File"/>
+                </group>
+                <p class="text-muted">
+                    La primera columna de la primera hoja debe contener un
+                    Invoice ID de Mercado Libre por fila. Cualquier otra
+                    columna se ignora. Úsalo para emparejar documentos que
+                    ya no se pueden recuperar por rango de fechas (por
+                    ejemplo, facturas canceladas/reemplazadas) — necesitas
+                    obtener esos Invoice ID directamente del panel de
+                    Mercado Libre.
+                </p>
+                <footer>
+                    <button name="action_import" type="object"
+                            string="Importar" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_meli_invoice_import_batch_wizard" model="ir.actions.act_window">
+        <field name="name">Importar Facturas por Excel</field>
+        <field name="res_model">meli.invoice.import.batch.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_invoice_import_batch_wizard"
+        name="Importar Facturas por Excel"
+        parent="menu_meli_root"
+        action="action_meli_invoice_import_batch_wizard"
+        sequence="13"
+        groups="group_meli_user"/>
+
+</odoo>

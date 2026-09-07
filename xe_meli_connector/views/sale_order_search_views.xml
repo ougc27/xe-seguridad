@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_sales_order_filter_meli" model="ir.ui.view">
+        <field name="name">sale.order.list.select.meli</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <!-- Extends the base "Order" free-text search (name/
+                 client_order_ref/partner) so pasting either a Mercado
+                 Libre order id or a pack id — in Ventas or in Mercado
+                 Libre > Pedidos, both of which use this same search view
+                 — finds the matching sale order directly. Found in
+                 practice 2026-09-08: neither id was searchable before,
+                 even though both are stored as their own fields. -->
+            <field name="name" position="attributes">
+                <attribute name="filter_domain">
+                    ['|', '|', '|', '|', ('name', 'ilike', self), ('client_order_ref', 'ilike', self), ('partner_id', 'child_of', self), ('meli_order_id', 'ilike', self), ('meli_pack_id', 'ilike', self)]
+                </attribute>
+            </field>
+        </field>
+    </record>
+
+</odoo>
