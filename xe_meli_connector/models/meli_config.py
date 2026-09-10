@@ -8,6 +8,8 @@ from urllib.parse import urlencode
 from odoo import _, api, fields, models
 from odoo.http import request as http_request
 
+from odoo.addons.queue_job.exception import RetryableJobError
+
 import requests
 
 _logger = logging.getLogger(__name__)
@@ -25,6 +27,14 @@ DEFAULT_TIMEOUT = 30
 # token actually expired anyway, so nothing is lost by finally giving
 # up and requiring a human to reconnect.
 MELI_REFRESH_FAILURE_THRESHOLD = 3
+
+# HTTP statuses Mercado Libre can return that are known to be transient —
+# retrying (with backoff) is the correct response, not failing permanently.
+# Confirmed 2026-09-09 from real production tracebacks: 429 (rate limit),
+# 504 (gateway timeout). 500/502/503 added defensively (generic transient
+# server errors) — any other status (401 handled separately above; 403/404
+# mean something is actually wrong and must keep failing immediately).
+MELI_TRANSIENT_HTTP_STATUSES = {429, 500, 502, 503, 504}
 
 
 class MeliConfig(models.Model):
@@ -421,14 +431,35 @@ class MeliConfig(models.Model):
         """Shared by _api_request (JSON) and _api_get_raw (binary/XML
         streams) — does the actual HTTP call, the 401-refresh-and-retry
         dance, and raise_for_status, returning the raw requests.Response.
+
+        Transient failures (rate limiting, gateway timeouts, connection
+        blips) are re-raised as RetryableJobError so queue_job's own
+        retry machinery actually engages — confirmed 2026-09-09 that
+        queue_job ONLY retries on that specific exception type; every
+        other exception fails the job permanently on the very first
+        attempt, which is what was happening to every 429/504/SSL error
+        today. A genuine 4xx (other than 429) or any other exception
+        keeps failing immediately, unretried — retrying those would
+        never help.
         """
         self.ensure_one()
         request_headers = {'Authorization': f'Bearer {self.access_token}'}
         request_headers.update(headers or {})
-        response = requests.request(
-            method, f'{API_BASE_URL}{path}', headers=request_headers,
-            params=params, timeout=DEFAULT_TIMEOUT,
-        )
+        try:
+            response = requests.request(
+                method, f'{API_BASE_URL}{path}', headers=request_headers,
+                params=params, timeout=DEFAULT_TIMEOUT,
+            )
+        except (
+            requests.exceptions.SSLError,
+            requests.exceptions.ConnectionError,
+            requests.exceptions.Timeout,
+        ) as err:
+            raise RetryableJobError(
+                f"Transient network error calling Mercado Libre "
+                f"({method} {path}): {err}",
+                seconds=30,
+            ) from err
         if response.status_code == 401 and retry_on_401:
             self._refresh_token()
             if self.state == 'connected':
@@ -436,6 +467,17 @@ class MeliConfig(models.Model):
                     method, path, params=params, headers=headers,
                     retry_on_401=False,
                 )
+        if response.status_code in MELI_TRANSIENT_HTTP_STATUSES:
+            retry_after = response.headers.get('Retry-After')
+            seconds = (
+                int(retry_after) if retry_after and retry_after.isdigit()
+                else None
+            )
+            raise RetryableJobError(
+                f"Mercado Libre returned {response.status_code} for "
+                f"{method} {path} — transient, will retry.",
+                seconds=seconds,
+            )
         response.raise_for_status()
         return response
 
@@ -535,13 +577,25 @@ class MeliConfig(models.Model):
         for result in data.get('results', []):
             order_id = str(result.get('id'))
             existing = SaleOrder.search([('meli_order_id', '=', order_id)], limit=1)
-            if existing and not (existing.state == 'draft' and existing.meli_sync_source):
+            # Fix 1 (2026-09-09, final review — Critical): `and not
+            # existing.meli_adopted` added — an order this connector
+            # merely ADOPTED (linked to, never created) must never be
+            # re-enqueued here even if it happens to sit in draft with
+            # meli_sync_source set. _meli_retry_unmapped_lines's own
+            # guard already refuses to act on such an order (see that
+            # method), so this would be a no-op anyway — excluding it
+            # here too avoids a wasted API call and log noise on every
+            # polling cycle for as long as it stays in draft.
+            if existing and not (
+                existing.state == 'draft' and existing.meli_sync_source
+                and not existing.meli_adopted
+            ):
                 # Already imported and resolved — nothing to do. A draft
                 # stuck on an unmapped SKU is worth another look, in case
                 # the mapping was completed since it was first created.
                 continue
             SaleOrder.with_delay(
-                priority=8, channel='root.meli_sales',
+                priority=8, channel='root.meli_sales', max_retries=8,
                 description=f"Import Mercado Libre order {order_id} (polling)",
                 identity_key=f"meli_import_order_{order_id}",
             )._meli_import_order(self.company_id.id, order_id)
@@ -633,7 +687,7 @@ class MeliConfig(models.Model):
         Claim = self.env['meli.claim'].sudo()
         for claim_id in claim_ids:
             Claim.with_delay(
-                priority=8, channel='root.meli_sales',
+                priority=8, channel='root.meli_sales', max_retries=8,
                 description=f"Import Mercado Libre claim {claim_id} (polling)",
                 identity_key=f"meli_import_claim_{claim_id}",
             )._meli_import_claim(self.company_id.id, claim_id)
@@ -702,7 +756,7 @@ class MeliConfig(models.Model):
                 # Priority 6 (vs. the 8 used by order/claim polling) —
                 # invoices got de-prioritized by default and lagged
                 # behind, per the user 2026-09-04.
-                priority=6, channel='root.meli_sales',
+                priority=6, channel='root.meli_sales', max_retries=8,
                 description=(
                     f"Import Mercado Libre invoice {invoice_id} "
                     f"(missed_feeds reconciliation)"

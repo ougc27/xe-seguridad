@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import openpyxl
 
+from odoo.addons.queue_job.exception import RetryableJobError
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase, tagged
 
@@ -197,6 +198,29 @@ class TestMeliImportInvoiceDocumentForBatchLine(TransactionCase):
             )
         self.assertEqual(line.status, 'error')
         self.assertTrue(line.message)
+
+    def test_retryable_job_error_propagates_instead_of_being_swallowed(self):
+        """Fix 5 (2026-09-09, final review — Important): RetryableJobError
+        is itself an Exception subclass — before this fix, the generic
+        `except Exception` here caught it too and permanently marked the
+        batch line 'error', defeating queue_job's own retry machinery on
+        exactly the bulk-import path most likely to hit Mercado Libre
+        rate limiting. It must propagate unchanged instead.
+        """
+        line = self._line('9000000000000006')
+        with patch.object(
+            type(self.env['meli.invoice.document']), '_meli_import_invoice_document',
+            side_effect=RetryableJobError('transient, please retry'),
+        ):
+            with self.assertRaises(RetryableJobError):
+                self.env['meli.invoice.document']._meli_import_invoice_document_for_batch_line(
+                    self.test_company.id, '9000000000000006', line.id,
+                )
+        self.assertEqual(
+            line.status, 'pending',
+            "the line must NOT have been marked 'error' — the exception "
+            "must propagate to queue_job's own retry machinery instead",
+        )
 
     def test_retry_pending_reenqueues_only_non_final_lines(self):
         batch = self.env['meli.invoice.import.batch'].create({'company_id': self.test_company.id})

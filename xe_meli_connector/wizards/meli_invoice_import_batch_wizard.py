@@ -105,7 +105,7 @@ class MeliInvoiceImportBatchWizard(models.TransientModel):
                 'invoice_id': invoice_id, 'status': 'pending',
             })
             Document.with_delay(
-                priority=8, channel='root.meli_sales',
+                priority=8, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_import_invoice_{invoice_id}",
             )._meli_import_invoice_document_for_batch_line(company.id, invoice_id, line.id)
 

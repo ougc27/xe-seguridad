@@ -1,3 +1,4 @@
+from . import account_move
 from . import meli_claim
 from . import meli_config
 from . import meli_import_batch
@@ -6,3 +7,4 @@ from . import meli_invoice_import_batch
 from . import meli_sku_mapping
 from . import res_partner
 from . import sale_order
+from . import stock_picking

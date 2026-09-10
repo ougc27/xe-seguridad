@@ -108,6 +108,153 @@ class TestSaleOrderMeliImport(TransactionCase):
         self.assertEqual(len(order.order_line), 1)
         self.assertEqual(order.order_line.product_id, self.product)
 
+    def test_order_line_records_its_own_meli_order_id(self):
+        order_data = self._order_data(order_id='2000014726421999')
+        order = self.env['sale.order']._meli_create_from_order_data(self.config, order_data)
+
+        self.assertEqual(order.order_line.mapped('meli_order_id'), ['2000014726421999'])
+
+    def _pack_product(self, sku, name):
+        product = self.env['product.product'].create({
+            'name': name, 'company_id': self.test_company.id,
+        })
+        self.env['meli.sku.mapping'].create({
+            'product_id': product.id, 'meli_sku': sku,
+        })
+        return product
+
+    def test_pack_siblings_consolidate_into_one_sale_order(self):
+        self._pack_product('ZTEST-LO33NE', 'LONA 3 X 3 NEGRO')
+        self._pack_product('ZTEST-LO33VE', 'LONA 3 X 3 VERDE')
+        first_data = self._order_data(
+            order_id='2000018335534642', sku='ZTEST-LO33NE', pack_id='2000014915601055',
+        )
+        second_data = self._order_data(
+            order_id='2000018335534644', sku='ZTEST-LO33VE', pack_id='2000014915601055',
+        )
+
+        first_order = self.env['sale.order']._meli_create_from_order_data(self.config, first_data)
+        second_order = self.env['sale.order']._meli_create_from_order_data(self.config, second_data)
+
+        self.assertEqual(first_order, second_order)
+        self.assertEqual(first_order.meli_pack_id, '2000014915601055')
+        self.assertEqual(first_order.client_order_ref, '2000014915601055')
+        self.assertEqual(
+            sorted(first_order.order_line.mapped('meli_order_id')),
+            ['2000018335534642', '2000018335534644'],
+        )
+        # Checks for the real distinguishing content ('same pack' plus
+        # the sibling's own order id), not just 'Extra line' alone —
+        # Odoo core itself posts its own unrelated "Extra line with
+        # %s" chatter message for any new line added to a confirmed
+        # order (sale/models/sale_order_line.py, create()), which would
+        # make a looser assertion pass even if this module's own
+        # message were never posted at all.
+        self.assertTrue(any(
+            'same pack' in (msg.body or '') and '2000018335534644' in (msg.body or '')
+            for msg in first_order.message_ids
+        ))
+
+    def test_pack_sibling_retry_does_not_duplicate_the_line(self):
+        self._pack_product('ZTEST-LO33NE', 'LONA 3 X 3 NEGRO')
+        self._pack_product('ZTEST-LO33VE', 'LONA 3 X 3 VERDE')
+        first_data = self._order_data(
+            order_id='2000018335534650', sku='ZTEST-LO33NE', pack_id='2000014915601099',
+        )
+        second_data = self._order_data(
+            order_id='2000018335534651', sku='ZTEST-LO33VE', pack_id='2000014915601099',
+        )
+        self.env['sale.order']._meli_create_from_order_data(self.config, first_data)
+        order = self.env['sale.order']._meli_create_from_order_data(self.config, second_data)
+
+        retried_order = self.env['sale.order']._meli_create_from_order_data(self.config, second_data)
+
+        self.assertEqual(retried_order, order)
+        self.assertEqual(len(order.order_line), 2)
+
+    def test_pack_sibling_added_to_already_invoiced_order_gets_extra_note(self):
+        self._pack_product('ZTEST-LO33NE', 'LONA 3 X 3 NEGRO')
+        self._pack_product('ZTEST-LO33VE', 'LONA 3 X 3 VERDE')
+        first_data = self._order_data(
+            order_id='2000018335534660', sku='ZTEST-LO33NE', pack_id='2000014915601100',
+        )
+        second_data = self._order_data(
+            order_id='2000018335534661', sku='ZTEST-LO33VE', pack_id='2000014915601100',
+        )
+        order = self.env['sale.order']._meli_create_from_order_data(self.config, first_data)
+        invoice = order._create_invoices()
+        invoice.action_post()
+
+        self.env['sale.order']._meli_create_from_order_data(self.config, second_data)
+
+        self.assertTrue(any(
+            'may need manual invoicing' in (msg.body or '')
+            for msg in order.message_ids
+        ))
+
+    def test_full_pack_sibling_line_auto_validates_its_own_picking(self):
+        # Final branch review finding C2: a new sale.order.line added to
+        # an already-confirmed Full order (via
+        # _meli_add_pack_sibling_lines) triggers Odoo core's own
+        # stock-rule logic and creates a brand NEW, separate
+        # stock.picking for just that line — nobody at this company
+        # ever touches a Full transfer manually (see
+        # _meli_auto_validate_full_pickings's own docstring: Full orders
+        # are fulfilled from Mercado Libre's own warehouse), so if that
+        # second picking were left pending, the second sibling's line
+        # would never show as delivered and stock would never be
+        # decremented. Every picking on the consolidated order — the
+        # first sibling's own picking AND the second sibling's new one
+        # — must end up 'done'.
+        first_product = self.env['product.product'].create({
+            'name': 'Full Pack Sibling Product 1', 'type': 'product',
+            'company_id': self.test_company.id,
+        })
+        second_product = self.env['product.product'].create({
+            'name': 'Full Pack Sibling Product 2', 'type': 'product',
+            'company_id': self.test_company.id,
+        })
+        self.env['stock.quant']._update_available_quantity(
+            first_product, self.warehouse_fulfillment.lot_stock_id, 10,
+        )
+        self.env['stock.quant']._update_available_quantity(
+            second_product, self.warehouse_fulfillment.lot_stock_id, 10,
+        )
+        self.env['meli.sku.mapping'].create({
+            'product_id': first_product.id, 'meli_sku': 'SKU-FULL-PACK-1',
+        })
+        self.env['meli.sku.mapping'].create({
+            'product_id': second_product.id, 'meli_sku': 'SKU-FULL-PACK-2',
+        })
+        first_data = self._order_data(
+            order_id='2000018335599001', sku='SKU-FULL-PACK-1',
+            pack_id='2000014915699001', shipping={'id': 999},
+        )
+        second_data = self._order_data(
+            order_id='2000018335599002', sku='SKU-FULL-PACK-2',
+            pack_id='2000014915699001', shipping={'id': 999},
+        )
+        # Same reasoning as test_full_order_auto_validates_the_picking:
+        # both shipment-reading methods run whenever shipping.id is
+        # truthy, and both siblings need to resolve as Full/fulfillment.
+        with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_logistic_type',
+            return_value='fulfillment',
+        ), patch.object(
+            type(self.env['sale.order']), '_meli_fetch_custom_shipping_cost',
+            return_value=None,
+        ):
+            order = self.env['sale.order']._meli_create_from_order_data(self.config, first_data)
+            second_order = self.env['sale.order']._meli_create_from_order_data(
+                self.config, second_data,
+            )
+
+        self.assertEqual(order, second_order)
+        self.assertEqual(order.origin, 'XE-MLF-XEBRANDS')
+        self.assertEqual(len(order.order_line), 2)
+        self.assertTrue(order.picking_ids)
+        self.assertTrue(all(p.state == 'done' for p in order.picking_ids))
+
     def test_pack_order_shows_pack_id_as_client_reference_like_ventiapp(self):
         # Confirmed with the user 2026-09-01: when the order is part of a
         # Mercado Libre pack (cart), "OC Cliente"/"Ref. Cliente" must show
@@ -123,44 +270,6 @@ class TestSaleOrderMeliImport(TransactionCase):
         self.assertEqual(order.reference, '2000014819417533')
         self.assertEqual(order.meli_pack_id, '2000014819417533')
         self.assertEqual(order.meli_order_id, '2000018233954784')
-
-    def test_pack_siblings_sharing_client_order_ref_are_still_imported_individually(self):
-        # Two different Mercado Libre orders from the SAME pack end up
-        # with the same "OC Cliente" (the pack ID) — idempotency and any
-        # other order lookup must still tell them apart via meli_order_id,
-        # never by client_order_ref, which is no longer guaranteed unique.
-        #
-        # KNOWN ENVIRONMENT DEPENDENCY (2026-09-01): this shared database
-        # has a Studio automation ("Valor único en OC Cliente", base_automation
-        # id 13 / ir_act_server id 679) that raises "OC del cliente ya
-        # existe!" when a second sale.order for the same partner_id gets
-        # the same `reference`. It already carves out an exception for one
-        # specific partner (114671, COPPEL) — the user is adding the
-        # Mercado Libre partner (87659) to that same exception list
-        # directly in the database (outside this module, not tracked in
-        # git). Until that change lands in this environment, this test
-        # fails with that exact UserError — not a bug in this code.
-        first_data = self._order_data(order_id='3000000000000001', pack_id='3000099999999999')
-        first_order = self.env['sale.order']._meli_create_from_order_data(self.config, first_data)
-
-        second_data = self._order_data(order_id='3000000000000002', pack_id='3000099999999999')
-        second_order = self.env['sale.order']._meli_create_from_order_data(self.config, second_data)
-
-        self.assertNotEqual(first_order, second_order)
-        self.assertEqual(first_order.client_order_ref, second_order.client_order_ref)
-        self.assertEqual(first_order.meli_order_id, '3000000000000001')
-        self.assertEqual(second_order.meli_order_id, '3000000000000002')
-
-        # Re-importing the first sibling by its own order ID must resolve
-        # back to it, not create a third order nor pick the wrong sibling.
-        with patch.object(type(self.config), '_api_get', return_value=first_data):
-            result = self.env['sale.order']._meli_import_order(
-                self.test_company.id, '3000000000000001',
-            )
-        self.assertEqual(result, first_order)
-        self.assertEqual(self.env['sale.order'].search_count([
-            ('meli_order_id', 'in', ['3000000000000001', '3000000000000002']),
-        ]), 2)
 
     def test_order_dates_from_mercado_libre_are_parsed_to_utc(self):
         # Real question raised 2026-08-28: is an order that looks "old"
@@ -636,6 +745,63 @@ class TestSaleOrderMeliImport(TransactionCase):
 
         self.assertEqual(existing.meli_last_status, 'partially_paid')
         self.assertEqual(len(existing.message_ids), message_count_before)
+
+    def test_pack_sibling_status_change_notification_flags_manual_review(self):
+        # Finding I1: a pack sibling's own later status-change
+        # notification (cancelled/pending_cancel/partially_refunded)
+        # used to be silently swallowed by the "not 'paid' yet, skipping
+        # import" early-return, since that ran BEFORE the pack-detection
+        # branch and never reached _meli_flag_status_change at all —
+        # before Task 2 consolidated pack siblings into one sale.order,
+        # each sibling had its own sale.order and got this notification
+        # normally. This is visibility-only: per-line cancellation
+        # granularity (spec section 5) stays paused — the whole
+        # consolidated pack sale.order gets one manual-review chatter
+        # message, exactly like any other non-Full order does today.
+        self._pack_product('ZTEST-LO33NE', 'LONA 3 X 3 NEGRO')
+        self._pack_product('ZTEST-LO33VE', 'LONA 3 X 3 VERDE')
+        first_data = self._order_data(
+            order_id='2000018335534700', sku='ZTEST-LO33NE', pack_id='2000014915601200',
+        )
+        second_data = self._order_data(
+            order_id='2000018335534701', sku='ZTEST-LO33VE', pack_id='2000014915601200',
+        )
+        order = self.env['sale.order']._meli_create_from_order_data(self.config, first_data)
+        self.env['sale.order']._meli_create_from_order_data(self.config, second_data)
+        message_count_before = len(order.message_ids)
+
+        # A THIRD notification, for an order id never seen before, part
+        # of the same pack, reporting the sibling itself was cancelled
+        # (never actually imported as a line — the notification alone
+        # is enough to trigger the review message).
+        cancelled_sibling_data = self._order_data(
+            order_id='2000018335534702', sku='ZTEST-LO33NE',
+            pack_id='2000014915601200', status='cancelled',
+        )
+        cancelled_sibling_data['cancel_detail'] = {
+            'description': 'El comprador canceló la compra',
+            'requested_by': 'buyer',
+        }
+        result = self.env['sale.order']._meli_create_from_order_data(
+            self.config, cancelled_sibling_data,
+        )
+
+        self.assertEqual(result, order)
+        self.assertEqual(order.meli_last_status, 'cancelled')
+        self.assertGreater(len(order.message_ids), message_count_before)
+        self.assertTrue(any(
+            'cancel' in (msg.body or '').lower() for msg in order.message_ids
+        ))
+        self.assertTrue(any(
+            'El comprador canceló la compra' in (msg.body or '')
+            for msg in order.message_ids
+        ))
+        # No line/sale order was ever created for the cancelled
+        # notification's own order id — it was routed straight to the
+        # existing pack order for visibility only, not imported.
+        self.assertFalse(self.env['sale.order.line'].search([
+            ('meli_order_id', '=', '2000018335534702'),
+        ]))
 
     def test_fetch_custom_shipping_cost_reads_base_cost_for_custom_mode(self):
         # Real payload confirmed 2026-08-31 against Mercado Libre order

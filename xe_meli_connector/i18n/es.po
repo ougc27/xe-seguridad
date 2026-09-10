@@ -664,6 +664,51 @@ msgstr ""
 #. module: xe_meli_connector
 #. odoo-python
 #: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Mercado Libre reported this order as already cancelled when it was first "
+"imported. It was created, confirmed, and delivered as a precaution, but "
+"automatic cancellation processing failed — review manually whether to "
+"cancel it and apply any invoice/credit note."
+msgstr ""
+"Mercado Libre reportó este pedido como ya cancelado desde que se importó "
+"por primera vez. Se creó, confirmó y entregó como medida de precaución, "
+"pero el procesamiento automático de la cancelación falló — revisa "
+"manualmente si hace falta cancelarlo y aplicar cualquier factura/nota de "
+"crédito."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"Mercado Libre reported this order as already <b>cancelled</b> when it was "
+"first imported. It was created, confirmed, and delivered as a precaution, "
+"then automatically cancelled and reconciled:<br/>%s"
+msgstr ""
+"Mercado Libre reportó este pedido como ya <b>cancelado</b> desde que se "
+"importó por primera vez. Se creó, confirmó y entregó como medida de "
+"precaución, y luego se canceló y reconcilió automáticamente:<br/>%s"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Mercado Libre reported this pack order as already cancelled when it was "
+"first imported. It was created, confirmed, and delivered as a precaution, "
+"but automatic cancellation processing was skipped because this is part of "
+"a pack — review manually whether to cancel it and apply any invoice/credit "
+"note, and whether other siblings are still expected."
+msgstr ""
+"Mercado Libre reportó este pedido de pack como ya cancelado desde que se "
+"importó por primera vez. Se creó, confirmó y entregó como medida de "
+"precaución, pero el procesamiento automático de la cancelación se omitió "
+"porque forma parte de un pack — revisa manualmente si hace falta "
+"cancelarlo y aplicar cualquier factura/nota de crédito, y si aún se "
+"esperan otros pedidos hermanos."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
 #, python-format
 msgid ""
 "Mercado Libre reports this order was <b>cancelled</b>. Handled "
@@ -703,33 +748,20 @@ msgstr "La venta se canceló."
 #. module: xe_meli_connector
 #. odoo-python
 #: code:addons/xe_meli_connector/models/sale_order.py:0
-#, python-format
-msgid ""
-"CFDI cancellation was requested for invoice %s (stamped this month)."
-msgstr ""
-"Se solicitó la cancelación del CFDI de la factura %s (timbrada este mes)."
+msgid "Every individual order within this pack has now been cancelled — the sale itself was cancelled automatically."
+msgstr "Todos los pedidos individuales dentro de este pack ya fueron cancelados — la venta se canceló automáticamente."
 
 #. module: xe_meli_connector
 #. odoo-python
 #: code:addons/xe_meli_connector/models/sale_order.py:0
-#, python-format
-msgid ""
-"Automatic reversal — Mercado Libre order %s was cancelled outside the "
-"invoice's issuance month."
-msgstr ""
-"Reversión automática — el pedido de Mercado Libre %s se canceló fuera del "
-"mes de emisión de la factura."
+msgid "Every individual order within this pack now appears cancelled, but the sale itself could not be cancelled automatically — review manually. (This sibling's own cancellation above still completed successfully and was not affected.)"
+msgstr "Todos los pedidos individuales dentro de este pack ya parecen cancelados, pero la venta en sí no se pudo cancelar automáticamente — revisar manualmente. (La cancelación de este pedido hermano de arriba sí se completó correctamente y no se vio afectada.)"
 
 #. module: xe_meli_connector
 #. odoo-python
 #: code:addons/xe_meli_connector/models/sale_order.py:0
-#, python-format
-msgid ""
-"A full credit note (%s) was issued for invoice %s (stamped in a previous "
-"month)."
-msgstr ""
-"Se generó una nota de crédito completa (%s) para la factura %s (timbrada en "
-"un mes anterior)."
+msgid "Every sibling with a resolvable line in this pack is now cancelled, but this pack has also seen a cancellation notification for a sibling with no line(s) of its own (an unmapped SKU) — its real status on Mercado Libre can't be confirmed, so the sale was NOT cancelled automatically. Review manually."
+msgstr "Todos los pedidos hermanos con línea propia en este pack ya están cancelados, pero este pack también recibió una notificación de cancelación de un pedido hermano sin línea(s) propia(s) (SKU sin mapear) — su estado real en Mercado Libre no se puede confirmar, así que la venta NO se canceló automáticamente. Revisar manualmente."
 
 #. module: xe_meli_connector
 #: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_search
@@ -799,6 +831,16 @@ msgid "Failed"
 msgstr "Falló"
 
 #. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_pack_has_unmapped_sibling_cancellation
+msgid "Pack Has An Unmapped Sibling Cancellation"
+msgstr "El pack tiene un pedido hermano sin mapear cancelado"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_auto_cancellation_processed
+msgid "Automated Cancellation Processed"
+msgstr "Cancelación Automatizada Procesada"
+
+#. module: xe_meli_connector
 #: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_shipping_id
 msgid "Mercado Libre Shipping ID"
 msgstr "ID de envío de Mercado Libre"
@@ -847,18 +889,6 @@ msgstr "%(updated)s documento(s) actualizado(s)."
 #: code:addons/xe_meli_connector/wizards/meli_invoice_recovery_wizard.py:0
 msgid "'From' must be earlier than 'To'."
 msgstr "'Desde' debe ser anterior a 'Hasta'."
-
-#. module: xe_meli_connector
-#. odoo-python
-#: code:addons/xe_meli_connector/models/sale_order.py:0
-msgid "A full credit note (%(credit_note)s) was issued and stamped for invoice %(invoice)s (stamped in a previous month)."
-msgstr "Se emitió y timbró una nota de crédito completa (%(credit_note)s) para la factura %(invoice)s (timbrada en un mes anterior)."
-
-#. module: xe_meli_connector
-#. odoo-python
-#: code:addons/xe_meli_connector/models/sale_order.py:0
-msgid "A full credit note (%(credit_note)s) was issued for invoice %(invoice)s (stamped in a previous month), but its CFDI could NOT be stamped: %(error)s. The credit note is posted in Odoo without a valid CFDI — review manually."
-msgstr "Se generó una nota de crédito completa (%(credit_note)s) para la factura %(invoice)s (timbrada en un mes anterior), pero su CFDI NO pudo timbrarse: %(error)s. La nota de crédito quedó registrada en Odoo sin un CFDI válido — revisar manualmente."
 
 #. module: xe_meli_connector
 #: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_form
@@ -944,6 +974,7 @@ msgstr "Busca, entre las ventas de Mercado Libre en este rango de\n             
 
 #. module: xe_meli_connector
 #: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_claim_recovery_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_delivery_recovery_wizard_form
 #: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_import_batch_wizard_form
 #: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_manual_import_wizard_form
 msgid "Cancel"
@@ -985,6 +1016,7 @@ msgstr "Contacto"
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__create_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__create_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__create_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_delivery_recovery_wizard__create_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__create_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__create_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__create_uid
@@ -1002,6 +1034,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__create_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__create_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__create_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_delivery_recovery_wizard__create_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__create_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__create_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__create_date
@@ -1045,6 +1078,7 @@ msgstr "Liga directa al chat/mensajería de este pedido en el portal de vendedor
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__display_name
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__display_name
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__display_name
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_delivery_recovery_wizard__display_name
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__display_name
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__display_name
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__display_name
@@ -1144,6 +1178,7 @@ msgstr "Tiene un mensaje"
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__id
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__id
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_delivery_recovery_wizard__id
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__id
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__id
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__id
@@ -1228,18 +1263,6 @@ msgid "Invoice"
 msgstr "Factura"
 
 #. module: xe_meli_connector
-#. odoo-python
-#: code:addons/xe_meli_connector/models/sale_order.py:0
-msgid "Invoice %s could not be resolved automatically (unexpected error) — review manually."
-msgstr "La factura %s no pudo resolverse automáticamente (error inesperado) — revisar manualmente."
-
-#. module: xe_meli_connector
-#. odoo-python
-#: code:addons/xe_meli_connector/models/sale_order.py:0
-msgid "Invoice %s was stamped this month, but it has no active CFDI document to cancel — review manually."
-msgstr "La factura %s se timbró este mes, pero no tiene un documento CFDI activo para cancelar — revisar manualmente."
-
-#. module: xe_meli_connector
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__document_id
 msgid "Invoice Document"
 msgstr "Documento de Factura"
@@ -1247,8 +1270,8 @@ msgstr "Documento de Factura"
 #. module: xe_meli_connector
 #. odoo-python
 #: code:addons/xe_meli_connector/models/sale_order.py:0
-msgid "Invoice resolution did not fully succeed and needs manual review — the stock return and sale cancellation above were still completed successfully."
-msgstr "La resolución de la factura no se completó del todo y necesita revisión manual — la devolución de inventario y la cancelación de la venta de arriba sí se completaron correctamente."
+msgid "Invoice reconciliation did not fully succeed and needs manual review — the stock return and sale cancellation above were still completed successfully."
+msgstr "La reconciliación de la factura no se completó del todo y necesita revisión manual — la devolución de inventario y la cancelación de la venta de arriba sí se completaron correctamente."
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__message_is_follower
@@ -1274,6 +1297,7 @@ msgstr "Última Consulta"
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__write_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__write_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__write_uid
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_delivery_recovery_wizard__write_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__write_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__write_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__write_uid
@@ -1291,6 +1315,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim__write_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_claim_recovery_wizard__write_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__write_date
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_delivery_recovery_wizard__write_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch__write_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_line__write_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_import_batch_wizard__write_date
@@ -1317,8 +1342,8 @@ msgstr "Importar Manualmente un Pedido de Mercado Libre"
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__sale_order_id
-msgid "Matched by meli_order_id first (orders imported by xe_meli_connector), falling back to client_order_ref/reference (today's Ventiapp-created orders, which don't populate meli_order_id at all), and finally to meli_pack_id — covers a resale/pack invoice whose own metadata reports the pack's id rather than one specific sibling order's id."
-msgstr "Se enlaza primero por meli_order_id (pedidos importados por xe_meli_connector), y si no encuentra nada usa client_order_ref/reference (pedidos creados hoy por Ventiapp, que nunca llenan meli_order_id), y por último meli_pack_id — cubre una factura de reventa/pack cuya propia metadata reporta el id del pack en vez del id de un pedido hermano específico."
+msgid "Matched by meli_order_id first (orders imported by xe_meli_connector), falling back to sale.order.line.meli_order_id (a consolidated pack sibling other than the first one, whose own order id lives only on the line it added), then to client_order_ref/reference (today's Ventiapp-created orders, which don't populate meli_order_id at all), and finally to meli_pack_id — covers a resale/pack invoice whose own metadata reports the pack's id rather than one specific sibling order's id."
+msgstr "Se enlaza primero por meli_order_id (pedidos importados por xe_meli_connector), y si no encuentra nada usa sale.order.line.meli_order_id (un pedido hermano de un pack consolidado, distinto del primero, cuyo propio id de pedido solo vive en la línea que agregó), luego client_order_ref/reference (pedidos creados hoy por Ventiapp, que nunca llenan meli_order_id), y por último meli_pack_id — cubre una factura de reventa/pack cuya propia metadata reporta el id del pack en vez del id de un pedido hermano específico."
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,help:xe_meli_connector.field_meli_config__delivery_contact_manager_id
@@ -1615,12 +1640,6 @@ msgid "Still Within Grace Window"
 msgstr "Aún Dentro de la Ventana de Gracia"
 
 #. module: xe_meli_connector
-#. odoo-python
-#: code:addons/xe_meli_connector/models/sale_order.py:0
-msgid "The CFDI cancellation for invoice %(invoice)s (stamped this month) was REJECTED: %(error)s. Review manually."
-msgstr "La cancelación del CFDI para la factura %(invoice)s (timbrada este mes) fue RECHAZADA: %(error)s. Revisar manualmente."
-
-#. module: xe_meli_connector
 #: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_import_batch_wizard_form
 msgid "The first column of the first sheet must contain one\n                    Mercado Libre order ID per row. Any other column is\n                    ignored."
 msgstr "La primera columna de la primera hoja debe contener un\n                    ID de pedido de Mercado Libre por fila. Cualquier otra\n                    columna se ignora."
@@ -1659,6 +1678,11 @@ msgstr "El buyer id de este pedido, guardado solo para pedidos con envío person
 #: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__meli_pack_id
 msgid "This order's pack id, when it's part of a cart — fetched with one extra, best-effort call to /orders/$ORDER_ID at import time (2026-09-07: meli_order_id alone doesn't match what Ventiapp/the Mercado Libre portal show as 'the' order number for a pack order, which is the pack id, not the individual order id)."
 msgstr "El pack id de este pedido, cuando es parte de un carrito — se obtiene con una llamada extra, best-effort, a /orders/$ORDER_ID al momento de importar (2026-09-07: meli_order_id por sí solo no coincide con lo que Ventiapp/el portal de Mercado Libre muestran como 'el' número de pedido para un pedido de pack, que es el pack id, no el id individual del pedido)."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_pack_has_unmapped_sibling_cancellation
+msgid "Fix round 1 (2026-09-09, reviewer finding — Fix C): set the first time a cancellation notification arrives for a sibling within this active pack that has ZERO resolvable lines of its own (every one of its SKUs still unmapped — see _meli_notify_zero_line_sibling_cancellation and _meli_add_pack_sibling_lines's own docstring). Such a sibling never contributes a meli_order_id to order_line, so it's otherwise completely invisible to _meli_close_pack_if_every_sibling_cancelled's own 'every sibling is cancelled' check — this field is what stops that check from auto-cancelling the whole sale while an unmapped sibling's own real Mercado Libre state was never actually confirmed. Fix 2026-09-09 (user-directed follow-up): cleared back to False automatically once that very sibling's SKU finally gets mapped and its own line is genuinely added via _meli_add_pack_sibling_lines (see that method) — the pack's own normal recovery path. A manual edit via Settings > Technical > Database Structure > Fields, or the ORM/shell, is still available as a fallback for any other case, but is no longer the only way to clear it."
+msgstr "Fix ronda 1 (2026-09-09, hallazgo del revisor — Fix C): se activa la primera vez que llega una notificación de cancelación para un pedido hermano dentro de este pack activo que tiene CERO líneas propias resolubles (todos sus SKUs siguen sin mapear — ver _meli_notify_zero_line_sibling_cancellation y el propio docstring de _meli_add_pack_sibling_lines). Ese pedido hermano nunca aporta un meli_order_id a order_line, así que de otro modo es completamente invisible para la propia verificación de 'todos los pedidos hermanos están cancelados' de _meli_close_pack_if_every_sibling_cancelled — este campo es lo que evita que esa verificación cancele automáticamente toda la venta mientras el estado real en Mercado Libre de un pedido hermano sin mapear nunca se confirmó. Fix 2026-09-09 (seguimiento indicado por el usuario): se limpia de vuelta a False automáticamente en cuanto el SKU de ese mismo pedido hermano finalmente se mapea y su propia línea se agrega de verdad vía _meli_add_pack_sibling_lines (ver ese método) — el propio camino normal de recuperación del pack. Una edición manual vía Ajustes > Técnico > Estructura de Base de Datos > Campos, o por ORM/shell, sigue disponible como respaldo para cualquier otro caso, pero ya no es la única forma de limpiarlo."
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_shipping_id
@@ -1749,3 +1773,287 @@ msgstr "Fecha del Reclamo/Devolución"
 #: model:ir.model.fields,help:xe_meli_connector.field_meli_claim__claim_date_created
 msgid "date_created from Mercado Libre — when this claim or return was actually opened on their side (not when this record was synced into Odoo, see Last Synced At above)."
 msgstr "date_created de Mercado Libre — cuándo se abrió realmente este reclamo o devolución de su lado (no cuándo se sincronizó este registro en Odoo, ver Última sincronización arriba)."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order_line__meli_order_id
+msgid "Mercado Libre Order ID"
+msgstr "ID de Pedido de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order_line__meli_order_id
+msgid "The individual Mercado Libre order id that added this specific line. Always set for a line created from a Mercado Libre import — a pack order's sale.order can carry lines from several different individual orders, each sharing the same 'OC Cliente' (see sale.order.meli_pack_id) but each keeping its own order id here."
+msgstr "El id individual del pedido de Mercado Libre que agregó esta línea específica. Siempre se llena en una línea creada por una importación de Mercado Libre — la venta de un pedido de pack puede tener líneas de varios pedidos individuales distintos, todos compartiendo la misma 'OC Cliente' (ver sale.order.meli_pack_id), pero cada uno con su propio id de pedido aquí."
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Línea de Pedido de Venta"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Extra line with [%(sku)s] %(name)s (Mercado Libre order %(order_id)s, same pack)."
+msgstr "Línea adicional con [%(sku)s] %(name)s (pedido de Mercado Libre %(order_id)s, mismo pack)."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "No Mercado Libre SKU mapping found for: %(skus)s (order %(order_id)s, same pack). After adding the mapping, re-import order %(order_id)s from Mercado Libre > Manual Import to add its line."
+msgstr "No se encontró mapeo de SKU de Mercado Libre para: %(skus)s (pedido %(order_id)s, mismo pack). Después de agregar el mapeo, vuelve a importar el pedido %(order_id)s desde Mercado Libre > Importación Manual para agregar su línea."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "This order's invoice is already posted — the new line above may need manual invoicing."
+msgstr "La factura de este pedido ya está contabilizada — la línea nueva de arriba podría necesitar facturarse manualmente."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_account_bank_statement_line__meli_invoice_document_id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_account_move__meli_invoice_document_id
+#: model:ir.model.fields,field_description:xe_meli_connector.field_account_payment__meli_invoice_document_id
+msgid "Mercado Libre Invoice Document"
+msgstr "Documento de Factura de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_account_bank_statement_line__meli_invoice_document_id
+#: model:ir.model.fields,help:xe_meli_connector.field_account_move__meli_invoice_document_id
+#: model:ir.model.fields,help:xe_meli_connector.field_account_payment__meli_invoice_document_id
+msgid "Which Mercado Libre document (meli.invoice.document) is currently related to this invoice/credit note. Mercado Libre is the only source of the CFDI for this move — Odoo never stamps it through its own PAC (blocked by res.partner.cfdi_issued_by_third_party, see xe_l10n_mx_edi). Used to detect refacturación: when a newer meli.invoice.document exists for the same order with a different id than this field points to, the invoice gets cancelled and replaced."
+msgstr "Qué documento de Mercado Libre (meli.invoice.document) está actualmente relacionado con esta factura/nota de crédito. Mercado Libre es la única fuente del CFDI para este movimiento — Odoo nunca lo timbra a través de su propio PAC (bloqueado por res.partner.cfdi_issued_by_third_party, ver xe_l10n_mx_edi). Se usa para detectar refacturación: cuando existe un meli.invoice.document más reciente para el mismo pedido con un id distinto al que apunta este campo, la factura se cancela y se reemplaza."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre issued a new invoice document (%(new)s) replacing the one this order's invoice %(old)s reflected — the old invoice was cancelled."
+msgstr "Mercado Libre emitió un nuevo documento de factura (%(new)s) que reemplaza al que la factura %(old)s de este pedido reflejaba — la factura anterior fue cancelada."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre issued a new invoice document (%(new)s) for this order, but a live credit note (%(credit_note)s) from a prior partial cancellation already exists — automatic refacturación was skipped to avoid corrupting that credit note's relation to the invoice it reverses; review manually."
+msgstr "Mercado Libre emitió un nuevo documento de factura (%(new)s) para este pedido, pero ya existe una nota de crédito vigente (%(credit_note)s) de una cancelación parcial previa — se omitió la refacturación automática para no corromper la relación de esa nota de crédito con la factura que reversa; revisar manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Invoice %(invoice)s created and related to Mercado Libre document %(document)s."
+msgstr "Factura %(invoice)s creada y relacionada con el documento de Mercado Libre %(document)s."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre generated a credit note (%(document)s) for this order — review manually and apply it; credit notes are not automated for non-Full orders."
+msgstr "Mercado Libre generó una nota de crédito (%(document)s) para este pedido — revisar manualmente y aplicarla; las notas de crédito no se automatizan para pedidos no Full."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre generated a credit note (%(document)s) for this order, but there is no posted invoice yet to apply it to — review manually."
+msgstr "Mercado Libre generó una nota de crédito (%(document)s) para este pedido, pero todavía no hay una factura contabilizada a la cual aplicarla — revisar manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre generated another credit note (%(document)s) for this order, but a credit note already exists for it — review manually, this new document was not applied automatically."
+msgstr "Mercado Libre generó otra nota de crédito (%(document)s) para este pedido, pero ya existe una nota de crédito para él — revisar manualmente, este nuevo documento no se aplicó automáticamente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre credit note %s"
+msgstr "Nota de crédito de Mercado Libre %s"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Credit note %(credit_note)s created and related to Mercado Libre document %(document)s."
+msgstr "Nota de crédito %(credit_note)s creada y relacionada con el documento de Mercado Libre %(document)s."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Automatic validation of the return transfer %s needs manual confirmation (e.g. insufficient stock) — cannot auto-process this sibling's cancellation."
+msgstr "La validación automática de la transferencia de devolución %s necesita confirmación manual (por ejemplo, stock insuficiente) — no se puede procesar automáticamente la cancelación de este pedido hermano."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "%(product)s (now %(qty)s)"
+msgstr "%(product)s (ahora %(qty)s)"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre order %(order_id)s — one individual order within this active pack — was cancelled/returned. Only its own line(s) were touched; the sale itself and this pack's other sibling(s) were left completely untouched.<br/>Line(s) after the return: %(product_lines)s."
+msgstr "Mercado Libre reporta que el pedido %(order_id)s — un pedido individual dentro de este pack activo — fue cancelado/devuelto. Solo se tocaron sus propias línea(s); la venta en sí y el/los otro(s) pedido(s) hermano(s) de este pack quedaron completamente intactos.<br/>Línea(s) después de la devolución: %(product_lines)s."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Stock returned via transfer(s): %s."
+msgstr "Stock devuelto mediante transferencia(s): %s."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Credit note %s covers this sibling's own portion of the invoice."
+msgstr "La nota de crédito %s cubre la parte correspondiente de este pedido hermano en la factura."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre generated a credit note (%(document)s) for order %(order_id)s (one individual order within this pack), but there is no posted invoice yet to apply it to — review manually."
+msgstr "Mercado Libre generó una nota de crédito (%(document)s) para el pedido %(order_id)s (un pedido individual dentro de este pack), pero todavía no hay una factura contabilizada a la cual aplicarla — revisar manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre generated a credit note (%(document)s) for order %(order_id)s (one individual order within this pack), but its product line(s) could not be found on invoice %(invoice)s — review manually."
+msgstr "Mercado Libre generó una nota de crédito (%(document)s) para el pedido %(order_id)s (un pedido individual dentro de este pack), pero no se encontraron sus línea(s) de producto en la factura %(invoice)s — revisar manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre generated another credit note (%(document)s) for order %(order_id)s (one individual order within this pack), but a credit note already covers its own line(s) — review manually, this new document was not applied automatically."
+msgstr "Mercado Libre generó otra nota de crédito (%(document)s) para el pedido %(order_id)s (un pedido individual dentro de este pack), pero ya hay una nota de crédito que cubre sus propia(s) línea(s) — revisar manualmente, este nuevo documento no se aplicó automáticamente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre credit note %(document)s (order %(order_id)s)"
+msgstr "Nota de crédito de Mercado Libre %(document)s (pedido %(order_id)s)"
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre reports that individual order %(order_id)s (part of this active pack) was cancelled, but automatic processing failed. Review manually — the sale itself and every sibling's own line were left untouched."
+msgstr "Mercado Libre reporta que el pedido individual %(order_id)s (parte de este pack activo) fue cancelado, pero el procesamiento automático falló. Revisar manualmente — la venta en sí y las líneas de cada pedido hermano quedaron intactas."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre order %(order_id)s — one individual order within this active pack — was cancelled. It had no delivered stock to return (its own outbound transfer never completed), so only its own line quantity was adjusted to match; the sale itself and this pack's other sibling(s) were left completely untouched.<br/>Line(s) after the update: %(product_lines)s."
+msgstr "Mercado Libre reporta que el pedido %(order_id)s — un pedido individual dentro de este pack activo — fue cancelado. No tenía stock entregado que devolver (su propia transferencia de salida nunca se completó), así que solo se ajustó la cantidad de su propia línea; la venta en sí y el/los otro(s) pedido(s) hermano(s) de este pack quedaron completamente intactos.<br/>Línea(s) después de la actualización: %(product_lines)s."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre generated a credit note (%(document)s), but its own order id (%(order_id)s) could not be matched to any line on this pack's consolidated order — review manually."
+msgstr "Mercado Libre generó una nota de crédito (%(document)s), pero su propio id de pedido (%(order_id)s) no se pudo relacionar con ninguna línea del pedido consolidado de este pack — revisar manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre order %(order_id)s — one individual order within this active pack — reported 'cancelled' again. Its stock was already returned in an earlier run (this looks like a repeated notification) — nothing new to return; the sale itself and this pack's other sibling(s) were left completely untouched.<br/>Line(s): %(product_lines)s."
+msgstr "Mercado Libre reporta que el pedido %(order_id)s — un pedido individual dentro de este pack activo — volvió a marcarse como 'cancelado'. Su stock ya había sido devuelto en una ejecución anterior (parece una notificación repetida) — no hay nada nuevo que devolver; la venta en sí y el/los otro(s) pedido(s) hermano(s) de este pack quedaron completamente intactos.<br/>Línea(s): %(product_lines)s."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "Mercado Libre order %(order_id)s — one individual order within this active pack — was cancelled, but it never had any line(s) of its own on this consolidated order (every one of its SKUs is still unmapped) — no inventory or invoice action was taken, there was nothing to touch. Review the SKU mapping for this order manually."
+msgstr "Mercado Libre reporta que el pedido %(order_id)s — un pedido individual dentro de este pack activo — fue cancelado, pero nunca tuvo línea(s) propia(s) en este pedido consolidado (todos sus SKUs siguen sin mapear) — no se realizó ninguna acción de inventario o facturación, no había nada que tocar. Revisar manualmente el mapeo de SKUs de este pedido."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "This sale was originally created outside this connector (Mercado Libre order/pack %s) and has now been linked here — future updates (invoicing, cancellations) will be handled automatically from this point forward. Its own commercial details (lines, pricing, customer, warehouse) were left untouched."
+msgstr "Esta venta se creó originalmente fuera de este conector (pedido/pack de Mercado Libre %s) y ahora ha sido vinculada aquí — las próximas actualizaciones (facturación, cancelaciones) se manejarán automáticamente a partir de este momento. Sus propios detalles comerciales (líneas, precios, cliente, almacén) quedaron intactos."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "%(count)s existing Ventiapp order(s) already share reference %(reference)s — too ambiguous to adopt automatically, so this sale was created as a new order instead. Please reconcile these manually."
+msgstr "%(count)s pedido(s) de Ventiapp ya existente(s) comparten la referencia %(reference)s — demasiado ambiguo para adoptarlos automáticamente, así que esta venta se creó como un pedido nuevo. Por favor reconcilia estos manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "A new Mercado Libre order (%(order_id)s) arrived for this pack, but was not automatically added: this sale was adopted from another system, so its commercial details are left untouched. Review manually whether/how to add it."
+msgstr "Llegó un nuevo pedido de Mercado Libre (%(order_id)s) para este pack, pero no se agregó automáticamente: esta venta fue adoptada de otro sistema, así que sus detalles comerciales quedaron intactos. Revisar manualmente si/cómo agregarlo."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "This sale could not be confirmed automatically: %s. Please review and confirm it manually."
+msgstr "Esta venta no se pudo confirmar automáticamente: %s. Por favor revisa y confírmala manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "This sale is confirmed but its delivery transfer could not be generated automatically. Please review and create it manually."
+msgstr "Esta venta está confirmada, pero su transferencia de entrega no se pudo generar automáticamente. Por favor revísala y créala manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid "All Mercado Libre SKUs are now mapped, but this sale could not be confirmed automatically: %s. Please review and confirm it manually."
+msgstr "Todos los SKUs de Mercado Libre ya están mapeados, pero esta venta no se pudo confirmar automáticamente: %s. Por favor revisa y confírmala manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/wizards/meli_delivery_recovery_wizard.py:0
+#, python-format
+msgid "%s order(s) processed."
+msgstr "%s pedido(s) procesado(s)."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/wizards/meli_delivery_recovery_wizard.py:0
+#, python-format
+msgid "Delivery recovery finished"
+msgstr "Recuperación de entregas finalizada"
+
+#. module: xe_meli_connector
+#: model:ir.model,name:xe_meli_connector.model_meli_delivery_recovery_wizard
+msgid "Mercado Libre Delivery Recovery"
+msgstr "Recuperación de Entregas de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_delivery_recovery_wizard_form
+msgid "Recover Mercado Libre Deliveries"
+msgstr "Recuperar Entregas de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_delivery_recovery_wizard_form
+msgid "One-off fix for existing Full orders whose delivery transfer\n                    is stuck unvalidated or missing entirely — use this to heal\n                    orders affected by a bug that is already fixed going\n                    forward. Safe to run more than once; only touches this\n                    connector's own Full orders."
+msgstr "Corrección puntual para pedidos Full existentes cuya transferencia de\n                    entrega quedó atascada sin validar o falta por completo — úsala\n                    para sanar pedidos afectados por un error que ya está corregido\n                    de aquí en adelante. Es seguro ejecutarla más de una vez; solo\n                    afecta los pedidos Full de este conector."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_delivery_recovery_wizard_form
+msgid "Run"
+msgstr "Ejecutar"
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_delivery_recovery_wizard
+#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_delivery_recovery
+msgid "Recover Deliveries"
+msgstr "Recuperar Entregas"

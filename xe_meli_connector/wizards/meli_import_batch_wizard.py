@@ -103,7 +103,7 @@ class MeliImportBatchWizard(models.TransientModel):
                 'order_id': order_id, 'status': 'pending',
             })
             SaleOrder.with_delay(
-                priority=8, channel='root.meli_sales',
+                priority=8, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_import_order_{order_id}",
             )._meli_import_order_for_batch_line(company.id, order_id, line.id)
 

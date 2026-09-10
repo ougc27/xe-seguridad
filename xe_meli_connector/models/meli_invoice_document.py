@@ -8,6 +8,8 @@ import pytz
 import requests
 from lxml import etree
 
+from odoo.addons.queue_job.exception import RetryableJobError
+
 from .sale_order import MELI_FISCAL_TIMEZONE
 
 _logger = logging.getLogger(__name__)
@@ -31,6 +33,18 @@ MELI_INVOICE_TRANSACTION_TYPES = (
     'sale', 'resale', 'disposal_sale', 'loan',
     'devolution', 'resale_devolution', 'disposal_sale_return',
 )
+
+# Final review fix (2026-09-08): the 'status' field's own help text and
+# this module's tree/search views (decoration-danger, the
+# "cancelled_or_rejected" filter in meli_invoice_document_views.xml) are
+# the two places that already treat these two raw values as the ones a
+# real, live document never carries — 'rejected'/'cancelled' both mean
+# the SAT/Mercado Libre itself killed this specific document. A
+# devolución document in either of these statuses must never be used to
+# create a real Odoo credit note — see sale.order._meli_reconcile_invoicing
+# and _meli_relate_partial_cancellation_credit_note, whose own
+# credit-note document searches both filter these out.
+MELI_INVOICE_DEAD_STATUSES = {'rejected', 'cancelled'}
 
 
 class MeliInvoiceDocument(models.Model):
@@ -72,11 +86,14 @@ class MeliInvoiceDocument(models.Model):
         'sale.order', string='Sale Order', compute='_compute_sale_order_id',
         store=True,
         help="Matched by meli_order_id first (orders imported by "
-             "xe_meli_connector), falling back to client_order_ref/"
-             "reference (today's Ventiapp-created orders, which don't "
-             "populate meli_order_id at all), and finally to meli_pack_id "
-             "— covers a resale/pack invoice whose own metadata reports "
-             "the pack's id rather than one specific sibling order's id.",
+             "xe_meli_connector), falling back to sale.order.line."
+             "meli_order_id (a consolidated pack sibling other than the "
+             "first one, whose own order id lives only on the line it "
+             "added), then to client_order_ref/reference (today's "
+             "Ventiapp-created orders, which don't populate meli_order_id "
+             "at all), and finally to meli_pack_id — covers a resale/pack "
+             "invoice whose own metadata reports the pack's id rather "
+             "than one specific sibling order's id.",
     )
     company_id = fields.Many2one(
         'res.company', string='Company', related='sale_order_id.company_id',
@@ -115,12 +132,25 @@ class MeliInvoiceDocument(models.Model):
     @api.depends('meli_order_id')
     def _compute_sale_order_id(self):
         SaleOrder = self.env['sale.order']
+        SaleOrderLine = self.env['sale.order.line']
         for document in self:
             order = SaleOrder.browse()
             if document.meli_order_id:
                 order = SaleOrder.search(
                     [('meli_order_id', '=', document.meli_order_id)], limit=1,
                 )
+                if not order:
+                    # A pack sibling other than the first one: after
+                    # consolidation, its own order id only lives on the
+                    # sale.order.line(s) it added, never on the
+                    # sale.order itself (which only ever remembers the
+                    # FIRST sibling's meli_order_id plus the shared
+                    # meli_pack_id) — see
+                    # sale.order._meli_add_pack_sibling_lines.
+                    line = SaleOrderLine.sudo().search(
+                        [('meli_order_id', '=', document.meli_order_id)], limit=1,
+                    )
+                    order = line.order_id
                 if not order:
                     order = SaleOrder.search([
                         '|',
@@ -146,7 +176,7 @@ class MeliInvoiceDocument(models.Model):
             else 'factura'
         )
 
-    def _meli_upsert(self, order_id, transaction_type, xml_bytes, meli_invoice_id=False, status=False):
+    def _meli_upsert(self, order_id, transaction_type, xml_bytes, meli_invoice_id=False, status=False, company_id=False):
         """Keyed primarily by meli_invoice_id when known — the only
         identifier Mercado Libre actually guarantees is unique per
         document. Falls back to (order_id, transaction_type) only to
@@ -192,6 +222,56 @@ class MeliInvoiceDocument(models.Model):
             same_order_type = self.sudo().search([
                 ('meli_order_id', '=', order_id), ('transaction_type', '=', transaction_type),
             ], limit=1)
+            # Final review fix (2026-09-08, Fix 4): the pack-based
+            # reuse/fan-out below is only correct for FACTURAS — Mercado
+            # Libre genuinely invoices a whole pack with ONE physical
+            # CFDI, confirmed in practice (see the comment right below).
+            # DEVOLUCIONES (credit notes) are NOT shared per-pack: each
+            # sibling order gets its OWN, independent devolución.
+            # Applying the same pack-wide fan-out to a credit-note
+            # transaction_type let importing sibling B's own devolución
+            # find sibling A's devolución row (matched purely via the
+            # shared meli_pack_id/sale_order_id) and silently overwrite
+            # it with B's own meli_order_id and XML — destroying A's own
+            # credit-note record. For a credit-note-family
+            # transaction_type this block is skipped entirely: only the
+            # direct (meli_order_id, transaction_type) match right above
+            # (this document's own order id) is ever reused; anything
+            # else always creates a brand new row.
+            if not same_order_type and transaction_type not in MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES:
+                # This order_id alone found nothing — but if it's part of
+                # a pack, a SIBLING order may already have this exact
+                # document recorded (Mercado Libre invoices an entire
+                # pack as ONE physical CFDI; confirmed in practice
+                # 2026-09-07: 10+ groups of documents in production share
+                # the identical stored XML file, one per sibling order,
+                # because neither side knew meli_invoice_id yet to
+                # de-duplicate by that alone). Resolve the sale.order
+                # this order_id belongs to (which, once consolidated,
+                # IS the pack's single sale.order) and look for an
+                # existing document of the same transaction_type there.
+                sale_order = self.env['sale.order']._meli_find_order_by_id_or_pack(order_id)
+                if sale_order:
+                    domain = [('transaction_type', '=', transaction_type)]
+                    if sale_order.meli_pack_id:
+                        # The resolver's own tier 1 (exact meli_order_id)
+                        # always matches THIS order_id's own sale.order
+                        # first, which is of no help by itself — the
+                        # sibling's document was recorded against a
+                        # DIFFERENT sale.order row entirely (each legacy
+                        # sibling order still gets its own row today).
+                        # meli_pack_id is what actually ties them
+                        # together: it's stored (related from
+                        # sale_order_id.meli_pack_id) on every document
+                        # precisely so it can be found this way.
+                        domain += [
+                            '|',
+                            ('sale_order_id', '=', sale_order.id),
+                            ('meli_pack_id', '=', sale_order.meli_pack_id),
+                        ]
+                    else:
+                        domain.append(('sale_order_id', '=', sale_order.id))
+                    same_order_type = self.sudo().search(domain, limit=1)
             # Reuse that record only if it's the SAME document: either
             # side doesn't know an invoice_id yet, or both agree on it.
             # Never overwrite a record already identified as a
@@ -205,8 +285,80 @@ class MeliInvoiceDocument(models.Model):
 
         if existing:
             existing.write(vals)
-            return existing
-        return self.sudo().create(vals)
+            document = existing
+        else:
+            document = self.sudo().create(vals)
+
+        if not document.sale_order_id and order_id and company_id:
+            # Trigger B (2026-09-09, cancelled-order-recovery plan): this
+            # document arrived with no resolvable sale order at all —
+            # most commonly because Mercado Libre reported this order as
+            # 'cancelled' before this connector ever created it (see
+            # sale.order._meli_create_from_order_data's own recovery
+            # logic, which this call re-enters with the order's current,
+            # real data). _meli_import_order is idempotent and safe to
+            # call even when it turns out there's nothing to recover
+            # (e.g. a genuinely different, still-unresolvable status).
+            #
+            # Deliberately NOT wrapped in its own cr.savepoint() (final
+            # whole-branch review, 2026-09-09, Critical C1): recovering a
+            # Full order can reach sale.order._meli_recover_cancelled_on_
+            # arrival_full, which commits the cursor directly between its
+            # two phases (same commit-before-reconciling rule
+            # _meli_flag_status_change already follows). An enclosing
+            # savepoint here made its own RELEASE fail right after that
+            # inner commit, empirically proven — silently discarding a
+            # fully successful recovery and aborting the transaction.
+            # _meli_import_order_for_batch_line calls the same method
+            # with no enclosing savepoint of its own, for the same reason
+            # — matched here.
+            try:
+                self.env['sale.order'].sudo()._meli_import_order(company_id, order_id)
+            except RetryableJobError:
+                # Must propagate unchanged (final whole-branch review,
+                # Important I1): a transient network failure inside the
+                # recovery attempt (e.g. _meli_fetch_logistic_type or
+                # config._api_get hitting a 429/5xx) must let queue_job's
+                # own retry machinery see it, not get silently swallowed
+                # here and logged as a permanent failure. Same fix
+                # already applied twice elsewhere in this module today
+                # (sale_order.py's _meli_import_order_for_batch_line,
+                # this file's own _meli_import_invoice_document_for_batch_line).
+                raise
+            except Exception:
+                _logger.exception(
+                    "Mercado Libre order %s: could not recover a missing "
+                    "sale order after document %s arrived — left "
+                    "pending for manual review.", order_id, document.id,
+                )
+            else:
+                document.invalidate_recordset(['sale_order_id'])
+
+        if document.sale_order_id:
+            # savepoint + broad except, same convention used in
+            # sale_order.py (_meli_auto_validate_full_pickings,
+            # _meli_flag_status_change) and now in
+            # stock_picking.py's _action_done() override: this document
+            # row is the one durable record that Mercado Libre already
+            # confirmed exists — a failure in the reconciler (unrelated
+            # invoicing/CFDI trouble) must never roll back the
+            # write/create above and lose it. Lower risk here than the
+            # picking hook (both real callers of this method already
+            # have their own failure isolation — queue_job's own
+            # transaction boundary, or the batch-import wizard's own
+            # try/except), but the same protection is cheap and keeps
+            # the two hooks consistent.
+            try:
+                with self.env.cr.savepoint():
+                    document.sale_order_id._meli_reconcile_invoicing()
+            except Exception:
+                _logger.exception(
+                    "Mercado Libre order %s: invoicing reconciliation "
+                    "failed after document %s was upserted — left "
+                    "pending for manual review.",
+                    document.sale_order_id.client_order_ref, document.id,
+                )
+        return document
 
     @staticmethod
     def _meli_parse_issue_date_from_xml(xml_bytes):
@@ -343,7 +495,7 @@ class MeliInvoiceDocument(models.Model):
 
         return self._meli_upsert(
             order_id or False, transaction_type, xml_bytes, meli_invoice_id=invoice_id,
-            status=metadata.get('status'),
+            status=metadata.get('status'), company_id=company_id,
         )
 
     @api.model
@@ -359,6 +511,15 @@ class MeliInvoiceDocument(models.Model):
         line = self.env['meli.invoice.import.batch.line'].sudo().browse(line_id)
         try:
             document = self.sudo()._meli_import_invoice_document(company_id, invoice_id)
+        except RetryableJobError:
+            # Fix 5 (2026-09-09, final review — Important): re-raised
+            # unchanged, BEFORE the generic `except Exception` below — see
+            # sale_order.py's _meli_import_order_for_batch_line for the
+            # identical fix and full rationale (RetryableJobError is
+            # itself an Exception subclass, so without this it would be
+            # caught here and the batch line marked permanently 'error'
+            # on the bulk-import path most likely to hit rate limiting).
+            raise
         except Exception as exc:
             _logger.exception(
                 "Mercado Libre invoice batch import: invoice %s failed.", invoice_id,
@@ -427,7 +588,7 @@ class MeliInvoiceDocument(models.Model):
                     # Priority 6 (vs. the 8 used by order/claim polling
                     # and batch import) — invoices got de-prioritized by
                     # default and lagged behind, per the user 2026-09-04.
-                    priority=6, channel='root.meli_sales',
+                    priority=6, channel='root.meli_sales', max_retries=8,
                     description=(
                         f"Import Mercado Libre invoice for order {order_id} "
                         f"({transaction_type}, recovery)"
@@ -465,7 +626,7 @@ class MeliInvoiceDocument(models.Model):
             if exc.response is not None and exc.response.status_code == 404:
                 return self.browse()
             raise
-        return self._meli_upsert(order_id, transaction_type, xml_bytes)
+        return self._meli_upsert(order_id, transaction_type, xml_bytes, company_id=company_id)
 
     def action_meli_refresh_status(self):
         """Manual, on-demand pull of the current status straight from
