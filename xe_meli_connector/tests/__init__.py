@@ -3,6 +3,7 @@ from . import test_meli_claim_recovery_wizard
 from . import test_meli_config_access
 from . import test_meli_config_token
 from . import test_meli_config_connect
+from . import test_meli_config_retry
 from . import test_meli_full_cancellation
 from . import test_meli_import_batch
 from . import test_meli_invoice_document

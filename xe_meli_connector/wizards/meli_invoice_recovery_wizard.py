@@ -39,7 +39,7 @@ class MeliInvoiceRecoveryWizard(models.TransientModel):
                 "There is no active Mercado Libre connection for this company."
             ))
         self.env['meli.invoice.document'].with_delay(
-            priority=8, channel='root.meli_sales',
+            priority=8, channel='root.meli_sales', max_retries=8,
             description=(
                 f"Recover Mercado Libre invoices from {self.date_from} "
                 f"to {self.date_to}"

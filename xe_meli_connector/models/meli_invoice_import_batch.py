@@ -51,7 +51,7 @@ class MeliInvoiceImportBatch(models.Model):
             for line in retryable:
                 line.status = 'pending'
                 Document.with_delay(
-                    priority=8, channel='root.meli_sales',
+                    priority=8, channel='root.meli_sales', max_retries=8,
                     identity_key=f"meli_import_invoice_{line.invoice_id}",
                 )._meli_import_invoice_document_for_batch_line(
                     batch.company_id.id, line.invoice_id, line.id,

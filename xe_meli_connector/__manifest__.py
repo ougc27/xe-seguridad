@@ -1,6 +1,6 @@
 {
     'name': 'Mercado Libre Connector',
-    'version': '17.0.1.0.1',
+    'version': '17.0.1.0.2',
     'license': 'LGPL-3',
     'author': 'XE Brands',
     'category': 'Sales/Sales',
@@ -35,6 +35,7 @@ on top of this same module in a later increment.
         'wizards/meli_claim_recovery_wizard_views.xml',
         'wizards/meli_invoice_recovery_wizard_views.xml',
         'wizards/meli_invoice_import_batch_wizard_views.xml',
+        'wizards/meli_delivery_recovery_wizard_views.xml',
         'data/ir_cron.xml',
         'data/queue_job_data.xml',
     ],

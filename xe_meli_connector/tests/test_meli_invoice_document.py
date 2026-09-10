@@ -5,6 +5,8 @@ import requests
 from odoo import fields
 from odoo.tests import TransactionCase, tagged
 
+from odoo.addons.queue_job.exception import RetryableJobError
+
 from ..models.meli_invoice_document import MELI_INVOICE_TRANSACTION_TYPES
 
 
@@ -17,6 +19,23 @@ class TestMeliInvoiceDocument(TransactionCase):
         cls.test_company = cls.env['res.company'].with_context(
             disable_company_pricelist_creation=True
         ).create({'name': 'Test Co (meli invoice document)'})
+        # This class was originally built to test document
+        # matching/creation logic only — no test here ever confirmed a
+        # sale order or posted an invoice, so no chart of accounts was
+        # ever loaded. Task 3's new
+        # test_upsert_triggers_the_reconciler_when_already_delivered
+        # below is the first one to run a real
+        # action_confirm/button_validate/_create_invoices flow, which
+        # needs a sale journal to exist. 'generic_coa' (same choice as
+        # TestMeliFullCancellationAutomation in
+        # test_meli_full_cancellation.py) is the base, non-Mexican chart
+        # — enough to let an invoice get created and posted; this test
+        # only needs to prove the reconciler fires, not exercise CFDI-
+        # blocking logic, so there's no need for the heavier 'mx' chart
+        # that class TestMeliInvoicingLifecycle uses instead.
+        cls.env['account.chart.template'].try_loading(
+            'generic_coa', company=cls.test_company, install_demo=False,
+        )
         cls.partner = cls.env['res.partner'].create({'name': 'Meli Invoice Test Buyer'})
         cls.config = cls.env['meli.config'].create({
             'company_id': cls.test_company.id,
@@ -26,6 +45,10 @@ class TestMeliInvoiceDocument(TransactionCase):
         })
         cls.warehouse = cls.env['stock.warehouse'].create({
             'name': 'Almacén Invoice Test', 'code': 'INVT',
+            'company_id': cls.test_company.id,
+        })
+        cls.product = cls.env['product.product'].create({
+            'name': 'Producto Invoice Document Test', 'type': 'product',
             'company_id': cls.test_company.id,
         })
 
@@ -76,6 +99,181 @@ class TestMeliInvoiceDocument(TransactionCase):
             )
 
         self.assertEqual(document.document_type, 'nota_de_credito')
+
+    def test_order_path_second_pack_sibling_reuses_the_same_document(self):
+        first_order = self._order_by_meli_order_id('7000000000000100')
+        first_order.meli_pack_id = '8000000000000001'
+        second_order = self._order_by_meli_order_id('7000000000000101')
+        second_order.meli_pack_id = '8000000000000001'
+
+        with patch.object(
+            type(self.config), '_api_get_raw', return_value=b'<cfdi:Comprobante/>',
+        ):
+            first_document = self.env['meli.invoice.document']._meli_import_invoice_document_for_order(
+                self.test_company.id, '7000000000000100', 'sale',
+            )
+            second_document = self.env['meli.invoice.document']._meli_import_invoice_document_for_order(
+                self.test_company.id, '7000000000000101', 'sale',
+            )
+
+        self.assertEqual(first_document, second_document)
+        self.assertEqual(
+            self.env['meli.invoice.document'].search_count([
+                ('transaction_type', '=', 'sale'),
+                ('sale_order_id', 'in', (first_order | second_order).ids),
+            ]),
+            1,
+        )
+
+    def test_order_path_devolution_does_not_reuse_a_pack_siblings_own_credit_note(self):
+        """Final review Fix 4: the pack-based document reuse/fan-out
+        exercised by test_order_path_second_pack_sibling_reuses_the_same_document
+        above is correct for FACTURAS — Mercado Libre genuinely invoices
+        a whole pack with ONE physical CFDI — but WRONG for DEVOLUCIONES
+        (credit notes): each sibling gets its OWN, independent
+        devolución, never shared per-pack. Before this fix, importing
+        sibling B's own devolución found sibling A's devolución row
+        (matched purely via the shared meli_pack_id/sale_order_id) and
+        silently overwrote it with B's own meli_order_id and XML,
+        destroying A's own credit-note record.
+        """
+        first_order = self._order_by_meli_order_id('7000000000000102')
+        first_order.meli_pack_id = '8000000000000002'
+        second_order = self._order_by_meli_order_id('7000000000000103')
+        second_order.meli_pack_id = '8000000000000002'
+
+        with patch.object(
+            type(self.config), '_api_get_raw', return_value=b'<cfdi:Comprobante/>',
+        ):
+            first_document = self.env['meli.invoice.document']._meli_import_invoice_document_for_order(
+                self.test_company.id, '7000000000000102', 'devolution',
+            )
+            second_document = self.env['meli.invoice.document']._meli_import_invoice_document_for_order(
+                self.test_company.id, '7000000000000103', 'devolution',
+            )
+
+        self.assertNotEqual(
+            first_document, second_document,
+            "each sibling's own devolución must end up as its own, distinct document row",
+        )
+        self.assertEqual(first_document.meli_order_id, '7000000000000102')
+        self.assertEqual(first_document.sale_order_id, first_order)
+        self.assertEqual(second_document.meli_order_id, '7000000000000103')
+        self.assertEqual(second_document.sale_order_id, second_order)
+        self.assertEqual(
+            self.env['meli.invoice.document'].search_count([
+                ('transaction_type', '=', 'devolution'),
+                ('sale_order_id', 'in', (first_order | second_order).ids),
+            ]),
+            2,
+        )
+
+    def test_order_path_resolves_second_pack_sibling_added_via_task2_consolidation(self):
+        """The real Task-2-consolidated shape (distinct from
+        test_order_path_second_pack_sibling_reuses_the_same_document
+        above, which uses two separate, legacy-style sale.order rows,
+        each with its own meli_order_id).
+
+        Since Task 2, importing a second Mercado Libre order for a pack
+        already known here does NOT create a second sale.order — it
+        merges the second sibling's own line into the FIRST sibling's
+        sale.order instead (sale.order._meli_add_pack_sibling_lines).
+        So the ONE consolidated sale.order's own meli_order_id is only
+        ever the FIRST sibling's id; the SECOND sibling's own order id
+        lives only on the sale.order.line it added
+        (sale.order.line.meli_order_id).
+
+        Before the C1 fix, neither
+        sale.order._meli_find_order_by_id_or_pack nor this model's own
+        _compute_sale_order_id checked sale.order.line.meli_order_id —
+        so an invoice-document notification reporting the SECOND
+        sibling's own order id (not the pack id, not the first
+        sibling's id) resolved to nothing at all (sale_order_id blank),
+        and a later import for the other sibling's id would have
+        created a second, duplicate document instead of finding this
+        one.
+        """
+        self.config.warehouse_default_id = self.warehouse
+        first_product = self.env['product.product'].create({
+            'name': 'Meli Invoice Test Pack Sibling Product 1',
+            'company_id': self.test_company.id,
+        })
+        self.env['meli.sku.mapping'].create({
+            'product_id': first_product.id, 'meli_sku': 'ZTEST-INVDOC-PACK1',
+        })
+        second_product = self.env['product.product'].create({
+            'name': 'Meli Invoice Test Pack Sibling Product 2',
+            'company_id': self.test_company.id,
+        })
+        self.env['meli.sku.mapping'].create({
+            'product_id': second_product.id, 'meli_sku': 'ZTEST-INVDOC-PACK2',
+        })
+
+        def _order_data(order_id, sku, pack_id):
+            return {
+                'id': order_id, 'status': 'paid', 'pack_id': pack_id,
+                'shipping': {}, 'date_created': None, 'date_closed': None,
+                'order_items': [{
+                    'item': {'id': 'MLMX', 'seller_sku': sku},
+                    'quantity': 1, 'unit_price': 100.0,
+                }],
+            }
+
+        SaleOrder = self.env['sale.order']
+        first_order = SaleOrder._meli_create_from_order_data(
+            self.config,
+            _order_data('7400000000000001', 'ZTEST-INVDOC-PACK1', '8400000000000010'),
+        )
+        second_order = SaleOrder._meli_create_from_order_data(
+            self.config,
+            _order_data('7400000000000002', 'ZTEST-INVDOC-PACK2', '8400000000000010'),
+        )
+        # Sanity check that this really is the Task 2 consolidated
+        # shape, not two separate sale orders.
+        self.assertEqual(first_order, second_order)
+        self.assertEqual(first_order.meli_order_id, '7400000000000001')
+        self.assertEqual(
+            sorted(first_order.order_line.mapped('meli_order_id')),
+            ['7400000000000001', '7400000000000002'],
+        )
+
+        # The invoice-document metadata reports the SECOND sibling's
+        # own order id — never seen anywhere on the sale.order itself.
+        with patch.object(
+            type(self.config), '_api_get_raw', return_value=b'<cfdi:Comprobante/>',
+        ):
+            document = self.env['meli.invoice.document']._meli_import_invoice_document_for_order(
+                self.test_company.id, '7400000000000002', 'sale',
+            )
+
+        self.assertEqual(document.sale_order_id, first_order)
+        self.assertEqual(document.company_id, first_order.company_id)
+        self.assertEqual(document.meli_pack_id, '8400000000000010')
+        self.assertEqual(
+            self.env['meli.invoice.document'].search_count([
+                ('transaction_type', '=', 'sale'),
+                ('sale_order_id', '=', first_order.id),
+            ]),
+            1,
+        )
+
+        # A later notification for the FIRST sibling's own order id
+        # must reuse this same document, not create a second one.
+        with patch.object(
+            type(self.config), '_api_get_raw', return_value=b'<cfdi:Comprobante/>',
+        ):
+            second_document = self.env['meli.invoice.document']._meli_import_invoice_document_for_order(
+                self.test_company.id, '7400000000000001', 'sale',
+            )
+
+        self.assertEqual(document, second_document)
+        self.assertEqual(
+            self.env['meli.invoice.document'].search_count([
+                ('transaction_type', '=', 'sale'),
+                ('sale_order_id', '=', first_order.id),
+            ]),
+            1,
+        )
 
     def test_order_path_404_returns_empty_recordset_without_raising(self):
         with patch.object(
@@ -592,3 +790,206 @@ class TestMeliInvoiceDocument(TransactionCase):
         self.assertFalse(without_id.status)
         self.assertIn('1 documento(s) actualizado(s)', result['params']['message'])
         self.assertIn('1 omitido(s)', result['params']['message'])
+
+    # -- account.move.meli_invoice_document_id --
+
+    def test_account_move_has_meli_invoice_document_field(self):
+        move = self.env['account.move'].new({'move_type': 'out_invoice'})
+        self.assertIn('meli_invoice_document_id', move._fields)
+        self.assertEqual(
+            move._fields['meli_invoice_document_id'].comodel_name,
+            'meli.invoice.document',
+        )
+
+    # -- Task 3: _meli_upsert wires into sale.order._meli_reconcile_invoicing --
+
+    def test_upsert_triggers_the_reconciler_when_already_delivered(self):
+        # _order_by_meli_order_id builds a bare order with no lines —
+        # every other caller in this file only needs order resolution,
+        # never a real delivery. This is the first test in this file to
+        # actually run the order through confirm/deliver, so it needs a
+        # product line and available stock on top of what the helper
+        # gives it (same order of operations as
+        # TestMeliFullCancellationAutomation._create_full_order in
+        # test_meli_full_cancellation.py: stock made available before
+        # the order is confirmed).
+        self.env['stock.quant']._update_available_quantity(
+            self.product, self.warehouse.lot_stock_id, 10,
+        )
+        order = self._order_by_meli_order_id('7000000000000200')
+        order.write({'order_line': [(0, 0, {
+            'product_id': self.product.id, 'product_uom_qty': 1,
+        })]})
+        order.action_confirm()
+        order.picking_ids.button_validate()
+        self.assertFalse(order.invoice_ids)
+
+        with patch.object(
+            type(self.config), '_api_get_raw',
+            # A bare '<cfdi:Comprobante/>' (used by every other test in
+            # this file, which never exercises the real reconciler) is
+            # not well-formed XML on its own — lxml raises "Namespace
+            # prefix cfdi on Comprobante is not defined" (confirmed in
+            # practice). This test is the first one whose upsert actually
+            # reaches _meli_relate_invoice_document ->
+            # _l10n_mx_edi_cfdi_invoice_document_sent, which parses the
+            # XML for real, so it needs the namespace declared. That's
+            # all it needs, though: l10n_mx_edi's own
+            # _create_update_document only parses/pretty-prints the XML
+            # and stores it as an attachment — it never requires a
+            # Complemento/TimbreFiscalDigital node to succeed (that node
+            # only affects whether l10n_mx_edi_cfdi_uuid ends up
+            # populated, see _fake_cfdi_xml's docstring in
+            # test_meli_full_cancellation.py), which this test doesn't
+            # assert on.
+            return_value=b'<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4"/>',
+        ):
+            self.env['meli.invoice.document']._meli_import_invoice_document_for_order(
+                self.test_company.id, '7000000000000200', 'sale',
+            )
+
+        invoice = order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')
+        self.assertEqual(len(invoice), 1)
+
+    # -- Task 4: _meli_upsert recovers a missing order via _meli_import_order --
+
+    def test_upsert_recovers_missing_order_via_meli_import_order(self):
+        """Trigger B (2026-09-09, cancelled-order-recovery plan): a
+        credit-note document arrives for an order this connector has
+        never created — _meli_upsert must now ask _meli_import_order to
+        fetch it fresh from Mercado Libre instead of silently leaving
+        sale_order_id False forever.
+        """
+        fake_order_data = {
+            'id': 'MID-RECOVERY-0001', 'status': 'cancelled', 'pack_id': False,
+            'shipping': {}, 'date_created': None, 'date_closed': None,
+            'order_items': [],
+        }
+        with patch.object(
+            type(self.config), '_api_get', return_value=fake_order_data,
+        ) as mocked_api_get, patch.object(
+            type(self.env['sale.order']), '_meli_create_from_order_data',
+        ) as mocked_create:
+            mocked_create.return_value = self.env['sale.order'].browse()
+            document = self.env['meli.invoice.document']._meli_upsert(
+                'MID-RECOVERY-0001', 'devolution', b'<fake/>',
+                meli_invoice_id='9200000000000001',
+                company_id=self.test_company.id,
+            )
+
+        mocked_api_get.assert_called_once_with('/orders/MID-RECOVERY-0001')
+        mocked_create.assert_called_once()
+        self.assertEqual(document.meli_order_id, 'MID-RECOVERY-0001')
+
+    def test_upsert_propagates_retryable_job_error_from_recovery(self):
+        """Final whole-branch review (2026-09-09), Important I1: a
+        transient Mercado Libre API failure (429/5xx/network blip) while
+        attempting Trigger B's recovery must reach queue_job's own retry
+        machinery, not get silently logged and swallowed as a permanent
+        failure — same guard already applied to
+        _meli_import_order_for_batch_line (sale_order.py) and
+        _meli_import_invoice_document_for_batch_line (this module).
+
+        Deliberately does NOT exercise the removed
+        `with self.env.cr.savepoint():` around this call (final
+        whole-branch review, Critical C1) — that would require forcing
+        l10n_mx_edi.document._can_commit() to return True inside a
+        TransactionCase test, risking a real cr.commit() against the
+        shared test database. Verified instead by reading the code: no
+        `with self.env.cr.savepoint():` remains around the
+        _meli_import_order call in meli_invoice_document.py.
+        """
+        with patch.object(
+            type(self.env['sale.order']), '_meli_import_order',
+            side_effect=RetryableJobError('transient'),
+        ):
+            with self.assertRaises(RetryableJobError):
+                self.env['meli.invoice.document']._meli_upsert(
+                    'MID-RECOVERY-RETRY-0001', 'sale', b'<fake/>',
+                    meli_invoice_id='9200000000000099',
+                    company_id=self.test_company.id,
+                )
+
+    def test_upsert_does_not_recover_when_order_already_resolves(self):
+        """No wasted recovery attempt when the document already resolves
+        to a real, existing sale order — the ordinary, common case."""
+        order = self._order_by_meli_order_id('MID-RECOVERY-0002')
+        with patch.object(type(self.config), '_api_get') as mocked_api_get:
+            document = self.env['meli.invoice.document']._meli_upsert(
+                'MID-RECOVERY-0002', 'sale', b'<fake/>',
+                meli_invoice_id='9200000000000002',
+                company_id=self.test_company.id,
+            )
+
+        mocked_api_get.assert_not_called()
+        self.assertEqual(document.sale_order_id, order)
+
+    def test_upsert_orphaned_document_recovers_full_order_end_to_end(self):
+        """Genuinely end-to-end: no mocking of _meli_create_from_order_data
+        — proves Trigger B really does close the loop all the way through
+        Tasks 2-3's own recovery logic, not just that _meli_import_order
+        gets called. Self-contained fixture (Mexican coa + fulfillment
+        warehouse): this file's shared setUpClass deliberately stays
+        lightweight (generic_coa, no fulfillment warehouse) for its many
+        other, simpler tests.
+        """
+        company = self.env['res.company'].with_context(
+            disable_company_pricelist_creation=True
+        ).create({'name': 'Test Co (meli invoice document e2e recovery)'})
+        self.env['account.chart.template'].try_loading(
+            'mx', company=company, install_demo=False,
+        )
+        partner = self.env['res.partner'].create({'name': 'Meli E2E Recovery Buyer'})
+        warehouse_fulfillment = self.env['stock.warehouse'].create({
+            'name': 'Almacen E2E Recovery', 'code': 'E2ER',
+            'company_id': company.id,
+        })
+        product = self.env['product.product'].create({
+            'name': 'Producto E2E Recovery', 'type': 'product',
+            'company_id': company.id,
+        })
+        self.env['meli.sku.mapping'].create({
+            'product_id': product.id, 'meli_sku': 'ZTEST-E2E-RECOVERY',
+        })
+        self.env['stock.quant']._update_available_quantity(
+            product, warehouse_fulfillment.lot_stock_id, 10,
+        )
+        config = self.env['meli.config'].create({
+            'company_id': company.id,
+            'client_id': 'e2e-recovery-client', 'client_secret': 'e2e-recovery-secret',
+            'state': 'connected', 'partner_id': partner.id,
+            'warehouse_fulfillment_id': warehouse_fulfillment.id,
+        })
+        fake_order_data = {
+            'id': 'MID-E2E-0001', 'status': 'cancelled', 'pack_id': False,
+            'shipping': {}, 'date_created': None, 'date_closed': None,
+            'order_items': [{
+                'item': {'id': 'MLM-E2E', 'seller_sku': 'ZTEST-E2E-RECOVERY'},
+                'quantity': 1, 'unit_price': 75.0,
+            }],
+        }
+
+        with patch.object(
+            type(config), '_api_get', return_value=fake_order_data,
+        ), patch.object(
+            type(self.env['sale.order']), '_meli_fetch_logistic_type',
+            return_value='fulfillment',
+        ), patch.object(
+            type(self.env['account.move']),
+            '_l10n_mx_edi_cfdi_invoice_try_send',
+            side_effect=AssertionError("must never be called — Mercado Libre owns the CFDI"),
+        ):
+            document = self.env['meli.invoice.document']._meli_upsert(
+                'MID-E2E-0001', 'sale', b'<fake/>',
+                meli_invoice_id='9200000000000099', company_id=company.id,
+            )
+
+        order = self.env['sale.order'].search([('meli_order_id', '=', 'MID-E2E-0001')])
+        self.assertTrue(order, "the order should have been recovered end to end")
+        self.assertEqual(order.state, 'cancel')
+        self.assertTrue(order.meli_auto_cancellation_processed)
+        self.assertEqual(document.sale_order_id, order)
+        invoice = order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')
+        self.assertEqual(len(invoice), 1)
+        self.assertEqual(invoice.state, 'posted')
+        self.assertEqual(invoice.meli_invoice_document_id, document)

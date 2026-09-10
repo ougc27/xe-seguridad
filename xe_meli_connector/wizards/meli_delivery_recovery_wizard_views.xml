@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_meli_delivery_recovery_wizard_form" model="ir.ui.view">
+        <field name="name">meli.delivery.recovery.wizard.form</field>
+        <field name="model">meli.delivery.recovery.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Recover Mercado Libre Deliveries">
+                <p>
+                    One-off fix for existing Full orders whose delivery transfer
+                    is stuck unvalidated or missing entirely — use this to heal
+                    orders affected by a bug that is already fixed going
+                    forward. Safe to run more than once; only touches this
+                    connector's own Full orders.
+                </p>
+                <footer>
+                    <button name="action_run" type="object"
+                            string="Run" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_meli_delivery_recovery_wizard" model="ir.actions.act_window">
+        <field name="name">Recover Deliveries</field>
+        <field name="res_model">meli.delivery.recovery.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_delivery_recovery"
+        name="Recover Deliveries"
+        parent="menu_meli_root"
+        action="action_meli_delivery_recovery_wizard"
+        sequence="14"
+        groups="group_meli_user"/>
+
+</odoo>

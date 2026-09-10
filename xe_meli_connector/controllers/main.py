@@ -76,7 +76,7 @@ class MeliOAuthController(http.Controller):
             config = self._find_config_by_ml_user_id(payload)
             if config:
                 request.env['sale.order'].sudo().with_delay(
-                    priority=5, channel='root.meli_sales',
+                    priority=5, channel='root.meli_sales', max_retries=8,
                     description=f"Import Mercado Libre order {order_id}",
                     identity_key=f"meli_import_order_{order_id}",
                 )._meli_import_order(config.company_id.id, order_id)
@@ -98,7 +98,7 @@ class MeliOAuthController(http.Controller):
             config = self._find_config_by_ml_user_id(payload)
             if config:
                 request.env['meli.claim'].sudo().with_delay(
-                    priority=5, channel='root.meli_sales',
+                    priority=5, channel='root.meli_sales', max_retries=8,
                     description=f"Import Mercado Libre claim {claim_id}",
                     identity_key=f"meli_import_claim_{claim_id}",
                 )._meli_import_claim(config.company_id.id, claim_id)
@@ -120,7 +120,7 @@ class MeliOAuthController(http.Controller):
                     # Priority 3 (vs. the 5 used by order/claim webhooks)
                     # — invoices got de-prioritized by default and lagged
                     # behind, per the user 2026-09-04.
-                    priority=3, channel='root.meli_sales',
+                    priority=3, channel='root.meli_sales', max_retries=8,
                     description=f"Import Mercado Libre invoice {invoice_id}",
                     identity_key=f"meli_import_invoice_{invoice_id}",
                 )._meli_import_invoice_document(config.company_id.id, invoice_id)

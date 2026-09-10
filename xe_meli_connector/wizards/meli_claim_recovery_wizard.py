@@ -42,7 +42,7 @@ class MeliClaimRecoveryWizard(models.TransientModel):
         Claim = self.env['meli.claim'].sudo()
         for claim_id in claim_ids:
             Claim.with_delay(
-                priority=8, channel='root.meli_sales',
+                priority=8, channel='root.meli_sales', max_retries=8,
                 description=f"Import Mercado Libre claim {claim_id} (recovery)",
                 identity_key=f"meli_import_claim_{claim_id}",
             )._meli_import_claim(config.company_id.id, claim_id)
