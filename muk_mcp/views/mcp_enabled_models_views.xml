@@ -97,10 +97,11 @@
         <field name="search_view_id" ref="mcp_enabled_model_view_search" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                No models enabled for MCP access
+                No restrictions configured — every model is open to MCP
             </p>
             <p>
-                Add a model to make it accessible through MCP.
+                Add a model here only if you want to restrict or fully
+                block it. Models with no record here are fully allowed.
             </p>
         </field>
     </record>

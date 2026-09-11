@@ -63,6 +63,27 @@ patch(Product.prototype, {
         }
     },
 
+    get_price(pricelist, quantity, price_extra = 0, recurring = false) {
+        // "POS tax-included" mode: if the point of sale tax (pos.config.tax_id)
+        // is flagged as price_include and the applicable rule carries a "POS
+        // Price (Tax Included)", that price is used. The included tax then does
+        // the base/tax back-computation (on both the order and the invoice),
+        // avoiding the one-cent mismatch.
+        const configTaxId = this.pos.config.tax_id ? this.pos.config.tax_id[0] : null;
+        const configTax = configTaxId ? this.pos.taxes_by_id[configTaxId] : null;
+        if (configTax && (configTax.price_include || configTax.pos_price_include) && pricelist) {
+            const date = DateTime.now();
+            const rules = (this.applicablePricelistItems[pricelist.id] || []).filter(
+                (item) => this.isPricelistItemUsable(item, date)
+            );
+            const rule = rules.find((r) => !r.min_quantity || quantity >= r.min_quantity);
+            if (rule && rule.pos_price_incl) {
+                return rule.pos_price_incl + (price_extra || 0);
+            }
+        }
+        return super.get_price(pricelist, quantity, price_extra, recurring);
+    },
+
     /*get_price(pricelist, quantity, price_extra = 0, recurring = false) {
         const date = DateTime.now();
 

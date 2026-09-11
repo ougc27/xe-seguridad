@@ -40,3 +40,31 @@ class ResConfigSettings(models.TransientModel):
             "marked to distinguish AI-originated changes from manual ones."
         ),
     )
+
+    mcp_oauth_enabled = fields.Boolean(
+        string="Enable OAuth",
+        config_parameter='muk_mcp.oauth_enabled',
+        default=False,
+        help=(
+            "Allows AI clients that support OAuth 'custom connectors' "
+            "(e.g. Claude Desktop/Claude.ai) to connect by URL only, "
+            "with the user logging in through Odoo instead of pasting "
+            "a bearer key into a config file."
+        ),
+    )
+
+    mcp_oauth_access_token_minutes = fields.Integer(
+        string="Access Token Lifetime (minutes)",
+        config_parameter='muk_mcp.oauth_access_token_minutes',
+        default=60,
+        help="How long an OAuth access token stays valid before the "
+             "client must use its refresh token to get a new one.",
+    )
+
+    mcp_oauth_refresh_token_days = fields.Integer(
+        string="Refresh Token Lifetime (days)",
+        config_parameter='muk_mcp.oauth_refresh_token_days',
+        default=30,
+        help="How long an OAuth refresh token stays valid. After this "
+             "period the user must reconnect and log in again.",
+    )

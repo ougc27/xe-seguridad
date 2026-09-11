@@ -17,6 +17,30 @@ class LoyaltyProgram(models.Model):
             "cannot be generated or edited manually."
     )
 
+    restrict_coupon_creation = fields.Boolean(
+        string="Restrict Coupon Creation to Managers",
+        default=False,
+        help="When enabled, only users in the 'Loyalty & Coupon Programs "
+            "Manager' group can create coupons for this program. Only "
+            "Settings administrators can enable or disable this option."
+    )
+
+    coupon_creation_locked_for_user = fields.Boolean(
+        string="Coupon Creation Locked For Current User",
+        compute="_compute_coupon_creation_locked_for_user",
+        help="Technical field: True when coupon creation is restricted and the "
+            "current user is not a Loyalty Manager. Used to hide the coupon "
+            "generation button in the view."
+    )
+
+    @api.depends("restrict_coupon_creation")
+    def _compute_coupon_creation_locked_for_user(self):
+        is_manager = self.env.user.has_group(
+            "pos_restrict_product_stock.group_loyalty_manager")
+        for program in self:
+            program.coupon_creation_locked_for_user = (
+                program.restrict_coupon_creation and not is_manager)
+
     @api.model
     def pos_validate_coupon_per_line(
         self,
@@ -240,6 +264,13 @@ class LoyaltyProgram(models.Model):
             tax_ratio = price_with_tax / line_subtotal if line_subtotal else 1
             discount_amount_tax = discount_net * tax_ratio
         elif card.price_from_pricelist:
+            # card.price_from_pricelist is already in the same unit as
+            # price_unit: when the coupon's pricelist has
+            # 'pos_price_included' enabled, it comes from the matching
+            # pricelist item's pos_price_incl (tax-included), matching what
+            # product.js sends as price_unit in that POS tax mode. Otherwise
+            # it's the standard tax-excluded pricelist price, same as a
+            # normal (non tax-included) POS tax setup.
             price_with_discount = card.price_from_pricelist
             new_line_subtotal = qty * price_with_discount
             discount_net = line_subtotal - new_line_subtotal

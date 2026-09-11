@@ -27,6 +27,8 @@ from . import res_users
 from . import stock_picking
 from . import pos_order_line
 from . import account_move
+from . import account_tax
+from . import product_pricelist_pos
 from . import product_pricelist_item
 from . import pos_payment
 from . import loyalty_program

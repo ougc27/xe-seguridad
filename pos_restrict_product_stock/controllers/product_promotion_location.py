@@ -23,6 +23,13 @@ class PosPromotionController(http.Controller):
             return []
         tax = request.env['account.tax'].sudo().browse(tax_id)
         tax_rate = tax.amount or 0.0
+        # When the POS tax is tax-included (native price_include or our custom
+        # pos_price_include), the POS computes the tax BACKWARDS from the unit
+        # price, so the promotion price must be fed WITH tax included as-is
+        # (the exact amount captured in the promotion). Only when the tax is
+        # tax-excluded do we return the net price so the POS adds the tax
+        # forward to reach the promotion price.
+        tax_included_mode = bool(tax.price_include or tax.pos_price_include)
         now = fields.Datetime.now()
 
         domain = [
@@ -43,10 +50,12 @@ class PosPromotionController(http.Controller):
 
             gross_price = promo.price_tax_included or 0.0
 
-            if tax_rate:
-                net_price = gross_price / (1 + (tax_rate / 100))
-            else:
+            if tax_included_mode or not tax_rate:
+                # Feed the tax-included price as-is; the POS derives base/tax
+                # backwards and shows exactly the promotion amount.
                 net_price = gross_price
+            else:
+                net_price = gross_price / (1 + (tax_rate / 100))
 
             net_price = round(net_price, 4)
 

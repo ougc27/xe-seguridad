@@ -80,6 +80,12 @@ class CancelledRemission(models.Model):
         store=True,
         help="Indicates if the transfer folio was generated from a helpdesk ticket.")
 
+    is_installation = fields.Boolean(
+        string="Has Installation",
+        readonly=True,
+        help="Indicates if the transfer folio includes an installation product (INS10 or INSBAS). "
+             "Set from the cancellation wizard when the record is created.")
+
     company_id = fields.Many2one(
         'res.company', 'Company', required=True, index=True,
         default=lambda self: self.env.company)

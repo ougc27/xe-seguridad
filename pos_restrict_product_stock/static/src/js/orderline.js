@@ -1,6 +1,7 @@
 /** @odoo-module */
 
 import { Orderline } from "@point_of_sale/app/store/models";
+import { PosStore } from "@point_of_sale/app/store/pos_store";
 import { roundDecimals as round_di } from "@web/core/utils/numbers";
 import { floatIsZero } from "@web/core/utils/numbers";
 import { patch } from "@web/core/utils/patch";
@@ -66,6 +67,20 @@ patch(Orderline.prototype, {
         return res;
     },
 
+    compute_all(taxes, price_unit, quantity, currency_rounding, handle_price_include = true) {
+        // POS "tax included" mode: a tax flagged pos_price_include (but not the
+        // native price_include) is computed backwards on the POS screen too, so
+        // the order total matches the invoice (which uses the same behaviour via
+        // account.tax.compute_all). We only flip a shallow copy, keeping the
+        // real tax id, so nothing else is affected.
+        const adjusted = (taxes || []).map((tax) =>
+            tax && tax.pos_price_include && !tax.price_include
+                ? { ...tax, price_include: true }
+                : tax
+        );
+        return super.compute_all(adjusted, price_unit, quantity, currency_rounding, handle_price_include);
+    },
+
     get_all_prices(qty = this.get_quantity()) {
         const price_unit = this.get_unit_price() * (1.0 - this.get_discount() / 100.0);
         let taxtotal = 0;
@@ -103,12 +118,7 @@ patch(Orderline.prototype, {
             };
         });
 
-        let priceWithTax = all_taxes.total_included;
-        if (priceWithTax) {
-            const integer_part = Math.floor(priceWithTax);
-            const decimals = priceWithTax - integer_part;
-            priceWithTax = decimals >= 0.5 ? integer_part + 1 : integer_part;
-        }
+        const priceWithTax = all_taxes.total_included;
 
         return {
             priceWithTax: priceWithTax,
@@ -250,4 +260,19 @@ patch(Orderline.prototype, {
             hasSameAttributes
         );
     }
+});
+
+// El precio de la tarjeta de producto (get_display_price) usa
+// this.pos.compute_all (el motor del PosStore), no el del Orderline. Por eso
+// hay que aplicar el mismo modo "IVA incluido en POS" aquí también, o la
+// cuadrícula muestra el precio con IVA sumado por fuera.
+patch(PosStore.prototype, {
+    compute_all(taxes, price_unit, quantity, currency_rounding, handle_price_include = true) {
+        const adjusted = (taxes || []).map((tax) =>
+            tax && tax.pos_price_include && !tax.price_include
+                ? { ...tax, price_include: true }
+                : tax
+        );
+        return super.compute_all(adjusted, price_unit, quantity, currency_rounding, handle_price_include);
+    },
 });

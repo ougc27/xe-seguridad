@@ -23,6 +23,14 @@ class MCPLog(models.Model):
         ondelete='set null',
     )
 
+    oauth_token_id = fields.Many2one(
+        comodel_name='muk_mcp.oauth.token',
+        string="OAuth Token",
+        readonly=True,
+        index=True,
+        ondelete='set null',
+    )
+
     user_id = fields.Many2one(
         comodel_name='res.users',
         string="User",

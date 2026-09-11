@@ -2,7 +2,7 @@
 
 {
     "name": "MX-EDI XE Brands",
-    "version": "17.0.0.0.16",
+    "version": "17.0.0.0.19",
     "license": "LGPL-3",
     "author": "XE Brands",
     'sequence': 1,
@@ -18,7 +18,10 @@
         'security/ir.model.access.csv',
         'security/res_groups.xml',
         'views/res_partner.xml',
-        'views/account_move_views.xml'
+        'views/account_move_views.xml',
+        'views/account_move_send_views.xml',
+        'views/account_tax_views.xml',
+        'views/cfdiv40_impuestos_locales.xml'
     ],
     "demo": [],
     'installable': True,

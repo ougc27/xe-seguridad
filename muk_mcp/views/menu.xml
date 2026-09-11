@@ -77,4 +77,22 @@
 		groups="base.group_system"
 	/>
 
+	<menuitem
+		id="menu_mcp_oauth_clients"
+		name="OAuth Clients"
+		parent="menu_mcp_root"
+		action="action_mcp_oauth_client"
+		sequence="60"
+		groups="base.group_system"
+	/>
+
+	<menuitem
+		id="menu_mcp_oauth_tokens"
+		name="OAuth Sessions"
+		parent="menu_mcp_root"
+		action="action_mcp_oauth_token"
+		sequence="61"
+		groups="base.group_system"
+	/>
+
 </odoo>

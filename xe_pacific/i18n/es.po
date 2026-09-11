@@ -347,6 +347,27 @@ msgid "Customer taken from the transfer folio."
 msgstr "Cliente obtenido desde el folio de transferencia."
 
 #. module: xe_pacific
+#: model:ir.model.fields,field_description:xe_pacific.field_cancelled_remission__is_installation
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_search
+msgid "Has Installation"
+msgstr "Tiene instalación"
+
+#. module: xe_pacific
+#: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__is_installation
+msgid ""
+"Indicates if the transfer folio includes an installation product (INS10 "
+"or INSBAS). Set from the cancellation wizard when the record is created."
+msgstr ""
+"Indica si el folio de transferencia incluye un producto de instalación "
+"(INS10 o INSBAS). Se establece desde el asistente de cancelación al crear "
+"el registro."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_cancelled_remission_search
+msgid "No Installation"
+msgstr "No tiene instalación"
+
+#. module: xe_pacific
 #: model:ir.model.fields,help:xe_pacific.field_cancelled_remission__team_id
 msgid "Sales team taken from the transfer folio."
 msgstr "Equipo de ventas obtenido desde el folio de transferencia."
@@ -1815,6 +1836,21 @@ msgid "Can Split Specific Lines"
 msgstr "Puede separar partidas específicas"
 
 #. module: xe_pacific
+#: model:res.groups,name:xe_pacific.group_can_cancel_sac_ticket_transfers
+msgid "Can Cancel SAC Ticket Transfers"
+msgstr "Puede cancelar traslados de tickets SAC"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_picking_form_inherit
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_picking_form_inherit
+msgid "Are you sure you want to cancel this transfer?"
+msgstr "¿Está seguro de que desea cancelar este traslado?"
+
+#. module: xe_pacific
 #. odoo-python
 #: code:addons/xe_pacific/models/helpdesk_ticket.py:0
 #: model_terms:ir.ui.view,arch_db:xe_pacific.custom_helpdesk_ticket_view_form
@@ -2309,6 +2345,16 @@ msgid "Unassigned"
 msgstr "Sin Asignar"
 
 #. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Created by me"
+msgstr "Creados por mí"
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_helpdesk_ticket_it_custom_search
+msgid "Followed by me"
+msgstr "Seguidos por mí"
+
+#. module: xe_pacific
 #: model:ir.model.fields,help:xe_pacific.field_helpdesk_ticket__external_url
 msgid "URL where the issue is occurring."
 msgstr "URL donde ocurre el problema."
@@ -2624,3 +2670,8 @@ msgstr ""
 "Cuando esta opción está habilitada, no se podrán validar devoluciones de "
 "este producto. Se establece automáticamente por recepciones de compra "
 "marcadas como bloqueadas."
+
+#. module: xe_pacific
+#: model_terms:ir.ui.view,arch_db:xe_pacific.view_order_form_inherit_information_tab
+msgid "Customer Payments"
+msgstr "Pagos del cliente"

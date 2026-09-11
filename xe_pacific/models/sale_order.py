@@ -224,3 +224,21 @@ class SaleOrder(models.Model):
             'view_mode': 'form',
             'target': 'new',
         }
+
+    def action_open_customer_payments(self):
+            self.ensure_one()
+            return {
+                "type": "ir.actions.act_window",
+                "name": "Customer Payments",
+                "res_model": "account.payment",
+                "view_mode": "list,form",
+                "domain": [
+                    ("partner_id", "=", self.partner_id.id),
+                    ("partner_type", "=", "customer"),
+                ],
+                "context": {
+                    "default_partner_id": self.partner_id.id,
+                    "default_partner_type": "customer",
+                    "search_default_partner_id": self.partner_id.id,
+                },
+            }

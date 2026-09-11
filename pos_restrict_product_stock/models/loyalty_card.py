@@ -1,5 +1,6 @@
 import json
 from odoo import api, fields, models, _
+from odoo.exceptions import AccessError
 
 
 class LoyaltyCard(models.Model):
@@ -87,11 +88,11 @@ class LoyaltyCard(models.Model):
     
     manual_price = fields.Float(
         string="Manual Price",
-        groups="base.group_system",
+        groups="pos_restrict_product_stock.group_loyalty_manager",
         help="Tax-included unit price set manually for a specific use case. "
-            "Only visible/editable by users with the highest (Settings) access "
-            "rights. When both a pricelist price and a manual price are set, "
-            "the lowest of the two is applied.",
+            "Only visible/editable by users with the Loyalty Manager "
+            "access rights. When both a pricelist price and a manual price "
+            "are set, the lowest of the two is applied.",
     )
 
     @api.depends('program_id.name', 'damage_type')
@@ -108,16 +109,67 @@ class LoyaltyCard(models.Model):
     def _compute_price_from_pricelist(self):
         for record in self:
             if record.pricelist_id and record.product_id:
-                record.price_from_pricelist = record.pricelist_id._get_product_price(
-                    record.product_id,
-                    1.0,
-                    False,
-                )
+                record.price_from_pricelist = record._get_pricelist_price()
             else:
                 record.price_from_pricelist = 0.0
 
+    def _get_pricelist_price(self):
+        """Price used by the coupon when it carries its own pricelist_id.
+
+        Normally this is the standard (tax-excluded) price computed by
+        product.pricelist. However, when the pricelist has the
+        'POS Price Tax Included' flag (pos_price_included) enabled, the POS
+        sends/expects tax-included unit prices (see product.js get_price /
+        pos_price_incl), so the matching pricelist.item's pos_price_incl is
+        used instead, keeping both values in the same unit. If that field is
+        not set on the matching rule, we fall back to the standard price.
+        """
+        self.ensure_one()
+        pricelist = self.pricelist_id
+        product = self.product_id
+        standard_price = pricelist._get_product_price(product, 1.0, False)
+
+        if not pricelist.pos_price_included:
+            return standard_price
+
+        price_rule = pricelist._compute_price_rule(product, 1.0)
+        rule_id = price_rule.get(product.id, (0, False))[1]
+        if not rule_id:
+            return standard_price
+
+        item = self.env['product.pricelist.item'].browse(rule_id)
+        return item.pos_price_incl or standard_price
+
+    def _check_manager_coupon_restriction(self, vals):
+        """Block manual coupon creation on restricted programs.
+
+        When a loyalty program has ``restrict_coupon_creation`` enabled, only
+        users in the ``group_loyalty_manager`` group may create its coupons.
+        Automated / technical flows (POS issuance, reward generation, data
+        loading) run in sudo and are never blocked; only manual creation by
+        non-manager users is restricted.
+        """
+        if self.env.su:
+            return
+        if self.env.user.has_group(
+                'pos_restrict_product_stock.group_loyalty_manager'):
+            return
+        vals_list = vals if isinstance(vals, list) else [vals]
+        program_ids = [v['program_id'] for v in vals_list if v.get('program_id')]
+        if not program_ids:
+            return
+        restricted = self.env['loyalty.program'].browse(program_ids).filtered(
+            'restrict_coupon_creation')
+        if restricted:
+            raise AccessError(_(
+                "Coupon creation for this loyalty program is restricted. Only "
+                "users in the 'Loyalty & Coupon Programs Manager' group are "
+                "allowed to create coupons."
+            ))
+
     @api.model
     def create(self, vals):
+        self._check_manager_coupon_restriction(vals)
         records = super().create(vals)
         for rec in records:
             if rec.program_id.externally_managed:

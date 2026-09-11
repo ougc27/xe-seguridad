@@ -21,25 +21,35 @@ from odoo.addons.muk_mcp.tools.exception import MCPScopeDenied
 # ─────────────────────────────────────────────────────────────────────────────
 # Tool map → (model_argument_key, crud_operation)
 #
+# Keys MUST match the actual registered MCP tool names (see
+# core/tool.py:get_tool_index() / the @mcp_tool(name=...) decorators and
+# data/tool.xml) — this previously used guessed/stale names (get_model_schema,
+# read_record, create_record, update_record, delete_record,
+# get_record_messages, execute_method) that don't exist, which silently
+# disabled the mcp.enabled.model restriction for every write operation.
+#
 # Tools not listed here have no target model and are always allowed through
-# (list_models, list_modules, get_user_context do not operate on a specific
-# model chosen by the agent).
+# (list_models, list_modules, whoami don't operate on a specific model chosen
+# by the agent). print_report and read_resource are also not listed: neither
+# takes a plain model argument (report_ref / uri instead), so they aren't
+# gated by mcp.enabled.model.
 # ─────────────────────────────────────────────────────────────────────────────
 _TOOL_MODEL_OP = {
     # ── Read ──────────────────────────────────────────────────
-    'get_model_schema':      ('model', 'read'),
+    'describe_model':        ('model', 'read'),
     'get_access_rights':     ('model', 'read'),
     'search_read':           ('model', 'read'),
-    'read_record':           ('model', 'read'),
+    'read_records':          ('model', 'read'),
     'search_count':          ('model', 'read'),
     'read_group':            ('model', 'read'),
-    'get_record_messages':   ('model', 'read'),
+    'get_messages':          ('model', 'read'),
+    'export_records':        ('model', 'read'),
     # ── Write ─────────────────────────────────────────────────
-    'create_record':         ('model', 'create'),
-    'update_record':         ('model', 'write'),
-    'delete_record':         ('model', 'unlink'),
+    'create_records':        ('model', 'create'),
+    'update_records':        ('model', 'write'),
+    'delete_records':        ('model', 'unlink'),
     'post_message':          ('model', 'write'),
-    'execute_method':        ('model', 'write'),
+    'call_method':           ('model', 'write'),
 }
 
 
@@ -103,13 +113,18 @@ class MCPController(http.Controller):
     def _log_request(self, method, **kwargs):
         if config.get('mcp_logging', True):
             key = getattr(request, '_mcp_key', None)
-            request.env['muk_mcp.log'].log(
-                key_id=key.id if key else None,
+            values = dict(
                 user_id=request.env.uid,
                 method=method,
                 ip_address=request.httprequest.remote_addr,
                 **kwargs,
             )
+            if key is not None:
+                if key._name == 'muk_mcp.oauth.token':
+                    values['oauth_token_id'] = key.id
+                else:
+                    values['key_id'] = key.id
+            request.env['muk_mcp.log'].log(**values)
 
     def _get_session(self, session_id):
         if session := request.env['muk_mcp.session'].sudo().search([

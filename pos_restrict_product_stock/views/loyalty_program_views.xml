@@ -6,11 +6,13 @@
         <field name="inherit_id" ref="loyalty.loyalty_program_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//button[@name='%(loyalty.loyalty_generate_wizard_action)d']" position="attributes">
-                <attribute name="invisible">program_type != 'coupons' or externally_managed</attribute>
+                <attribute name="invisible">program_type != 'coupons' or externally_managed or coupon_creation_locked_for_user</attribute>
             </xpath>
             <field name="date_to" position="after">
                 <field name="allow_multiple_use"/>
                 <field name="externally_managed"/>
+                <field name="restrict_coupon_creation" groups="base.group_system"/>
+                <field name="coupon_creation_locked_for_user" invisible="1"/>
             </field>
         </field>
     </record>

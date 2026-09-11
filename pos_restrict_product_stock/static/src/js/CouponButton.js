@@ -7,7 +7,6 @@ import { TextInputPopup } from "@point_of_sale/app/utils/input_popups/text_input
 import { SelectionPopup } from "@point_of_sale/app/utils/input_popups/selection_popup";
 import { Component } from "@odoo/owl";
 import { usePos } from "@point_of_sale/app/store/pos_hook";
-import { ErrorPopup } from "@point_of_sale/app/errors/popups/error_popup";
 
 
 export class CouponButton extends Component {
@@ -92,16 +91,6 @@ export class CouponButton extends Component {
         const result = await order.addCouponPerLine(payload.code, line);
         if (!result) return;
 
-        const alreadyUsed = order
-            .get_orderlines()
-            .some(line => line.coupon_id === result.coupon_id); 
-        if (alreadyUsed) {
-            await this.popup.add(ErrorPopup, {
-                title: _t("Coupon"),
-                body: _t("Coupon has already been applied to this order."),
-            });
-            return;
-        }
         line.set_unit_price(result.price_with_discount);
         line.setCoupon(result);
     }

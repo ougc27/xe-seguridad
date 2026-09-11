@@ -1,6 +1,6 @@
 {
     'name': 'XE Lunch Kiosk',
-    'version': '17.0.1.6.0',
+    'version': '17.0.1.6.1',
     'summary': 'Meal Service Registration via Barcode',
     'author': 'XE Brands',
     'category': 'Human Resources',

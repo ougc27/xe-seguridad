@@ -17,6 +17,16 @@ class ResPartner(models.Model):
     fiscal_name = fields.Char(
         help="The fiscal name of the customer with which the invoice will be issued to the SAT.")
 
+    cfdi_issued_by_third_party = fields.Boolean(
+        string="CFDI Issued by Third Party",
+        company_dependent=True,
+        tracking=True,
+        groups='base.group_system',
+        help="If checked, Odoo will not stamp invoices or credit notes for this customer. "
+             "Used when the CFDI is issued by a marketplace platform on the company's behalf "
+             "(e.g. Mercado Libre). The XML is related to the document afterwards.",
+    )
+
     def _get_unspsc_code_for_partner(self, product):
         self.ensure_one()
 

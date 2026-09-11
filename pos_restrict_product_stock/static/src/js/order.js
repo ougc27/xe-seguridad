@@ -239,6 +239,22 @@ patch(Order.prototype, {
             });
             return;
         }
+
+        // A single coupon cannot be assigned to more than one line within
+        // the same pos.order, regardless of whether it was applied by
+        // typing the code manually or by picking it from the suggested
+        // coupon list.
+        const alreadyUsedInOrder = this.get_orderlines().some(
+            (orderline) => orderline !== line && orderline.coupon_id === result.coupon_id
+        );
+        if (alreadyUsedInOrder) {
+            await this.pos.env.services.popup.add(ErrorPopup, {
+                title: _t("Coupon: %s", code),
+                body: _t("This coupon has already been applied to another line in this order."),
+            });
+            return;
+        }
+
         return result;
     },
     async add_product(product, options) {

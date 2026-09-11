@@ -381,6 +381,13 @@ class HelpdeskTicket(models.Model):
             vals['name'] = self.env['ir.sequence'].next_by_code('helpdesk.ticket.it.seq')
         return super().create(vals)
 
+    def message_post(self, **kwargs):
+        message = super().message_post(**kwargs)
+        partner_ids = kwargs.get('partner_ids')
+        if partner_ids and kwargs.get('subtype_xmlid') == 'mail.mt_note':
+            self.message_subscribe(partner_ids=partner_ids)
+        return message
+
     @api.depends('ticket_ref', 'partner_name')
     @api.depends_context('with_partner')
     def _compute_display_name(self):
