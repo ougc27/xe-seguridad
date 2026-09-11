@@ -6,13 +6,15 @@
         <field name="model">meli.invoice.document</field>
         <field name="arch" type="xml">
             <tree string="Facturación Mercado Libre" create="0" edit="0"
-                  decoration-danger="status in ('rejected', 'cancelled')">
+                  decoration-danger="status in ('rejected', 'cancelled')"
+                  decoration-warning="sale_order_id and not is_applied">
                 <field name="meli_order_id"/>
                 <field name="meli_pack_id" optional="hide"/>
                 <field name="sale_order_id"/>
                 <field name="transaction_type"/>
                 <field name="document_type"/>
                 <field name="status"/>
+                <field name="is_applied" widget="boolean_toggle" readonly="1"/>
                 <field name="issue_date"/>
                 <field name="last_synced_at"/>
             </tree>
@@ -41,9 +43,13 @@
                             <field name="transaction_type"/>
                             <field name="document_type"/>
                             <field name="status"/>
+                            <field name="is_applied"/>
                             <field name="issue_date"/>
                             <field name="last_synced_at"/>
                         </group>
+                    </group>
+                    <group string="Factura/Nota de Crédito Relacionada" invisible="not move_ids">
+                        <field name="move_ids" nolabel="1" colspan="2"/>
                     </group>
                     <group>
                         <field name="xml_filename"/>
@@ -64,6 +70,8 @@
                 <field name="meli_pack_id"/>
                 <filter name="unlinked" string="Sin venta ligada"
                         domain="[('sale_order_id', '=', False)]"/>
+                <filter name="not_applied" string="Con venta pero sin aplicar"
+                        domain="[('sale_order_id', '!=', False), ('is_applied', '=', False)]"/>
                 <filter name="cancelled_or_rejected" string="Canceladas/Rechazadas"
                         domain="[('status', 'in', ('cancelled', 'rejected'))]"/>
                 <group expand="0" string="Group By">

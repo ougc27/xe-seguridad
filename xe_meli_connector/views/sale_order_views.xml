@@ -32,6 +32,10 @@
                         string="Retry SKU mapping (Mercado Libre)"
                         class="btn-secondary"
                         invisible="state != 'draft' or not meli_sync_source"/>
+                <button name="action_meli_retry_invoicing_reconciliation" type="object"
+                        string="Retry Invoicing Reconciliation (Mercado Libre)"
+                        class="btn-secondary"
+                        invisible="not meli_sync_source"/>
             </xpath>
         </field>
     </record>
