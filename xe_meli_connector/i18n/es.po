@@ -1351,6 +1351,16 @@ msgid "Matched by meli_order_id first (orders imported by xe_meli_connector), fa
 msgstr "Se enlaza primero por meli_order_id (pedidos importados por xe_meli_connector), y si no encuentra nada usa sale.order.line.meli_order_id (un pedido hermano de un pack consolidado, distinto del primero, cuyo propio id de pedido solo vive en la línea que agregó), luego client_order_ref/reference (pedidos creados hoy por Ventiapp, que nunca llenan meli_order_id), y por último meli_pack_id — cubre una factura de reventa/pack cuya propia metadata reporta el id del pack en vez del id de un pedido hermano específico."
 
 #. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_has_unapplied_document
+msgid "Has an Unapplied Mercado Libre Document"
+msgstr "Tiene un Documento de Mercado Libre sin Aplicar"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_has_unapplied_document
+msgid "True when at least one meli.invoice.document already related to this sale (sale_order_id set) was never actually applied (is_applied still False — see that field's own help text). Only ever used to hide the 'Retry Invoicing Reconciliation' button once there's genuinely nothing left for it to do."
+msgstr "Verdadero cuando al menos un meli.invoice.document ya relacionado a esta venta (con sale_order_id establecido) nunca se llegó a aplicar realmente (is_applied sigue en Falso — ver el texto de ayuda de ese campo). Solo se usa para ocultar el botón 'Retry Invoicing Reconciliation' una vez que ya no queda nada pendiente por hacer."
+
+#. module: xe_meli_connector
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__is_applied
 msgid "Applied in Odoo"
 msgstr "Aplicado en Odoo"
