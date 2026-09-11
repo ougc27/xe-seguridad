@@ -82,6 +82,28 @@ class SaleOrder(models.Model):
              "only to detect changes (e.g. cancellations) — never "
              "triggers any automatic action in Odoo.",
     )
+    meli_has_unapplied_document = fields.Boolean(
+        string='Has an Unapplied Mercado Libre Document',
+        compute='_compute_meli_has_unapplied_document',
+        help="True when at least one meli.invoice.document already "
+             "related to this sale (sale_order_id set) was never "
+             "actually applied (is_applied still False — see that "
+             "field's own help text). Only ever used to hide the "
+             "'Retry Invoicing Reconciliation' button once there's "
+             "genuinely nothing left for it to do.",
+    )
+
+    @api.depends()
+    def _compute_meli_has_unapplied_document(self):
+        # Not stored on purpose — this only ever gates a button's
+        # visibility on a freshly opened form, never searched/filtered
+        # on, so there's no reason to keep it in sync in the database.
+        Document = self.env['meli.invoice.document'].sudo()
+        for order in self:
+            order.meli_has_unapplied_document = bool(Document.search_count([
+                ('sale_order_id', '=', order.id),
+                ('is_applied', '=', False),
+            ]))
     meli_pack_has_unmapped_sibling_cancellation = fields.Boolean(
         string='Pack Has An Unmapped Sibling Cancellation', copy=False,
         help="Fix round 1 (2026-09-09, reviewer finding — Fix C): set "
@@ -282,25 +304,57 @@ class SaleOrder(models.Model):
         line.write({'status': 'imported', 'sale_order_id': order.id})
 
     def action_meli_retry_invoicing_reconciliation(self):
-        """Manual button: re-runs _meli_reconcile_invoicing right now.
+        """Manual button: re-runs _meli_reconcile_invoicing right now
+        (idempotent — see that method's own docstring), then, for a
+        Full pack order only, also finishes the job for any credit
+        note document that's related to this sale (sale_order_id set)
+        but never actually got applied (meli.invoice.document.
+        is_applied still False) — same core pipeline
+        (_meli_apply_partial_cancellation: credit note relation, stock
+        return, and line-quantity adjustment) the live 'order
+        cancelled' webhook path already uses for a fresh cancellation,
+        scoped here to documents a human has explicitly asked to
+        retry, never automatically (see _meli_reconcile_invoicing's own
+        pack-credit-note step for why it deliberately does NOT do this
+        itself on every automatic call).
 
-        Fix 2026-09-11: that method's credit-note step, for a pack
-        order, matches a credit note document to ITS OWN sibling's
-        order_line by meli_order_id — if that check ever runs before
-        the matching line exists yet (e.g. a credit-note document
-        processed while an order/line creation was still delayed or
-        stuck retrying — see the queue_job_cron_jobrunner retry_pattern
-        incident, 2026-09-10), it posts a "could not be matched —
-        review manually" chatter message and never retries on its own,
-        even once the line legitimately exists. _meli_reconcile_invoicing
-        is fully idempotent (every step below it already checks what's
-        missing before acting), so simply calling it again here is safe
-        and is the whole fix — no new logic needed, only a way to
-        trigger it again by hand once a human has confirmed the
-        underlying data is actually fine.
+        Fix 2026-09-11: _meli_reconcile_invoicing's credit-note step,
+        for a pack order, matches a credit note document to ITS OWN
+        sibling's order_line by meli_order_id — if that check ever runs
+        before the matching line exists yet (e.g. a credit-note
+        document processed while an order/line creation was still
+        delayed or stuck retrying — see the queue_job_cron_jobrunner
+        retry_pattern incident, 2026-09-10), it posts a "could not be
+        matched — review manually" chatter message and never retries
+        on its own, even once the line legitimately exists — and even
+        once it does relate the credit note, it never returns the
+        sibling's own inventory (see _meli_reconcile_invoicing's own
+        comment on this). This button is the manual escape hatch for
+        both: a human confirms the underlying data is fine, then
+        clicks this to finish the whole job for it.
         """
         self.ensure_one()
         self._meli_reconcile_invoicing()
+        if not self.meli_pack_id:
+            return
+        config = self.env['meli.config'].sudo().search([
+            ('company_id', '=', self.company_id.id), ('state', '=', 'connected'),
+        ], limit=1)
+        is_full = bool(
+            config and config.warehouse_fulfillment_id
+            and self.warehouse_id == config.warehouse_fulfillment_id
+        )
+        if not is_full:
+            return
+        from .meli_invoice_document import MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES
+        stuck_documents = self.env['meli.invoice.document'].sudo().search([
+            ('sale_order_id', '=', self.id),
+            ('transaction_type', 'in', list(MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES)),
+            ('is_applied', '=', False),
+        ])
+        stuck_sibling_ids = set(stuck_documents.mapped('meli_order_id')) - {False}
+        for sibling_id in stuck_sibling_ids:
+            self._meli_apply_partial_cancellation(sibling_id)
 
     def action_meli_retry_sku_mapping(self):
         """Manual button: re-checks meli.sku.mapping right now instead of
@@ -561,11 +615,37 @@ class SaleOrder(models.Model):
 
     def _meli_process_partial_cancellation(self, cancelled_order_id):
         """Cancellation/return of ONE individual Mercado Libre order
-        within an active pack's consolidated sale.order — confirmed in
-        practice (2026-09-08): 10 real packs where one sibling stayed
-        'paid' while another went 'cancelled'/'partially_refunded'.
-        Mercado Libre genuinely allows cancelling a single order within
-        an active pack. Only THIS sibling's own line(s) — found via
+        within an active pack's consolidated sale.order, PLUS closing
+        the whole sale once every sibling has reached this same state —
+        see _meli_apply_partial_cancellation (the core work: credit
+        note + stock return + quantity, called by BOTH this method and
+        _meli_reconcile_invoicing) and _meli_close_pack_if_every_
+        sibling_cancelled (the closure check, called ONLY from here)
+        for what each half actually does and why they're split.
+
+        Fix 2026-09-11: the closure check must stay tied to the real
+        order-STATUS-changed signal this method is only ever called
+        from (_meli_flag_status_change, itself only reachable from a
+        live Mercado Libre notification) — never from a credit note
+        DOCUMENT merely arriving (_meli_reconcile_invoicing, reachable
+        from the invoices webhook/missed_feeds/batch import/manual
+        retry, none of which mean Mercado Libre reported this order's
+        STATUS as anything). Confirmed by a real regression: delegating
+        _meli_reconcile_invoicing's own pack-credit-note step straight
+        to this whole method auto-cancelled a still-legitimately-'sale'
+        single-sibling pack the moment its credit note document was
+        merely reconciled — with no order-cancelled notification ever
+        involved.
+        """
+        self.ensure_one()
+        self._meli_apply_partial_cancellation(cancelled_order_id)
+        self._meli_close_pack_after_partial_cancellation()
+
+    def _meli_apply_partial_cancellation(self, cancelled_order_id):
+        """The core work of a partial cancellation, without the pack-
+        closure check — see _meli_process_partial_cancellation's own
+        docstring for why that check is kept separate and only runs
+        from there. Only THIS sibling's own line(s) — found via
         sale.order.line.meli_order_id — are touched: its own delivered
         stock is returned, its own portion of the invoice is credited
         (see _meli_relate_partial_cancellation_credit_note: a
@@ -785,18 +865,27 @@ class SaleOrder(models.Model):
             ) % credit_note.name
         self.message_post(body=message)
 
-        # Fix 1 (2026-09-09, user-directed follow-up): once every
-        # distinct sibling this pack has ever added a line for has
-        # reached its own final cancelled state, the sale itself was
-        # never actually closed — this method only ever touches the ONE
-        # sibling reported on. Scoped to the exact same Full-pack
-        # automation boundary _meli_flag_status_change already gates
-        # this whole method behind (is_full and self.meli_pack_id) —
-        # recomputed here, not threaded through as a parameter, so this
-        # stays safe to call directly (as most of this method's own
-        # regression tests already do, several against a non-Full pack)
-        # without finalizing a sale that was never part of any
-        # automation to begin with.
+    def _meli_close_pack_after_partial_cancellation(self):
+        """Fix 1 (2026-09-09, user-directed follow-up): once every
+        distinct sibling this pack has ever added a line for has
+        reached its own final cancelled state, the sale itself was
+        never actually closed — _meli_apply_partial_cancellation only
+        ever touches the ONE sibling reported on. Scoped to the exact
+        same Full-pack automation boundary _meli_flag_status_change
+        already gates _meli_process_partial_cancellation behind (is_full
+        and self.meli_pack_id) — recomputed here, not threaded through
+        as a parameter, so this stays safe to call directly (as most of
+        this method's own regression tests already do, several against
+        a non-Full pack) without finalizing a sale that was never part
+        of any automation to begin with.
+
+        Fix 2026-09-11: split out of _meli_process_partial_cancellation
+        into its own method — called ONLY from there, never from
+        _meli_reconcile_invoicing's own call to
+        _meli_apply_partial_cancellation. See
+        _meli_process_partial_cancellation's own docstring for why.
+        """
+        self.ensure_one()
         config = self.env['meli.config'].sudo().search([
             ('company_id', '=', self.company_id.id), ('state', '=', 'connected'),
         ], limit=1)
@@ -1815,6 +1904,24 @@ class SaleOrder(models.Model):
                         'order_id': cancelled_order_id or '?',
                     })
                     continue
+                # Deliberately only relates the credit note here, same as
+                # always — NOT the fuller _meli_apply_partial_cancellation
+                # (credit note + stock return + quantity), which would
+                # make ANY automatic call to _meli_reconcile_invoicing
+                # (this method also runs as a side effect of validating
+                # an unrelated stock picking on this same order — see
+                # _meli_process_partial_cancellation's own docstring)
+                # eagerly sweep up and act on every OTHER sibling's own
+                # pending devolución too, ahead of ITS OWN explicit
+                # order-status-changed event. Confirmed by a real
+                # regression (2026-09-11): doing that here auto-cancelled
+                # a still-legitimately-'sale' 2-sibling pack the moment
+                # only ONE sibling's own return picking validated, before
+                # the OTHER sibling's own cancellation was ever reported.
+                # The fuller pipeline for a document that's stuck exactly
+                # like this one — related to its sale_order_id but never
+                # actually applied — is available on demand instead, via
+                # action_meli_retry_invoicing_reconciliation.
                 self._meli_relate_partial_cancellation_credit_note(
                     sibling_lines, cancelled_order_id,
                 )
