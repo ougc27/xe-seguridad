@@ -140,6 +140,80 @@ class TestMeliInvoiceImportBatchWizard(TransactionCase):
         self.assertEqual(job.model_name, 'meli.invoice.document')
         self.assertEqual(job.method_name, '_meli_import_invoice_document_for_batch_line')
 
+    def test_jobs_are_staggered_three_seconds_apart(self):
+        """The bug this closes: an Excel with many rows used to enqueue
+        every job with the same eta (right now), which — combined with
+        the since-fixed queue_job_cron_jobrunner retry_pattern bug —
+        self-inflicted a burst of API traffic against Mercado Libre
+        (production, 2026-09-10). Each successfully-enqueued row must
+        now be 3 seconds further out than the previous one.
+        """
+        wizard = self._wizard([
+            '8000000000000010', '8000000000000011',
+            '8000000000000012', '8000000000000013',
+        ])
+        wizard.action_import()
+
+        jobs = self.env['queue.job'].sudo().search([
+            ('identity_key', 'in', [
+                'meli_import_invoice_8000000000000010',
+                'meli_import_invoice_8000000000000011',
+                'meli_import_invoice_8000000000000012',
+                'meli_import_invoice_8000000000000013',
+            ]),
+        ], order='id asc')
+        self.assertEqual(len(jobs), 4)
+        # The very first enqueued row gets eta=0 seconds — with_delay()
+        # treats that as "no delay at all" (falsy), same as never
+        # passing eta, so it runs as soon as a worker is free, not at a
+        # literal "now" timestamp. Only rows 2+ get a real, non-zero eta.
+        self.assertFalse(jobs[0].eta, "the first row runs immediately, no eta")
+        etas = jobs[1:].mapped('eta')
+        self.assertTrue(all(etas), "every OTHER enqueued job must have a real eta")
+        gaps = [
+            (etas[i + 1] - etas[i]).total_seconds()
+            for i in range(len(etas) - 1)
+        ]
+        # Each with_delay() call reads "now" at a slightly later wall-clock
+        # moment than the previous loop iteration (real, if tiny, Python
+        # overhead between them) — so the gap is "3 seconds plus a few
+        # milliseconds," never exactly 3.0. A generous 1-second tolerance
+        # only fails if the real pacing logic breaks, not on test-machine
+        # timing noise.
+        for gap in gaps:
+            self.assertAlmostEqual(gap, 3.0, delta=1.0)
+
+    def test_skipped_rows_do_not_waste_the_pacing_budget(self):
+        """A duplicate/invalid row never calls with_delay() at all — it
+        must not still consume a "slot" in the stagger. Uses 3 real
+        rows (not 2) so the comparison lands on the 2nd and 3rd real
+        enqueues, both of which get a genuine non-zero eta — the 1st
+        real row's own eta=0 is falsy (see the sibling test above), so
+        it can't be used in a subtraction here.
+        """
+        wizard = self._wizard([
+            '8000000000000020', 'not-a-number', '8000000000000020',
+            '8000000000000021', '8000000000000022',
+        ])
+        wizard.action_import()
+
+        jobs = self.env['queue.job'].sudo().search([
+            ('identity_key', 'in', [
+                'meli_import_invoice_8000000000000020',
+                'meli_import_invoice_8000000000000021',
+                'meli_import_invoice_8000000000000022',
+            ]),
+        ], order='id asc')
+        self.assertEqual(len(jobs), 3)
+        self.assertFalse(jobs[0].eta)
+        self.assertTrue(jobs[1].eta)
+        self.assertTrue(jobs[2].eta)
+        self.assertAlmostEqual(
+            (jobs[2].eta - jobs[1].eta).total_seconds(), 3.0, delta=1.0,
+            msg="only the 3 real, enqueued rows count toward the stagger — "
+                "the invalid row and the duplicate must not shift this gap",
+        )
+
 
 @tagged('post_install', '-at_install')
 class TestMeliImportInvoiceDocumentForBatchLine(TransactionCase):

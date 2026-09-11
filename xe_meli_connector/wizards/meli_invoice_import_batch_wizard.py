@@ -6,6 +6,8 @@ import openpyxl
 from odoo import _, fields, models
 from odoo.exceptions import UserError
 
+from ..models.meli_config import MELI_BATCH_IMPORT_SECONDS_BETWEEN_JOBS
+
 
 def _meli_extract_invoice_ids(file_content):
     """Reads the first sheet of an .xlsx file and returns a list of
@@ -75,6 +77,11 @@ class MeliInvoiceImportBatchWizard(models.TransientModel):
         })
         Document = self.env['meli.invoice.document'].sudo()
         seen_invoice_ids = set()
+        # Staggered, not fired all at once — see the identical comment
+        # in meli_import_batch_wizard.py's own action_import for the
+        # full rationale (a real, production self-inflicted API-traffic
+        # burst, 2026-09-10).
+        enqueued_count = 0
         for raw_value, invoice_id in rows:
             if invoice_id is None:
                 self.env['meli.invoice.import.batch.line'].sudo().create({
@@ -107,7 +114,9 @@ class MeliInvoiceImportBatchWizard(models.TransientModel):
             Document.with_delay(
                 priority=8, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_import_invoice_{invoice_id}",
+                eta=enqueued_count * MELI_BATCH_IMPORT_SECONDS_BETWEEN_JOBS,
             )._meli_import_invoice_document_for_batch_line(company.id, invoice_id, line.id)
+            enqueued_count += 1
 
         return {
             'type': 'ir.actions.act_window',

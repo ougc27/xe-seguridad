@@ -1,6 +1,8 @@
 from odoo import _, fields, models
 from odoo.exceptions import UserError
 
+from odoo.addons.queue_job.exception import RetryableJobError
+
 
 class MeliManualImportWizard(models.TransientModel):
     _name = 'meli.manual.import.wizard'
@@ -23,9 +25,21 @@ class MeliManualImportWizard(models.TransientModel):
             raise UserError(_(
                 "There is no active Mercado Libre connection for this company."
             ))
-        order = self.env['sale.order'].sudo()._meli_import_order(
-            config.company_id.id, self.order_id.strip(),
-        )
+        try:
+            order = self.env['sale.order'].sudo()._meli_import_order(
+                config.company_id.id, self.order_id.strip(),
+            )
+        except RetryableJobError:
+            # Fix 2026-09-10: shipping-detail fetch failures now raise
+            # this instead of silently creating the order without
+            # knowing its shipping details (see
+            # sale.order._meli_fetch_shipment_records). There's no queue
+            # job here to retry it automatically, so translate it into a
+            # plain, actionable message instead of a raw traceback.
+            raise UserError(_(
+                "Could not reach Mercado Libre to verify this order's "
+                "shipping details. Try again in a moment."
+            ))
         if not order:
             raise UserError(_(
                 "Mercado Libre order %s could not be imported — it may not "

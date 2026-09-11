@@ -229,7 +229,21 @@ class SaleOrder(models.Model):
             existing._meli_retry_unmapped_lines(order_data)
             return existing
 
-        return self.sudo()._meli_create_from_order_data(config, order_data)
+        order = self.sudo()._meli_create_from_order_data(config, order_data)
+        if order:
+            # This order didn't exist a moment ago (the `existing` search
+            # above found nothing) — any meli.invoice.document that
+            # already arrived for this order_id/pack_id before now would
+            # have computed sale_order_id=False at ITS OWN creation time
+            # and never revisit it on its own (see
+            # meli.invoice.document._meli_recompute_and_reconcile's own
+            # docstring for why). Force it now, immediately, rather than
+            # waiting for the 10-minute safety-net cron.
+            pack_id = str(order_data.get('pack_id') or '') or False
+            self.env['meli.invoice.document']._meli_relink_orphaned_documents(
+                order_id, pack_id,
+            )
+        return order
 
     @api.model
     def _meli_import_order_for_batch_line(self, company_id, order_id, line_id):
@@ -2304,7 +2318,32 @@ class SaleOrder(models.Model):
                 "(Mercado Libre > Settings) before importing sales."
             ))
 
-        logistic_type = self._meli_fetch_logistic_type(config, order_id, order_data)
+        # Fix 2026-09-10: ONE shared fetch of /orders/{id}/shipments for
+        # both the logistic type (below) and the custom-shipping surcharge
+        # (further down) — see _meli_fetch_shipment_records's own
+        # docstring for why the previous two-independent-calls design was
+        # reversed (it caused a real lost freight surcharge). A failure
+        # here is retried as a whole (RetryableJobError) rather than
+        # creating the order without knowing its shipping details —
+        # this order's fiscal/logistics facts must be certain before it
+        # exists at all.
+        shipping_id_for_shipments = (order_data.get('shipping') or {}).get('id')
+        if shipping_id_for_shipments:
+            try:
+                shipment_records = self._meli_fetch_shipment_records(
+                    config, order_id, order_data,
+                )
+            except requests.exceptions.RequestException as err:
+                raise RetryableJobError(
+                    f"Could not fetch Mercado Libre shipping details for "
+                    f"order {order_id} — will retry.", seconds=30,
+                ) from err
+        else:
+            shipment_records = []
+
+        logistic_type = self._meli_fetch_logistic_type(
+            config, order_id, order_data, shipments=shipment_records,
+        )
         is_fulfillment = logistic_type == 'fulfillment'
         warehouse = (
             config.warehouse_fulfillment_id if is_fulfillment
@@ -2381,26 +2420,13 @@ class SaleOrder(models.Model):
 
         resolved_lines, unmapped_skus = self._meli_build_order_lines(order_data, order_id)
 
-        # A transient failure here must never be confused with "this
-        # order isn't custom shipping" (both used to read as None) — that
-        # silently dropped the freight surcharge with nothing to catch it
-        # (_meli_retry_unmapped_lines never revisits shipping once the
-        # order exists). shipping_cost_fetch_failed lets the order still
-        # get created without the surcharge, exactly as before, but with
-        # a chatter warning posted below once the order exists.
-        shipping_cost_fetch_failed = False
-        try:
-            custom_shipping_cost = self._meli_fetch_custom_shipping_cost(
-                config, order_id, order_data,
-            )
-        except requests.exceptions.RequestException:
-            _logger.warning(
-                "Could not verify the Mercado Libre shipping mode for "
-                "order %s — creating the order without a shipping "
-                "surcharge line.", order_id,
-            )
-            custom_shipping_cost = None
-            shipping_cost_fetch_failed = True
+        # Shares shipment_records (fetched once, above) — no separate
+        # HTTP call and no separate failure mode: a fetch failure was
+        # already raised as RetryableJobError before this order's data
+        # was even built (see shipment_records above).
+        custom_shipping_cost = self._meli_fetch_custom_shipping_cost(
+            config, order_id, order_data, shipments=shipment_records,
+        )
         shipping_partner_id = config.partner_id.id
         delivery_contact_status = 'not_applicable'
         # Read regardless of shipment type (2026-09-08, for a Google
@@ -2520,15 +2546,6 @@ class SaleOrder(models.Model):
                 "automatically, so this sale was created as a new "
                 "order instead. Please reconcile these manually."
             ) % {'count': adoption_ambiguous_count, 'reference': adoption_ref})
-        if shipping_cost_fetch_failed:
-            # Independent of whatever else happens below (unmapped SKUs,
-            # auto-confirm, auto-cancel) — this is its own, separate
-            # warning that the freight surcharge may be missing.
-            order._meli_post_with_mention(_(
-                "Could not verify the Mercado Libre shipping mode for "
-                "this order; if it's a custom shipment the freight "
-                "surcharge line is missing."
-            ))
         price_debug = [debug for _command, debug in resolved_lines]
         if price_debug:
             self._meli_force_line_prices(order.order_line, price_debug)
@@ -2763,36 +2780,78 @@ class SaleOrder(models.Model):
         return order
 
     @api.model
-    def _meli_fetch_logistic_type(self, config, order_id, order_data):
+    def _meli_fetch_shipment_records(self, config, order_id, order_data):
+        """Single source of truth for GET /orders/{id}/shipments
+        (X-New-Domain: true) — shared by _meli_fetch_logistic_type and
+        _meli_fetch_custom_shipping_cost.
+
+        Fix 2026-09-10: those two used to each make their OWN,
+        independent HTTP call to this exact same endpoint for every
+        order import. A transient failure on either one alone (both
+        equally likely, same resource, seconds apart) surfaced as "could
+        not verify the Mercado Libre shipping mode" on ANY order —
+        including plain warehouse-fulfilled ones that were never custom
+        shipping to begin with, purely because the SECOND of the two
+        redundant calls happened to be the unlucky one. Confirmed in
+        production: a genuinely custom-shipping order lost its freight
+        surcharge this way, with only that one warning left in the
+        chatter as a trace. One shared fetch removes the race entirely
+        (a caller that already knows about the earlier "deliberately
+        separate calls" plan should treat this as its explicit reversal
+        — the duplicate-traffic and false-alarm cost turned out to
+        outweigh whatever kept them apart).
+
+        Returns [] when the order has no shipping id at all (nothing to
+        fetch — never a failure). Raises
+        requests.exceptions.RequestException on a genuine fetch failure;
+        the caller decides what that means.
+        """
+        shipping_id = (order_data.get('shipping') or {}).get('id')
+        if not shipping_id:
+            return []
+        shipments = config._api_get(
+            f'/orders/{order_id}/shipments',
+            headers={'X-New-Domain': 'true'},
+        )
+        if isinstance(shipments, dict):
+            shipments = [shipments]
+        return shipments or []
+
+    @api.model
+    def _meli_fetch_logistic_type(self, config, order_id, order_data, shipments=None):
         """The order resource only carries a shipping id, not the
         logistic_type — a separate call to /orders/$ID/shipments is
         required. Falls back to None (non-fulfillment) on any failure so a
         transient issue here doesn't block the whole sale from being
         created.
+
+        `shipments`, when given (a list, possibly empty — see
+        _meli_fetch_shipment_records), skips the HTTP fetch entirely and
+        parses from it directly. _meli_create_from_order_data always
+        passes it, having already fetched shipments once for both this
+        and _meli_fetch_custom_shipping_cost to share (2026-09-10 fix).
+        Left as an internal fallback fetch for any other/future caller
+        that still wants this method's original do-it-all behaviour.
         """
-        shipping_id = (order_data.get('shipping') or {}).get('id')
-        if not shipping_id:
-            return None
-        try:
-            shipments = config._api_get(
-                f'/orders/{order_id}/shipments',
-                headers={'X-New-Domain': 'true'},
-            )
-        except requests.exceptions.RequestException:
-            _logger.warning(
-                "Could not fetch shipments for Mercado Libre order %s, "
-                "defaulting to the non-fulfillment warehouse.", order_id,
-            )
-            return None
-        if isinstance(shipments, dict):
-            shipments = [shipments]
+        if shipments is None:
+            shipping_id = (order_data.get('shipping') or {}).get('id')
+            if not shipping_id:
+                return None
+            try:
+                shipments = self._meli_fetch_shipment_records(config, order_id, order_data)
+            except requests.exceptions.RequestException:
+                _logger.warning(
+                    "Could not fetch shipments for Mercado Libre order %s, "
+                    "defaulting to the non-fulfillment warehouse.", order_id,
+                )
+                return None
         for shipment in shipments or []:
             if shipment.get('type') == 'forward':
                 return shipment.get('logistic_type')
         return None
 
     @api.model
-    def _meli_fetch_custom_shipping_cost(self, config, order_id, order_data):
+    def _meli_fetch_custom_shipping_cost(self, config, order_id, order_data, shipments=None):
         """Mercado Libre orders shipped 'custom' (the seller manages
         courier/logistics directly — used today only for XE's oversized
         security doors, which don't fit Mercado Envíos' standard
@@ -2811,29 +2870,28 @@ class SaleOrder(models.Model):
         _meli_fetch_logistic_type needs no change here — it already
         returns None for a shipment with no such key).
 
-        Deliberately a separate fetch from _meli_fetch_logistic_type
-        (not merged into one call) — see Global Constraints in
-        docs/superpowers/plans/2026-08-31-meli-custom-shipping-surcharge.md.
+        `shipments`, when given, skips the HTTP fetch — see
+        _meli_fetch_logistic_type's docstring for why
+        (_meli_fetch_shipment_records is now the one shared fetch;
+        2026-09-10 fix, reversing the earlier "deliberately separate
+        calls" decision after it caused a real lost freight surcharge).
 
-        Unlike _meli_fetch_logistic_type, a RequestException here is
-        deliberately NOT swallowed — it propagates to the caller. This
-        method's None return value already means something specific ("not
-        custom shipping"), and silently reusing it for "the fetch failed"
-        made a failed fetch indistinguishable from a genuinely
-        non-custom order: the order got created and confirmed with no
-        surcharge line and nothing looked wrong (found in the final
-        branch review, 2026-08-31). _meli_create_from_order_data is the
-        one that decides what a failure here should mean.
+        Unlike _meli_fetch_logistic_type, a RequestException from the
+        internal fallback fetch here is deliberately NOT swallowed — it
+        propagates to the caller. This method's None return value
+        already means something specific ("not custom shipping"), and
+        silently reusing it for "the fetch failed" made a failed fetch
+        indistinguishable from a genuinely non-custom order: the order
+        got created and confirmed with no surcharge line and nothing
+        looked wrong (found in the final branch review, 2026-08-31).
+        _meli_create_from_order_data is the one that decides what a
+        failure here should mean.
         """
-        shipping_id = (order_data.get('shipping') or {}).get('id')
-        if not shipping_id:
-            return None
-        shipments = config._api_get(
-            f'/orders/{order_id}/shipments',
-            headers={'X-New-Domain': 'true'},
-        )
-        if isinstance(shipments, dict):
-            shipments = [shipments]
+        if shipments is None:
+            shipping_id = (order_data.get('shipping') or {}).get('id')
+            if not shipping_id:
+                return None
+            shipments = self._meli_fetch_shipment_records(config, order_id, order_data)
         for shipment in shipments or []:
             if shipment.get('type') == 'forward' and shipment.get('mode') == 'custom':
                 return shipment.get('base_cost') or 0.0

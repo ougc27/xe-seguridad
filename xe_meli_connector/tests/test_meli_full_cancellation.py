@@ -646,6 +646,47 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             '</cfdi:Comprobante>'
         ).encode()
 
+    def test_meli_import_order_relinks_a_document_that_arrived_before_the_order(self):
+        """The bug this closes (found 2026-09-10, from a real production
+        document stuck with sale_order_id blank): meli.invoice.document.
+        sale_order_id is a stored compute field with
+        @api.depends('meli_order_id') only — its own field, never
+        anything about sale.order — so it never recomputes on its own
+        just because a matching sale.order gets created later. Before
+        this fix, only sale.order._meli_recover_cancelled_on_arrival_full
+        (2026-09-09) ever forced this recompute, and only for its own
+        narrow "arrived already cancelled" case — a document that
+        arrived before a completely NORMAL (paid, never cancelled) order
+        got created had nothing forcing its own recompute at all.
+        """
+        document = self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-RELINK1', 'transaction_type': 'sale',
+            'meli_invoice_id': '9400000000000001',
+            'xml_file': base64.b64encode(self._fake_cfdi_xml('950')),
+        })
+        self.assertFalse(document.sale_order_id, "no order exists yet")
+        self.env['meli.sku.mapping'].create({
+            'product_id': self.product.id, 'meli_sku': 'ZTEST-RELINK1',
+        })
+        order_data = {
+            'id': 'FIVT-RELINK1', 'status': 'paid', 'pack_id': False,
+            'shipping': {}, 'date_created': None, 'date_closed': None,
+            'order_items': [{
+                'item': {'id': 'MLM-RELINK1', 'seller_sku': 'ZTEST-RELINK1'},
+                'quantity': 1, 'unit_price': 50.0,
+            }],
+        }
+
+        with patch.object(
+            type(self.config), '_api_get', return_value=order_data,
+        ):
+            order = self.env['sale.order'].sudo()._meli_import_order(
+                self.test_company.id, 'FIVT-RELINK1',
+            )
+
+        self.assertTrue(order)
+        self.assertEqual(document.sale_order_id, order)
+
     def test_reconcile_creates_and_relates_invoice_never_stamps(self):
         order = self._create_delivered_order('FIVT-0001')
         document = self.env['meli.invoice.document'].sudo().create({

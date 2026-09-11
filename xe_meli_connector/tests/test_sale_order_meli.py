@@ -6,6 +6,8 @@ from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase, tagged
 
+from odoo.addons.queue_job.exception import RetryableJobError
+
 
 @tagged('post_install', '-at_install')
 class TestSaleOrderMeliImport(TransactionCase):
@@ -237,7 +239,13 @@ class TestSaleOrderMeliImport(TransactionCase):
         # Same reasoning as test_full_order_auto_validates_the_picking:
         # both shipment-reading methods run whenever shipping.id is
         # truthy, and both siblings need to resolve as Full/fulfillment.
+        # _meli_fetch_shipment_records (the shared fetch both of them
+        # read from since the 2026-09-10 fix) is mocked too, for the
+        # same reason — leaving it unmocked would hit the real API.
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_logistic_type',
             return_value='fulfillment',
         ), patch.object(
@@ -320,12 +328,16 @@ class TestSaleOrderMeliImport(TransactionCase):
         order_data = self._order_data(
             order_id='2000014726421912', shipping={'id': 999},
         )
-        # Also mock _meli_fetch_custom_shipping_cost: a truthy shipping.id
-        # makes _meli_create_from_order_data call both shipment-reading
-        # methods, and this test only cares about _meli_fetch_logistic_type
-        # — leaving the other one unmocked would hit the real Mercado
-        # Libre API with the fake test credentials.
+        # Also mock _meli_fetch_custom_shipping_cost and the shared
+        # _meli_fetch_shipment_records (2026-09-10 fix): a truthy
+        # shipping.id makes _meli_create_from_order_data call all three,
+        # and this test only cares about _meli_fetch_logistic_type —
+        # leaving the others unmocked would hit the real Mercado Libre
+        # API with the fake test credentials.
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_logistic_type',
             return_value='fulfillment',
         ), patch.object(
@@ -544,8 +556,13 @@ class TestSaleOrderMeliImport(TransactionCase):
             shipping={'id': 999},
         )
         # Same reasoning as test_fulfillment_shipping_uses_fulfillment_warehouse:
-        # both shipment-reading methods run whenever shipping.id is truthy.
+        # both shipment-reading methods (and the shared
+        # _meli_fetch_shipment_records fetch, 2026-09-10 fix) run
+        # whenever shipping.id is truthy.
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_logistic_type',
             return_value='fulfillment',
         ), patch.object(
@@ -859,11 +876,15 @@ class TestSaleOrderMeliImport(TransactionCase):
             order_id='2000018198314105', shipping={'id': 47893584846},
         )
 
-        # Also mock _meli_fetch_logistic_type: a truthy shipping.id makes
-        # _meli_create_from_order_data call both shipment-reading methods
-        # — leaving this one unmocked would hit the real Mercado Libre API
+        # Also mock _meli_fetch_logistic_type and the shared
+        # _meli_fetch_shipment_records (2026-09-10 fix): a truthy
+        # shipping.id makes _meli_create_from_order_data call all three
+        # — leaving any unmocked would hit the real Mercado Libre API
         # with the fake test credentials.
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_custom_shipping_cost',
             return_value=900.0,
         ), patch.object(
@@ -884,8 +905,12 @@ class TestSaleOrderMeliImport(TransactionCase):
 
         # Same reasoning as
         # test_custom_shipping_adds_surcharge_line_with_untaxed_price:
-        # both shipment-reading methods run whenever shipping.id is truthy.
+        # both shipment-reading methods (and the shared fetch) run
+        # whenever shipping.id is truthy.
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_custom_shipping_cost',
             return_value=900.0,
         ), patch.object(
@@ -920,31 +945,28 @@ class TestSaleOrderMeliImport(TransactionCase):
                     self.config, '2000018198314108', order_data,
                 )
 
-    def test_shipping_cost_fetch_failure_creates_order_without_surcharge_and_warns(self):
-        # Final branch review finding (Important #1): the order must
-        # still be created and confirmed exactly as if there were no
-        # custom shipping cost at all, but with a chatter warning so the
-        # missing surcharge is recoverable by a human instead of a
-        # silent, permanent revenue loss.
-        order_data = self._order_data(order_id='2000018198314109')
+    def test_shipment_fetch_failure_retries_instead_of_creating_an_incomplete_order(self):
+        # Fix 2026-09-10: this used to create the order anyway, without
+        # the surcharge, and just leave a chatter warning — found in
+        # production to genuinely lose a real freight surcharge when the
+        # (now-removed) second, independent shipment fetch happened to
+        # be the one that failed. Now a fetch failure retries the whole
+        # import (via RetryableJobError, queue_job's own retry
+        # machinery) instead of ever creating an order with unknown
+        # shipping details.
+        order_data = self._order_data(
+            order_id='2000018198314109', shipping={'id': 1},
+        )
         with patch.object(
-            type(self.env['sale.order']), '_meli_fetch_custom_shipping_cost',
+            type(self.config), '_api_get',
             side_effect=requests.exceptions.RequestException('boom'),
         ):
-            order = self.env['sale.order']._meli_create_from_order_data(self.config, order_data)
+            with self.assertRaises(RetryableJobError):
+                self.env['sale.order']._meli_create_from_order_data(self.config, order_data)
 
-        self.assertEqual(order.state, 'sale')
-        self.assertEqual(len(order.order_line), 1)
-        warning_messages = order.message_ids.filtered(
-            lambda m: 'Could not verify the Mercado Libre shipping mode' in (m.body or '')
-        )
-        self.assertEqual(len(warning_messages), 1)
-        warning_message = warning_messages[0]
-        # Must be a real, visible @-mention of the salesperson (the same
-        # convention _meli_post_with_mention already uses elsewhere), not
-        # just a silent partner_ids notification.
-        self.assertIn(self.salesperson.partner_id, warning_message.partner_ids)
-        self.assertIn(f'@{self.salesperson.name}', warning_message.body)
+        self.assertFalse(self.env['sale.order'].search([
+            ('meli_order_id', '=', '2000018198314109'),
+        ]))
 
     def test_configure_shipping_item_error_names_the_order(self):
         # Final branch review finding (Minor #5): the UserError must name
@@ -955,6 +977,9 @@ class TestSaleOrderMeliImport(TransactionCase):
             order_id='2000018198314110', shipping={'id': 1},
         )
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_custom_shipping_cost',
             return_value=900.0,
         ), patch.object(
@@ -979,6 +1004,9 @@ class TestSaleOrderMeliImport(TransactionCase):
             order_id='2000018198314111', shipping={'id': 47893584846},
         )
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_custom_shipping_cost',
             return_value=900.0,
         ), patch.object(
@@ -1054,6 +1082,9 @@ class TestSaleOrderMeliImport(TransactionCase):
             shipping={'id': 999}, buyer_id=555,
         )
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_custom_shipping_cost',
             return_value=900.0,
         ), patch.object(
@@ -1089,6 +1120,9 @@ class TestSaleOrderMeliImport(TransactionCase):
         self.config.shipping_item_id = shipping_item
         order_data = self._order_data(shipping={'id': 999}, buyer_id=555)
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_custom_shipping_cost',
             return_value=900.0,
         ), patch.object(
@@ -1110,6 +1144,9 @@ class TestSaleOrderMeliImport(TransactionCase):
         self.config.shipping_item_id = shipping_item
         order_data = self._order_data(shipping={'id': 999}, buyer_id=555)
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_custom_shipping_cost',
             return_value=900.0,
         ), patch.object(
@@ -1143,6 +1180,9 @@ class TestSaleOrderMeliImport(TransactionCase):
         self.config.shipping_item_id = shipping_item
         order_data = self._order_data(shipping={'id': 999}, buyer_id=555)
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_custom_shipping_cost',
             return_value=900.0,
         ), patch.object(
@@ -1184,6 +1224,9 @@ class TestSaleOrderMeliImport(TransactionCase):
         # isn't limited to custom-shipping orders.
         order_data = self._order_data(shipping={'id': 4791})
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_custom_shipping_cost',
             return_value=None,
         ):
@@ -1221,6 +1264,9 @@ class TestSaleOrderMeliImport(TransactionCase):
         self.config.shipping_item_id = shipping_item
         order_data = self._order_data(shipping={'id': 999}, buyer_id=555)
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_custom_shipping_cost',
             return_value=900.0,
         ), patch.object(
@@ -1258,6 +1304,9 @@ class TestSaleOrderMeliImport(TransactionCase):
         self.config.shipping_item_id = shipping_item
         order_data = self._order_data(shipping={'id': 999}, buyer_id=555)
         with patch.object(
+            type(self.env['sale.order']), '_meli_fetch_shipment_records',
+            return_value=[],
+        ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_custom_shipping_cost',
             return_value=900.0,
         ), patch.object(
