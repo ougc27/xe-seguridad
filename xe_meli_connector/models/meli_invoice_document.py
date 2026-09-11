@@ -168,6 +168,73 @@ class MeliInvoiceDocument(models.Model):
                     )
             document.sale_order_id = order
 
+    def _meli_recompute_and_reconcile(self):
+        """Shared core: forces a recompute of sale_order_id on `self`
+        (expected to already be filtered to documents with
+        sale_order_id = False — this method doesn't filter itself,
+        both call sites already search for exactly that), then
+        immediately reconciles invoicing for any that newly resolve —
+        mirrors _meli_upsert's own reconcile-on-resolve behavior for
+        the ordinary, non-orphaned case.
+
+        sale_order_id is a stored compute field with
+        @api.depends('meli_order_id') only — its own field, never
+        anything about sale.order — so Odoo's dependency tracking has
+        no way to know to revisit it just because a matching sale.order
+        shows up later. Before this existed (2026-09-10), only one call
+        site (sale.order._meli_recover_cancelled_on_arrival_full,
+        2026-09-09) ever forced this recompute, and only for its own
+        narrow case (a Full order recovered from arriving already
+        'cancelled'). A document that arrived before a completely
+        NORMAL order got created (paid, never cancelled) had nothing
+        forcing its own recompute — confirmed in practice (2026-09-10):
+        a real document sat with sale_order_id blank until something
+        unrelated coincidentally forced a recompute.
+        """
+        if not self:
+            return
+        self._compute_sale_order_id()
+        for document in self.filtered('sale_order_id'):
+            try:
+                with self.env.cr.savepoint():
+                    document.sale_order_id._meli_reconcile_invoicing()
+            except Exception:
+                _logger.exception(
+                    "Mercado Libre order %s: invoicing reconciliation "
+                    "failed after a previously-orphaned document %s was "
+                    "relinked — left pending for manual review.",
+                    document.sale_order_id.client_order_ref, document.id,
+                )
+
+    @api.model
+    def _meli_relink_orphaned_documents(self, order_id, pack_id=False):
+        """Immediate fix: called from sale.order._meli_import_order,
+        right after it creates/resolves an order, scoped to exactly
+        that order's own order_id/pack_id — covers the vast majority of
+        cases with no delay. See _meli_recompute_and_reconcile for the
+        actual mechanism and why this is needed at all.
+        """
+        orphaned_documents = self.sudo().search([
+            ('meli_order_id', 'in', ([pack_id, order_id] if pack_id else [order_id])),
+            ('sale_order_id', '=', False),
+        ])
+        orphaned_documents._meli_recompute_and_reconcile()
+
+    @api.model
+    def _cron_relink_orphaned_documents(self):
+        """10-minute safety-net cron (xe_meli_connector/data/ir_cron.xml)
+        for whatever _meli_relink_orphaned_documents's own immediate
+        call site doesn't catch — same "primary path + backup cron"
+        pattern already used everywhere else in this module for
+        orders/claims/invoices polling. Cheap: no Mercado Libre API
+        calls at all, pure ORM, so a short interval costs nothing.
+        """
+        orphaned_documents = self.sudo().search([
+            ('sale_order_id', '=', False),
+            ('meli_order_id', '!=', False),
+        ])
+        orphaned_documents._meli_recompute_and_reconcile()
+
     @staticmethod
     def _meli_document_type_for(transaction_type):
         return (

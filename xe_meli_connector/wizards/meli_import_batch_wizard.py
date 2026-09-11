@@ -6,6 +6,8 @@ import openpyxl
 from odoo import _, fields, models
 from odoo.exceptions import UserError
 
+from ..models.meli_config import MELI_BATCH_IMPORT_SECONDS_BETWEEN_JOBS
+
 
 def _meli_extract_order_ids(file_content):
     """Reads the first sheet of an .xlsx file and returns a list of
@@ -73,6 +75,16 @@ class MeliImportBatchWizard(models.TransientModel):
         })
         SaleOrder = self.env['sale.order'].sudo()
         seen_order_ids = set()
+        # Staggered, not fired all at once: an Excel with thousands of
+        # rows used to enqueue every job with the same eta (now), which
+        # — combined with a since-fixed queue_job_cron_jobrunner bug
+        # that ignored each job's own retry_pattern — self-inflicted a
+        # burst of API traffic against Mercado Libre (confirmed in
+        # production, 2026-09-10). Only rows that actually get enqueued
+        # count toward the stagger; invalid/duplicate/already-existing
+        # rows never call with_delay() at all, so skipping them here
+        # doesn't waste any of the pacing budget.
+        enqueued_count = 0
         for raw_value, order_id in rows:
             if order_id is None:
                 self.env['meli.import.batch.line'].sudo().create({
@@ -105,7 +117,9 @@ class MeliImportBatchWizard(models.TransientModel):
             SaleOrder.with_delay(
                 priority=8, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_import_order_{order_id}",
+                eta=enqueued_count * MELI_BATCH_IMPORT_SECONDS_BETWEEN_JOBS,
             )._meli_import_order_for_batch_line(company.id, order_id, line.id)
+            enqueued_count += 1
 
         return {
             'type': 'ir.actions.act_window',

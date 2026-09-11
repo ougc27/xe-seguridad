@@ -36,6 +36,20 @@ MELI_REFRESH_FAILURE_THRESHOLD = 3
 # mean something is actually wrong and must keep failing immediately).
 MELI_TRANSIENT_HTTP_STATUSES = {429, 500, 502, 503, 504}
 
+# Confirmed with the user (2026-09-10, after an 8600-document invoice
+# rescue self-inflicted a burst of API traffic against Mercado Libre —
+# see docs/superpowers/specs/2026-09-10-meli-cancellation-transaction-fix-design.md
+# for the retry_pattern bug this compounded with): both Excel batch
+# wizards (meli.import.batch.wizard, meli.invoice.import.batch.wizard)
+# stagger their own job enqueues by this many seconds per row instead of
+# firing all of them at once — 3 seconds = 20 requests/minute, chosen as
+# a conservative pace well under what Mercado Libre's own rate limiting
+# (per Client ID, across all endpoints — see their public FAQ on
+# error 429) can sustain, while still finishing a few thousand rows in a
+# few hours rather than a full day. Adjust here if experience shows this
+# can safely go faster.
+MELI_BATCH_IMPORT_SECONDS_BETWEEN_JOBS = 3
+
 
 class MeliConfig(models.Model):
     _name = 'meli.config'

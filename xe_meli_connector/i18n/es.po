@@ -147,13 +147,13 @@ msgstr "Envío custom"
 
 #. module: xe_meli_connector
 #. odoo-python
-#: code:addons/xe_meli_connector/models/sale_order.py:0
+#: code:addons/xe_meli_connector/wizards/meli_manual_import_wizard.py:0
 msgid ""
-"Could not verify the Mercado Libre shipping mode for this order; if "
-"it's a custom shipment the freight surcharge line is missing."
+"Could not reach Mercado Libre to verify this order's shipping details. "
+"Try again in a moment."
 msgstr ""
-"No se pudo verificar el modo de envío de Mercado Libre para este "
-"pedido; si es un envío custom, falta la línea de recargo de flete."
+"No se pudo contactar a Mercado Libre para verificar los datos de envío "
+"de esta orden. Intenta de nuevo en un momento."
 
 #. module: xe_meli_connector
 #: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form

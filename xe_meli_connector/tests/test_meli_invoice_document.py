@@ -993,3 +993,23 @@ class TestMeliInvoiceDocument(TransactionCase):
         self.assertEqual(len(invoice), 1)
         self.assertEqual(invoice.state, 'posted')
         self.assertEqual(invoice.meli_invoice_document_id, document)
+
+    def test_cron_relink_orphaned_documents_relinks_and_reconciles(self):
+        """The 10-minute safety-net cron (xe_meli_connector/data/ir_cron.xml,
+        added 2026-09-10) — for whatever the immediate fix in
+        sale.order._meli_import_order doesn't catch. Real production
+        sequence, not a synthetic one: the document arrives BEFORE the
+        order exists (so sale_order_id computes to False naturally, at
+        creation — no need to force it), then the order gets created
+        afterward, exactly like the real bug this cron closes.
+        """
+        document = self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': '9500000000000001', 'transaction_type': 'sale',
+            'meli_invoice_id': '9500000000000002',
+        })
+        self.assertFalse(document.sale_order_id, "no order exists yet")
+        order = self._order_by_meli_order_id('9500000000000001')
+
+        self.env['meli.invoice.document']._cron_relink_orphaned_documents()
+
+        self.assertEqual(document.sale_order_id, order)
