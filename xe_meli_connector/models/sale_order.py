@@ -355,6 +355,20 @@ class SaleOrder(models.Model):
         stuck_sibling_ids = set(stuck_documents.mapped('meli_order_id')) - {False}
         for sibling_id in stuck_sibling_ids:
             self._meli_apply_partial_cancellation(sibling_id)
+        if stuck_sibling_ids:
+            # Fix 2026-09-11 (user-directed follow-up): a MANUAL click
+            # here is a deliberate, one-off human action — unlike
+            # _meli_reconcile_invoicing's own automatic callers (a
+            # stock picking's _action_done(), the invoices webhook,
+            # etc.), which must never eagerly close the whole sale just
+            # because ONE sibling's document happened to be the one
+            # that triggered them (see that method's own comment on
+            # this exact regression). Safe to check here: for an order
+            # that's really just a single individual order (the common
+            # Ventiapp-adoption shape — meli_pack_id set but only ever
+            # one real sibling), finishing that one sibling's own
+            # cancellation IS finishing the whole thing.
+            self._meli_close_pack_after_partial_cancellation()
 
     def action_meli_retry_sku_mapping(self):
         """Manual button: re-checks meli.sku.mapping right now instead of
@@ -641,6 +655,45 @@ class SaleOrder(models.Model):
         self._meli_apply_partial_cancellation(cancelled_order_id)
         self._meli_close_pack_after_partial_cancellation()
 
+    def _meli_sibling_lines(self, cancelled_order_id):
+        """Resolves which of self.order_line belong to ONE individual
+        Mercado Libre order (cancelled_order_id) within this pack's
+        consolidated sale — shared by _meli_apply_partial_cancellation,
+        _meli_sibling_is_fully_cancelled, and _meli_reconcile_invoicing's
+        own pack-credit-note step, all three of which used to each
+        inline this same lookup.
+
+        Fix 2026-09-11: a plain filter by sale.order.line.meli_order_id
+        alone never matches for an order ADOPTED from Ventiapp (see
+        sale.order.meli_adopted's own help text) — adoption only ever
+        sets THIS order's own control fields (meli_order_id,
+        meli_pack_id), never touches order_line at all, so every one of
+        its lines' own meli_order_id stays blank forever. Confirmed in
+        production: a real credit note for such an order's OWN id
+        (matching self.meli_order_id, not some OTHER sibling's) kept
+        failing "could not be matched to any line" no matter how many
+        times it was retried — there was genuinely no line for it to
+        ever match. Falls back to EVERY one of self.order_line in that
+        exact case (cancelled_order_id is THIS order's own id, and no
+        line carries any meli_order_id of its own at all) — safe
+        because there is, by definition, only one individual order
+        involved when that's true; never applied to a genuine OTHER
+        sibling within a real multi-order pack, where guessing which
+        lines belong to it would risk touching another sibling's own,
+        still-legitimate line.
+        """
+        self.ensure_one()
+        lines = self.order_line.filtered(
+            lambda l: l.meli_order_id == cancelled_order_id
+        )
+        if (
+            not lines
+            and cancelled_order_id == self.meli_order_id
+            and not any(self.order_line.mapped('meli_order_id'))
+        ):
+            lines = self.order_line
+        return lines
+
     def _meli_apply_partial_cancellation(self, cancelled_order_id):
         """The core work of a partial cancellation, without the pack-
         closure check — see _meli_process_partial_cancellation's own
@@ -682,9 +735,7 @@ class SaleOrder(models.Model):
         other idempotent re-run.
         """
         self.ensure_one()
-        lines = self.order_line.filtered(
-            lambda l: l.meli_order_id == cancelled_order_id
-        )
+        lines = self._meli_sibling_lines(cancelled_order_id)
         if not lines:
             # Fix 2 (2026-09-09, user-directed follow-up): before this
             # fix, a cancelled sibling with zero resolvable lines (every
@@ -1012,7 +1063,7 @@ class SaleOrder(models.Model):
         _meli_relate_partial_cancellation_credit_note).
         """
         self.ensure_one()
-        lines = self.order_line.filtered(lambda l: l.meli_order_id == sibling_id)
+        lines = self._meli_sibling_lines(sibling_id)
         if not lines or any(line.product_uom_qty for line in lines):
             return False
         credited_lines = self.invoice_ids.filtered(
@@ -1890,9 +1941,7 @@ class SaleOrder(models.Model):
                 if cancelled_order_id in handled_sibling_ids:
                     continue
                 handled_sibling_ids.add(cancelled_order_id)
-                sibling_lines = self.order_line.filtered(
-                    lambda l: l.meli_order_id == cancelled_order_id
-                )
+                sibling_lines = self._meli_sibling_lines(cancelled_order_id)
                 if not sibling_lines:
                     self.message_post(body=_(
                         "Mercado Libre generated a credit note (%(document)s), "

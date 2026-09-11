@@ -269,6 +269,39 @@ class MeliInvoiceDocument(models.Model):
         ])
         orphaned_documents._meli_recompute_and_reconcile()
 
+    @api.model
+    def _cron_retry_unapplied_documents(self):
+        """30-minute safety-net cron (xe_meli_connector/data/ir_cron.xml)
+        equivalent to a human clicking sale.order's own "Retry Invoicing
+        Reconciliation" button on every order that still has one of
+        these stuck (2026-09-11): a document already related to its
+        sale (sale_order_id set) that never actually got applied
+        (is_applied still False — see that field's own help text for
+        the most common real cause, an order adopted from Ventiapp,
+        whose lines never carry Mercado Libre's own order id at all).
+
+        Deliberately calls the SAME action_meli_retry_invoicing_
+        reconciliation the button uses — not some looser/eager sweep —
+        so it inherits every one of that method's own safety gates
+        (Full-only, pack-only for the fuller stock-return/quantity
+        step) without duplicating them here. Each order is retried in
+        its own try/except: one order raising an unexpected error must
+        not block every other stuck order in this run.
+        """
+        stuck_orders = self.sudo().search([
+            ('sale_order_id', '!=', False),
+            ('is_applied', '=', False),
+        ]).mapped('sale_order_id')
+        for order in stuck_orders:
+            try:
+                order.action_meli_retry_invoicing_reconciliation()
+            except Exception:
+                _logger.exception(
+                    "Mercado Libre order %s: automatic retry of invoicing "
+                    "reconciliation failed — needs manual review.",
+                    order.client_order_ref,
+                )
+
     @staticmethod
     def _meli_document_type_for(transaction_type):
         return (
