@@ -281,6 +281,27 @@ class SaleOrder(models.Model):
             return
         line.write({'status': 'imported', 'sale_order_id': order.id})
 
+    def action_meli_retry_invoicing_reconciliation(self):
+        """Manual button: re-runs _meli_reconcile_invoicing right now.
+
+        Fix 2026-09-11: that method's credit-note step, for a pack
+        order, matches a credit note document to ITS OWN sibling's
+        order_line by meli_order_id — if that check ever runs before
+        the matching line exists yet (e.g. a credit-note document
+        processed while an order/line creation was still delayed or
+        stuck retrying — see the queue_job_cron_jobrunner retry_pattern
+        incident, 2026-09-10), it posts a "could not be matched —
+        review manually" chatter message and never retries on its own,
+        even once the line legitimately exists. _meli_reconcile_invoicing
+        is fully idempotent (every step below it already checks what's
+        missing before acting), so simply calling it again here is safe
+        and is the whole fix — no new logic needed, only a way to
+        trigger it again by hand once a human has confirmed the
+        underlying data is actually fine.
+        """
+        self.ensure_one()
+        self._meli_reconcile_invoicing()
+
     def action_meli_retry_sku_mapping(self):
         """Manual button: re-checks meli.sku.mapping right now instead of
         waiting for the next webhook notification or polling cycle (ML

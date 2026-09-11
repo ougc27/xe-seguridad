@@ -1,6 +1,6 @@
 {
     'name': 'Mercado Libre Connector',
-    'version': '17.0.1.0.2',
+    'version': '17.0.1.0.3',
     'license': 'LGPL-3',
     'author': 'XE Brands',
     'category': 'Sales/Sales',

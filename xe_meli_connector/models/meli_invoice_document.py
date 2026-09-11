@@ -124,6 +124,40 @@ class MeliInvoiceDocument(models.Model):
     xml_file = fields.Binary(string='XML File')
     last_synced_at = fields.Datetime(string='Last Synced At')
 
+    # Fix 2026-09-11: sale_order_id being set only means this document was
+    # matched to the right SALE — it says nothing about whether it was
+    # ever actually turned into a real Odoo invoice/credit note. Found in
+    # practice: a credit note document can sit with sale_order_id already
+    # correct for a long time while _meli_reconcile_invoicing's own
+    # sibling-line match keeps failing (see
+    # sale.order.action_meli_retry_invoicing_reconciliation's own
+    # docstring), with nothing on this record itself showing that it's
+    # stuck. account.move.meli_invoice_document_id (set only by
+    # sale.order._meli_relate_invoice_document, the one place that
+    # actually applies a document) is the real "was this ever applied"
+    # signal — move_ids is its inverse here.
+    move_ids = fields.One2many(
+        'account.move', 'meli_invoice_document_id',
+        string='Related Invoice/Credit Note',
+        help="The real Odoo invoice/credit note this document was "
+             "actually applied to. Empty means nothing has been created "
+             "in Odoo for it yet — even if Sale Order above is already "
+             "set, e.g. a credit note whose own sibling line couldn't be "
+             "matched at the time and is stuck waiting on a manual "
+             "retry (Sale Order's own 'Retry Invoicing Reconciliation' "
+             "button).",
+    )
+    is_applied = fields.Boolean(
+        string='Applied in Odoo', compute='_compute_is_applied', store=True,
+        help="True once move_ids is non-empty — see that field's own "
+             "help text for what 'applied' means here.",
+    )
+
+    @api.depends('move_ids')
+    def _compute_is_applied(self):
+        for document in self:
+            document.is_applied = bool(document.move_ids)
+
     _sql_constraints = [(
         'invoice_id_uniq', 'unique(meli_invoice_id)',
         'This Mercado Libre invoice is already registered.',

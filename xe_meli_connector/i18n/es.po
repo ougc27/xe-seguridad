@@ -387,6 +387,11 @@ msgid "Retry SKU mapping (Mercado Libre)"
 msgstr "Reintentar mapeo de SKU (Mercado Libre)"
 
 #. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_order_form_meli
+msgid "Retry Invoicing Reconciliation (Mercado Libre)"
+msgstr "Reintentar conciliación de facturación (Mercado Libre)"
+
+#. module: xe_meli_connector
 #. odoo-python
 #: code:addons/xe_meli_connector/models/sale_order.py:0
 msgid "Review manually whether the sale needs to be cancelled, stock returned, and/or a credit note issued."
@@ -1344,6 +1349,36 @@ msgstr "Importar Manualmente un Pedido de Mercado Libre"
 #: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__sale_order_id
 msgid "Matched by meli_order_id first (orders imported by xe_meli_connector), falling back to sale.order.line.meli_order_id (a consolidated pack sibling other than the first one, whose own order id lives only on the line it added), then to client_order_ref/reference (today's Ventiapp-created orders, which don't populate meli_order_id at all), and finally to meli_pack_id — covers a resale/pack invoice whose own metadata reports the pack's id rather than one specific sibling order's id."
 msgstr "Se enlaza primero por meli_order_id (pedidos importados por xe_meli_connector), y si no encuentra nada usa sale.order.line.meli_order_id (un pedido hermano de un pack consolidado, distinto del primero, cuyo propio id de pedido solo vive en la línea que agregó), luego client_order_ref/reference (pedidos creados hoy por Ventiapp, que nunca llenan meli_order_id), y por último meli_pack_id — cubre una factura de reventa/pack cuya propia metadata reporta el id del pack en vez del id de un pedido hermano específico."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__is_applied
+msgid "Applied in Odoo"
+msgstr "Aplicado en Odoo"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__is_applied
+msgid "True once move_ids is non-empty — see that field's own help text for what 'applied' means here."
+msgstr "Verdadero cuando move_ids no está vacío — ver el texto de ayuda de ese campo para lo que significa 'aplicado' aquí."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__move_ids
+msgid "Related Invoice/Credit Note"
+msgstr "Factura/Nota de Crédito Relacionada"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__move_ids
+msgid "The real Odoo invoice/credit note this document was actually applied to. Empty means nothing has been created in Odoo for it yet — even if Sale Order above is already set, e.g. a credit note whose own sibling line couldn't be matched at the time and is stuck waiting on a manual retry (Sale Order's own 'Retry Invoicing Reconciliation' button)."
+msgstr "La factura/nota de crédito real de Odoo a la que este documento fue realmente aplicado. Vacío significa que aún no se ha creado nada en Odoo para él — aunque el campo Venta de arriba ya esté establecido, por ejemplo una nota de crédito cuya propia línea hermana no se pudo relacionar en su momento y está atorada esperando un reintento manual (el botón 'Retry Invoicing Reconciliation' de la Venta)."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
+msgid "Con venta pero sin aplicar"
+msgstr "Con venta pero sin aplicar"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_form
+msgid "Factura/Nota de Crédito Relacionada"
+msgstr "Factura/Nota de Crédito Relacionada"
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,help:xe_meli_connector.field_meli_config__delivery_contact_manager_id
