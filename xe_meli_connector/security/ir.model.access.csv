@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_meli_config_admin,meli.config.admin,model_meli_config,group_meli_admin,1,1,1,1
+access_meli_sku_mapping_advanced,meli.sku.mapping.advanced,model_meli_sku_mapping,group_meli_advanced,1,1,1,1
+access_meli_invoice_document_user,meli.invoice.document.user,model_meli_invoice_document,group_meli_user,1,1,0,0
+access_meli_invoice_recovery_wizard_user,meli.invoice.recovery.wizard.user,model_meli_invoice_recovery_wizard,group_meli_user,1,1,1,1
+access_meli_invoice_import_batch_wizard_user,meli.invoice.import.batch.wizard.user,model_meli_invoice_import_batch_wizard,group_meli_user,1,1,1,1
+access_meli_invoice_import_batch_user,meli.invoice.import.batch.user,model_meli_invoice_import_batch,group_meli_user,1,0,0,0
+access_meli_invoice_import_batch_line_user,meli.invoice.import.batch.line.user,model_meli_invoice_import_batch_line,group_meli_user,1,1,0,0

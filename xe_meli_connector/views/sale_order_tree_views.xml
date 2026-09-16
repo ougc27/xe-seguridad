@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_order_tree_meli" model="ir.ui.view">
+        <field name="name">sale.order.tree.meli</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <!-- Shared by both Ventas and Mercado Libre > Pedidos (neither
+                 action sets its own view_id) — hidden by default so it
+                 doesn't change what a non-Mercado-Libre user sees; a
+                 person handling Mercado Libre orders can turn it on from
+                 the column-picker to spot at a glance which orders
+                 changed status and still need a look (see
+                 MELI_STATUS_CHANGE_ALERTS in sale_order.py). -->
+            <field name="client_order_ref" position="after">
+                <field name="meli_last_status" optional="hide"/>
+                <field name="meli_has_refacturacion" optional="hide" widget="boolean_toggle"/>
+                <field name="meli_has_credit_note" optional="hide" widget="boolean_toggle"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>
