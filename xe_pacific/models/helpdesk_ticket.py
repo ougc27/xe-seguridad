@@ -284,7 +284,7 @@ class HelpdeskTicket(models.Model):
 
     def is_door_product(self, move):
         return (
-            'Puertas / Puertas' in move.product_id.categ_id.complete_name and
+            'Puertas / Puertas' in (move.product_id.categ_id.complete_name or '') and
             move.product_id.type == 'product'
         )
 
@@ -293,8 +293,8 @@ class HelpdeskTicket(models.Model):
         pos_order_id = picking_id.pos_order_id
         partner_id = picking_id.partner_id
         product_id = next(
-            (m.product_id for m in picking_id.move_ids 
-            if 'Puertas / Puertas' in m.product_id.categ_id.complete_name 
+            (m.product_id for m in picking_id.move_ids
+            if 'Puertas / Puertas' in (m.product_id.categ_id.complete_name or '')
             and m.product_id.type == 'product'),
             picking_id.move_ids[:1] and picking_id.move_ids[0].product_id
         )  

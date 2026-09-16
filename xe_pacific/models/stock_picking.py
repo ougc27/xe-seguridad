@@ -173,7 +173,7 @@ class StockPicking(models.Model):
         for record in self:
             door_count = 0
             for line in record.move_ids_without_package:
-                if 'Puertas / Puertas' in line.product_id.categ_id.complete_name:
+                if 'Puertas / Puertas' in (line.product_id.categ_id.complete_name or ''):
                     door_count += line.product_uom_qty
             record.door_count = door_count
 
@@ -382,15 +382,15 @@ class StockPicking(models.Model):
                     combined_moves[product_key] = move
 
             door_moves = rec.move_ids.filtered(
-                lambda m: 'Puertas / Puertas' in m.product_id.categ_id.complete_name and 
+                lambda m: 'Puertas / Puertas' in (m.product_id.categ_id.complete_name or '') and
                           m.product_id.type == 'product'
             )
             lock_moves = rec.move_ids.filtered(
-                lambda m: 'cerraduras' in m.product_id.categ_id.complete_name.lower() and 
+                lambda m: 'cerraduras' in (m.product_id.categ_id.complete_name or '').lower() and
                           m.product_id.type == 'product'
             )
             door_accessory_moves = rec.move_ids.filtered(
-                lambda m: 'accesorios' in m.product_id.categ_id.complete_name.lower() and
+                lambda m: 'accesorios' in (m.product_id.categ_id.complete_name or '').lower() and
                           m.product_id.type == 'product'
             )
             door_installation_moves = rec.move_ids.filtered(
@@ -747,7 +747,7 @@ class StockPicking(models.Model):
             lambda m: m.product_id.default_code in ('VISTEC', 'VISTEC_COMPRADA')
         )
         has_doors = move_ids.filtered(
-            lambda m: 'Puertas / Puertas' in m.product_id.categ_id.complete_name and 
+            lambda m: 'Puertas / Puertas' in (m.product_id.categ_id.complete_name or '') and
             m.product_id.type == 'product'
         )
         standard_installation = move_ids.filtered(

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_meli_invoice_import_batch_wizard_form" model="ir.ui.view">
+        <field name="name">meli.invoice.import.batch.wizard.form</field>
+        <field name="model">meli.invoice.import.batch.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import/Relate Invoices From Excel">
+                <group>
+                    <field name="filename" invisible="1"/>
+                    <field name="excel_file" filename="filename"
+                           string="Excel File"/>
+                </group>
+                <p class="text-muted">
+                    Up to 3 columns per row, in this order: Invoice ID,
+                    Order ID and Mercado Libre Pack ID — all 3 are
+                    optional, but each row needs at least one of
+                    Invoice ID/Order ID. If Invoice ID is present, the
+                    invoice is imported (or located) via the API, same
+                    as before. If Pack ID is also present (or only
+                    Order ID + Pack ID are present, with no Invoice ID),
+                    it's used only to relate the already-existing
+                    document to its sale — this never calls the API or
+                    touches Status, which remains Mercado Libre's own
+                    exclusive responsibility. You can re-upload the same
+                    updated file as many times as needed.
+                </p>
+                <footer>
+                    <button name="action_import" type="object"
+                            string="Import" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_meli_invoice_import_batch_wizard" model="ir.actions.act_window">
+        <field name="name">Import/Relate Invoices From Excel</field>
+        <field name="res_model">meli.invoice.import.batch.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_invoice_import_batch_wizard"
+        name="Import/Relate Invoices From Excel"
+        parent="menu_meli_root"
+        action="action_meli_invoice_import_batch_wizard"
+        sequence="13"
+        groups="group_meli_user"/>
+
+</odoo>

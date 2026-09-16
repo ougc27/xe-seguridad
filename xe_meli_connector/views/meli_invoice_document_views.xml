@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_meli_invoice_document_tree" model="ir.ui.view">
+        <field name="name">meli.invoice.document.tree</field>
+        <field name="model">meli.invoice.document</field>
+        <field name="arch" type="xml">
+            <tree string="Mercado Libre Invoicing" create="0" edit="0"
+                  decoration-danger="status in ('rejected', 'cancelled') or meli_amount_mismatch"
+                  decoration-info="meli_needs_manual_credit_note"
+                  decoration-warning="(sale_order_id and not is_applied and not meli_needs_manual_credit_note) or meli_stock_return_pending">
+                <field name="meli_order_id"/>
+                <field name="meli_invoice_id"/>
+                <field name="meli_pack_id" optional="hide"/>
+                <field name="meli_linked_pack_id" optional="hide"/>
+                <field name="sale_order_id"/>
+                <field name="meli_sale_order_state" invisible="1"/>
+                <field name="meli_warehouse_kind"/>
+                <field name="transaction_type"/>
+                <field name="document_type"/>
+                <field name="status"/>
+                <field name="is_applied" widget="boolean_toggle" readonly="1"/>
+                <field name="meli_needs_manual_credit_note" widget="boolean_toggle" readonly="1"/>
+                <field name="meli_stock_return_pending" widget="boolean_toggle" readonly="1"/>
+                <field name="meli_has_xml" widget="boolean_toggle" readonly="1" optional="hide"/>
+                <field name="meli_xml_total" optional="hide"/>
+                <field name="meli_amount_mismatch" widget="boolean_toggle" readonly="1" optional="hide"/>
+                <field name="meli_has_refacturacion" widget="boolean_toggle" readonly="1" optional="hide"/>
+                <field name="meli_has_credit_note" widget="boolean_toggle" readonly="1" optional="hide"/>
+                <field name="issue_date"/>
+                <field name="last_synced_at"/>
+                <button name="action_meli_rescue_xml" type="object"
+                        string="Rescue XML" icon="fa-file-code-o"
+                        invisible="meli_has_xml"/>
+                <button name="action_meli_retry_sale_order_confirmation" type="object"
+                        string="Retry Confirmation" icon="fa-refresh"
+                        invisible="meli_sale_order_state != 'draft'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_meli_invoice_document_form" model="ir.ui.view">
+        <field name="name">meli.invoice.document.form</field>
+        <field name="model">meli.invoice.document</field>
+        <field name="arch" type="xml">
+            <form string="Mercado Libre Invoicing" create="0" edit="0">
+                <header>
+                    <button name="action_meli_refresh_status" type="object"
+                            string="Refresh Status" class="oe_highlight"
+                            invisible="not meli_invoice_id"/>
+                    <button name="action_meli_rescue_xml" type="object"
+                            string="Rescue XML" class="btn-secondary"
+                            invisible="meli_has_xml"/>
+                    <button name="action_meli_retry_sale_order_confirmation" type="object"
+                            string="Retry Sale Confirmation" class="btn-secondary"
+                            invisible="meli_sale_order_state != 'draft'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="meli_order_id"/>
+                            <field name="meli_pack_id" invisible="not meli_pack_id"/>
+                            <field name="meli_linked_pack_id" readonly="1"/>
+                            <field name="sale_order_id"/>
+                            <field name="meli_sale_order_state" invisible="1"/>
+                            <field name="meli_invoice_id"/>
+                        </group>
+                        <group>
+                            <field name="meli_warehouse_kind"/>
+                            <field name="transaction_type"/>
+                            <field name="document_type"/>
+                            <field name="status"/>
+                            <field name="is_applied"/>
+                            <field name="meli_needs_manual_credit_note"/>
+                            <field name="meli_stock_return_pending"/>
+                            <field name="meli_xml_total" invisible="not meli_has_xml"/>
+                            <field name="meli_amount_mismatch" invisible="not meli_has_xml"/>
+                            <field name="meli_has_refacturacion"/>
+                            <field name="meli_has_credit_note"/>
+                            <field name="issue_date"/>
+                            <field name="last_synced_at"/>
+                        </group>
+                    </group>
+                    <group string="Related Invoice/Credit Note" invisible="not move_ids">
+                        <field name="move_ids" nolabel="1" colspan="2"/>
+                    </group>
+                    <group>
+                        <field name="meli_has_xml" invisible="1"/>
+                        <field name="xml_filename"/>
+                        <field name="xml_file" filename="xml_filename"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_meli_invoice_document_search" model="ir.ui.view">
+        <field name="name">meli.invoice.document.search</field>
+        <field name="model">meli.invoice.document</field>
+        <field name="arch" type="xml">
+            <search string="Mercado Libre Invoicing">
+                <field name="sale_order_id"/>
+                <field name="meli_order_id"/>
+                <field name="meli_invoice_id"/>
+                <field name="meli_pack_id"/>
+                <filter name="unlinked" string="No Linked Sale"
+                        domain="[('sale_order_id', '=', False)]"/>
+                <filter name="not_applied" string="Has Sale But Not Applied"
+                        domain="[('sale_order_id', '!=', False), ('is_applied', '=', False)]"/>
+                <filter name="needs_manual_credit_note" string="Needs Manual Credit Note (Partial Refund)"
+                        domain="[('meli_needs_manual_credit_note', '=', True)]"/>
+                <filter name="stock_return_pending" string="Stock Return Pending (Pack)"
+                        domain="[('meli_stock_return_pending', '=', True)]"/>
+                <filter name="cancelled_or_rejected" string="Cancelled/Rejected"
+                        domain="[('status', 'in', ('cancelled', 'rejected'))]"/>
+                <filter name="missing_xml" string="Missing XML File"
+                        domain="[('meli_has_xml', '=', False)]"/>
+                <filter name="amount_mismatch" string="Invoice/Sale Amount Mismatch"
+                        domain="[('meli_amount_mismatch', '=', True)]"/>
+                <filter name="meli_has_refacturacion" string="Refactured Sale"
+                        domain="[('meli_has_refacturacion', '=', True)]"/>
+                <filter name="meli_has_credit_note" string="Sale With Credit Note"
+                        domain="[('meli_has_credit_note', '=', True)]"/>
+                <separator/>
+                <filter name="warehouse_full" string="Full Warehouse"
+                        domain="[('meli_warehouse_kind', '=', 'full')]"/>
+                <filter name="warehouse_default" string="Monterrey XE2 Warehouse"
+                        domain="[('meli_warehouse_kind', '=', 'default')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_document_type" string="Document Type" context="{'group_by': 'document_type'}"/>
+                    <filter name="group_by_transaction_type" string="Transaction Type" context="{'group_by': 'transaction_type'}"/>
+                    <filter name="group_by_status" string="Status" context="{'group_by': 'status'}"/>
+                    <filter name="group_by_warehouse_kind" string="Warehouse Kind" context="{'group_by': 'meli_warehouse_kind'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_meli_invoice_documents" model="ir.actions.act_window">
+        <field name="name">Mercado Libre Invoicing</field>
+        <field name="res_model">meli.invoice.document</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_meli_invoice_document_search"/>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_invoice_documents"
+        name="Mercado Libre Invoicing"
+        parent="menu_meli_root"
+        action="action_meli_invoice_documents"
+        sequence="11"
+        groups="group_meli_user"/>
+
+</odoo>

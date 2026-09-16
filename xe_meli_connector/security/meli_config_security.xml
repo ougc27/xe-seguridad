@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="meli_config_company_rule" model="ir.rule">
+        <field name="name">Mercado Libre Config: multi-company</field>
+        <field name="model_id" ref="model_meli_config"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="global" eval="True"/>
+    </record>
+    <record id="meli_invoice_document_company_rule" model="ir.rule">
+        <field name="name">Mercado Libre Invoicing Document: multi-company</field>
+        <field name="model_id" ref="model_meli_invoice_document"/>
+        <!-- company_id is related to sale_order_id.company_id and is
+             blank for a document not yet matched to a sale order (an
+             orphaned document, the exact population the "no linked
+             sale" filter/recovery cron target) — '|' with company_id
+             False keeps those visible to every company's users instead
+             of hiding them entirely once this rule exists. -->
+        <field name="domain_force">
+            ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+        </field>
+        <field name="global" eval="True"/>
+    </record>
+    <record id="meli_invoice_import_batch_company_rule" model="ir.rule">
+        <field name="name">Mercado Libre Invoice Import Batch: multi-company</field>
+        <field name="model_id" ref="model_meli_invoice_import_batch"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="global" eval="True"/>
+    </record>
+</odoo>

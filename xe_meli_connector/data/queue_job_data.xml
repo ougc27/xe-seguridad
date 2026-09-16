@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="channel_meli_sales" model="queue.job.channel">
+            <field name="name">meli_sales</field>
+            <field name="parent_id" ref="queue_job.channel_root"/>
+        </record>
+
+        <!-- Fix 6 (2026-09-09, final review — Important): retry_pattern
+        kept HERE (unchanged from Task 5), even though this record
+        predates this plan and already exists — under noupdate="1" —
+        in every already-deployed database. A separate, later
+        <data noupdate="0"> block re-declaring this same external id
+        with only retry_pattern was tried and PROVEN, empirically
+        (two consecutive `-u xe_meli_connector` runs against this
+        task's own test database left retry_pattern NULL) and by
+        reading Odoo 17's own loading code
+        (odoo/addons/base/models/ir_model.py's _update_xmlids /
+        _build_update_xmlids_query: the ON CONFLICT clause never
+        touches the stored `noupdate` column, and
+        models.py._load_records gates the actual field write on that
+        stored value, not on the current tag's own noupdate attribute),
+        NOT to force a write on a record whose ir_model_data.noupdate
+        is already stored True — that "redeclare under noupdate=0"
+        technique does not work in this Odoo version for a record
+        that predates the fix. The field stays declared here for a
+        genuinely fresh install (where it works fine, since 'init'
+        mode bypasses the noupdate gate entirely) — the actual force-
+        sync for an already-deployed database is a version-bump
+        migration script instead: see
+        migrations/17.0.1.0.2/post-migrate.py, which was verified to
+        actually set the field via a real module upgrade in this
+        task's own test database. -->
+        <record id="job_function_sale_order_meli_import" model="queue.job.function">
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="method">_meli_import_order</field>
+            <field name="channel_id" ref="channel_meli_sales"/>
+            <field name="retry_pattern" eval="{1: 30, 3: 120, 5: 600, 7: 1800}"/>
+        </record>
+
+        <record id="job_function_meli_invoice_document_import" model="queue.job.function">
+            <field name="model_id" ref="model_meli_invoice_document"/>
+            <field name="method">_meli_import_invoice_document</field>
+            <field name="channel_id" ref="channel_meli_sales"/>
+            <field name="retry_pattern" eval="{1: 30, 3: 120, 5: 600, 7: 1800}"/>
+        </record>
+
+    </data>
+</odoo>
