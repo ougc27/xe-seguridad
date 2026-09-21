@@ -18,6 +18,39 @@
                     ['|', '|', '|', '|', ('name', 'ilike', self), ('client_order_ref', 'ilike', self), ('partner_id', 'child_of', self), ('meli_order_id', 'ilike', self), ('meli_pack_id', 'ilike', self)]
                 </attribute>
             </field>
+            <!-- 2026-09-19 user request: filterable marker set on a
+                 sale as soon as a product from the same Mercado Libre
+                 pack gets added to it after the fact — see that field's
+                 own help text — so these can be found and double-
+                 checked. -->
+            <filter name="my_sale_orders_filter" position="after">
+                <filter string="Mercado Libre: Product Added Later"
+                        name="meli_pack_had_sibling_added"
+                        domain="[('meli_pack_had_sibling_added', '=', True)]"/>
+                <!-- 2026-09-19 user request: sale.meli_transaction_type
+                     read from Mercado Libre's own invoice document
+                     (transaction_type='sale' vs 'resale'/catalog) —
+                     empty until that document arrives, see the field's
+                     own help text. -->
+                <filter string="Mercado Libre: Venta Sale"
+                        name="meli_transaction_type_sale"
+                        domain="[('meli_transaction_type', '=', 'sale')]"/>
+                <filter string="Mercado Libre: Venta Resale"
+                        name="meli_transaction_type_resale"
+                        domain="[('meli_transaction_type', '=', 'resale')]"/>
+                <!-- 2026-09-20 user request: visible/filterable shipping
+                     scheme (Full / Traditional / Custom) — see that
+                     field's own help text. -->
+                <filter string="Mercado Libre: Envío Full"
+                        name="meli_shipping_scheme_full"
+                        domain="[('meli_shipping_scheme', '=', 'full')]"/>
+                <filter string="Mercado Libre: Envío Tradicional"
+                        name="meli_shipping_scheme_traditional"
+                        domain="[('meli_shipping_scheme', '=', 'traditional')]"/>
+                <filter string="Mercado Libre: Envío Custom"
+                        name="meli_shipping_scheme_custom"
+                        domain="[('meli_shipping_scheme', '=', 'custom')]"/>
+            </filter>
         </field>
     </record>
 

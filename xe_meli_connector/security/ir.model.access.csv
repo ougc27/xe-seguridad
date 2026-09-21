@@ -6,3 +6,4 @@ access_meli_invoice_recovery_wizard_user,meli.invoice.recovery.wizard.user,model
 access_meli_invoice_import_batch_wizard_user,meli.invoice.import.batch.wizard.user,model_meli_invoice_import_batch_wizard,group_meli_user,1,1,1,1
 access_meli_invoice_import_batch_user,meli.invoice.import.batch.user,model_meli_invoice_import_batch,group_meli_user,1,0,0,0
 access_meli_invoice_import_batch_line_user,meli.invoice.import.batch.line.user,model_meli_invoice_import_batch_line,group_meli_user,1,1,0,0
+access_meli_order_import_wizard_user,meli.order.import.wizard.user,model_meli_order_import_wizard,group_meli_user,1,1,1,1

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_meli_order_import_wizard_form" model="ir.ui.view">
+        <field name="name">meli.order.import.wizard.form</field>
+        <field name="model">meli.order.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Mercado Libre Order">
+                <p>
+                    Fetches this order id directly from Mercado Libre and
+                    creates/updates its sale order — the same logic every
+                    automated recovery in this module already uses. Use
+                    this to re-check a specific order (e.g. a pack whose
+                    sibling was missing) without shell access.
+                </p>
+                <group>
+                    <field name="meli_order_id"/>
+                </group>
+                <footer>
+                    <button name="action_import" type="object"
+                            string="Import" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_meli_order_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import Order</field>
+        <field name="res_model">meli.order.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+    </record>
+
+    <menuitem id="menu_meli_order_import"
+        name="Import Order"
+        parent="menu_meli_root"
+        action="action_meli_order_import_wizard"
+        sequence="6"
+        groups="group_meli_user"/>
+
+</odoo>
