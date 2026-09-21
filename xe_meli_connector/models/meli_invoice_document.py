@@ -44,7 +44,38 @@ MELI_INVOICE_TRANSACTION_TYPES = (
 # create a real Odoo credit note — see sale.order._meli_reconcile_invoicing
 # and _meli_relate_partial_cancellation_credit_note, whose own
 # credit-note document searches both filter these out.
-MELI_INVOICE_DEAD_STATUSES = {'rejected', 'cancelled'}
+#
+# Fix 2026-09-18 (real production bug, 20 real orders confirmed —
+# S967516/doc 1435 among them): 'canceled' (one 'l', the actual value
+# Mercado Libre's own API sends) was missing — only the British
+# 'cancelled' spelling was ever listed, so every one of these filters
+# silently let a real cancelled document straight through, on both the
+# credit-note side AND (see the new filter added to the plain-invoice
+# search below) the refacturación side.
+MELI_INVOICE_DEAD_STATUSES = {'rejected', 'cancelled', 'canceled'}
+
+# Fix 2026-09-20 (user-directed, real production case: 98
+# 'pending_authorization' + 6 'interrupted' documents found in this
+# account's own real data, none of them dead per MELI_INVOICE_DEAD_
+# STATUSES above, all of them equally usable to create a real Odoo
+# invoice/credit note before this fix — even though neither is a final
+# state. 'pending_authorization' means the SAT/PAC hasn't authorized
+# this CFDI yet (it can still end up 'authorized', or fail into
+# 'rejected'/'cancelled'/'canceled'); 'interrupted' means the stamping
+# process itself broke before finishing. Only 'authorized' is the
+# genuinely final, safe-to-use state — everything else (these two, or
+# no status at all) means "not ready to decide yet". Deliberately kept
+# SEPARATE from MELI_INVOICE_DEAD_STATUSES: a document in one of these
+# two statuses is not dead — it may still become usable — so it must
+# stay visible/trackable (never excluded from a document LIST/search
+# the way a dead one is), only excluded from the specific "is this
+# document ready to create a real invoice/credit note from" gates.
+# A document with no status at all (status=False — e.g. one fetched by
+# the date-range recovery wizard, which never learns this field at
+# all; see that field's own help text) is NOT included here: there is
+# no way to tell such a document apart from a genuinely 'authorized'
+# one, so it keeps being treated as ready, exactly as before this fix.
+MELI_INVOICE_NOT_YET_AUTHORIZED_STATUSES = {'pending_authorization', 'interrupted'}
 
 
 class MeliInvoiceDocument(models.Model):
@@ -244,6 +275,29 @@ class MeliInvoiceDocument(models.Model):
              "'Applied in Odoo' on its own, so retrying it automatically "
              "would just repeat the same manual-review chatter message "
              "every 30 minutes forever.",
+    )
+    meli_needs_manual_mismatch_review = fields.Boolean(
+        string='Needs Manual Mismatch Review', default=False, copy=False,
+        help="True for a 'factura' document whose own XML total doesn't "
+             "match its related sale order's amount_total (same 5-cent "
+             "tolerance as meli_amount_mismatch) at the exact moment "
+             "sale.order._meli_reconcile_invoicing would otherwise have "
+             "created and posted the initial invoice from it (2026-09-18, "
+             "user decision): creating a real, CFDI-related invoice for "
+             "an amount that doesn't match what was actually sold is "
+             "deliberately paused — apply it manually once the "
+             "underlying cause (most commonly a still-missing pack "
+             "sibling line — see sale.order._meli_ensure_all_pack_"
+             "siblings_imported) is resolved and the totals agree. Also "
+             "excludes this document from the 'Has Sale But Not Applied' "
+             "automatic retry cron (_cron_retry_unapplied_documents), "
+             "same reasoning as meli_needs_manual_credit_note: retrying "
+             "automatically would just repeat the same manual-review "
+             "chatter message every 30 minutes for as long as the "
+             "mismatch persists. Deliberately does NOT gate credit-note "
+             "relating/stock-return at all — that side of the pipeline "
+             "is a separate, not-yet-designed piece of this same policy "
+             "(see docs/superpowers — 2026-09-18 conversation).",
     )
     meli_stock_return_pending = fields.Boolean(
         string='Stock Return Pending', compute='_compute_meli_stock_return_pending',
@@ -535,6 +589,7 @@ class MeliInvoiceDocument(models.Model):
             # text), so retrying it here would just repeat the exact
             # same manual-review chatter message every 30 minutes.
             ('meli_needs_manual_credit_note', '=', False),
+            ('meli_needs_manual_mismatch_review', '=', False),
             '|',
                 ('is_applied', '=', False),
                 '&', ('meli_pack_id', '!=', False),
@@ -1158,6 +1213,28 @@ class MeliInvoiceDocument(models.Model):
         document recovered blindly by date range can't be refreshed
         this way; those are silently skipped and reported back.
         """
+        updated, skipped = self._meli_refresh_status_now()
+        message = _("%(updated)s documento(s) actualizado(s).") % {'updated': updated}
+        if skipped:
+            message += ' ' + _(
+                "%(skipped)s omitido(s): Mercado Libre nunca da su Invoice "
+                "ID (fueron rescatados por rango de fechas)."
+            ) % {'skipped': skipped}
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {'title': _("Mercado Libre"), 'message': message, 'type': 'success'},
+        }
+
+    def _meli_refresh_status_now(self):
+        """Shared core for action_meli_refresh_status (manual button)
+        and _cron_refresh_pending_authorization_documents (2026-09-20
+        user-directed follow-up: a 'pending_authorization' or
+        'interrupted' document — neither a final state — never changed
+        its own status on its own; nothing but this manual button ever
+        re-checked it, so it could sit that way forever unless someone
+        happened to click it). Returns (updated_count, skipped_count).
+        """
         refreshable = self.filtered(lambda document: document.meli_invoice_id)
         skipped = len(self) - len(refreshable)
         updated = 0
@@ -1177,17 +1254,59 @@ class MeliInvoiceDocument(models.Model):
             if status:
                 document.status = status
                 updated += 1
-        message = _("%(updated)s documento(s) actualizado(s).") % {'updated': updated}
-        if skipped:
-            message += ' ' + _(
-                "%(skipped)s omitido(s): Mercado Libre nunca da su Invoice "
-                "ID (fueron rescatados por rango de fechas)."
-            ) % {'skipped': skipped}
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {'title': _("Mercado Libre"), 'message': message, 'type': 'success'},
-        }
+                # Fix 2026-09-20 (user-directed, real production bug):
+                # a plain field write here — unlike _meli_upsert, which
+                # always re-triggers reconciliation after writing new
+                # values — never made anything react to the new status.
+                # A document that just turned out to be cancelled/
+                # rejected on Mercado Libre's own side, for instance,
+                # would sit here with its status correctly refreshed in
+                # Odoo while the invoice built from it stayed confirmed
+                # forever, since nothing ever re-checked it. Same
+                # savepoint + broad except convention _meli_upsert
+                # itself already uses for this exact call, so a failure
+                # here never rolls back the status write above.
+                if document.sale_order_id:
+                    try:
+                        with self.env.cr.savepoint():
+                            document.sale_order_id._meli_reconcile_invoicing()
+                    except Exception:
+                        _logger.exception(
+                            "Mercado Libre document %s: invoicing "
+                            "reconciliation failed after a status "
+                            "refresh — left pending for manual review.",
+                            document.id,
+                        )
+        return updated, skipped
+
+    def _cron_refresh_pending_authorization_documents(self):
+        """Backup cron (2026-09-20 user-directed follow-up): a document
+        stuck in 'pending_authorization' or 'interrupted' — neither a
+        final state, see MELI_INVOICE_NOT_YET_AUTHORIZED_STATUSES's own
+        docstring in sale_order.py — never changes on its own; before
+        this, only a person clicking 'Actualizar Status' by hand ever
+        re-checked it, so a document could sit that way forever
+        otherwise (real production data: 98 pending_authorization + 6
+        interrupted documents found, none of them ever re-checked).
+        Reuses the exact same core the manual button itself uses, over
+        every document currently in one of those two statuses — cheap
+        and safe to run frequently: a document that's still not
+        authorized yet just gets skipped (no status change) until it
+        genuinely is. Deliberately scoped to ONLY these two statuses
+        (2026-09-20 user decision) — re-checking every already-
+        'authorized' document too (tens of thousands, growing by the
+        thousands every two weeks in this account's own real data)
+        would be a lot of unnecessary API traffic for a transition
+        that's rare and, for the vast majority of documents, already
+        covered by Mercado Libre's own 'invoices' webhook whenever it
+        does fire.
+        """
+        documents = self.sudo().search([
+            ('status', 'in', list(MELI_INVOICE_NOT_YET_AUTHORIZED_STATUSES)),
+            ('meli_invoice_id', '!=', False),
+        ])
+        if documents:
+            documents._meli_refresh_status_now()
 
     def _meli_rescue_xml_for_documents(self):
         """Shared core for action_meli_rescue_xml (manual button) and
@@ -1327,6 +1446,71 @@ class MeliInvoiceDocument(models.Model):
                 'title': _("Mercado Libre"), 'message': message,
                 'type': 'success' if confirmed and not failed else 'warning',
             },
+        }
+
+    def action_meli_repair_missing_product(self):
+        """Manual server action (2026-09-18 user request), deliberately
+        NOT exposed as a list/form button — meant to be wired up as an
+        ir.actions.server the user creates themselves (Settings >
+        Technical > Server Actions, bound to this model, "Execute
+        Python Code": `action = records.action_meli_repair_missing_
+        product()`), so it can be toggled on/off independently of a
+        code deploy.
+
+        For each selected document with a resolvable pack, reuses the
+        exact same pack-discovery fix as automatic imports (see
+        sale.order._meli_ensure_all_pack_siblings_imported's own
+        docstring, Fix 2026-09-18, order S970525): fetches the pack's
+        real order list from Mercado Libre and enqueues import of any
+        sibling order_id Odoo doesn't have a line for yet. That enqueued
+        job does everything on its own — adds the missing product line,
+        and, if the order is Full, delivers it (_meli_ensure_delivery)
+        — nothing else to do here.
+
+        Existing (2026-09-14) meli_amount_mismatch records are the
+        intended target: they were flagged before this pack-discovery
+        fix existed, so nothing has rechecked them since. Asynchronous
+        by design (with_delay, same identity_key convention as every
+        other recovery path in this module) — the summary notification
+        reports what was queued, not the outcome; the caller checks
+        back on the sale order afterward.
+        """
+        queued = 0
+        no_pack = 0
+        skipped = 0
+        for document in self:
+            order = document.sale_order_id
+            pack_id = document.meli_pack_id or (order.meli_pack_id if order else False)
+            if not order or not pack_id:
+                no_pack += 1
+                continue
+            config = self.env['meli.config'].sudo().search([
+                ('company_id', '=', document.company_id.id), ('state', '=', 'connected'),
+            ], limit=1)
+            if not config:
+                skipped += 1
+                continue
+            known_order_id = order.meli_order_id or document.meli_order_id
+            order.sudo()._meli_ensure_all_pack_siblings_imported(config, pack_id, known_order_id)
+            queued += 1
+        message = _(
+            "%(queued)s venta(s) puesta(s) en cola para revisión de "
+            "producto faltante."
+        ) % {'queued': queued}
+        if no_pack:
+            message += ' ' + _(
+                "%(no_pack)s sin pack o sin venta relacionada (nada que "
+                "hacer)."
+            ) % {'no_pack': no_pack}
+        if skipped:
+            message += ' ' + _(
+                "%(skipped)s omitida(s) (sin conexión configurada para "
+                "esa compañía)."
+            ) % {'skipped': skipped}
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {'title': _("Mercado Libre"), 'message': message, 'type': 'success'},
         }
 
     @api.model

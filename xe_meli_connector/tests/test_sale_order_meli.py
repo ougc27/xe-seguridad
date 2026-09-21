@@ -89,6 +89,31 @@ class TestSaleOrderMeliImport(TransactionCase):
             'warehouse_default_id': cls.warehouse_default.id,
         })
 
+    def setUp(self):
+        super().setUp()
+        # Fix 2026-09-19/20: every test in this class predates
+        # sale.order._meli_fetch_buyer_shipping_surcharge (see that
+        # method's own docstring) — several already give their order a
+        # real shipping id (to exercise _meli_fetch_custom_shipping_cost
+        # or _meli_fetch_logistic_type) without mocking a shipment-costs
+        # response, since nothing needed one before this fix existed.
+        # Neutralized here for every test except the ones that actually
+        # test this new method/behavior themselves.
+        exempt = {
+            'test_fetch_buyer_shipping_surcharge_reads_receiver_cost',
+            'test_fetch_buyer_shipping_surcharge_skips_custom_shipments',
+            'test_fetch_buyer_shipping_surcharge_reraises_request_exception',
+            'test_buyer_shipping_surcharge_adds_a_line_to_a_new_order',
+        }
+        if self._testMethodName not in exempt:
+            patcher = patch.object(
+                type(self.env['sale.order']),
+                '_meli_fetch_buyer_shipping_surcharge',
+                return_value=None,
+            )
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
     def _order_data(self, order_id='2000014726421911', sku='ZTEST-MPTP01',
                      status='paid', shipping=None,
                      date_created=None, date_closed=None, pack_id=None,
@@ -139,6 +164,11 @@ class TestSaleOrderMeliImport(TransactionCase):
     def _pack_product(self, sku, name):
         product = self.env['product.product'].create({
             'name': name, 'company_id': self.test_company.id,
+            # Explicit, not relying on whatever this shared database's
+            # own default invoice_policy happens to be — this module's
+            # own pack tests only care about SKU/line/chatter behavior,
+            # never delivery-vs-invoicing timing.
+            'invoice_policy': 'order',
         })
         self.env['meli.sku.mapping'].create({
             'product_id': product.id, 'meli_sku': sku,
@@ -146,24 +176,34 @@ class TestSaleOrderMeliImport(TransactionCase):
         return product
 
     def test_pack_siblings_consolidate_into_one_sale_order(self):
+        # Fix 2026-09-18: these order/pack ids used to be real,
+        # confirmed production values (S841155/S841156 already exist
+        # in this shared database under this exact meli_order_id) —
+        # _meli_create_from_order_data's own dedup check
+        # (search by meli_order_id) silently returned those REAL orders
+        # instead of ever creating a fresh one for this test, making
+        # first_order/second_order two unrelated, already-separate real
+        # sales that were never going to be equal. Every other test in
+        # this class already uses made-up '20000191xxxxxxxx'-range ids
+        # for exactly this reason — matched here too.
         self._pack_product('ZTEST-LO33NE', 'LONA 3 X 3 NEGRO')
         self._pack_product('ZTEST-LO33VE', 'LONA 3 X 3 VERDE')
         first_data = self._order_data(
-            order_id='2000018335534642', sku='ZTEST-LO33NE', pack_id='2000014915601055',
+            order_id='2000019200000001', sku='ZTEST-LO33NE', pack_id='2000019200099999',
         )
         second_data = self._order_data(
-            order_id='2000018335534644', sku='ZTEST-LO33VE', pack_id='2000014915601055',
+            order_id='2000019200000002', sku='ZTEST-LO33VE', pack_id='2000019200099999',
         )
 
         first_order = self.env['sale.order']._meli_create_from_order_data(self.config, first_data)
         second_order = self.env['sale.order']._meli_create_from_order_data(self.config, second_data)
 
         self.assertEqual(first_order, second_order)
-        self.assertEqual(first_order.meli_pack_id, '2000014915601055')
-        self.assertEqual(first_order.client_order_ref, '2000014915601055')
+        self.assertEqual(first_order.meli_pack_id, '2000019200099999')
+        self.assertEqual(first_order.client_order_ref, '2000019200099999')
         self.assertEqual(
             sorted(first_order.order_line.mapped('meli_order_id')),
-            ['2000018335534642', '2000018335534644'],
+            ['2000019200000001', '2000019200000002'],
         )
         # Checks for the real distinguishing content ('same pack' plus
         # the sibling's own order id), not just 'Extra line' alone —
@@ -173,7 +213,7 @@ class TestSaleOrderMeliImport(TransactionCase):
         # make a looser assertion pass even if this module's own
         # message were never posted at all.
         self.assertTrue(any(
-            'same pack' in (msg.body or '') and '2000018335534644' in (msg.body or '')
+            'same pack' in (msg.body or '') and '2000019200000002' in (msg.body or '')
             for msg in first_order.message_ids
         ))
 
@@ -204,6 +244,16 @@ class TestSaleOrderMeliImport(TransactionCase):
             order_id='2000018335534661', sku='ZTEST-LO33VE', pack_id='2000014915601100',
         )
         order = self.env['sale.order']._meli_create_from_order_data(self.config, first_data)
+        # This class's own test_company never sets up a chart of
+        # accounts (unlike TestMeliInvoicingLifecycle, which does) —
+        # needed here since this is the only test in this class that
+        # actually posts an invoice.
+        # 'mx' (not 'mx_coa') confirmed as a valid chart-template code in
+        # this Odoo version's registry — same one
+        # TestMeliInvoicingLifecycle.setUpClass already uses.
+        self.env['account.chart.template'].try_loading(
+            'mx', company=self.test_company, install_demo=False,
+        )
         invoice = order._create_invoices()
         invoice.action_post()
 
@@ -643,6 +693,215 @@ class TestSaleOrderMeliImport(TransactionCase):
         self.assertEqual(result, ventiapp_order)
         self.assertFalse(result.meli_auto_recovered)
 
+    # ---- Pack sibling discovery (Fix 2026-09-18) ----------------------
+    # Real, critical production bug (order S970525/pack 2000014889797151):
+    # this "invoicing-only" build only ever discovers an order via a
+    # document's own meli_order_id (see controllers/main.py — the sale
+    # injector webhook is deliberately not wired up here). A pack-wide
+    # credit note reporting only ONE sibling's order_id left the OTHER
+    # sibling's own product line permanently missing from Odoo, with no
+    # error anywhere. _meli_import_order now also checks the pack itself
+    # (GET /packs/$PACK_ID) and enqueues the missing sibling(s).
+
+    def _fake_api_get_with_pack(self, orders_by_path, pack_id, pack_order_ids):
+        def fake_api_get(path, params=None, headers=None):
+            if path == f'/packs/{pack_id}':
+                return {'orders': [{'id': oid} for oid in pack_order_ids]}
+            if path in orders_by_path:
+                return orders_by_path[path]
+            raise AssertionError(f"unexpected path {path}")
+        return fake_api_get
+
+    def test_import_order_enqueues_a_missing_pack_sibling(self):
+        order_data = self._order_data(
+            order_id='2000019100000001', pack_id='2000019100099999',
+        )
+        fake_api_get = self._fake_api_get_with_pack(
+            {'/orders/2000019100000001': order_data},
+            '2000019100099999', ['2000019100000001', '2000019100000002'],
+        )
+        with patch.object(type(self.config), '_api_get', side_effect=fake_api_get):
+            result = self.env['sale.order']._meli_import_order(
+                self.test_company.id, '2000019100000001',
+            )
+
+        self.assertTrue(result)
+        job = self.env['queue.job'].sudo().search([
+            ('identity_key', '=', 'meli_recover_order_2000019100000002'),
+        ])
+        self.assertTrue(job, "the missing sibling must be enqueued for import")
+
+    def test_repair_pack_siblings_now_enqueues_missing_sibling(self):
+        # _meli_repair_pack_siblings_now (2026-09-18 user request, the
+        # per-order half of action_meli_repair_all_historical_packs):
+        # same check-and-fix as any automated import, just callable
+        # directly on an already-existing pack order.
+        pack_order = self.env['sale.order'].create({
+            'partner_id': self.partner.id, 'company_id': self.test_company.id,
+            'warehouse_id': self.warehouse_default.id,
+            'meli_pack_id': '2000019100099997',
+            'meli_order_id': '2000019100000005',
+        })
+        fake_api_get = self._fake_api_get_with_pack(
+            {}, '2000019100099997', ['2000019100000005', '2000019100000006'],
+        )
+        with patch.object(type(self.config), '_api_get', side_effect=fake_api_get):
+            pack_order._meli_repair_pack_siblings_now(self.test_company.id)
+
+        self.assertTrue(self.env['queue.job'].sudo().search([
+            ('identity_key', '=', 'meli_recover_order_2000019100000006'),
+        ]), "the missing sibling must be enqueued for import")
+
+    def test_repair_pack_siblings_now_is_a_noop_when_pack_already_complete(self):
+        pack_order = self.env['sale.order'].create({
+            'partner_id': self.partner.id, 'company_id': self.test_company.id,
+            'warehouse_id': self.warehouse_default.id,
+            'meli_pack_id': '2000019100099996',
+            'meli_order_id': '2000019100000007',
+        })
+        fake_api_get = self._fake_api_get_with_pack(
+            {}, '2000019100099996', ['2000019100000007'],
+        )
+        # Counts jobs before/after instead of asserting none exist at
+        # all: this test runs against a real, shared, non-isolated
+        # database that already carries plenty of unrelated
+        # meli_recover_order_* jobs from genuine production use.
+        jobs_before = self.env['queue.job'].sudo().search_count([
+            ('identity_key', 'ilike', 'meli_recover_order_%'),
+        ])
+        with patch.object(type(self.config), '_api_get', side_effect=fake_api_get):
+            pack_order._meli_repair_pack_siblings_now(self.test_company.id)
+
+        jobs_after = self.env['queue.job'].sudo().search_count([
+            ('identity_key', 'ilike', 'meli_recover_order_%'),
+        ])
+        self.assertEqual(jobs_after, jobs_before, "no new job should have been enqueued")
+
+    def test_action_meli_repair_all_historical_packs_queues_one_job_per_pack_order(self):
+        pack_order_a = self.env['sale.order'].create({
+            'partner_id': self.partner.id, 'company_id': self.test_company.id,
+            'warehouse_id': self.warehouse_default.id,
+            'meli_pack_id': '2000019100099995',
+            'meli_order_id': '2000019100000008',
+        })
+        pack_order_b = self.env['sale.order'].create({
+            'partner_id': self.partner.id, 'company_id': self.test_company.id,
+            'warehouse_id': self.warehouse_default.id,
+            'meli_pack_id': '2000019100099994',
+            'meli_order_id': '2000019100000009',
+        })
+        non_pack_order = self.env['sale.order'].create({
+            'partner_id': self.partner.id, 'company_id': self.test_company.id,
+            'warehouse_id': self.warehouse_default.id,
+        })
+
+        result = (pack_order_a | pack_order_b | non_pack_order).action_meli_repair_all_historical_packs()
+
+        self.assertEqual(result['type'], 'ir.actions.client')
+        self.assertTrue(self.env['queue.job'].sudo().search([
+            ('identity_key', '=', f'meli_pack_historical_repair_{pack_order_a.id}'),
+        ]))
+        self.assertTrue(self.env['queue.job'].sudo().search([
+            ('identity_key', '=', f'meli_pack_historical_repair_{pack_order_b.id}'),
+        ]))
+        # A non-pack order still gets queued (this method decides
+        # whether there's anything to do per-order, once the job runs —
+        # cheap either way, no API call for a non-pack order at all).
+        self.assertTrue(self.env['queue.job'].sudo().search([
+            ('identity_key', '=', f'meli_pack_historical_repair_{non_pack_order.id}'),
+        ]))
+
+    def test_import_order_does_not_reenqueue_an_already_known_sibling_line(self):
+        second_product = self.env['product.product'].create({
+            'name': 'Sibling Product', 'company_id': self.test_company.id,
+        })
+        pack_order = self.env['sale.order'].create({
+            'partner_id': self.partner.id, 'company_id': self.test_company.id,
+            'warehouse_id': self.warehouse_default.id,
+            'meli_pack_id': '2000019100099998',
+            'meli_order_id': '2000019100000003',
+            'order_line': [(0, 0, {
+                'product_id': second_product.id, 'product_uom_qty': 1,
+                'meli_order_id': '2000019100000004',
+            })],
+        })
+        order_data = self._order_data(
+            order_id='2000019100000003', pack_id='2000019100099998',
+        )
+        fake_api_get = self._fake_api_get_with_pack(
+            {'/orders/2000019100000003': order_data},
+            '2000019100099998', ['2000019100000003', '2000019100000004'],
+        )
+        with patch.object(type(self.config), '_api_get', side_effect=fake_api_get):
+            self.env['sale.order']._meli_import_order(
+                self.test_company.id, '2000019100000003',
+            )
+
+        self.assertFalse(self.env['queue.job'].sudo().search([
+            ('identity_key', '=', 'meli_recover_order_2000019100000004'),
+        ]))
+        self.assertEqual(pack_order.meli_order_id, '2000019100000003')
+
+    def test_import_order_without_pack_id_never_calls_the_packs_endpoint(self):
+        order_data = self._order_data(order_id='2000019100000005', pack_id=None)
+
+        def fake_api_get(path, params=None, headers=None):
+            if path == '/orders/2000019100000005':
+                return order_data
+            raise AssertionError(f"unexpected path {path} — no pack_id, must never fetch /packs/")
+
+        with patch.object(type(self.config), '_api_get', side_effect=fake_api_get):
+            result = self.env['sale.order']._meli_import_order(
+                self.test_company.id, '2000019100000005',
+            )
+
+        self.assertTrue(result)
+
+    def test_import_order_survives_a_failed_packs_fetch(self):
+        order_data = self._order_data(
+            order_id='2000019100000006', pack_id='2000019100099997',
+        )
+
+        def fake_api_get(path, params=None, headers=None):
+            if path == '/orders/2000019100000006':
+                return order_data
+            if path == '/packs/2000019100099997':
+                raise self._http_404()
+            raise AssertionError(f"unexpected path {path}")
+
+        with patch.object(type(self.config), '_api_get', side_effect=fake_api_get):
+            result = self.env['sale.order']._meli_import_order(
+                self.test_company.id, '2000019100000006',
+            )
+
+        self.assertTrue(result, "a failed pack lookup must never block the ordinary import")
+
+    def test_import_order_rechecks_pack_siblings_even_when_the_order_already_existed(self):
+        # The missing sibling can arrive at any time relative to the
+        # first one — a later, otherwise-unrelated re-import of the SAME
+        # already-known order (e.g. a status-change notification) must
+        # also re-check the pack, not just the very first import.
+        order_data = self._order_data(
+            order_id='2000019100000007', pack_id='2000019100099996',
+        )
+        with patch.object(type(self.config), '_api_get', return_value=order_data):
+            self.env['sale.order']._meli_import_order(
+                self.test_company.id, '2000019100000007',
+            )
+
+        fake_api_get = self._fake_api_get_with_pack(
+            {'/orders/2000019100000007': order_data},
+            '2000019100099996', ['2000019100000007', '2000019100000008'],
+        )
+        with patch.object(type(self.config), '_api_get', side_effect=fake_api_get):
+            self.env['sale.order']._meli_import_order(
+                self.test_company.id, '2000019100000007',
+            )
+
+        self.assertTrue(self.env['queue.job'].sudo().search([
+            ('identity_key', '=', 'meli_recover_order_2000019100000008'),
+        ]))
+
     def test_missing_default_warehouse_raises_clear_error(self):
         # Real bug hit in production (2026-08-27): an unconfigured
         # warehouse_default_id used to bubble up as a raw Postgres
@@ -731,6 +990,14 @@ class TestSaleOrderMeliImport(TransactionCase):
         self.product.taxes_id = [(6, 0, [tax_16.id])]
         order_data = self._order_data(order_id='2000014726421928')
         order_data['order_items'][0]['unit_price'] = 898.0
+        # Fix 2026-09-18: pinned to 1 unit explicitly — _order_data's own
+        # default quantity (2) made this assertion compare a per-UNIT
+        # tax-included price (898.0) against the whole order's total
+        # (which, at 2 units, is correctly 1796.0 — confirmed by hand:
+        # 774.14 untaxed * 2 units + 16% tax = 1796.0). The test's own
+        # intent (unit_price must not be taxed twice) only holds at 1
+        # unit, where tax-included total == unit_price exactly.
+        order_data['order_items'][0]['quantity'] = 1
 
         order = self.env['sale.order']._meli_create_from_order_data(self.config, order_data)
 
@@ -751,6 +1018,57 @@ class TestSaleOrderMeliImport(TransactionCase):
         order = self.env['sale.order']._meli_create_from_order_data(self.config, order_data)
 
         self.assertAlmostEqual(order.order_line.price_unit, 1.0, places=2)
+
+    def test_null_unit_price_falls_back_to_payments_total_split_by_quantity(self):
+        # Real production bug (2026-09-18, order 2000018353085326):
+        # Mercado Libre's 'meli_resale'/catalog orders report
+        # order_items[].unit_price as null (never a real 0) — confirmed
+        # against the live API. The real amount paid only lives in
+        # payments[].transaction_amount. User-approved 2026-09-18: split
+        # that total evenly across quantity, since ML gives no per-SKU
+        # breakdown when this happens.
+        order_data = self._order_data(order_id='2000018353085326')
+        order_data['order_items'][0]['unit_price'] = None
+        order_data['order_items'][0]['quantity'] = 2
+        order_data['payments'] = [{
+            'status': 'approved', 'transaction_amount': 232.0,
+        }]
+
+        order = self.env['sale.order']._meli_create_from_order_data(self.config, order_data)
+
+        self.assertAlmostEqual(order.order_line.price_unit, 100.0, places=2)
+        self.assertTrue(any(
+            'no per-item price' in (msg.body or '') for msg in order.message_ids
+        ))
+
+    def test_null_unit_price_ignores_unapproved_payments(self):
+        order_data = self._order_data(order_id='2000018353085327')
+        order_data['order_items'][0]['unit_price'] = None
+        order_data['payments'] = [
+            {'status': 'approved', 'transaction_amount': 116.0},
+            {'status': 'rejected', 'transaction_amount': 9999.0},
+        ]
+
+        order = self.env['sale.order']._meli_create_from_order_data(self.config, order_data)
+
+        self.assertAlmostEqual(order.order_line.price_unit, 50.0, places=2)
+
+    def test_null_unit_price_with_no_payments_falls_back_to_minimum_price(self):
+        # User-approved 2026-09-18: when there is genuinely no price
+        # signal at all (no unit_price, no usable payment), price the
+        # line at $0.01 instead of blocking the whole order's creation
+        # (xe_pacific's own restrict_unit_price_zero() would otherwise
+        # reject it outright), and notify this company's configured
+        # failure-notification users.
+        order_data = self._order_data(order_id='2000018353085328')
+        order_data['order_items'][0]['unit_price'] = None
+
+        order = self.env['sale.order']._meli_create_from_order_data(self.config, order_data)
+
+        self.assertAlmostEqual(order.order_line.price_unit, 0.01, places=2)
+        self.assertTrue(any(
+            'no usable price at all' in (msg.body or '') for msg in order.message_ids
+        ))
 
     def test_import_no_longer_posts_a_price_debug_chatter_message(self):
         # Removed at the user's request 2026-09-07 — the price is still
@@ -895,10 +1213,18 @@ class TestSaleOrderMeliImport(TransactionCase):
         # branch and never reached _meli_flag_status_change at all —
         # before Task 2 consolidated pack siblings into one sale.order,
         # each sibling had its own sale.order and got this notification
-        # normally. This is visibility-only: per-line cancellation
-        # granularity (spec section 5) stays paused — the whole
-        # consolidated pack sale.order gets one manual-review chatter
-        # message, exactly like any other non-Full order does today.
+        # normally. Per-line CANCELLATION granularity (spec section 5)
+        # stays paused for a non-Full order — the whole consolidated
+        # pack sale.order still only ever gets one manual-review chatter
+        # message, never an automatic cancel/return/credit-note, exactly
+        # like before this fix.
+        #
+        # Fix 2026-09-18 (user-directed follow-up): the sibling's own
+        # commercial LINE, though, is no longer skipped — it's added for
+        # traceability even though the pack isn't Full (see
+        # _meli_create_from_order_data's own docstring on this branch).
+        # Only the destructive/automated side of a status change stays
+        # paused; visibility into what was actually sold does not.
         self._pack_product('ZTEST-LO33NE', 'LONA 3 X 3 NEGRO')
         self._pack_product('ZTEST-LO33VE', 'LONA 3 X 3 VERDE')
         first_data = self._order_data(
@@ -937,12 +1263,13 @@ class TestSaleOrderMeliImport(TransactionCase):
             'El comprador canceló la compra' in (msg.body or '')
             for msg in order.message_ids
         ))
-        # No line/sale order was ever created for the cancelled
-        # notification's own order id — it was routed straight to the
-        # existing pack order for visibility only, not imported.
-        self.assertFalse(self.env['sale.order.line'].search([
+        # The cancelled sibling's own line IS added now (traceability,
+        # 2026-09-18) — but nothing else about the order was touched
+        # automatically: still 'sale', not cancelled/returned/credited.
+        self.assertTrue(self.env['sale.order.line'].search([
             ('meli_order_id', '=', '2000018335534702'),
         ]))
+        self.assertEqual(order.state, 'sale')
 
     def test_fetch_custom_shipping_cost_reads_base_cost_for_custom_mode(self):
         # Real payload confirmed 2026-08-31 against Mercado Libre order
@@ -990,6 +1317,105 @@ class TestSaleOrderMeliImport(TransactionCase):
 
         self.assertIsNone(cost)
 
+    def test_fetch_buyer_shipping_surcharge_reads_receiver_cost(self):
+        # Real payload confirmed 2026-09-19/20 against Mercado Libre
+        # order 2000018521677590/shipment 48044112162: a normal 'me2'
+        # shipment (no 'custom') — GET /shipments/{id}/costs returns
+        # receiver.cost (the BUYER's own share, $38.44 in that real
+        # example) separate from senders[0].cost (XE's own net freight
+        # expense, never used here — see this method's own docstring).
+        shipments_response = [{
+            'id': 48044112162, 'type': 'forward', 'mode': 'me2',
+        }]
+        costs_response = {
+            'receiver': {'cost': 38.44},
+            'senders': [{'cost': 46.0}],
+        }
+        order_data = self._order_data(
+            order_id='2000018521677590', shipping={'id': 48044112162},
+        )
+
+        def fake_api_get(path, **kwargs):
+            if path == '/orders/2000018521677590/shipments':
+                return shipments_response
+            if path == '/shipments/48044112162/costs':
+                return costs_response
+            raise AssertionError(f"unexpected path {path}")
+
+        with patch.object(type(self.config), '_api_get', side_effect=fake_api_get):
+            cost = self.env['sale.order']._meli_fetch_buyer_shipping_surcharge(
+                self.config, '2000018521677590', order_data,
+            )
+
+        self.assertEqual(cost, 38.44)
+
+    def test_fetch_buyer_shipping_surcharge_skips_custom_shipments(self):
+        # Never double-charge the buyer for freight: a 'custom' shipment
+        # is already covered by _meli_fetch_custom_shipping_cost — this
+        # method must return None WITHOUT even calling /costs for it.
+        shipments_response = [{
+            'id': 1, 'type': 'forward', 'mode': 'custom', 'base_cost': 900,
+        }]
+        order_data = self._order_data(order_id='2000018521677591', shipping={'id': 1})
+
+        with patch.object(
+            type(self.config), '_api_get', return_value=shipments_response,
+        ) as mock_api_get:
+            cost = self.env['sale.order']._meli_fetch_buyer_shipping_surcharge(
+                self.config, '2000018521677591', order_data,
+            )
+
+        self.assertIsNone(cost)
+        mock_api_get.assert_called_once_with(
+            '/orders/2000018521677591/shipments',
+            headers={'X-New-Domain': 'true'},
+        )
+
+    def test_fetch_buyer_shipping_surcharge_reraises_request_exception(self):
+        shipments_response = [{'id': 1, 'type': 'forward', 'mode': 'me2'}]
+        order_data = self._order_data(order_id='2000018521677592', shipping={'id': 1})
+
+        def fake_api_get(path, **kwargs):
+            if path == '/orders/2000018521677592/shipments':
+                return shipments_response
+            raise requests.exceptions.ConnectionError('boom')
+
+        with patch.object(type(self.config), '_api_get', side_effect=fake_api_get):
+            with self.assertRaises(requests.exceptions.RequestException):
+                self.env['sale.order']._meli_fetch_buyer_shipping_surcharge(
+                    self.config, '2000018521677592', order_data,
+                )
+
+    def test_buyer_shipping_surcharge_adds_a_line_to_a_new_order(self):
+        shipping_item = self.env['product.product'].create({
+            'name': 'Test Shipping Surcharge (buyer)', 'type': 'service',
+            'company_id': self.test_company.id,
+        })
+        self.config.shipping_item_id = shipping_item
+        order_data = self._order_data(
+            order_id='2000018521677593', shipping={'id': 48044112163},
+        )
+        shipments_response = [{
+            'id': 48044112163, 'type': 'forward', 'mode': 'me2',
+        }]
+        costs_response = {'receiver': {'cost': 38.44}, 'senders': [{'cost': 46.0}]}
+
+        def fake_api_get(path, **kwargs):
+            if path == '/orders/2000018521677593/shipments':
+                return shipments_response
+            if path == '/shipments/48044112163/costs':
+                return costs_response
+            raise AssertionError(f"unexpected path {path}")
+
+        with patch.object(type(self.config), '_api_get', side_effect=fake_api_get):
+            order = self.env['sale.order']._meli_create_from_order_data(self.config, order_data)
+
+        self.assertEqual(len(order.order_line), 2)
+        shipping_line = order.order_line.filtered(lambda l: l.product_id == shipping_item)
+        self.assertEqual(len(shipping_line), 1)
+        self.assertEqual(shipping_line.product_uom_qty, 1)
+        self.assertAlmostEqual(shipping_line.price_unit, 38.44 / 1.16, places=2)
+
     def test_custom_shipping_adds_surcharge_line_with_untaxed_price(self):
         shipping_item = self.env['product.product'].create({
             'name': 'Test Shipping Surcharge', 'type': 'service',
@@ -1000,11 +1426,16 @@ class TestSaleOrderMeliImport(TransactionCase):
             order_id='2000018198314105', shipping={'id': 47893584846},
         )
 
-        # Also mock _meli_fetch_logistic_type and the shared
-        # _meli_fetch_shipment_records (2026-09-10 fix): a truthy
-        # shipping.id makes _meli_create_from_order_data call all three
+        # Also mock _meli_fetch_logistic_type, the shared
+        # _meli_fetch_shipment_records (2026-09-10 fix), and
+        # _meli_fetch_custom_shipping_destination (its own separate
+        # /shipments/{id} fetch, never covered by the above): a truthy
+        # shipping.id makes _meli_create_from_order_data call all four
         # — leaving any unmocked would hit the real Mercado Libre API
-        # with the fake test credentials.
+        # with the fake test credentials. None is exactly what this
+        # method itself returns on any fetch failure — safe, and
+        # irrelevant to what this test actually asserts (the shipping
+        # surcharge line).
         with patch.object(
             type(self.env['sale.order']), '_meli_fetch_shipment_records',
             return_value=[],
@@ -1013,6 +1444,9 @@ class TestSaleOrderMeliImport(TransactionCase):
             return_value=900.0,
         ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_logistic_type',
+            return_value=None,
+        ), patch.object(
+            type(self.env['sale.order']), '_meli_fetch_custom_shipping_destination',
             return_value=None,
         ):
             order = self.env['sale.order']._meli_create_from_order_data(self.config, order_data)
@@ -1253,6 +1687,9 @@ class TestSaleOrderMeliImport(TransactionCase):
             return_value=900.0,
         ), patch.object(
             type(self.env['sale.order']), '_meli_fetch_logistic_type',
+            return_value=None,
+        ), patch.object(
+            type(self.env['sale.order']), '_meli_fetch_custom_shipping_destination',
             return_value=None,
         ):
             order = self.env['sale.order']._meli_create_from_order_data(self.config, order_data)
