@@ -589,6 +589,105 @@ class SaleOrder(models.Model):
             },
         }
 
+    def _meli_repair_wrong_shipping_line_now(self, company_id):
+        """One order's own share of action_meli_repair_wrong_shipping_
+        lines (2026-09-21 user request) — the opposite cleanup from
+        _meli_repair_missing_shipping_now above: removes a buyer-
+        shipping-surcharge line that got added to a catalog/resale
+        order BEFORE the 2026-09-21 fix (see _meli_fetch_buyer_
+        shipping_surcharge's own docstring, real case order
+        2000018568677372/pack 2000015136237497) — Mercado Libre's own
+        shipping charge to the buyer on a resale order is its own
+        resale markup, never money owed to the seller, so that line
+        never belonged on the sale in the first place.
+
+        A genuine no-op whenever this order isn't 'resale'
+        (meli_transaction_type) or doesn't actually have a
+        shipping-surcharge line to remove. Cancels the existing
+        invoice first — breaking payment reconciliation if it has to,
+        same mechanism used elsewhere in this file — so the line can
+        be removed cleanly; the normal reconciliation flow right after
+        creates a fresh, correct invoice matching the real document
+        (now with nothing left to disagree about).
+        """
+        self.ensure_one()
+        config = self.env['meli.config'].sudo().search([
+            ('company_id', '=', company_id), ('state', '=', 'connected'),
+        ], limit=1)
+        if not config or not config.shipping_item_id:
+            return
+        if self.meli_transaction_type != 'resale':
+            return
+        wrong_line = self.order_line.filtered(
+            lambda l: l.product_id == config.shipping_item_id
+        )
+        if not wrong_line:
+            return
+        current_invoice = self.invoice_ids.filtered(
+            lambda m: m.move_type == 'out_invoice' and m.state != 'cancel'
+        )[:1]
+        if current_invoice:
+            self._meli_cancel_account_move_breaking_reconciliation(current_invoice)
+        removed_amount = sum(wrong_line.mapped('price_total'))
+        was_locked = self.locked
+        if was_locked:
+            self.locked = False
+        wrong_line.unlink()
+        if was_locked:
+            self.locked = True
+        self.message_post(body=_(
+            "Removed a shipping line ($%(amount)s) that was wrongly "
+            "added to this catalog/resale order before the 2026-09-21 "
+            "fix — Mercado Libre's own shipping charge to the buyer on "
+            "a resale order is its own resale markup, never money owed "
+            "to the seller. Reconciliation was re-triggered "
+            "automatically."
+        ) % {'amount': '%.2f' % removed_amount})
+        self._meli_reconcile_invoicing()
+
+    def action_meli_repair_wrong_shipping_lines(self):
+        """Server action (2026-09-21 user request), deliberately NOT
+        exposed as a button — same convention as every other repair
+        action in this file (wire it up yourself as an
+        ir.actions.server: `action = model.action_meli_repair_wrong_
+        shipping_lines()`).
+
+        Finds every Mercado Libre sale already known to be 'resale'
+        (meli_transaction_type — set once its own invoice document
+        arrives) — in the current selection if any, otherwise
+        model-wide — and enqueues one cheap, idempotent job per order
+        via _meli_repair_wrong_shipping_line_now. Scoped to resale
+        orders rather than every Mercado Libre sale: an ordinary sale
+        never had this line wrongly added in the first place, so
+        there's nothing there to check.
+        """
+        if self:
+            orders = self
+        else:
+            orders = self.sudo().search([('meli_transaction_type', '=', 'resale')])
+        queued = 0
+        for order in orders:
+            order.with_delay(
+                priority=8, channel='root.meli_sales', max_retries=8,
+                identity_key=f"meli_wrong_shipping_repair_{order.id}",
+                description=f"Wrong shipping line repair check for {order.name}",
+            )._meli_repair_wrong_shipping_line_now(order.company_id.id)
+            queued += 1
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Mercado Libre"),
+                'message': _(
+                    "%(queued)s venta(s) de reventa puesta(s) en cola "
+                    "para revisión de envío indebido — se corrigen "
+                    "solas en segundo plano, sin afectar las que ya "
+                    "están correctas."
+                ) % {'queued': queued},
+                'type': 'success',
+            },
+        }
+
     def action_meli_repair_all_historical_packs(self):
         """Server action (2026-09-18 user request), deliberately NOT
         exposed as a button — meant to be wired up as an
@@ -4635,13 +4734,30 @@ class SaleOrder(models.Model):
         Returns None (nothing to add) whenever: there's no shipment at
         all, the shipment IS 'custom' (already covered by
         _meli_fetch_custom_shipping_cost — must never double-charge
-        the buyer for freight in two separate lines), or the buyer's
-        own cost share is zero/absent. A genuine fetch failure
-        propagates as requests.exceptions.RequestException, same
-        convention as _meli_fetch_custom_shipping_cost's own docstring
-        explains — silently continuing without it would recreate the
-        exact silent gap this fix closes.
+        the buyer for freight in two separate lines), the order is a
+        catalog/resale one (see below), or the buyer's own cost share
+        is zero/absent. A genuine fetch failure propagates as
+        requests.exceptions.RequestException, same convention as
+        _meli_fetch_custom_shipping_cost's own docstring explains —
+        silently continuing without it would recreate the exact silent
+        gap this fix closes.
+
+        Fix 2026-09-21 (real production case caught before import,
+        order 2000018568677372/pack 2000015136237497 — user-flagged
+        from the seller-panel "REVENTA" tag): a catalog/resale order's
+        'tags' always includes 'catalog' — confirmed live. What
+        Mercado Libre actually owes the SELLER for one of these is
+        ONLY total_amount/paid_amount (here, $141.24 — matching the
+        seller panel's own "Total a recibir"), which never includes
+        the buyer's own shipping share ($110 in that same real order,
+        from GET /shipments/{id}/costs' own receiver.cost) — that
+        extra is Mercado Libre's own resale markup/logistics, money
+        that never reaches XE and must never be added to this sale.
+        Checked here, not by the caller, so every caller of this
+        method is automatically covered.
         """
+        if 'catalog' in (order_data.get('tags') or []):
+            return None
         shipping_id = (order_data.get('shipping') or {}).get('id')
         if not shipping_id:
             return None

@@ -1371,6 +1371,26 @@ class TestSaleOrderMeliImport(TransactionCase):
             headers={'X-New-Domain': 'true'},
         )
 
+    def test_fetch_buyer_shipping_surcharge_skips_catalog_orders(self):
+        # Fix 2026-09-21 (real production case caught before import,
+        # order 2000018568677372/pack 2000015136237497): a catalog/
+        # resale order's own 'tags' always includes 'catalog' — what
+        # Mercado Libre actually owes the seller for one of these never
+        # includes the buyer's own shipping share (that's Mercado
+        # Libre's own resale markup), so this must return None WITHOUT
+        # even calling the API — a real mock_api_get call here would
+        # mean the fix regressed.
+        order_data = self._order_data(order_id='2000018568677372', shipping={'id': 1})
+        order_data['tags'] = ['order_has_discount', 'catalog', 'paid', 'pack_order']
+
+        with patch.object(type(self.config), '_api_get') as mock_api_get:
+            cost = self.env['sale.order']._meli_fetch_buyer_shipping_surcharge(
+                self.config, '2000018568677372', order_data,
+            )
+
+        self.assertIsNone(cost)
+        mock_api_get.assert_not_called()
+
     def test_fetch_buyer_shipping_surcharge_reraises_request_exception(self):
         shipments_response = [{'id': 1, 'type': 'forward', 'mode': 'me2'}]
         order_data = self._order_data(order_id='2000018521677592', shipping={'id': 1})
