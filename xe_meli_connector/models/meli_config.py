@@ -126,8 +126,11 @@ class MeliConfig(models.Model):
     )
     returns_manager_id = fields.Many2one(
         'res.users', string='Returns Manager',
-        help="Person notified when Mercado Libre reports a new return "
-             "or cancellation claim on a non-Full order. Deliberately "
+        help="Person notified when Mercado Libre reports a return, "
+             "refund, or cancellation that needs a look — a new claim "
+             "on a non-Full order, or an order status change to "
+             "'partially_refunded', 'pending_cancel', or 'cancelled' "
+             "that couldn't be finished automatically. Deliberately "
              "separate from the order's salesperson.",
     )
     delivery_contact_manager_id = fields.Many2one(
@@ -520,6 +523,36 @@ class MeliConfig(models.Model):
                 )
 
     @api.model
+    def _cron_poll_orders(self):
+        """Re-enabled 2026-09-22 (user-directed): backup polling for the
+        'orders_v2' webhook (see controllers/main.py's own comment) —
+        catches a paid order whose notification was never delivered or
+        failed. Was disabled along with the webhook branch itself for
+        the 2026-09-14 invoicing-only build; the underlying
+        _poll_recent_orders/_retry_failed_delivery_contacts methods and
+        their own checkpoint fields (last_poll_at, _POLL_DEFAULT_
+        LOOKBACK_HOURS below) were never removed.
+        """
+        configs = self.search([
+            ('active', '=', True), ('state', '=', 'connected'),
+        ])
+        for config in configs:
+            try:
+                config._poll_recent_orders()
+            except Exception:
+                _logger.exception(
+                    "Mercado Libre order polling failed for config %s",
+                    config.id,
+                )
+            try:
+                config._retry_failed_delivery_contacts()
+            except Exception:
+                _logger.exception(
+                    "Mercado Libre delivery-contact retry failed for "
+                    "config %s", config.id,
+                )
+
+    @api.model
     def _cron_poll_invoices(self):
         configs = self.search([
             ('active', '=', True), ('state', '=', 'connected'),
@@ -535,6 +568,88 @@ class MeliConfig(models.Model):
 
     _POLL_DEFAULT_LOOKBACK_HOURS = 2
     _POLL_OVERLAP_MINUTES = 15
+
+    def _poll_recent_orders(self):
+        """Safety-net polling: catches paid orders whose webhook
+        notification was never delivered or failed. The webhook is the
+        primary path — this only fills gaps.
+
+        The window is checkpoint-based, not a fixed lookback: it always
+        resumes from `last_poll_at` (the end of the last successful run),
+        with a small overlap to absorb ML's hour-granularity search filter
+        and any clock skew. This guarantees no permanent gap regardless of
+        how long an outage lasts (webhook disabled, server down, etc.) —
+        the only requirement is that the cron eventually runs again. Only
+        the very first run ever (no checkpoint yet) falls back to a fixed
+        lookback. The checkpoint only advances after the search call
+        succeeds, so a failed run is retried from the same point next time.
+        """
+        self.ensure_one()
+        now = fields.Datetime.now()
+        since = self.last_poll_at or fields.Datetime.subtract(
+            now, hours=self._POLL_DEFAULT_LOOKBACK_HOURS,
+        )
+        since = fields.Datetime.subtract(since, minutes=self._POLL_OVERLAP_MINUTES)
+        data = self._api_get('/orders/search', params={
+            'seller': self.ml_user_id,
+            'order.status': 'paid',
+            'order.date_last_updated.from': since.strftime('%Y-%m-%dT%H:00:00.000-00:00'),
+        }) or {}
+        SaleOrder = self.env['sale.order'].sudo()
+        for result in data.get('results', []):
+            order_id = str(result.get('id'))
+            existing = SaleOrder.search([('meli_order_id', '=', order_id)], limit=1)
+            # Fix 1 (2026-09-09, final review — Critical): `and not
+            # existing.meli_adopted` added — an order this connector
+            # merely ADOPTED (linked to, never created) must never be
+            # re-enqueued here even if it happens to sit in draft with
+            # meli_sync_source set. _meli_retry_unmapped_lines's own
+            # guard already refuses to act on such an order (see that
+            # method), so this would be a no-op anyway — excluding it
+            # here too avoids a wasted API call and log noise on every
+            # polling cycle for as long as it stays in draft.
+            if existing and not (
+                existing.state == 'draft' and existing.meli_sync_source
+                and not existing.meli_adopted
+            ):
+                # Already imported and resolved — nothing to do. A draft
+                # stuck on an unmapped SKU is worth another look, in case
+                # the mapping was completed since it was first created.
+                continue
+            SaleOrder.with_delay(
+                priority=8, channel='root.meli_sales', max_retries=8,
+                description=f"Import Mercado Libre order {order_id} (polling)",
+                identity_key=f"meli_import_order_{order_id}",
+            )._meli_import_order(self.company_id.id, order_id)
+        self.last_poll_at = now
+
+    def _retry_failed_delivery_contacts(self):
+        """Companion to _poll_recent_orders, called from the same
+        _cron_poll_orders tick: retries the delivery-contact resolution
+        for every custom-shipping order still stuck in
+        meli_delivery_contact_status == 'failed', with no attempt limit.
+
+        Each order is retried in its own try/except: one order raising
+        an unexpected error must not skip every other failed order in
+        this company for this tick — they'd otherwise have to wait for
+        whatever broke this one order to also clear up first, which is
+        unrelated. _cron_poll_orders' own try/except only stops a single
+        bad config from blocking every OTHER company; this is the same
+        idea one level down, per order.
+        """
+        self.ensure_one()
+        orders = self.env['sale.order'].sudo().search([
+            ('company_id', '=', self.company_id.id),
+            ('meli_delivery_contact_status', '=', 'failed'),
+        ])
+        for order in orders:
+            try:
+                order._meli_retry_delivery_contact(self)
+            except Exception:
+                _logger.exception(
+                    "Mercado Libre delivery-contact retry failed for "
+                    "order %s", order.id,
+                )
 
     _MISSED_FEEDS_PAGE_LIMIT = 100
 

@@ -696,6 +696,42 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             '</cfdi:Comprobante>'
         ).encode()
 
+    def _fake_discount_credit_note_cfdi_xml(
+        self, folio, descripcion, cantidad, importe, fecha='2026-09-08T10:00:00',
+    ):
+        """Same shape as _fake_credit_note_cfdi_xml, but with an
+        explicit `descripcion` (Mercado Libre's own marketplace listing
+        title, deliberately NOT the catalog product's own name) and an
+        explicit `importe` that is NOT cantidad * a unit price — needed
+        to test the 2026-09-22 round 4 fix (real production case, order
+        S955446/2000018285646206, document 3000000093287606): a genuine
+        DISCOUNT-type partial refund, same quantity, no units returned,
+        for LESS than cantidad * the sale line's own unit price.
+        """
+        importe = round(importe, 2)
+        valor_unitario = round(importe / cantidad, 2)
+        uuid = f'AAAAAAAA-0000-0000-0003-{int(folio):012d}'
+        return (
+            '<cfdi:Comprobante '
+            'xmlns:cfdi="http://www.sat.gob.mx/cfd/4" '
+            'xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" '
+            f'Version="4.0" Folio="{folio}" Fecha="{fecha}" '
+            f'SubTotal="{importe}" Total="{importe}" Sello="fake-sello">'
+            '<cfdi:Emisor Rfc="XEB010101AA1" Nombre="XE Brands" RegimenFiscal="601"/>'
+            '<cfdi:Receptor Rfc="XAXX010101000" Nombre="Publico en general" '
+            'UsoCFDI="G03"/>'
+            '<cfdi:Conceptos>'
+            f'<cfdi:Concepto Descripcion="{descripcion}" Cantidad="{cantidad}" '
+            f'ValorUnitario="{valor_unitario}" Importe="{importe}"/>'
+            '</cfdi:Conceptos>'
+            '<cfdi:Complemento>'
+            f'<tfd:TimbreFiscalDigital Version="1.1" UUID="{uuid}" '
+            'FechaTimbrado="2026-09-08T10:00:01" SelloCFD="fake-sello-cfd" '
+            'NoCertificadoSAT="00000000000000000000" SelloSAT="fake-sello-sat"/>'
+            '</cfdi:Complemento>'
+            '</cfdi:Comprobante>'
+        ).encode()
+
     def _fake_multi_concept_credit_note_xml(self, folio, items, fecha='2026-09-08T10:00:00'):
         """Same shape as _fake_credit_note_cfdi_xml, but with one
         cfdi:Concepto per (product_name, cantidad, valor_unitario) in
@@ -1275,10 +1311,18 @@ class TestMeliInvoicingLifecycle(TransactionCase):
         LIVE order status is anything other than 'cancelled' (a genuine
         partial refund — e.g. still 'paid'), the sale and its stock must
         never be touched — 'la venta sigue normal' (user's own words).
-        Automating the credit note itself for this case is DELIBERATELY
-        PAUSED (2026-09-16, user decision, to resume later) — this only
-        asserts the safe, paused behaviour: no credit note, no stock
-        return, order untouched, manual-review message posted instead.
+
+        Fix 2026-09-22 (user decision): automating the credit note
+        itself for this case — via _meli_build_partial_credit_note —
+        was deliberately paused since 2026-09-16 and is now re-enabled:
+        the only reliable signal telling a genuine partial refund apart
+        from a full cancellation is this same live-status check, never
+        the credit note document's own amount (which of course won't
+        match the whole sale's amount_total for a partial refund) — so
+        there's nothing left to gate on. This now asserts the real,
+        automated outcome: a real out_refund crediting exactly the
+        product/quantity Mercado Libre's own CFDI reports, with the
+        order and its stock completely untouched.
         """
         order = self._create_delivered_order('FIVT-0020D')
         self.env['meli.invoice.document'].sudo().create({
@@ -1300,7 +1344,7 @@ class TestMeliInvoicingLifecycle(TransactionCase):
         })
 
         with patch.object(
-            type(self.config), '_api_get', return_value={'status': 'paid'},
+            type(self.config), '_api_get', return_value={'status': 'partially_refunded'},
         ):
             order._meli_reconcile_invoicing()
 
@@ -1311,16 +1355,59 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             "nothing physical was returned — no return transfer must exist",
         )
         credit_note = order.invoice_ids.filtered(lambda m: m.move_type == 'out_refund')
+        self.assertEqual(
+            len(credit_note), 1,
+            "a partial-refund credit note must now be created automatically",
+        )
+        self.assertEqual(credit_note.state, 'posted')
+        self.assertEqual(credit_note.reversed_entry_id, source_invoice)
+        credit_note_line = credit_note.invoice_line_ids.filtered(
+            lambda l: l.display_type == 'product'
+        )
+        self.assertEqual(credit_note_line.product_id, self.product)
+        self.assertEqual(credit_note_line.quantity, invoice_line.quantity)
         self.assertFalse(
-            credit_note,
-            "automatic partial-refund credit notes are paused for now — "
-            "none should be created",
-        )
-        self.assertTrue(
             credit_note_document.meli_needs_manual_credit_note,
-            "flagged so it's filterable in the Mercado Libre Invoicing "
-            "panel and excluded from the automatic retry cron",
+            "a successful automatic match must never flag this document "
+            "for manual review",
         )
+
+    def test_reconcile_credit_note_stays_manual_when_live_status_is_neither_cancelled_nor_partially_refunded(self):
+        """2026-09-22 user-directed narrowing: the automated partial-
+        refund credit note only ever applies when Mercado Libre's own
+        LIVE status is specifically 'partially_refunded' — a devolución
+        document existing at all doesn't by itself confirm what Mercado
+        Libre actually intends. Any OTHER non-cancelled live status
+        (still 'paid' here) must degrade to manual review, exactly like
+        before this whole feature was re-enabled.
+        """
+        order = self._create_delivered_order('FIVT-0020E')
+        self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-0020E', 'transaction_type': 'sale',
+            'meli_invoice_id': '9000000000000046',
+            'xml_file': base64.b64encode(self._fake_cfdi_xml('906')),
+        })
+        order._meli_reconcile_invoicing()
+        source_invoice = order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')
+        invoice_line = source_invoice.invoice_line_ids.filtered(
+            lambda l: l.display_type == 'product'
+        )
+        credit_note_document = self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-0020E', 'transaction_type': 'devolution',
+            'meli_invoice_id': '9000000000000047',
+            'xml_file': base64.b64encode(self._fake_credit_note_cfdi_xml(
+                '907', self.product.name, invoice_line.quantity, invoice_line.price_unit,
+            )),
+        })
+
+        with patch.object(
+            type(self.config), '_api_get', return_value={'status': 'paid'},
+        ):
+            order._meli_reconcile_invoicing()
+
+        self.assertEqual(order.state, 'sale')
+        self.assertFalse(order.invoice_ids.filtered(lambda m: m.move_type == 'out_refund'))
+        self.assertTrue(credit_note_document.meli_needs_manual_credit_note)
 
     def test_reconcile_credit_note_for_full_order_does_not_double_return_after_full_cancellation(self):
         """_meli_return_full_pickings is idempotent by itself, but this
@@ -1388,13 +1475,240 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             'xml_file': base64.b64encode(self._fake_cfdi_xml('811')),
         })
 
-        order._meli_reconcile_invoicing()
+        # Fix 2026-09-22 round 2: this order now genuinely reaches the
+        # live-status check (a confirmed partial refund is automated
+        # regardless of Full/non-Full — see that gate's own comment),
+        # so this needs a real mock here now, same as every other test
+        # that exercises this credit-note step — 'paid' means neither a
+        # confirmed cancellation nor a confirmed partial refund, so this
+        # non-Full order still falls to manual review, exactly as this
+        # test expects.
+        with patch.object(type(self.config), '_api_get', return_value={'status': 'paid'}):
+            order._meli_reconcile_invoicing()
 
         self.assertFalse(order.invoice_ids.filtered(lambda m: m.move_type == 'out_refund'))
         self.assertTrue(any(
             'devolution' in (msg.body or '').lower() or 'credit note' in (msg.body or '').lower()
             for msg in order.message_ids
         ))
+
+    def test_reconcile_confirmed_partial_refund_is_automated_even_for_non_full_order(self):
+        """2026-09-22 round 2 (user correction): a confirmed partial
+        refund never touches stock/order_line at all (see
+        _meli_build_partial_credit_note's own docstring) — there is no
+        physical return for a human to confirm, so it must be automated
+        regardless of Full/non-Full. Only a genuine FULL cancellation
+        still requires Full for a real physical return to be confirmed
+        by a human first — that restriction stays, but it must no
+        longer block this case too, which it used to (a real gap the
+        user caught: "no es devolución es reembolso parcial... esto sí
+        lo podemos automatizar").
+        """
+        self.env['stock.quant']._update_available_quantity(
+            self.product, self.warehouse_default.lot_stock_id, 10,
+        )
+        order = self.env['sale.order'].create({
+            'company_id': self.test_company.id,
+            'partner_id': self.partner.id,
+            'client_order_ref': 'FIVT-0021B',
+            'meli_order_id': 'FIVT-0021B',
+            'meli_sync_source': 'xe_meli_connector',
+            'warehouse_id': self.warehouse_default.id,
+            'order_line': [(0, 0, {
+                'product_id': self.product.id, 'product_uom_qty': 1,
+            })],
+        })
+        order.action_confirm()
+        order.picking_ids.button_validate()
+        self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-0021B', 'transaction_type': 'sale',
+            'meli_invoice_id': '9000000000000034',
+            'xml_file': base64.b64encode(self._fake_cfdi_xml('812')),
+        })
+        order._meli_reconcile_invoicing()
+        source_invoice = order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')
+        invoice_line = source_invoice.invoice_line_ids.filtered(
+            lambda l: l.display_type == 'product'
+        )
+        credit_note_document = self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-0021B', 'transaction_type': 'devolution',
+            'meli_invoice_id': '9000000000000035',
+            'xml_file': base64.b64encode(self._fake_credit_note_cfdi_xml(
+                '908', self.product.name, invoice_line.quantity, invoice_line.price_unit,
+            )),
+        })
+
+        with patch.object(
+            type(self.config), '_api_get', return_value={'status': 'partially_refunded'},
+        ):
+            order._meli_reconcile_invoicing()
+
+        self.assertEqual(order.state, 'sale', "the sale must stay completely untouched")
+        self.assertFalse(
+            order.picking_ids.filtered(lambda p: p.picking_type_id.code == 'incoming'),
+            "nothing physical was returned — no return transfer must exist",
+        )
+        credit_note = order.invoice_ids.filtered(lambda m: m.move_type == 'out_refund')
+        self.assertEqual(
+            len(credit_note), 1,
+            "a confirmed partial refund must be automated even for a "
+            "non-Full order — it never touches stock",
+        )
+        self.assertEqual(credit_note.state, 'posted')
+        self.assertFalse(credit_note_document.meli_needs_manual_credit_note)
+
+    def test_reconcile_discount_type_partial_refund_credits_documents_own_amount(self):
+        """2026-09-22 round 4 (real production case, order S955446/
+        2000018285646206, document 3000000093287606): a genuine
+        DISCOUNT-type partial refund — same quantity as the sale, no
+        units returned — reports a CFDI concept whose Descripcion is
+        Mercado Libre's own marketplace listing title (shares no words
+        with this catalog's product name) and whose Importe is LESS
+        than cantidad * the line's own unit price (here, 90% of it).
+        Must still be automated: matched via the sole-remaining-line
+        fallback (no ambiguity — this order has only one product line),
+        and credited for the document's own amount, never the sale's
+        full price (which would over-credit the customer).
+        """
+        self.env['stock.quant']._update_available_quantity(
+            self.product, self.warehouse_default.lot_stock_id, 10,
+        )
+        order = self.env['sale.order'].create({
+            'company_id': self.test_company.id,
+            'partner_id': self.partner.id,
+            'client_order_ref': 'FIVT-0021C',
+            'meli_order_id': 'FIVT-0021C',
+            'meli_sync_source': 'xe_meli_connector',
+            'warehouse_id': self.warehouse_default.id,
+            'order_line': [(0, 0, {
+                'product_id': self.product.id, 'product_uom_qty': 1,
+            })],
+        })
+        order.action_confirm()
+        order.picking_ids.button_validate()
+        self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-0021C', 'transaction_type': 'sale',
+            'meli_invoice_id': '9000000000000036',
+            'xml_file': base64.b64encode(self._fake_cfdi_xml('813')),
+        })
+        order._meli_reconcile_invoicing()
+        source_invoice = order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')
+        invoice_line = source_invoice.invoice_line_ids.filtered(
+            lambda l: l.display_type == 'product'
+        )
+        full_amount = invoice_line.quantity * invoice_line.price_unit
+        discounted_amount = round(full_amount * 0.9, 2)
+        credit_note_document = self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-0021C', 'transaction_type': 'devolution',
+            'meli_invoice_id': '9000000000000037',
+            'xml_file': base64.b64encode(self._fake_discount_credit_note_cfdi_xml(
+                '909', 'Some Marketplace Listing Title, Not Our Product Name',
+                invoice_line.quantity, discounted_amount,
+            )),
+        })
+
+        with patch.object(
+            type(self.config), '_api_get', return_value={'status': 'partially_refunded'},
+        ):
+            order._meli_reconcile_invoicing()
+
+        self.assertEqual(order.state, 'sale', "the sale must stay completely untouched")
+        self.assertFalse(
+            order.picking_ids.filtered(lambda p: p.picking_type_id.code == 'incoming'),
+            "nothing physical was returned — no return transfer must exist",
+        )
+        credit_note = order.invoice_ids.filtered(lambda m: m.move_type == 'out_refund')
+        self.assertEqual(len(credit_note), 1)
+        self.assertEqual(credit_note.state, 'posted')
+        self.assertAlmostEqual(credit_note.amount_untaxed, discounted_amount, places=2)
+        self.assertFalse(credit_note_document.meli_needs_manual_credit_note)
+        # Real bug caught by the user (2026-09-22 round 5): a discount
+        # credit note must NEVER net this line's own qty_invoiced back
+        # down — no unit was actually returned, only a lower price was
+        # recognized. sale.order.line.qty_invoiced nets an out_refund's
+        # quantity regardless of price for any invoice line whose own
+        # sale_line_ids still points at this line — if it did here,
+        # Odoo would think there's 1 unit still "to invoice" and risk
+        # auto-generating a second, duplicate invoice for it later.
+        sale_line = order.order_line.filtered(lambda l: l.product_id == self.product)
+        self.assertEqual(
+            sale_line.qty_invoiced, 1,
+            "a discount-type credit note must not net qty_invoiced back "
+            "down — the unit was never actually returned",
+        )
+
+    def test_reconcile_discount_type_partial_refund_on_a_single_item_pack(self):
+        """2026-09-22 round 4 (real production case, order S955446/
+        2000018285646206, document 3000000093287606) — same scenario as
+        test_reconcile_discount_type_partial_refund_credits_documents_own_amount
+        above, but on an order that ALSO has meli_pack_id set (Mercado
+        Libre stamps this on every cart, even a single-item one — see
+        _meli_reconcile_invoicing's own pack-branch comment), which
+        routes this through _meli_relate_partial_cancellation_credit_note
+        instead of _meli_build_partial_credit_note.
+        """
+        self.env['stock.quant']._update_available_quantity(
+            self.product, self.warehouse_default.lot_stock_id, 10,
+        )
+        order = self.env['sale.order'].create({
+            'company_id': self.test_company.id,
+            'partner_id': self.partner.id,
+            'client_order_ref': 'FIVT-0021D',
+            'meli_order_id': 'FIVT-0021D',
+            'meli_pack_id': 'FIVT-0021D-PACK',
+            'meli_sync_source': 'xe_meli_connector',
+            'warehouse_id': self.warehouse_default.id,
+            'order_line': [(0, 0, {
+                'product_id': self.product.id, 'product_uom_qty': 1,
+            })],
+        })
+        order.action_confirm()
+        order.picking_ids.button_validate()
+        self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-0021D', 'transaction_type': 'sale',
+            'meli_invoice_id': '9000000000000038',
+            'xml_file': base64.b64encode(self._fake_cfdi_xml('814')),
+        })
+        order._meli_reconcile_invoicing()
+        source_invoice = order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')
+        invoice_line = source_invoice.invoice_line_ids.filtered(
+            lambda l: l.display_type == 'product'
+        )
+        full_amount = invoice_line.quantity * invoice_line.price_unit
+        discounted_amount = round(full_amount * 0.9, 2)
+        credit_note_document = self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-0021D', 'transaction_type': 'devolution',
+            'meli_invoice_id': '9000000000000039',
+            'xml_file': base64.b64encode(self._fake_discount_credit_note_cfdi_xml(
+                '910', 'Some Marketplace Listing Title, Not Our Product Name',
+                invoice_line.quantity, discounted_amount,
+            )),
+        })
+
+        with patch.object(
+            type(self.config), '_api_get', return_value={'status': 'partially_refunded'},
+        ):
+            order._meli_reconcile_invoicing()
+
+        self.assertEqual(order.state, 'sale', "the sale must stay completely untouched")
+        self.assertFalse(
+            order.picking_ids.filtered(lambda p: p.picking_type_id.code == 'incoming'),
+            "nothing physical was returned — no return transfer must exist",
+        )
+        credit_note = order.invoice_ids.filtered(lambda m: m.move_type == 'out_refund')
+        self.assertEqual(len(credit_note), 1)
+        self.assertEqual(credit_note.state, 'posted')
+        self.assertAlmostEqual(credit_note.amount_untaxed, discounted_amount, places=2)
+        self.assertFalse(credit_note_document.meli_needs_manual_mismatch_review)
+        # Same real bug as the non-pack twin above (2026-09-22 round 5):
+        # must not net qty_invoiced back down for a discount that never
+        # returned any unit.
+        sale_line = order.order_line.filtered(lambda l: l.product_id == self.product)
+        self.assertEqual(
+            sale_line.qty_invoiced, 1,
+            "a discount-type credit note must not net qty_invoiced back "
+            "down — the unit was never actually returned",
+        )
 
     def test_reconcile_credit_note_for_a_zero_line_sibling_does_not_over_refund_the_other_sibling(self):
         """Fix Round 2, Important #2 (narrower recurrence of the Round 1
@@ -1888,7 +2202,17 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             'xml_file': base64.b64encode(self._fake_cfdi_xml('911')),
         })
 
-        order._meli_process_partial_cancellation('FIVT-PACK2-B')
+        # Fix 2026-09-22 round 3: _meli_process_partial_cancellation's
+        # own Step 1 (_meli_reconcile_invoicing) now reaches the pack
+        # branch's live-status check for this non-Full pack's sibling B
+        # before Step 2 (_meli_apply_partial_cancellation, the one this
+        # test is actually about) gets to relate the credit note itself
+        # — mocked to something other than 'partially_refunded' so Step
+        # 1 takes its own "review manually" path and does nothing,
+        # exactly matching this test's pre-existing expectations (the
+        # credit note below is still built entirely by Step 2).
+        with patch.object(type(self.config), '_api_get', return_value={'status': 'paid'}):
+            order._meli_process_partial_cancellation('FIVT-PACK2-B')
 
         credit_note = order.invoice_ids.filtered(lambda m: m.move_type == 'out_refund')
         self.assertEqual(len(credit_note), 1)
@@ -1939,7 +2263,11 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             'xml_file': base64.b64encode(self._fake_cfdi_xml('921')),
         })
 
-        order._meli_process_partial_cancellation('FIVT-PACK3-B')
+        # Fix 2026-09-22 round 3: see the equivalent comment on the
+        # sibling test above — this non-Full pack's Step 1 now reaches
+        # the live-status check too.
+        with patch.object(type(self.config), '_api_get', return_value={'status': 'paid'}):
+            order._meli_process_partial_cancellation('FIVT-PACK3-B')
 
         credit_notes = order.invoice_ids.filtered(lambda m: m.move_type == 'out_refund')
         self.assertEqual(
@@ -2169,7 +2497,7 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             l.meli_order_id == 'FIVT-DISC-B' for l in order.order_line
         ))
 
-    def test_sibling_discovered_already_cancelled_gets_delivered_returned_and_credited(self):
+    def test_sibling_discovered_late_after_full_cancellation_gets_its_own_credit_note(self):
         """Fix 2026-09-19 (user-directed follow-up to the fix right
         above): once the missing sibling's own line is added to an
         ALREADY-cancelled Full pack, it must not just sit there —
@@ -2177,11 +2505,20 @@ class TestMeliInvoicingLifecycle(TransactionCase):
         delivers it (the pack shipped as one physical parcel — this
         sibling's own unit genuinely left with it) and its stock is
         returned, with the sale ending back at 'cancel', never stuck
-        'sale'. The invoice/credit-note side, when sibling A's own
-        prior full cancellation already left a live credit note behind,
-        correctly stays manual (see the pre-existing
-        live_partial_cancellation_credit_note gate this test also
-        exercises) rather than risk corrupting it — confirmed below.
+        'sale'.
+
+        The invoice/credit-note side was rewritten 2026-09-21:
+        _meli_relate_partial_cancellation_credit_note now matches a
+        devolución document's concepts against self.order_line (which
+        never disappears) instead of against whatever happens to
+        already be on an invoice. So even though sibling B's own line
+        does not exist yet when the pack's shared invoice is first
+        created/cancelled, once it is added late this same reconcile
+        call still builds sibling B its own correct, standalone credit
+        note for its own product/qty — no more "could not be found on
+        invoice" manual-review fallback. Sibling A's own earlier credit
+        note (from its own separate full cancellation) and the shared
+        invoice are both left untouched by this — confirmed below.
         """
         self.env['meli.sku.mapping'].create({
             'product_id': self.product.id, 'meli_sku': 'ZTEST-DISCC',
@@ -2273,42 +2610,34 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             delivered_moves_b.mapped('returned_move_ids').filtered(lambda m: m.state == 'done'),
             "sibling B's own delivered stock must have been returned",
         )
-        # Sibling A's own credit note (from its earlier, separate full
-        # cancellation) is already live by this point — Step 2's own
-        # live_partial_cancellation_credit_note gate (a pre-existing
-        # safety check, not something this fix touches) correctly
-        # refuses to cancel+recreate the invoice over it: doing so would
-        # corrupt A's own credit note's reversed_entry_id relation.
-        # B's own line therefore stays uninvoiced (and uncredited) here
-        # — genuinely ambiguous fiscal territory flagged to the user
-        # before this fix was written (Mercado Libre files one shared
-        # invoice per pack, and whether it ever issues a second,
-        # separate 'sale' document for a sibling discovered this late
-        # is not confirmed) — degrading to manual review is correct,
-        # not a bug this fix is meant to paper over.
+        # Sibling B's own devolución document (created above, before its
+        # line even existed) is now correctly matched against
+        # self.order_line and gets its own standalone credit note.
         refund_b = order.invoice_ids.filtered(
             lambda m: m.move_type == 'out_refund'
             and line_b in m.line_ids.mapped('sale_line_ids')
         )
-        self.assertFalse(refund_b)
-        # Fix 2026-09-19 (credit-note-by-XML-concepts rewrite): B's own
-        # devolución document is tagged under B's own order_id
-        # ('FIVT-DISC2-B'), which meli.invoice.document._compute_
-        # sale_order_id never links to this consolidated order — it's a
-        # stored compute keyed only on meli_order_id, computed once at
-        # creation, before B's own sale.order.line even existed (see
-        # that field's own docstring). Since it's never linked, Step 2's
-        # own document search (scoped by sale_order_id) never even sees
-        # it, so the invoice-refacturación gate this test originally
-        # keyed on never fires — what fires instead is
-        # _meli_relate_partial_cancellation_credit_note's own "could not
-        # be matched to an invoiced line" case, since B's own line was
-        # indeed never invoiced. Same real outcome (no credit note
-        # applied, manual review flagged), different, more precise
-        # message.
-        self.assertTrue(any(
-            'could not be found on invoice' in (m.body or '') for m in order.message_ids
-        ), "must degrade to manual review instead of silently doing nothing")
+        self.assertEqual(len(refund_b), 1, "sibling B must get its own credit note")
+        self.assertEqual(refund_b.state, 'posted')
+        refund_b_products = refund_b.invoice_line_ids.filtered(
+            lambda l: l.display_type == 'product'
+        ).mapped('product_id')
+        self.assertEqual(
+            refund_b_products, second_product,
+            "sibling B's credit note must cover only its own product",
+        )
+
+        # Sibling A's own earlier credit note and the shared invoice are
+        # both untouched — this reconcile call never needed to cancel
+        # or recreate either of them.
+        first_invoice_after = order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')
+        self.assertEqual(first_invoice_after, first_invoice)
+        self.assertEqual(first_invoice_after.state, 'posted')
+        refund_a = order.invoice_ids.filtered(
+            lambda m: m.move_type == 'out_refund' and m != refund_b
+        )
+        self.assertEqual(len(refund_a), 1)
+        self.assertEqual(refund_a.state, 'posted')
 
     def test_pack_credit_note_matches_by_xml_concepts_across_whole_pack(self):
         """Fix 2026-09-19 (user-directed, real production case: order
@@ -2593,6 +2922,291 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             new_receivable_line.matched_debit_ids | new_receivable_line.matched_credit_ids,
             "the payment previously reconciled against the stale refund "
             "must be re-reconciled onto the corrected one",
+        )
+
+    def test_correct_move_from_document_adds_missing_line_to_a_posted_invoice(self):
+        """2026-09-22 (user-directed, real production case: order
+        S974870/pack 2000015124781237) — the invoice-side counterpart
+        to test_pack_credit_note_corrects_a_stale_incomplete_refund_
+        breaking_reconciliation above: a posted invoice already exists
+        and is already reconciled against a payment, but only covers
+        ONE of the two products Mercado Libre's own factura document
+        XML actually reports (the real gap: this order was later fully
+        cancelled, so the normal _create_invoices()-based refacturación
+        path in _meli_reconcile_invoicing can never rebuild it —
+        "No hay artículos disponibles para facturar" — regardless of
+        invoicing policy; see _meli_correct_move_from_document's own
+        docstring). Proves this direct-correction method adds the
+        missing product line to the SAME invoice (never cancels/
+        recreates it, never touches invoicing policy or _create_
+        invoices() at all) and preserves the payment reconciliation.
+        """
+        order, second_product = self._create_meli_full_pack(
+            'FIVT-CORRECT', 'FIVT-CORRECT-A', 'ZTEST-CORA', 'FIVT-CORRECT-B', 'ZTEST-CORB',
+        )
+        line_a = order.order_line.filtered(lambda l: l.meli_order_id == 'FIVT-CORRECT-A')
+
+        # Simulates the historical, incomplete invoice directly: covers
+        # only line_a, even though this order's real Mercado Libre
+        # factura document (created below) reports both products.
+        stale_line_vals = line_a._prepare_invoice_line()
+        stale_invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': order.partner_id.id,
+            'currency_id': order.currency_id.id,
+            'company_id': order.company_id.id,
+            'invoice_date': fields.Date.today(),
+            'invoice_line_ids': [(0, 0, stale_line_vals)],
+        })
+        stale_invoice.action_post()
+
+        line_b = order.order_line.filtered(lambda l: l.meli_order_id == 'FIVT-CORRECT-B')
+        document = self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-CORRECT-A', 'transaction_type': 'sale',
+            'meli_invoice_id': '9000000000000230',
+            # Fix 2026-09-22 (real production regression: a mismatch
+            # here between the XML's own concept amount and the sale
+            # line's real price_unit — round $100 vs. the real
+            # $100/1.16 IVA-untaxed price this order's own line
+            # actually carries — silently tripped the new aggregate
+            # total safety net below, unrelated to which product it
+            # matched): concept amounts must match each line's own
+            # real price_unit, same as a genuine Mercado Libre CFDI
+            # would.
+            'xml_file': base64.b64encode(self._fake_multi_concept_credit_note_xml('998', [
+                (self.product.name, 1, round(line_a.price_unit, 2)),
+                (second_product.name, 1, round(line_b.price_unit, 2)),
+            ])),
+        })
+        order._meli_relate_invoice_document(stale_invoice, document)
+
+        receivable_line = stale_invoice.line_ids.filtered(
+            lambda l: l.account_id.account_type == 'asset_receivable'
+        )
+        payment_move = self.env['account.move'].create({
+            'move_type': 'entry',
+            'journal_id': stale_invoice.journal_id.id,
+            'company_id': stale_invoice.company_id.id,
+            'line_ids': [
+                (0, 0, {
+                    'account_id': receivable_line.account_id.id,
+                    'debit': 0.0, 'credit': stale_invoice.amount_total,
+                }),
+                (0, 0, {
+                    'account_id': stale_invoice.journal_id.default_account_id.id,
+                    'debit': stale_invoice.amount_total, 'credit': 0.0,
+                }),
+            ],
+        })
+        payment_move.action_post()
+        payment_receivable_line = payment_move.line_ids.filtered(
+            lambda l: l.account_id == receivable_line.account_id
+        )
+        # Same defensive check as the equivalent credit-note test
+        # (test_pack_credit_note_corrects_a_stale_incomplete_refund_
+        # breaking_reconciliation): a move can already auto-reconcile
+        # its own receivable line as part of action_post() — only force
+        # one by hand when that didn't already happen on its own.
+        #
+        # Fix 2026-09-22 round 3 (real test bug, found via a genuine
+        # run — the check above only ever looked at receivable_line,
+        # never at payment_receivable_line: whenever THAT side ended up
+        # already matched on its own, .reconcile() below still ran
+        # (the guard read as "not yet reconciled") and raised "You are
+        # trying to reconcile some entries that are already reconciled"
+        # — checking both sides closes the gap.
+        #
+        # Fix 2026-09-22 round 6 (real test bug): this company's own
+        # payment terms can split a single invoice's receivable amount
+        # across more than one line (receivable_line can be more than
+        # one record) — one of those splits can trivially read
+        # .reconciled=True on its own (e.g. a zero-residual rounding
+        # line) with no real matched_debit_ids/matched_credit_ids of
+        # its own at all, which made the old all-or-nothing guard skip
+        # reconciling the OTHER, real non-zero split entirely. Instead
+        # of guessing per-recordset whether anything already happened,
+        # explicitly reconcile only whichever of these lines still
+        # genuinely needs it — Odoo's own reconcile() already matches
+        # amounts across however many lines are given.
+        lines_to_reconcile = (receivable_line | payment_receivable_line).filtered(
+            lambda l: not l.reconciled
+        )
+        if lines_to_reconcile:
+            lines_to_reconcile.reconcile()
+        self.assertTrue(receivable_line.matched_debit_ids | receivable_line.matched_credit_ids)
+        self.assertTrue(document.meli_move_amount_mismatch)
+
+        corrected = order._meli_correct_move_from_document(stale_invoice, document)
+
+        self.assertTrue(corrected)
+        self.assertEqual(stale_invoice.state, 'posted', "the SAME move, never cancelled/recreated")
+        product_lines = stale_invoice.invoice_line_ids.filtered(lambda l: l.display_type == 'product')
+        self.assertEqual(
+            set(product_lines.mapped('product_id').ids), {self.product.id, second_product.id},
+        )
+        new_receivable_line = stale_invoice.line_ids.filtered(
+            lambda l: l.account_id.account_type == 'asset_receivable'
+        )
+        self.assertTrue(
+            new_receivable_line.matched_debit_ids | new_receivable_line.matched_credit_ids,
+            "the payment previously reconciled must be re-reconciled after correction",
+        )
+        document.invalidate_recordset(['meli_move_amount_mismatch'])
+        self.assertFalse(document.meli_move_amount_mismatch)
+
+    def test_correct_move_from_document_matches_by_price_when_meli_listing_title_differs(self):
+        """2026-09-22 (user-directed, real production case: document
+        3000000092741387 for order S974870/pack 2000015124781237) —
+        Mercado Libre's own CFDI concept carries its marketplace LISTING
+        title ("Tóper De Vidrio Styrka Herméticos Con Tapa 4 Unidades
+        Blanco"), which can share no words at all with this catalog's
+        own SKU name ("[CJC06] JUEGO DE CONTENEDORES DE VIDRIO
+        RECTANGULARES 8 PIEZAS") for the exact same product. Proves
+        _meli_correct_move_from_document falls back to matching by
+        quantity + pre-tax amount (against the one order line never yet
+        invoiced) when name-matching finds nothing, and that it still
+        goes through because the resulting total reconciles with the
+        document's own total.
+        """
+        order, second_product = self._create_meli_full_pack(
+            'FIVT-CORRECT-PRICE', 'FIVT-CORRECT-PRICE-A', 'ZTEST-CORPA',
+            'FIVT-CORRECT-PRICE-B', 'ZTEST-CORPB',
+        )
+        line_a = order.order_line.filtered(lambda l: l.meli_order_id == 'FIVT-CORRECT-PRICE-A')
+        line_b = order.order_line.filtered(lambda l: l.meli_order_id == 'FIVT-CORRECT-PRICE-B')
+
+        stale_line_vals = line_a._prepare_invoice_line()
+        stale_invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': order.partner_id.id,
+            'currency_id': order.currency_id.id,
+            'company_id': order.company_id.id,
+            'invoice_date': fields.Date.today(),
+            'invoice_line_ids': [(0, 0, stale_line_vals)],
+        })
+        stale_invoice.action_post()
+
+        document = self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-CORRECT-PRICE-A', 'transaction_type': 'sale',
+            'meli_invoice_id': '9000000000000231',
+            # Fix 2026-09-22: concept amounts match each line's own real
+            # price_unit — see the equivalent comment on the sibling
+            # test above for why this matters now that a mismatch here
+            # trips the aggregate total safety net regardless of
+            # product-matching correctness.
+            'xml_file': base64.b64encode(self._fake_multi_concept_credit_note_xml('999', [
+                (self.product.name, 1, round(line_a.price_unit, 2)),
+                # Deliberately NOT second_product.name — a real Mercado
+                # Libre marketplace listing title, unrelated in text to
+                # this catalog's own SKU name.
+                ("Producto Con Nombre De Publicacion Distinto Al SKU", 1, round(line_b.price_unit, 2)),
+            ])),
+        })
+        order._meli_relate_invoice_document(stale_invoice, document)
+
+        receivable_line = stale_invoice.line_ids.filtered(
+            lambda l: l.account_id.account_type == 'asset_receivable'
+        )
+        payment_move = self.env['account.move'].create({
+            'move_type': 'entry',
+            'journal_id': stale_invoice.journal_id.id,
+            'company_id': stale_invoice.company_id.id,
+            'line_ids': [
+                (0, 0, {
+                    'account_id': receivable_line.account_id.id,
+                    'debit': 0.0, 'credit': stale_invoice.amount_total,
+                }),
+                (0, 0, {
+                    'account_id': stale_invoice.journal_id.default_account_id.id,
+                    'debit': stale_invoice.amount_total, 'credit': 0.0,
+                }),
+            ],
+        })
+        payment_move.action_post()
+        payment_receivable_line = payment_move.line_ids.filtered(
+            lambda l: l.account_id == receivable_line.account_id
+        )
+        # Fix 2026-09-22 round 6 — see the equivalent comment on the
+        # sibling test above: reconcile only whichever of these lines
+        # still genuinely needs it, rather than guessing all-or-nothing
+        # from a recordset that can hold more than one payment-term
+        # split.
+        lines_to_reconcile = (receivable_line | payment_receivable_line).filtered(
+            lambda l: not l.reconciled
+        )
+        if lines_to_reconcile:
+            lines_to_reconcile.reconcile()
+        self.assertTrue(document.meli_move_amount_mismatch)
+
+        corrected = order._meli_correct_move_from_document(stale_invoice, document)
+
+        self.assertTrue(corrected)
+        self.assertEqual(stale_invoice.state, 'posted', "the SAME move, never cancelled/recreated")
+        product_lines = stale_invoice.invoice_line_ids.filtered(lambda l: l.display_type == 'product')
+        self.assertEqual(
+            set(product_lines.mapped('product_id').ids), {self.product.id, second_product.id},
+            "matched by quantity + pre-tax amount even though the "
+            "concept's own text never mentioned second_product's name",
+        )
+        new_receivable_line = stale_invoice.line_ids.filtered(
+            lambda l: l.account_id.account_type == 'asset_receivable'
+        )
+        self.assertTrue(new_receivable_line.matched_debit_ids | new_receivable_line.matched_credit_ids)
+        document.invalidate_recordset(['meli_move_amount_mismatch'])
+        self.assertFalse(document.meli_move_amount_mismatch)
+
+    def test_correct_move_from_document_stays_manual_when_price_fallback_is_ambiguous(self):
+        """Counterpart to the price-fallback test above: when there are
+        TWO order lines that have never been invoiced and neither
+        matches the concept's name, the price fallback must refuse to
+        guess between them — same "never guess" rule name-matching
+        already follows — and leave the invoice untouched.
+        """
+        order, second_product = self._create_meli_full_pack(
+            'FIVT-CORRECT-AMBIG', 'FIVT-CORRECT-AMBIG-A', 'ZTEST-CORAA',
+            'FIVT-CORRECT-AMBIG-B', 'ZTEST-CORAB',
+        )
+        line_a = order.order_line.filtered(lambda l: l.meli_order_id == 'FIVT-CORRECT-AMBIG-A')
+        line_b = order.order_line.filtered(lambda l: l.meli_order_id == 'FIVT-CORRECT-AMBIG-B')
+        # Same price/qty on both never-invoiced lines makes the price
+        # fallback ambiguous on purpose. Fix 2026-09-22 round 6 (real
+        # test bug): a Full pack order confirmed via _create_meli_full_
+        # pack ends up locked (same sale.group_auto_done_setting this
+        # whole module already works around elsewhere), so a direct
+        # write here needs the same brief unlock/relock this codebase
+        # already uses everywhere else it edits a locked order's line.
+        was_locked = order.locked
+        if was_locked:
+            order.locked = False
+        line_b.price_unit = line_a.price_unit
+        if was_locked:
+            order.locked = True
+
+        stale_invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': order.partner_id.id,
+            'currency_id': order.currency_id.id,
+            'company_id': order.company_id.id,
+            'invoice_date': fields.Date.today(),
+        })
+
+        document = self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-CORRECT-AMBIG-A', 'transaction_type': 'sale',
+            'meli_invoice_id': '9000000000000232',
+            # Matches both lines' real (now-equal) price_unit exactly —
+            # a genuine price-match ambiguity, not just a missed match.
+            'xml_file': base64.b64encode(self._fake_multi_concept_credit_note_xml('997', [
+                ("Producto Con Nombre De Publicacion Distinto Al SKU", 1, round(line_a.price_unit, 2)),
+            ])),
+        })
+        order._meli_relate_invoice_document(stale_invoice, document)
+
+        corrected = order._meli_correct_move_from_document(stale_invoice, document)
+
+        self.assertFalse(corrected)
+        self.assertFalse(
+            stale_invoice.invoice_line_ids.filtered(lambda l: l.display_type == 'product'),
+            "ambiguous match must leave the invoice completely untouched",
         )
 
     def test_partial_cancellation_failure_falls_back_to_manual_review_never_cancels_the_sale(self):
@@ -3328,15 +3942,29 @@ class TestMeliInvoicingLifecycle(TransactionCase):
         self.assertIn('cancelled', message.body.lower())
         self.assertIn(manager_user.partner_id, message.partner_ids)
 
-    def test_reconcile_refactura_skips_when_order_has_a_live_partial_cancellation_credit_note(self):
-        """Fix 3: refacturación (cancel + recreate the Odoo invoice) must
-        never proceed automatically while the order already has a live
-        (non-cancelled) credit note from a prior partial cancellation —
-        cancelling the invoice that credit note reverses would corrupt
-        that relationship. Before this fix, a NEW/replacement 'sale'
-        document for the still-active sibling would have cancelled the
-        shared invoice and created a replacement, orphaning the
-        already-posted credit note's own reversed_entry_id.
+    def test_reconcile_refactura_cancels_and_rebuilds_stale_credit_note(self):
+        """Fix 3, rewritten 2026-09-21 (user decision — "deshaces todo y
+        vuelves a generar"): refacturación (a NEW/replacement 'sale'
+        document for a still-active sibling) no longer permanently skips
+        just because the order already has a live (non-cancelled) credit
+        note from an UNRELATED sibling's own prior partial cancellation.
+        Both the stale invoice AND that live credit note are cancelled
+        (breaking payment reconciliation if needed), and BOTH get
+        rebuilt fresh in the very same call: a new invoice reflecting
+        whichever siblings still have something to invoice, and a new
+        credit note for the already-returned sibling — rebuilt from
+        self.order_line (which never disappears) rather than from
+        whichever invoice happens to be posted, so it can be rebuilt
+        even though that sibling has nothing left to invoice.
+
+        Before this fix (2026-09-09 through 2026-09-21), this was
+        permanently blocked outright — degrading to manual review
+        forever, even on every future idempotent re-entry — because
+        cancelling the invoice out from under an already-correct credit
+        note had no safe way to restore it. Real production case
+        S974870/pack 2000015124781237 showed the actual failure mode
+        isn't corruption risk, it's exactly this: cancel and rebuild
+        both correctly instead.
         """
         order, second_product = self._create_meli_full_pack(
             'FIVT-PACK7', 'FIVT-PACK7-A', 'ZTEST-FIVT7-A', 'FIVT-PACK7-B', 'ZTEST-FIVT7-B',
@@ -3371,19 +3999,41 @@ class TestMeliInvoicingLifecycle(TransactionCase):
         order._meli_reconcile_invoicing()
 
         self.assertEqual(
-            original_invoice.state, 'posted', "the old invoice must NOT have been cancelled",
+            original_invoice.state, 'cancel', "the stale invoice must be cancelled and replaced",
         )
         self.assertEqual(
-            len(order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')), 1,
-            "no replacement invoice should have been created",
+            credit_note.state, 'cancel', "the stale credit note must be cancelled and rebuilt",
         )
+        new_invoices = order.invoice_ids.filtered(
+            lambda m: m.move_type == 'out_invoice' and m.state == 'posted'
+        )
+        self.assertEqual(len(new_invoices), 1)
+        self.assertNotEqual(new_invoices, original_invoice)
         self.assertEqual(
-            len(order.invoice_ids.filtered(lambda m: m.move_type == 'out_refund')), 1,
-            "the existing credit note must be left exactly as it was",
+            new_invoices.invoice_line_ids.filtered(
+                lambda l: l.display_type == 'product'
+            ).mapped('product_id'),
+            self.product,
+            "sibling B has nothing left to invoice (already returned) — "
+            "only sibling A's own product belongs on the rebuilt invoice",
+        )
+        new_credit_notes = order.invoice_ids.filtered(
+            lambda m: m.move_type == 'out_refund' and m.state == 'posted'
+        )
+        self.assertEqual(len(new_credit_notes), 1)
+        self.assertNotEqual(new_credit_notes, credit_note)
+        self.assertEqual(
+            new_credit_notes.invoice_line_ids.filtered(
+                lambda l: l.display_type == 'product'
+            ).mapped('product_id'),
+            second_product,
+            "rebuilt from self.order_line (sibling B's own line never "
+            "disappeared), not from whichever invoice happens to be "
+            "posted right now — that's the whole point of this fix",
         )
         self.assertTrue(any(
             new_document.meli_invoice_id in (msg.body or '')
-            and 'review manually' in (msg.body or '').lower()
+            and credit_note.name in (msg.body or '')
             for msg in order.message_ids
         ))
 
@@ -3565,17 +4215,19 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             for msg in order.message_ids
         ))
 
-    def test_reconcile_refactura_block_does_not_prevent_step_3_for_another_sibling(self):
-        """Fix round 1, Fix B: the refacturación guard must only skip
-        the invoice-creation/refacturación step for THIS call, never
-        the whole method — Step 3 (credit-note relating) is a
-        genuinely separate reconciliation that can concern a completely
-        different sibling and must still run in the SAME
-        _meli_reconcile_invoicing() call. Before this fix, the guard's
-        own `return` skipped Step 3 entirely, and — since this method
-        is idempotent and re-entered on every picking completion /
-        webhook / document upsert — would have kept blocking Step 3 on
-        every future call for this order too, not just this one.
+    def test_reconcile_refactura_rebuilds_every_live_credit_note_in_the_same_call(self):
+        """Fix round 1, Fix B, rewritten 2026-09-21 (see the equivalent
+        rewrite on test_reconcile_refactura_cancels_and_rebuilds_stale_
+        credit_note for the full "deshaces todo y vuelves a generar"
+        design): a refacturación trigger for sibling A cancels and
+        rebuilds the whole order's invoicing picture in one shot — the
+        stale invoice, AND every live credit note (sibling B's, already
+        returned before this call), AND — in the very same call — a
+        completely separate, genuinely new credit note for sibling C
+        (its own devolución document, never applied before). All three
+        outcomes must land correctly from a single _meli_reconcile_
+        invoicing() call: nothing about rebuilding B's stale credit note
+        may prevent C's brand-new one from being related too.
         """
         order, second_product = self._create_meli_full_pack(
             'FIVT-PACK12', 'FIVT-PACK12-A', 'ZTEST-FIVT12-A', 'FIVT-PACK12-B', 'ZTEST-FIVT12-B',
@@ -3642,25 +4294,52 @@ class TestMeliInvoicingLifecycle(TransactionCase):
         order._meli_reconcile_invoicing()
 
         self.assertEqual(
-            original_invoice.state, 'posted', "refacturación must still be blocked",
+            original_invoice.state, 'cancel', "the stale invoice must be cancelled and replaced",
         )
         self.assertEqual(
-            len(order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')), 1,
-            "no replacement invoice should have been created",
+            credit_note_b.state, 'cancel', "sibling B's stale credit note must be cancelled and rebuilt",
+        )
+        new_invoices = order.invoice_ids.filtered(
+            lambda m: m.move_type == 'out_invoice' and m.state == 'posted'
+        )
+        self.assertEqual(len(new_invoices), 1)
+        self.assertEqual(
+            set(new_invoices.invoice_line_ids.filtered(
+                lambda l: l.display_type == 'product'
+            ).mapped('product_id.id')),
+            {self.product.id, third_product.id},
+            "sibling B has nothing left to invoice (already returned) — "
+            "only siblings A and C's own products belong on the rebuilt "
+            "invoice",
         )
         self.assertTrue(any(
             new_sale_document.meli_invoice_id in (msg.body or '')
-            and 'review manually' in (msg.body or '').lower()
+            and credit_note_b.name in (msg.body or '')
             for msg in order.message_ids
         ))
-        refunds = order.invoice_ids.filtered(lambda m: m.move_type == 'out_refund')
+        refunds = order.invoice_ids.filtered(
+            lambda m: m.move_type == 'out_refund' and m.state == 'posted'
+        )
         self.assertEqual(
             len(refunds), 2,
-            "sibling C's own credit note must have been related too, in the SAME call",
+            "sibling B's rebuilt credit note AND sibling C's brand-new "
+            "one must both exist, from the SAME reconciler call",
         )
-        credit_note_c = refunds - credit_note_b
-        credit_lines_c = credit_note_c.invoice_line_ids.filtered(lambda l: l.display_type == 'product')
-        self.assertEqual(credit_lines_c.mapped('product_id'), third_product)
+        credit_note_c = refunds.filtered(
+            lambda m: third_product in m.invoice_line_ids.mapped('product_id')
+        )
+        self.assertEqual(len(credit_note_c), 1)
+        credit_note_b_rebuilt = refunds - credit_note_c
+        self.assertEqual(len(credit_note_b_rebuilt), 1)
+        self.assertEqual(
+            credit_note_b_rebuilt.invoice_line_ids.filtered(
+                lambda l: l.display_type == 'product'
+            ).mapped('product_id'),
+            second_product,
+            "rebuilt from self.order_line (sibling B's own line never "
+            "disappeared), not from whichever invoice happens to be "
+            "posted right now",
+        )
         # Step 3 (credit-note relating) only ever touches the fiscal
         # side — it never adjusts stock or line quantity, that's
         # _meli_process_partial_cancellation's own job (not exercised

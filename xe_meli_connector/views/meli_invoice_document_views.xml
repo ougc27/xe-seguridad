@@ -6,7 +6,7 @@
         <field name="model">meli.invoice.document</field>
         <field name="arch" type="xml">
             <tree string="Mercado Libre Invoicing" create="0" edit="0"
-                  decoration-danger="status in ('rejected', 'cancelled') or meli_amount_mismatch"
+                  decoration-danger="status in ('rejected', 'cancelled') or meli_amount_mismatch or meli_move_amount_mismatch"
                   decoration-info="meli_needs_manual_credit_note"
                   decoration-warning="(sale_order_id and not is_applied and not meli_needs_manual_credit_note) or meli_stock_return_pending">
                 <field name="meli_order_id"/>
@@ -20,11 +20,14 @@
                 <field name="document_type"/>
                 <field name="status"/>
                 <field name="is_applied" widget="boolean_toggle" readonly="1"/>
+                <field name="meli_sale_delivered" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="meli_needs_manual_credit_note" widget="boolean_toggle" readonly="1"/>
                 <field name="meli_stock_return_pending" widget="boolean_toggle" readonly="1"/>
                 <field name="meli_has_xml" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="meli_xml_total" optional="hide"/>
                 <field name="meli_amount_mismatch" widget="boolean_toggle" readonly="1" optional="hide"/>
+                <field name="meli_move_amount_mismatch" widget="boolean_toggle" readonly="1" optional="hide"/>
+                <field name="meli_order_has_partial_refund" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="meli_has_refacturacion" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="meli_has_credit_note" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="issue_date"/>
@@ -71,10 +74,13 @@
                             <field name="document_type"/>
                             <field name="status"/>
                             <field name="is_applied"/>
+                            <field name="meli_sale_delivered"/>
                             <field name="meli_needs_manual_credit_note"/>
                             <field name="meli_stock_return_pending"/>
                             <field name="meli_xml_total" invisible="not meli_has_xml"/>
                             <field name="meli_amount_mismatch" invisible="not meli_has_xml"/>
+                            <field name="meli_move_amount_mismatch" invisible="not meli_has_xml"/>
+                            <field name="meli_order_has_partial_refund"/>
                             <field name="meli_has_refacturacion"/>
                             <field name="meli_has_credit_note"/>
                             <field name="issue_date"/>
@@ -107,6 +113,15 @@
                         domain="[('sale_order_id', '=', False)]"/>
                 <filter name="not_applied" string="Has Sale But Not Applied"
                         domain="[('sale_order_id', '!=', False), ('is_applied', '=', False)]"/>
+                <!-- 2026-09-21 user request: narrow "Has Sale But Not
+                     Applied" down to the specific, most common cause —
+                     nothing from the sale has been delivered yet, so
+                     Odoo's delivery-based invoicing policy has nothing
+                     to invoice — see meli_sale_delivered's own help
+                     text. -->
+                <filter name="not_applied_no_delivery" string="Not Applied: Nothing Delivered Yet"
+                        domain="[('sale_order_id', '!=', False), ('is_applied', '=', False),
+                                 ('meli_sale_delivered', '=', False)]"/>
                 <filter name="needs_manual_credit_note" string="Needs Manual Credit Note (Partial Refund)"
                         domain="[('meli_needs_manual_credit_note', '=', True)]"/>
                 <filter name="stock_return_pending" string="Stock Return Pending (Pack)"
@@ -117,6 +132,10 @@
                         domain="[('meli_has_xml', '=', False)]"/>
                 <filter name="amount_mismatch" string="Invoice/Sale Amount Mismatch"
                         domain="[('meli_amount_mismatch', '=', True)]"/>
+                <filter name="move_amount_mismatch" string="Invoice/CFDI Amount Mismatch"
+                        domain="[('meli_move_amount_mismatch', '=', True)]"/>
+                <filter name="order_has_partial_refund" string="Order Has Partial Refund"
+                        domain="[('meli_order_has_partial_refund', '=', True)]"/>
                 <filter name="meli_has_refacturacion" string="Refactured Sale"
                         domain="[('meli_has_refacturacion', '=', True)]"/>
                 <filter name="meli_has_credit_note" string="Sale With Credit Note"
