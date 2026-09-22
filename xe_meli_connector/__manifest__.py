@@ -1,6 +1,6 @@
 {
     'name': 'Mercado Libre Connector (Invoicing)',
-    'version': '17.0.1.0.5',
+    'version': '17.0.1.0.6',
     'license': 'LGPL-3',
     'author': 'XE Brands',
     'category': 'Sales/Sales',
@@ -36,7 +36,7 @@ on its own — no order/claim webhook or polling is wired up in this build.
         # removes its menu item and action, so nobody sees "Importar
         # Pedido" in the Mercado Libre menu for now. Uncomment this one
         # line to bring it back — nothing else needs touching.
-        # 'wizards/meli_order_import_wizard_views.xml',
+         'wizards/meli_order_import_wizard_views.xml',
         'data/ir_cron.xml',
         'data/queue_job_data.xml',
     ],

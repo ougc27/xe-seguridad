@@ -71,11 +71,34 @@ class MeliOAuthController(http.Controller):
 
         topic = payload.get('topic')
         resource = payload.get('resource') or ''
-        # Invoicing-only build (2026-09-14): the 'orders_v2' (sale.order
-        # injector) and 'post_purchase' (meli.claim) branches are
-        # deliberately not wired up here — this app only ever reacts to
-        # the 'invoices' topic, never creates a sale order on its own.
-        if topic == 'invoices' and resource:
+        # Re-enabled 2026-09-22 (user-directed): this app was an
+        # invoicing-only build since 2026-09-14, deliberately never
+        # creating a sale order on its own — VentiApp did that instead,
+        # and this connector only ever adopted what already existed.
+        # Now that _meli_import_order/_meli_create_from_order_data are
+        # mature enough (shipping-va, coupon pricing, Deremate/1P
+        # billing, pack-sibling handling, refacturación — all built and
+        # tested this same cycle), Mercado Libre's own 'orders_v2' topic
+        # is wired straight to that same, already-proven entry point.
+        # 'post_purchase' (meli.claim/reclamos) is deliberately still
+        # left out — that model doesn't exist in this build yet; a
+        # separate, later increment.
+        if topic == 'orders_v2' and resource:
+            order_id = resource.rstrip('/').split('/')[-1]
+            config = self._find_config_by_ml_user_id(payload)
+            if config:
+                request.env['sale.order'].sudo().with_delay(
+                    priority=5, channel='root.meli_sales', max_retries=8,
+                    description=f"Import Mercado Libre order {order_id}",
+                    identity_key=f"meli_import_order_{order_id}",
+                )._meli_import_order(config.company_id.id, order_id)
+            else:
+                _logger.warning(
+                    "Mercado Libre notification for unknown ml_user_id %s "
+                    "(order %s) — no matching meli.config.",
+                    payload.get('user_id'), order_id,
+                )
+        elif topic == 'invoices' and resource:
             # resource is always /users/$USER_ID/invoices/$INVOICE_ID for
             # this topic (no sub-resource suffix documented, unlike
             # post_purchase's claims_actions) — the invoice id is simply
