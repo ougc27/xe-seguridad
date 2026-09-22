@@ -442,6 +442,25 @@ class MeliInvoiceDocument(models.Model):
                 and document.meli_pack_id
                 and document.sale_order_id
                 and document.transaction_type in MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES
+                # Fix 2026-09-22 (real production bug, user-caught: a
+                # document could show BOTH "Order Has Partial Refund"
+                # and "Stock Return Pending" checked at once — a
+                # confirmed partial refund (see sale.order._meli_build_
+                # partial_credit_note/_meli_relate_partial_cancellation_
+                # credit_note's own discount-type branch, account.move.
+                # line.meli_discount_adjustment) never touches stock at
+                # all — nothing was ever delivered-and-not-returned to
+                # begin with, so "pending" makes no sense for it.
+                # delivered_qty > returned_qty below is naturally True
+                # for a discount (delivered=1, returned=0), even though
+                # this was never a physical return — checked against
+                # the credit note's OWN posted move, not the order's
+                # possibly-stale cached status, since a pack can have
+                # siblings in different states at once.
+                and not any(
+                    document.move_ids.filtered(lambda m: m.state == 'posted')
+                    .invoice_line_ids.mapped('meli_discount_adjustment')
+                )
             ):
                 order = document.sale_order_id
                 lines = order._meli_sibling_lines(document.meli_order_id)

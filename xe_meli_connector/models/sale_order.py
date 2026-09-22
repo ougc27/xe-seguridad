@@ -585,6 +585,17 @@ class SaleOrder(models.Model):
         Mercado Libre sale), or Mercado Libre's own shipment for it
         turns out to be 'custom' (already covered by the OTHER,
         pre-existing shipping-cost fetch — never double-charge).
+
+        Fix 2026-09-22 (user request — folded into this SAME action
+        rather than a new one): also backfills meli_shipping_id/meli_
+        shipping_scheme for an order that predates those two fields
+        (real case: order 2000018251129258/S952657) — both are only
+        ever set once, at original creation time
+        (_meli_create_from_order_data), with no repair of their own
+        until now. Runs BEFORE the shipping-surcharge-line early
+        returns below, so an order that already has its shipping-va
+        line (or genuinely has no buyer surcharge to add) still gets
+        this backfill — the two are independent gaps.
         """
         self.ensure_one()
         config = self.env['meli.config'].sudo().search([
@@ -592,6 +603,33 @@ class SaleOrder(models.Model):
         ], limit=1)
         if not config or not self.meli_order_id or not config.shipping_item_id:
             return
+        if not self.meli_shipping_id or not self.meli_shipping_scheme:
+            backfill_order_data = config._api_get(f'/orders/{self.meli_order_id}')
+            backfill_shipping_id = (backfill_order_data.get('shipping') or {}).get('id')
+            if backfill_shipping_id:
+                backfill_shipments = self._meli_fetch_shipment_records(
+                    config, self.meli_order_id, backfill_order_data,
+                )
+                backfill_logistic_type = self._meli_fetch_logistic_type(
+                    config, self.meli_order_id, backfill_order_data,
+                    shipments=backfill_shipments,
+                )
+                backfill_mode = next(
+                    (s.get('mode') for s in backfill_shipments or [] if s.get('type') == 'forward'),
+                    None,
+                )
+                backfill_vals = {}
+                if not self.meli_shipping_id:
+                    backfill_vals['meli_shipping_id'] = str(backfill_shipping_id)
+                if not self.meli_shipping_scheme:
+                    backfill_vals['meli_shipping_scheme'] = (
+                        'full' if backfill_logistic_type == 'fulfillment'
+                        else 'custom' if backfill_mode == 'custom'
+                        else 'traditional' if backfill_mode == 'me2'
+                        else False
+                    )
+                if backfill_vals:
+                    self.write(backfill_vals)
         if self.order_line.filtered(lambda l: l.product_id == config.shipping_item_id):
             return
         order_data = config._api_get(f'/orders/{self.meli_order_id}')
@@ -620,6 +658,35 @@ class SaleOrder(models.Model):
             'product_uom_qty': 1,
             'price_unit': shipping_price_unit,
         })]})
+        # Fix 2026-09-22 (real production bug, order S969001): this
+        # company's own xe_pacific/models/sale_order_line.py overrides
+        # _compute_qty_delivered to piggyback a SHIPPING-VA line's own
+        # qty_delivered onto whichever OTHER (real, stockable) line on
+        # the same order just became delivered — but that override is
+        # itself only ever triggered by ITS OWN @api.depends
+        # ('move_ids.state', ...), which fires when the main product's
+        # own delivery state changes, never just because a brand new
+        # line got added to an order that was already delivered long
+        # ago (nothing about adding this line touches move_ids at all).
+        # Left alone, a shipping-va line added here this way — after
+        # the fact, on an order already fully delivered — permanently
+        # reads qty_delivered=0, so _create_invoices() (delivery-based
+        # invoicing policy) never invoices it: the order's own total
+        # looks corrected, but the actual posted invoice never
+        # includes this line, and it never shows as delivered/invoiced
+        # either. Set directly here, mirroring exactly what that
+        # override does for a normal, same-time delivery — but only
+        # when this order's other real line(s) are already delivered;
+        # never invented for an order that genuinely hasn't shipped
+        # yet, where the normal flow will handle it in due course.
+        new_shipping_line = self.order_line.filtered(
+            lambda l: l.product_id == config.shipping_item_id
+        )
+        if new_shipping_line and any(
+            self.order_line.filtered(lambda l: l.product_id != config.shipping_item_id)
+            .mapped('qty_delivered')
+        ):
+            new_shipping_line.qty_delivered = new_shipping_line.product_uom_qty
         if was_locked:
             self.locked = True
         self.message_post(body=_(
@@ -823,6 +890,26 @@ class SaleOrder(models.Model):
         an order — a CONNECTOR-built line always carries its own
         meli_order_id (see _meli_build_order_lines), but an adopted
         VentiApp line never does.
+
+        Fix 2026-09-22 (real production case, order S968823/pack
+        2000015052767879 — deliberately folded into this SAME action
+        rather than a new one, "no quiero 10 mil acciones de
+        servidor"): order_items[].unit_price is the CONSUMER catalog
+        price even for a 'resale'/1P order — Mercado Libre pays XE a
+        separate, lower WHOLESALE price for these that never appears
+        anywhere in the order resource itself, only in the real,
+        already-authorized factura's own XML (confirmed: XML
+        ValorUnitario $80.8275 vs. this order's own line at $112.93 —
+        exactly the $297.91 total mismatch). Using the order API's own
+        unit_price for a resale line would just reinforce that same
+        wrong (consumer) price. Once this order is already known to be
+        resale (meli_transaction_type — set only once its own factura
+        document exists), the real per-unit price is read from that
+        document's own XML instead — matched by product name, same
+        technique _meli_build_partial_credit_note already uses — and
+        used AS-IS (CFDI amounts are already pre-tax; never divided by
+        MELI_MX_IVA_RATE the way the order API's own consumer price
+        needs to be).
         """
         self.ensure_one()
         config = self.env['meli.config'].sudo().search([
@@ -834,6 +921,33 @@ class SaleOrder(models.Model):
         order_items = order_data.get('order_items') or []
         lines = self._meli_sibling_lines(self.meli_order_id)
         price_changed = False
+
+        resale_xml_price_by_product_id = {}
+        if self.meli_transaction_type == 'resale':
+            from .meli_invoice_document import MELI_INVOICE_DEAD_STATUSES
+            factura = self.meli_invoice_document_ids.filtered(
+                lambda d: d.document_type == 'factura' and d.xml_file
+                and d.status not in MELI_INVOICE_DEAD_STATUSES
+            ).sorted(key=lambda d: (d.create_date, d.id))[-1:]
+            if factura:
+                xml_bytes = base64.b64decode(factura.xml_file)
+                concepts = factura._meli_parse_concepts_from_xml(xml_bytes)
+                product_lines = self.order_line.filtered(
+                    lambda l: l.product_id and not l.display_type
+                )
+
+                def _normalize(text):
+                    return ' '.join((text or '').split()).casefold()
+
+                for concept in concepts:
+                    matches = product_lines.filtered(
+                        lambda l: _normalize(l.product_id.name) == _normalize(concept['descripcion'])
+                    )
+                    if len(matches) == 1 and concept['cantidad']:
+                        resale_xml_price_by_product_id[matches.product_id.id] = (
+                            concept['importe'] / concept['cantidad']
+                        )
+
         for order_item in order_items:
             item = order_item.get('item') or {}
             sku = (item.get('seller_sku') or '').strip()
@@ -858,17 +972,27 @@ class SaleOrder(models.Model):
                 line_vals['meli_discount_amount'] = new_discount_amount
             if abs(new_ml_funded_amount - line.meli_discount_ml_funded_amount) > 0.01:
                 line_vals['meli_discount_ml_funded_amount'] = new_ml_funded_amount
-            # A genuinely missing unit_price (None, not 0.0 — see
-            # _meli_build_order_lines' own null-price fallback) is a
-            # rare edge case this repair deliberately leaves alone
-            # rather than guessing; only ever corrects price_unit when
-            # Mercado Libre's own API actually reports one.
-            ml_unit_price = order_item.get('unit_price')
-            if ml_unit_price is not None:
-                correct_price_unit = self._meli_price_unit_untaxed(product, ml_unit_price)
+            # Resale: the real per-unit price comes from the factura's
+            # own XML (already pre-tax, used as-is) — see this method's
+            # own docstring for why the order API's unit_price is the
+            # wrong (consumer) source for a resale line.
+            if product.id in resale_xml_price_by_product_id:
+                correct_price_unit = resale_xml_price_by_product_id[product.id]
                 if abs(correct_price_unit - line.price_unit) > 0.01:
                     line_vals['price_unit'] = correct_price_unit
                     price_changed = True
+            else:
+                # A genuinely missing unit_price (None, not 0.0 — see
+                # _meli_build_order_lines' own null-price fallback) is a
+                # rare edge case this repair deliberately leaves alone
+                # rather than guessing; only ever corrects price_unit
+                # when Mercado Libre's own API actually reports one.
+                ml_unit_price = order_item.get('unit_price')
+                if ml_unit_price is not None:
+                    correct_price_unit = self._meli_price_unit_untaxed(product, ml_unit_price)
+                    if abs(correct_price_unit - line.price_unit) > 0.01:
+                        line_vals['price_unit'] = correct_price_unit
+                        price_changed = True
             if line_vals:
                 was_locked = self.locked
                 if was_locked:
@@ -3099,24 +3223,37 @@ class SaleOrder(models.Model):
         the move it replaced, onto move's own equivalent
         receivable/payable line instead — same counterpart payment(s),
         now pointed at the corrected move.
+
+        Fix 2026-09-22 round 7 (real bug found via the test suite, same
+        root cause as the equivalent test-only fixture bug fixed
+        earlier the same day): this company's own payment terms can
+        split a single invoice's receivable/payable amount across MORE
+        THAN ONE line — the old `[:1]` here silently picked only the
+        FIRST such line, so whenever the other split's own line was
+        the one actually available to reconcile against payment_lines,
+        this method reconciled the WRONG (already-settled or
+        mismatched) line, then failed later with "You are trying to
+        reconcile some entries that are already reconciled" once the
+        real target line was reached from elsewhere. And
+        matched_debit_ids/matched_credit_ids — the signal this method
+        used to decide "already handled" — can read empty on a line
+        Odoo's own reconciliation guard (aml.reconciled) already
+        considers settled (e.g. a zero-residual rounding split), which
+        silently let this method attempt a reconcile Odoo itself was
+        always going to refuse. Every account.move.line's own real
+        .reconciled field is checked instead, on the FULL set of
+        receivable/payable lines this move actually has — never
+        limited to just the first one.
         """
         self.ensure_one()
         move.ensure_one()
         if not payment_lines:
             return
-        target_line = move.line_ids.filtered(
+        target_lines = move.line_ids.filtered(
             lambda l: l.account_id.account_type in ('asset_receivable', 'liability_payable')
-        )[:1]
-        if not target_line:
-            return
-        # A refund with reversed_entry_id set can already auto-reconcile
-        # against its own source invoice as part of action_post() itself
-        # (confirmed in practice) — trying to ALSO reconcile it against
-        # payment_lines on top of that would fail ("already reconciled")
-        # for no real gain: the line is already settled, just against
-        # its own invoice instead of an external payment. Nothing left
-        # to carry over in that case.
-        if target_line.matched_debit_ids or target_line.matched_credit_ids:
+            and not l.reconciled
+        )
+        if not target_lines:
             return
         # Defensive (2026-09-19): a payment line can end up swept into
         # some OTHER reconciliation as a side effect of everything that
@@ -3125,12 +3262,10 @@ class SaleOrder(models.Model):
         # would raise instead of silently corrupting anything, but there
         # is nothing left here worth forcing through. Only ever
         # reconciles the lines that are still genuinely free.
-        payment_lines = payment_lines.filtered(
-            lambda l: not (l.matched_debit_ids or l.matched_credit_ids)
-        )
+        payment_lines = payment_lines.filtered(lambda l: not l.reconciled)
         if not payment_lines:
             return
-        (target_line | payment_lines).reconcile()
+        (target_lines | payment_lines).reconcile()
 
     def _meli_reconcile_invoicing(self):
         """Single reconciler for this sale's fiscal documents: looks at
@@ -4890,6 +5025,40 @@ class SaleOrder(models.Model):
             # the _meli_post_with_mention call once `order` exists,
             # further down this method).
             adoption_ambiguous_count = len(adoption_candidates)
+        elif not adoption_candidates:
+            # Fix 2026-09-22 round 2 (user-directed correction — real
+            # production bug, confirmed live: order/pack
+            # 2000018567538874, S975817 vs. the automatically created
+            # duplicate S977578; user's own words: "equis quien la
+            # creo, si el reference ya existe igualito no lo crees"):
+            # NOT scoped to the Horacio/Mercado-Libre exclusion alone
+            # (round 1's narrower fix) — ANY existing sale.order that
+            # already carries this exact reference/client_order_ref,
+            # for WHATEVER reason it didn't qualify as a clean
+            # adoption_candidates match above (the Horacio/Mercado-
+            # Libre exclusion, already cancelled, some other data
+            # oddity), must block this method from falling straight
+            # through to creating a real, separate duplicate sale here
+            # — its own stock reservation included. The `existing`
+            # search at the very top of this same method already
+            # short-circuited on an exact meli_order_id match; this is
+            # only ever reached for a genuinely different case: same
+            # reference, not yet linked by meli_order_id at all.
+            any_existing_match = self.search([
+                '|', ('reference', '=', adoption_ref), ('client_order_ref', '=', adoption_ref),
+            ], limit=1)
+            if any_existing_match:
+                any_existing_match._meli_notify_queue_job_managers(_(
+                    "Mercado Libre order/pack %(ref)s arrived, matching "
+                    "this sale's own reference/OC Cliente — but this "
+                    "sale could not be automatically adopted/linked "
+                    "(review its own state/creator/sync status). No "
+                    "new sale was created either, to avoid a duplicate "
+                    "— review manually whether this sale IS that real "
+                    "Mercado Libre order (link it by hand) or is a "
+                    "genuinely separate, coincidental match."
+                ) % {'ref': adoption_ref})
+                return self.browse()
 
         if order_data.get('status') != 'paid' and pack_id:
             pack_order = self.sudo().search([('meli_pack_id', '=', pack_id)], limit=1)
