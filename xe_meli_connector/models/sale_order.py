@@ -1846,6 +1846,29 @@ class SaleOrder(models.Model):
         if not source_invoice:
             return
 
+        # Fix 2026-09-22 round 8 (real production bug, order S978385/
+        # pack 2000015158767125): credit_note can ALSO come back empty
+        # here even though source_invoice exists — e.g. the document's
+        # own concepts couldn't be confidently matched yet (its own
+        # "pendiente por descuadre venta y factura" chatter message,
+        # meli_needs_manual_mismatch_review — see _meli_relate_partial_
+        # cancellation_credit_note's own docstring). Physically
+        # returning this sibling's stock regardless would leave a real,
+        # serious inconsistency: the product is back in the warehouse,
+        # but the customer's own invoice still shows the full charge
+        # with no credit ever applied — confirmed exactly this way in
+        # production (stock returned via ML/RET/37878, zero out_refund
+        # ever created). The whole point of relating the credit note
+        # FIRST (see this method's own docstring above) is defeated if
+        # the return proceeds anyway when that step didn't actually
+        # succeed. Naturally retried later, same as the "no posted
+        # invoice yet" case above: once the concepts resolve (e.g. a
+        # missing sibling line gets added, or a future code fix widens
+        # the matching), this method runs again and completes both
+        # halves together.
+        if not credit_note:
+            return
+
         # ---- Inventory: return ONLY this sibling's own delivered moves.
         # Same by-code stock.return.picking pattern as
         # _meli_return_full_pickings, scoped down to the moves whose
@@ -4629,13 +4652,23 @@ class SaleOrder(models.Model):
                     # with this catalog's internal product name: (1)
                     # exact name (as before), (2) the product's own
                     # default_code/SKU appearing as a whole word in the
-                    # concept's own description, (3) — new here,
-                    # because this method (unlike that one) can also
-                    # be reached for a pack with only ONE product line
-                    # total: when exactly one product line remains
-                    # unclaimed by an earlier concept this same run,
-                    # that's an unambiguous match regardless of text,
-                    # since there is nothing else it could be.
+                    # concept's own description, (3) exactly one
+                    # product line remaining unclaimed by an earlier
+                    # concept this same run — an unambiguous match
+                    # regardless of text when there is nothing else it
+                    # could be, (4) — new here, fix 2026-09-22 round 8,
+                    # real case order S978385/pack 2000015158767125,
+                    # devolución document with 2 concepts (CJC01 +
+                    # JCP03) BOTH using Mercado Libre's own marketplace
+                    # listing titles, neither matching by name/SKU, and
+                    # with 2 lines genuinely still unclaimed at once
+                    # (layer 3 can't disambiguate when more than one
+                    # candidate remains) — quantity + pre-tax amount
+                    # matching exactly, same $0.05 tolerance and
+                    # technique _meli_correct_move_from_document's own
+                    # equivalent fallback already uses, among the lines
+                    # not already claimed by an earlier concept this
+                    # same run.
                     candidates = product_lines.filtered(
                         lambda l: _normalize(l.product_id.name) == _normalize(concept['descripcion'])
                     )
@@ -4654,7 +4687,16 @@ class SaleOrder(models.Model):
                         elif len(product_lines - used_lines) == 1:
                             candidates = product_lines - used_lines
                         else:
-                            candidates = self.env['sale.order.line']
+                            price_candidates = (product_lines - used_lines).filtered(
+                                lambda l: (
+                                    abs(l.product_uom_qty - concept['cantidad']) < 0.001
+                                    and abs(l.price_unit * l.product_uom_qty - concept['importe']) <= 0.05
+                                )
+                            )
+                            candidates = (
+                                price_candidates if len(price_candidates) == 1
+                                else self.env['sale.order.line']
+                            )
                     if len(candidates) != 1:
                         unmatched_concepts.append(concept)
                     else:
@@ -5032,20 +5074,40 @@ class SaleOrder(models.Model):
             # duplicate S977578; user's own words: "equis quien la
             # creo, si el reference ya existe igualito no lo crees"):
             # NOT scoped to the Horacio/Mercado-Libre exclusion alone
-            # (round 1's narrower fix) — ANY existing sale.order that
-            # already carries this exact reference/client_order_ref,
-            # for WHATEVER reason it didn't qualify as a clean
-            # adoption_candidates match above (the Horacio/Mercado-
-            # Libre exclusion, already cancelled, some other data
-            # oddity), must block this method from falling straight
-            # through to creating a real, separate duplicate sale here
-            # — its own stock reservation included. The `existing`
-            # search at the very top of this same method already
-            # short-circuited on an exact meli_order_id match; this is
-            # only ever reached for a genuinely different case: same
-            # reference, not yet linked by meli_order_id at all.
+            # (round 1's narrower fix) — ANY OTHER, non-connector
+            # sale.order that already carries this exact reference/
+            # client_order_ref, for WHATEVER reason it didn't qualify
+            # as a clean adoption_candidates match above (the Horacio/
+            # Mercado-Libre exclusion, already cancelled, some other
+            # data oddity), must block this method from falling
+            # straight through to creating a real, separate duplicate
+            # sale here — its own stock reservation included. The
+            # `existing` search at the very top of this same method
+            # already short-circuited on an exact meli_order_id match;
+            # this is only ever reached for a genuinely different
+            # case: same reference, not yet linked by meli_order_id at
+            # all.
+            #
+            # Fix round 3 (2026-09-22, real regression THIS round 2 fix
+            # itself introduced — order 2000018592316830/pack
+            # 2000015158767125, S978385 stuck missing a sibling line
+            # for hours despite _meli_import_order retrying it several
+            # times with no error): ('meli_sync_source', '=', False)
+            # restored here — without it, this branch also matched an
+            # ALREADY-connector-managed pack sale (meli_sync_source
+            # already set), silently blocking the completely different,
+            # legitimate "known pack, add this sibling's own line"
+            # handling a few dozen lines below (`if order_data.get(
+            # 'status') != 'paid' and pack_id: pack_order = self.
+            # sudo().search([('meli_pack_id', '=', pack_id)], ...)`)
+            # from ever being reached at all. That handling is exactly
+            # what a pack's own late/cancelled sibling needs — this
+            # duplicate guard must only ever catch a genuinely FOREIGN
+            # order (never touched by this connector), same scope
+            # adoption_candidates itself already uses above.
             any_existing_match = self.search([
                 '|', ('reference', '=', adoption_ref), ('client_order_ref', '=', adoption_ref),
+                ('meli_sync_source', '=', False),
             ], limit=1)
             if any_existing_match:
                 any_existing_match._meli_notify_queue_job_managers(_(
@@ -5295,6 +5357,29 @@ class SaleOrder(models.Model):
 
         resolved_lines, unmapped_skus = self._meli_build_order_lines(order_data, order_id)
 
+        # Fix 2026-09-22 (real production case S979113/pack
+        # 2000015160414211, user-directed): a genuine, immutable signal
+        # for "this order is Mercado Libre's own resale/1P" — confirmed
+        # live against two real orders: static_tags contains
+        # 'meli_resale' for a resale order and never for an ordinary
+        # one, unlike the ordinary, seller/system-editable `tags` array
+        # or `context.flows`, both of which carried 'catalog' on BOTH
+        # kinds of orders in that same real comparison and are already
+        # known unreliable (see _meli_fetch_buyer_shipping_surcharge's
+        # own docstring for the earlier regression that first proved
+        # this). Known at order-creation time, straight from the order
+        # resource itself — no need to wait for its own factura
+        # document at all, unlike meli_transaction_type (only known
+        # once that document exists). Mercado Libre's own resale
+        # markup/logistics charge to the buyer never belongs on this
+        # sale (see _meli_repair_wrong_shipping_line_now's own
+        # docstring, which still removes it after the fact for any
+        # order that predates this check, or any static_tags edge case
+        # this doesn't catch) — so the buyer-shipping-surcharge line is
+        # simply never added below in the first place, for either
+        # shipping scheme.
+        is_known_resale = 'meli_resale' in (order_data.get('static_tags') or [])
+
         # Shares shipment_records (fetched once, above) — no separate
         # HTTP call and no separate failure mode: a fetch failure was
         # already raised as RetryableJobError before this order's data
@@ -5313,29 +5398,30 @@ class SaleOrder(models.Model):
         meli_shipping_id = str(shipping_id) if shipping_id else False
         meli_buyer_id = False
         if custom_shipping_cost is not None:
-            if not config.shipping_item_id:
-                raise UserError(_(
-                    "Configure 'Shipping Item' on the Mercado Libre "
-                    "connection (Mercado Libre > Settings) before "
-                    "importing an order with custom shipping (Mercado "
-                    "Libre order %s)."
-                ) % order_id)
-            shipping_price_unit = self._meli_price_unit_untaxed(
-                config.shipping_item_id, custom_shipping_cost,
-            )
-            resolved_lines.append((
-                (0, 0, {
-                    'product_id': config.shipping_item_id.id,
-                    'product_uom_qty': 1,
-                    'price_unit': shipping_price_unit,
-                }),
-                {
-                    'sku': _('Custom shipping'),
-                    'product_id': config.shipping_item_id.id,
-                    'ml_unit_price': custom_shipping_cost,
-                    'price_unit': shipping_price_unit,
-                },
-            ))
+            if not is_known_resale:
+                if not config.shipping_item_id:
+                    raise UserError(_(
+                        "Configure 'Shipping Item' on the Mercado Libre "
+                        "connection (Mercado Libre > Settings) before "
+                        "importing an order with custom shipping (Mercado "
+                        "Libre order %s)."
+                    ) % order_id)
+                shipping_price_unit = self._meli_price_unit_untaxed(
+                    config.shipping_item_id, custom_shipping_cost,
+                )
+                resolved_lines.append((
+                    (0, 0, {
+                        'product_id': config.shipping_item_id.id,
+                        'product_uom_qty': 1,
+                        'price_unit': shipping_price_unit,
+                    }),
+                    {
+                        'sku': _('Custom shipping'),
+                        'product_id': config.shipping_item_id.id,
+                        'ml_unit_price': custom_shipping_cost,
+                        'price_unit': shipping_price_unit,
+                    },
+                ))
             buyer_id = str((order_data.get('buyer') or {}).get('id') or '')
             meli_buyer_id = buyer_id or False
             destination = self._meli_fetch_custom_shipping_destination(
@@ -5359,41 +5445,42 @@ class SaleOrder(models.Model):
             # line above uses (2026-09-19 user decision: "shipping-va
             # igual asignar en el cargo") — one single shipping-surcharge
             # product either way.
-            try:
-                buyer_shipping_cost = self._meli_fetch_buyer_shipping_surcharge(
-                    config, order_id, order_data, shipments=shipment_records,
-                )
-            except requests.exceptions.RequestException as err:
-                raise RetryableJobError(
-                    f"Could not fetch Mercado Libre shipment costs for "
-                    f"order {order_id} — will retry.", seconds=30,
-                ) from err
-            if buyer_shipping_cost:
-                if not config.shipping_item_id:
-                    raise UserError(_(
-                        "Configure 'Shipping Item' on the Mercado Libre "
-                        "connection (Mercado Libre > Settings) before "
-                        "importing this order (Mercado Libre order %s) "
-                        "— Mercado Libre charged the buyer for shipping "
-                        "and this connector needs a product to reflect "
-                        "that on the sale."
-                    ) % order_id)
-                shipping_price_unit = self._meli_price_unit_untaxed(
-                    config.shipping_item_id, buyer_shipping_cost,
-                )
-                resolved_lines.append((
-                    (0, 0, {
-                        'product_id': config.shipping_item_id.id,
-                        'product_uom_qty': 1,
-                        'price_unit': shipping_price_unit,
-                    }),
-                    {
-                        'sku': _('Mercado Envíos shipping'),
-                        'product_id': config.shipping_item_id.id,
-                        'ml_unit_price': buyer_shipping_cost,
-                        'price_unit': shipping_price_unit,
-                    },
-                ))
+            if not is_known_resale:
+                try:
+                    buyer_shipping_cost = self._meli_fetch_buyer_shipping_surcharge(
+                        config, order_id, order_data, shipments=shipment_records,
+                    )
+                except requests.exceptions.RequestException as err:
+                    raise RetryableJobError(
+                        f"Could not fetch Mercado Libre shipment costs for "
+                        f"order {order_id} — will retry.", seconds=30,
+                    ) from err
+                if buyer_shipping_cost:
+                    if not config.shipping_item_id:
+                        raise UserError(_(
+                            "Configure 'Shipping Item' on the Mercado Libre "
+                            "connection (Mercado Libre > Settings) before "
+                            "importing this order (Mercado Libre order %s) "
+                            "— Mercado Libre charged the buyer for shipping "
+                            "and this connector needs a product to reflect "
+                            "that on the sale."
+                        ) % order_id)
+                    shipping_price_unit = self._meli_price_unit_untaxed(
+                        config.shipping_item_id, buyer_shipping_cost,
+                    )
+                    resolved_lines.append((
+                        (0, 0, {
+                            'product_id': config.shipping_item_id.id,
+                            'product_uom_qty': 1,
+                            'price_unit': shipping_price_unit,
+                        }),
+                        {
+                            'sku': _('Mercado Envíos shipping'),
+                            'product_id': config.shipping_item_id.id,
+                            'ml_unit_price': buyer_shipping_cost,
+                            'price_unit': shipping_price_unit,
+                        },
+                    ))
         # 'custom' is passed to _meli_build_note instead of the raw
         # logistic_type whenever we know the shipment IS custom shipping:
         # _meli_fetch_logistic_type returns None for a custom shipment (no
