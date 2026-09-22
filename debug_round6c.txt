@@ -1,0 +1,269 @@
+2026-09-22 07:23:28,183 55848 INFO ? odoo: Odoo version 17.0 
+2026-09-22 07:23:28,184 55848 INFO ? odoo: Using configuration file at C:\Users\Dev-Sys\odoo\odoo.conf 
+2026-09-22 07:23:28,184 55848 INFO ? odoo: addons paths: ['C:\\Users\\Dev-Sys\\odoo\\odoo\\odoo\\addons', 'c:\\users\\dev-sys\\appdata\\local\\openerp s.a\\odoo\\addons\\17.0', 'c:\\users\\dev-sys\\odoo\\odoo\\odoo\\addons', 'c:\\users\\dev-sys\\odoo\\odoo\\addons', 'c:\\users\\dev-sys\\odoo\\enterprise', 'c:\\users\\dev-sys\\odoo\\xe-seguridad', 'c:\\users\\dev-sys\\odoo\\xe-seguridad\\queue', 'c:\\users\\dev-sys\\odoo\\xe-seguridad\\morwi\\addons-morwi', 'c:\\users\\dev-sys\\odoo\\design-themes'] 
+2026-09-22 07:23:28,184 55848 INFO ? odoo: database: odoo@localhost:5432 
+2026-09-22 07:23:28,357 55848 INFO ? odoo.addons.base.models.ir_actions_report: Will use the Wkhtmltopdf binary at C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe 
+2026-09-22 07:23:28,640 55848 INFO ? odoo.service.server: HTTP service (werkzeug) running on Development:8069 
+2026-09-22 07:23:28,678 55848 INFO xeseguridad odoo.modules.loading: loading 1 modules... 
+2026-09-22 07:23:28,771 55848 INFO xeseguridad odoo.modules.loading: 1 modules loaded in 0.09s, 0 queries (+0 extra) 
+2026-09-22 07:23:28,839 55848 WARNING xeseguridad odoo.modules.graph: module l10n_mx_sat: not installable, skipped 
+2026-09-22 07:23:28,839 55848 WARNING xeseguridad odoo.modules.graph: module sale_projection: not installable, skipped 
+2026-09-22 07:23:28,856 55848 WARNING xeseguridad odoo.modules.module: Missing `license` key in manifest for 'readonly_group_tool_cr', defaulting to LGPL-3 
+2026-09-22 07:23:28,859 55848 WARNING xeseguridad odoo.modules.module: Missing `license` key in manifest for 'xe_loyalty_fix', defaulting to LGPL-3 
+2026-09-22 07:23:28,894 55848 WARNING xeseguridad odoo.modules.graph: module ps_ftp_attachment_importer: not installable, skipped 
+2026-09-22 07:23:28,900 55848 WARNING xeseguridad odoo.modules.graph: module xe_sftp_connector: not installable, skipped 
+2026-09-22 07:23:28,909 55848 WARNING xeseguridad odoo.modules.graph: module model_access_rights: not installable, skipped 
+2026-09-22 07:23:28,948 55848 WARNING xeseguridad odoo.modules.graph: module l10n_mx_sat_vendor_bill: not installable, skipped 
+2026-09-22 07:23:29,112 55848 INFO xeseguridad odoo.modules.loading: loading 350 modules... 
+2026-09-22 07:23:29,311 55848 WARNING xeseguridad odoo.addons.attachment_indexation.models.ir_attachment: Attachment indexation of PDF documents is unavailable because the 'pdfminer' Python library cannot be found on the system. You may install it from https://pypi.org/project/pdfminer.six/ (e.g. `pip3 install pdfminer.six`) 
+2026-09-22 07:23:29,916 55848 WARNING xeseguridad odoo.api.create: The model odoo.addons.odoo_connect_spreadsheet.models.connect_spreadsheet is not overriding the create method in batch 
+2026-09-22 07:23:30,105 55848 INFO xeseguridad odoo.addons.queue_job.post_load: Apply Request._get_session_and_dbname monkey patch to capture db from request with multiple databases 
+2026-09-22 07:23:32,193 55848 WARNING xeseguridad odoo.api.create: The model odoo.addons.xe_whatsapp.models.discuss_channel is not overriding the create method in batch 
+2026-09-22 07:23:32,194 55848 WARNING xeseguridad odoo.api.create: The model odoo.addons.xe_whatsapp.models.whatsapp_message is not overriding the create method in batch 
+2026-09-22 07:23:32,254 55848 WARNING xeseguridad odoo.api.create: The model odoo.addons.addenda_morwi.models.account_move is not overriding the create method in batch 
+2026-09-22 07:23:32,855 55848 WARNING xeseguridad odoo.api.create: The model odoo.addons.stock_landed_cost_batch.models.stock_landed_costs_batch is not overriding the create method in batch 
+2026-09-22 07:23:32,942 55848 WARNING xeseguridad odoo.api.create: The model odoo.addons.xe_pacific.models.helpdesk_ticket is not overriding the create method in batch 
+2026-09-22 07:23:32,945 55848 WARNING xeseguridad odoo.api.create: The model odoo.addons.xe_pacific.models.stock_picking is not overriding the create method in batch 
+2026-09-22 07:23:32,953 55848 WARNING xeseguridad odoo.api.create: The model odoo.addons.xe_pacific.models.sale_order_line is not overriding the create method in batch 
+2026-09-22 07:23:32,992 55848 WARNING xeseguridad odoo.addons.base.models.decimal_precision: Deprecated call to decimal_precision.get_precision(<application>), use digits=<application> instead 
+2026-09-22 07:23:32,992 55848 WARNING xeseguridad odoo.addons.base.models.decimal_precision: Deprecated call to decimal_precision.get_precision(<application>), use digits=<application> instead 
+2026-09-22 07:23:32,995 55848 WARNING xeseguridad odoo.api.create: The model odoo.addons.pos_restrict_product_stock.models.loyalty_card is not overriding the create method in batch 
+2026-09-22 07:23:33,011 55848 INFO xeseguridad odoo.modules.loading: 350 modules loaded in 3.90s, 0 queries (+0 extra) 
+2026-09-22 07:23:33,088 55848 WARNING xeseguridad odoo.fields: res.partner.l10n_mx_edi_usage: selection=[('G01', 'Acquisition of merchandise'), ('G02', 'Returns, discounts or bonuses'), ('G03', 'General expenses'), ('I01', 'Constructions'), ('I02', 'Office furniture and equipment investment'), ('I03', 'Transportation equipment'), ('I04', 'Computer equipment and accessories'), ('I05', 'Dices, dies, molds, matrices and tooling'), ('I06', 'Telephone communications'), ('I07', 'Satellite communications'), ('I08', 'Other machinery and equipment'), ('D01', 'Medical, dental and hospital expenses.'), ('D02', 'Medical expenses for disability'), ('D03', 'Funeral expenses'), ('D04', 'Donations'), ('D05', 'Real interest effectively paid for mortgage loans (room house)'), ('D06', 'Voluntary contributions to SAR'), ('D07', 'Medical insurance premiums'), ('D08', 'Mandatory School Transportation Expenses'), ('D09', 'Deposits in savings accounts, premiums based on pension plans.'), ('D10', 'Payments for educational services (Colegiatura)'), ('S01', 'Without fiscal effects'), ('CP01', 'Payments'), ('CN01', 'Payroll')] overrides existing selection; use selection_add instead 
+2026-09-22 07:23:33,139 55848 WARNING xeseguridad odoo.fields: account.move.l10n_mx_edi_usage: selection=[('G01', 'Acquisition of merchandise'), ('G02', 'Returns, discounts or bonuses'), ('G03', 'General expenses'), ('I01', 'Constructions'), ('I02', 'Office furniture and equipment investment'), ('I03', 'Transportation equipment'), ('I04', 'Computer equipment and accessories'), ('I05', 'Dices, dies, molds, matrices and tooling'), ('I06', 'Telephone communications'), ('I07', 'Satellite communications'), ('I08', 'Other machinery and equipment'), ('D01', 'Medical, dental and hospital expenses.'), ('D02', 'Medical expenses for disability'), ('D03', 'Funeral expenses'), ('D04', 'Donations'), ('D05', 'Real interest effectively paid for mortgage loans (room house)'), ('D06', 'Voluntary contributions to SAR'), ('D07', 'Medical insurance premiums'), ('D08', 'Mandatory School Transportation Expenses'), ('D09', 'Deposits in savings accounts, premiums based on pension plans.'), ('D10', 'Payments for educational services (Colegiatura)'), ('S01', 'Without fiscal effects'), ('CP01', 'Payments'), ('CN01', 'Payroll')] overrides existing selection; use selection_add instead 
+2026-09-22 07:23:33,180 55848 WARNING xeseguridad odoo.fields: sale.order.l10n_mx_edi_usage: selection=[('G01', 'Acquisition of merchandise'), ('G02', 'Returns, discounts or bonuses'), ('G03', 'General expenses'), ('I01', 'Constructions'), ('I02', 'Office furniture and equipment investment'), ('I03', 'Transportation equipment'), ('I04', 'Computer equipment and accessories'), ('I05', 'Dices, dies, molds, matrices and tooling'), ('I06', 'Telephone communications'), ('I07', 'Satellite communications'), ('I08', 'Other machinery and equipment'), ('D01', 'Medical, dental and hospital expenses.'), ('D02', 'Medical expenses for disability'), ('D03', 'Funeral expenses'), ('D04', 'Donations'), ('D05', 'Real interest effectively paid for mortgage loans (room house)'), ('D06', 'Voluntary contributions to SAR'), ('D07', 'Medical insurance premiums'), ('D08', 'Mandatory School Transportation Expenses'), ('D09', 'Deposits in savings accounts, premiums based on pension plans.'), ('D10', 'Payments for educational services (Colegiatura)'), ('S01', 'Without fiscal effects'), ('CP01', 'Payments'), ('CN01', 'Payroll')] overrides existing selection; use selection_add instead 
+2026-09-22 07:23:33,213 55848 WARNING xeseguridad odoo.fields: Field stock.move.group_id: unknown parameter 'tracking', if this is an actual parameter you may want to override the method _valid_field_parameter on the relevant model in order to allow it 
+2026-09-22 07:23:33,279 55848 ERROR xeseguridad odoo.modules.loading: Some modules are not loaded, some dependencies or manifest may be missing: ['l10n_mx_sat', 'l10n_mx_sat_vendor_bill', 'model_access_rights', 'ps_ftp_attachment_importer', 'sale_projection', 'xe_sftp_connector'] 
+2026-09-22 07:23:33,280 55848 INFO xeseguridad odoo.modules.loading: Modules loaded. 
+2026-09-22 07:23:33,301 55848 WARNING xeseguridad py.warnings: C:\Users\Dev-Sys\odoo\odoo\odoo\modules\registry.py:343: UserWarning: pos.order: inconsistent 'compute_sudo' for computed fields refund_orders_count, is_refunded, refunded_order_ids, refunded_orders_count. Either set 'compute_sudo' to the same value on all those fields, or use distinct compute methods for sudoed and non-sudoed fields.
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo-bin", line 8, in <module>
+    odoo.cli.main()
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\cli\command.py", line 76, in main
+    o.run(args)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\cli\server.py", line 186, in run
+    main(args)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\cli\server.py", line 179, in main
+    rc = odoo.service.server.start(preload=preload, stop=stop)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\service\server.py", line 1522, in start
+    rc = server.run(preload, stop)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\service\server.py", line 657, in run
+    rc = preload_registries(preload)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\service\server.py", line 1422, in preload_registries
+    registry = Registry.new(dbname, update_module=update_module)
+  File "C:\Users\Dev-Sys\odoo\venv-odoo17\Lib\site-packages\decorator\__init__.py", line 247, in fun
+    return caller(func, *(extras + args), **kw)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\tools\func.py", line 87, in locked
+    return func(inst, *args, **kwargs)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\modules\registry.py", line 96, in new
+    odoo.modules.load_modules(registry, force_demo, status, update_module)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\modules\loading.py", line 617, in load_modules
+    model._register_hook()
+  File "c:\users\dev-sys\odoo\odoo\addons\base_automation\models\base_automation.py", line 900, in _register_hook
+    Model = self.env.get(automation_rule.model_name)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\fields.py", line 1217, in __get__
+    self.compute_value(recs)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\fields.py", line 1386, in compute_value
+    fields = records.pool.field_computed[self]
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\tools\func.py", line 28, in __get__
+    value = self.fget(obj)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\modules\registry.py", line 343, in field_computed
+    warnings.warn(
+ 
+2026-09-22 07:23:33,302 55848 WARNING xeseguridad py.warnings: C:\Users\Dev-Sys\odoo\odoo\odoo\modules\registry.py:358: UserWarning: pos.order: inconsistent 'store' for computed fields, accessing refunded_order_ids, refunded_orders_count may recompute and update refund_orders_count, is_refunded. Use distinct compute methods for stored and non-stored fields.
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo-bin", line 8, in <module>
+    odoo.cli.main()
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\cli\command.py", line 76, in main
+    o.run(args)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\cli\server.py", line 186, in run
+    main(args)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\cli\server.py", line 179, in main
+    rc = odoo.service.server.start(preload=preload, stop=stop)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\service\server.py", line 1522, in start
+    rc = server.run(preload, stop)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\service\server.py", line 657, in run
+    rc = preload_registries(preload)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\service\server.py", line 1422, in preload_registries
+    registry = Registry.new(dbname, update_module=update_module)
+  File "C:\Users\Dev-Sys\odoo\venv-odoo17\Lib\site-packages\decorator\__init__.py", line 247, in fun
+    return caller(func, *(extras + args), **kw)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\tools\func.py", line 87, in locked
+    return func(inst, *args, **kwargs)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\modules\registry.py", line 96, in new
+    odoo.modules.load_modules(registry, force_demo, status, update_module)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\modules\loading.py", line 617, in load_modules
+    model._register_hook()
+  File "c:\users\dev-sys\odoo\odoo\addons\base_automation\models\base_automation.py", line 900, in _register_hook
+    Model = self.env.get(automation_rule.model_name)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\fields.py", line 1217, in __get__
+    self.compute_value(recs)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\fields.py", line 1386, in compute_value
+    fields = records.pool.field_computed[self]
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\tools\func.py", line 28, in __get__
+    value = self.fget(obj)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\modules\registry.py", line 358, in field_computed
+    warnings.warn(
+ 
+2026-09-22 07:23:33,302 55848 WARNING xeseguridad py.warnings: C:\Users\Dev-Sys\odoo\odoo\odoo\modules\registry.py:350: UserWarning: sale.order.line: inconsistent 'precompute' for computed fields margin, margin_percent. Either set all fields as precompute=True (if possible), or use distinct compute methods for precomputed and non-precomputed fields.
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo-bin", line 8, in <module>
+    odoo.cli.main()
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\cli\command.py", line 76, in main
+    o.run(args)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\cli\server.py", line 186, in run
+    main(args)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\cli\server.py", line 179, in main
+    rc = odoo.service.server.start(preload=preload, stop=stop)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\service\server.py", line 1522, in start
+    rc = server.run(preload, stop)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\service\server.py", line 657, in run
+    rc = preload_registries(preload)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\service\server.py", line 1422, in preload_registries
+    registry = Registry.new(dbname, update_module=update_module)
+  File "C:\Users\Dev-Sys\odoo\venv-odoo17\Lib\site-packages\decorator\__init__.py", line 247, in fun
+    return caller(func, *(extras + args), **kw)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\tools\func.py", line 87, in locked
+    return func(inst, *args, **kwargs)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\modules\registry.py", line 96, in new
+    odoo.modules.load_modules(registry, force_demo, status, update_module)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\modules\loading.py", line 617, in load_modules
+    model._register_hook()
+  File "c:\users\dev-sys\odoo\odoo\addons\base_automation\models\base_automation.py", line 900, in _register_hook
+    Model = self.env.get(automation_rule.model_name)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\fields.py", line 1217, in __get__
+    self.compute_value(recs)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\fields.py", line 1386, in compute_value
+    fields = records.pool.field_computed[self]
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\tools\func.py", line 28, in __get__
+    value = self.fget(obj)
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\modules\registry.py", line 350, in field_computed
+    warnings.warn(
+ 
+2026-09-22 07:23:33,331 55848 INFO xeseguridad odoo.modules.registry: Registry loaded in 4.693s 
+2026-09-22 07:23:33,331 55848 INFO xeseguridad odoo.service.server: Starting post tests 
+2026-09-22 07:23:39,357 55848 INFO xeseguridad odoo.addons.base.models.ir_http: Generating routing map for key 1 
+2026-09-22 07:23:39,636 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:23:39] "POST /meli/notifications HTTP/1.1" 200 - 36 0.031 0.309
+2026-09-22 07:23:47,080 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:23:47] "POST /meli/notifications HTTP/1.1" 200 - 1 0.000 0.005
+2026-09-22 07:23:52,146 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:23:52] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.003
+2026-09-22 07:23:53,158 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:23:53] "GET /websocket?version=17.0-3 HTTP/1.1" 101 - 8 0.014 0.012
+2026-09-22 07:23:53,560 55848 INFO ? odoo.addons.bus.models.bus: Bus.loop listen imbus on db postgres 
+2026-09-22 07:24:04,801 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:24:04] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.003
+2026-09-22 07:24:13,947 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:24:13] "POST /meli/notifications HTTP/1.1" 200 - 5 0.003 0.007
+2026-09-22 07:24:14,993 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:24:14] "POST /meli/notifications HTTP/1.1" 200 - 5 0.004 0.005
+2026-09-22 07:24:35,625 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:24:35] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.002
+2026-09-22 07:24:52,008 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:24:52] "POST /meli/notifications HTTP/1.1" 200 - 5 0.003 0.005
+2026-09-22 07:24:53,694 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:24:53] "POST /meli/notifications HTTP/1.1" 200 - 20 0.019 0.240
+2026-09-22 07:24:54,057 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:24:54] "POST /meli/notifications HTTP/1.1" 200 - 5 0.003 0.006
+2026-09-22 07:24:57,946 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:24:57] "POST /meli/notifications HTTP/1.1" 200 - 5 0.004 0.007
+2026-09-22 07:25:01,518 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:01] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.003
+2026-09-22 07:25:23,234 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:23] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.003
+2026-09-22 07:25:26,675 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:26] "POST /meli/notifications HTTP/1.1" 200 - 1 0.000 0.003
+2026-09-22 07:25:28,967 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:28] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.002
+2026-09-22 07:25:31,843 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:31] "POST /meli/notifications HTTP/1.1" 200 - 5 0.004 0.004
+2026-09-22 07:25:36,045 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:36] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.004
+2026-09-22 07:25:36,232 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:36] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.004
+2026-09-22 07:25:40,226 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:40] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.003
+2026-09-22 07:25:45,353 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:45] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.002
+2026-09-22 07:25:50,056 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:50] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.003
+2026-09-22 07:25:52,831 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:52] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.003
+2026-09-22 07:25:53,493 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:53] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.004
+2026-09-22 07:25:56,589 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:56] "POST /meli/notifications HTTP/1.1" 200 - 18 0.009 0.223
+2026-09-22 07:25:56,921 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:56] "POST /meli/notifications HTTP/1.1" 200 - 5 0.003 0.005
+2026-09-22 07:25:57,873 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:57] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.003
+2026-09-22 07:25:58,799 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:58] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.002
+2026-09-22 07:25:59,783 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:25:59] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.002
+2026-09-22 07:26:00,918 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:26:00] "POST /meli/notifications HTTP/1.1" 200 - 5 0.002 0.006
+2026-09-22 07:26:01,447 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:26:01] "POST /meli/notifications HTTP/1.1" 200 - 1 0.000 0.003
+2026-09-22 07:26:05,427 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:26:05] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.003
+2026-09-22 07:26:06,542 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:26:06] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.003
+2026-09-22 07:26:07,362 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:26:07] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.002
+2026-09-22 07:26:22,820 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:26:22] "POST /meli/notifications HTTP/1.1" 200 - 5 0.002 0.007
+2026-09-22 07:26:37,068 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:26:37] "POST /meli/notifications HTTP/1.1" 200 - 5 0.004 0.005
+2026-09-22 07:26:40,648 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:26:40] "POST /meli/notifications HTTP/1.1" 200 - 18 0.016 0.201
+2026-09-22 07:26:41,055 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:26:41] "POST /meli/notifications HTTP/1.1" 200 - 5 0.002 0.007
+2026-09-22 07:26:45,263 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:26:45] "POST /meli/notifications HTTP/1.1" 200 - 5 0.001 0.008
+2026-09-22 07:26:56,637 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:26:56] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.002
+2026-09-22 07:26:58,154 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:26:58] "POST /meli/notifications HTTP/1.1" 200 - 5 0.002 0.007
+2026-09-22 07:27:04,819 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:04] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.003
+2026-09-22 07:27:07,560 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:07] "POST /meli/notifications HTTP/1.1" 200 - 5 0.002 0.009
+2026-09-22 07:27:21,576 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:21] "POST /meli/notifications HTTP/1.1" 200 - 5 0.004 0.007
+2026-09-22 07:27:30,479 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:30] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.019
+2026-09-22 07:27:32,488 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:32] "POST /meli/notifications HTTP/1.1" 200 - 10 0.025 0.008
+2026-09-22 07:27:35,965 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:35] "POST /meli/notifications HTTP/1.1" 200 - 35 0.024 0.303
+2026-09-22 07:27:36,381 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:36] "POST /meli/notifications HTTP/1.1" 200 - 5 0.001 0.010
+2026-09-22 07:27:36,625 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:36] "POST /meli/notifications HTTP/1.1" 200 - 1 0.000 0.002
+2026-09-22 07:27:36,647 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:36] "POST /meli/notifications HTTP/1.1" 200 - 5 0.003 0.005
+2026-09-22 07:27:37,486 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:37] "POST /meli/notifications HTTP/1.1" 200 - 11 0.010 0.006
+2026-09-22 07:27:37,562 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:37] "POST /meli/notifications HTTP/1.1" 200 - 8 0.008 0.010
+2026-09-22 07:27:37,641 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:37] "POST /meli/notifications HTTP/1.1" 200 - 5 0.003 0.008
+2026-09-22 07:27:37,876 55848 INFO xeseguridad odoo.addons.xe_meli_connector.tests.test_meli_full_cancellation: Starting TestMeliInvoicingLifecycle.test_correct_move_from_document_adds_missing_line_to_a_posted_invoice ... 
+2026-09-22 07:27:38,223 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:38] "POST /meli/notifications HTTP/1.1" 200 - 18 0.011 0.019
+2026-09-22 07:27:39,192 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:39] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.005
+2026-09-22 07:27:40,439 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:40] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.003
+2026-09-22 07:27:40,561 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:40] "POST /meli/notifications HTTP/1.1" 200 - 5 0.005 0.006
+2026-09-22 07:27:40,608 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:40] "POST /meli/notifications HTTP/1.1" 200 - 7 0.004 0.006
+2026-09-22 07:27:40,665 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:40] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.005
+2026-09-22 07:27:41,257 55848 WARNING xeseguridad odoo.addons.base.models.ir_mail_server: The from filter of the CLI configuration does not match the notification email or the user email, using notificaciones2@xebrands.odoo.com as fallback 
+2026-09-22 07:27:41,296 55848 INFO xeseguridad odoo.addons.mail.models.mail_mail: Ignoring invalid recipients for mail.mail <006806715658507.1790062060.780640363693237-openerp-message-notify@Development>: ['"Meli Invoicing Test User" <@False>'] 
+2026-09-22 07:27:41,451 55848 INFO xeseguridad odoo.models.unlink: User #1 deleted mail.mail records with IDs: [1186270] 
+2026-09-22 07:27:41,451 55848 INFO xeseguridad odoo.addons.mail.models.mail_mail: Sent batch 1 emails via mail server ID #False 
+2026-09-22 07:27:41,570 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:41] "POST /meli/notifications HTTP/1.1" 200 - 5 0.005 0.008
+2026-09-22 07:27:42,697 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:42] "POST /meli/notifications HTTP/1.1" 200 - 1 0.001 0.001
+2026-09-22 07:27:44,851 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:44] "POST /meli/notifications HTTP/1.1" 200 - 1 0.003 0.002
+2026-09-22 07:27:46,137 55848 INFO xeseguridad odoo.addons.xe_meli_connector.tests.test_meli_full_cancellation: ====================================================================== 
+2026-09-22 07:27:46,137 55848 ERROR xeseguridad odoo.addons.xe_meli_connector.tests.test_meli_full_cancellation: ERROR: TestMeliInvoicingLifecycle.test_correct_move_from_document_adds_missing_line_to_a_posted_invoice
+Traceback (most recent call last):
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\models.py", line 5898, in ensure_one
+    _id, = self._ids
+    ^^^^
+ValueError: too many values to unpack (expected 1)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\users\dev-sys\odoo\xe-seguridad\xe_meli_connector\tests\test_meli_full_cancellation.py", line 3027, in test_correct_move_from_document_adds_missing_line_to_a_posted_invoice
+    if not (receivable_line.reconciled or payment_receivable_line.reconciled):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\fields.py", line 1146, in __get__
+    record.ensure_one()
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\models.py", line 5901, in ensure_one
+    raise ValueError("Expected singleton: %s" % self)
+ValueError: Expected singleton: account.move.line(8850612, 8850613)
+ 
+2026-09-22 07:27:46,139 55848 INFO xeseguridad odoo.addons.xe_meli_connector.tests.test_meli_full_cancellation: Starting TestMeliInvoicingLifecycle.test_correct_move_from_document_matches_by_price_when_meli_listing_title_differs ... 
+2026-09-22 07:27:47,525 55848 WARNING xeseguridad odoo.addons.base.models.ir_mail_server: The from filter of the CLI configuration does not match the notification email or the user email, using notificaciones2@xebrands.odoo.com as fallback 
+2026-09-22 07:27:47,533 55848 INFO xeseguridad odoo.addons.mail.models.mail_mail: Ignoring invalid recipients for mail.mail <444024410256075.1790062067.402253866195679-openerp-message-notify@Development>: ['"Meli Invoicing Test User" <@False>'] 
+2026-09-22 07:27:47,603 55848 INFO xeseguridad odoo.models.unlink: User #1 deleted mail.mail records with IDs: [1186271] 
+2026-09-22 07:27:47,604 55848 INFO xeseguridad odoo.addons.mail.models.mail_mail: Sent batch 1 emails via mail server ID #False 
+2026-09-22 07:27:48,137 55848 INFO xeseguridad odoo.addons.base.models.ir_http: Generating routing map for key 1 
+2026-09-22 07:27:48,176 55848 INFO xeseguridad werkzeug: 127.0.0.1 - - [22/Sep/2026 07:27:48] "POST /meli/notifications HTTP/1.1" 200 - 10 0.005 0.035
+2026-09-22 07:27:51,255 55848 INFO xeseguridad odoo.addons.xe_meli_connector.tests.test_meli_full_cancellation: ====================================================================== 
+2026-09-22 07:27:51,255 55848 ERROR xeseguridad odoo.addons.xe_meli_connector.tests.test_meli_full_cancellation: ERROR: TestMeliInvoicingLifecycle.test_correct_move_from_document_matches_by_price_when_meli_listing_title_differs
+Traceback (most recent call last):
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\models.py", line 5898, in ensure_one
+    _id, = self._ids
+    ^^^^
+ValueError: too many values to unpack (expected 1)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\users\dev-sys\odoo\xe-seguridad\xe_meli_connector\tests\test_meli_full_cancellation.py", line 3125, in test_correct_move_from_document_matches_by_price_when_meli_listing_title_differs
+    if not (receivable_line.reconciled or payment_receivable_line.reconciled):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\fields.py", line 1146, in __get__
+    record.ensure_one()
+  File "C:\Users\Dev-Sys\odoo\odoo\odoo\models.py", line 5901, in ensure_one
+    raise ValueError("Expected singleton: %s" % self)
+ValueError: Expected singleton: account.move.line(8850618, 8850619)
+ 
+2026-09-22 07:27:51,257 55848 INFO xeseguridad odoo.addons.xe_meli_connector.tests.test_meli_full_cancellation: Starting TestMeliInvoicingLifecycle.test_correct_move_from_document_stays_manual_when_price_fallback_is_ambiguous ... 
+2026-09-22 07:27:52,560 55848 WARNING xeseguridad odoo.addons.base.models.ir_mail_server: The from filter of the CLI configuration does not match the notification email or the user email, using notificaciones2@xebrands.odoo.com as fallback 
+2026-09-22 07:27:52,567 55848 INFO xeseguridad odoo.addons.mail.models.mail_mail: Ignoring invalid recipients for mail.mail <845468539719771.1790062072.437048435211182-openerp-message-notify@Development>: ['"Meli Invoicing Test User" <@False>'] 
+2026-09-22 07:27:52,636 55848 INFO xeseguridad odoo.models.unlink: User #1 deleted mail.mail records with IDs: [1186272] 
+2026-09-22 07:27:52,636 55848 INFO xeseguridad odoo.addons.mail.models.mail_mail: Sent batch 1 emails via mail server ID #False 
+2026-09-22 07:27:55,771 55848 INFO xeseguridad odoo.addons.base.models.ir_attachment: filestore gc 7 checked, 7 removed 
+2026-09-22 07:27:55,796 55848 INFO xeseguridad odoo.service.server: 3 post-tests in 262.47s, 7858 queries 
+2026-09-22 07:27:55,796 55848 INFO xeseguridad odoo.tests.stats: xe_meli_connector: 5 tests 262.25s 7858 queries 
+2026-09-22 07:27:55,796 55848 ERROR xeseguridad odoo.tests.result: 0 failed, 2 error(s) of 3 tests when loading database 'xeseguridad' 
+2026-09-22 07:27:55,796 55848 INFO xeseguridad odoo.service.server: Initiating shutdown 
+2026-09-22 07:27:55,796 55848 INFO xeseguridad odoo.service.server: Hit CTRL-C again or send a second signal to force the shutdown. 
+2026-09-22 07:27:56,489 55848 INFO xeseguridad odoo.sql_db: ConnectionPool(used=0/count=0/max=64): Closed 2 connections  

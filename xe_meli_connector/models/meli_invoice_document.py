@@ -77,6 +77,17 @@ MELI_INVOICE_DEAD_STATUSES = {'rejected', 'cancelled', 'canceled'}
 # one, so it keeps being treated as ready, exactly as before this fix.
 MELI_INVOICE_NOT_YET_AUTHORIZED_STATUSES = {'pending_authorization', 'interrupted'}
 
+# Fix 2026-09-21 (user-directed): a '1P' (First Party) Mercado Libre sale
+# — XE sells at wholesale and Mercado Libre itself sets the final price,
+# markets and delivers it — has no dedicated flag anywhere in the API the
+# user is aware of. The user's own fallback: this document's own CFDI
+# Emisor Rfc (the entity that actually stamped it) is DCM991109KR2 —
+# DEREMATE.COM DE MEXICO, S. DE R.L. DE C.V. — whenever a '1P' sale gets
+# invoiced under that entity rather than Mercado Libre's own. See
+# sale.order._meli_invoice_partner_id, which uses this together with the
+# 'resale' scheme to decide which partner a factura/nota de crédito bills.
+MELI_DEREMATE_RFC = 'DCM991109KR2'
+
 
 class MeliInvoiceDocument(models.Model):
     _name = 'meli.invoice.document'
@@ -247,6 +258,25 @@ class MeliInvoiceDocument(models.Model):
              "Libre invoiced, independent of whatever Odoo's own sale "
              "order computed. 0.0 when there's no XML yet.",
     )
+    meli_emisor_rfc = fields.Char(
+        string='Issuer RFC (XML)', compute='_compute_meli_emisor_rfc', store=True,
+        help="The RFC stamped on the CFDI's own cfdi:Emisor node — "
+             "whichever real fiscal entity actually issued this document "
+             "(Mercado Libre's own, or DEREMATE.COM DE MEXICO for a '1P' "
+             "sale — see MELI_DEREMATE_RFC in this file). Empty when "
+             "there's no XML yet or it couldn't be parsed.",
+    )
+    meli_bill_to_deremate = fields.Boolean(
+        string='Bill To Deremate', compute='_compute_meli_bill_to_deremate',
+        store=True,
+        help="True for a 'resale'/'resale_devolution' document, or one "
+             "whose own meli_emisor_rfc is DEREMATE.COM DE MEXICO's RFC "
+             "(DCM991109KR2) — the two ways a '1P' sale is recognisable "
+             "today (2026-09-21, user decision). Used by "
+             "sale.order._meli_invoice_partner_id to bill the factura/"
+             "nota de crédito this document creates to DEREMATE.COM DE "
+             "MEXICO instead of Mercado Libre's own billing contact.",
+    )
     meli_amount_mismatch = fields.Boolean(
         string='Invoice/Sale Amount Mismatch', compute='_compute_meli_amount_mismatch',
         store=True,
@@ -254,6 +284,41 @@ class MeliInvoiceDocument(models.Model):
              "amount_total differ by more than 5 cents (2026-09-14 "
              "user request) — filterable here so these can be found and "
              "reviewed manually.",
+    )
+    meli_move_amount_mismatch = fields.Boolean(
+        string='Invoice/CFDI Amount Mismatch', compute='_compute_meli_amount_mismatch',
+        store=True,
+        help="True when the REAL Odoo invoice/credit note this document "
+             "was applied to (move_ids) doesn't add up to meli_xml_total "
+             "(more than 5 cents off) — a different, more serious gap "
+             "than meli_amount_mismatch: that one only ever compares the "
+             "XML against the SALE's own total (which can already "
+             "include a pack sibling's line added after this move was "
+             "posted), never against what was actually invoiced/"
+             "credited. Real production case: order S974870/pack "
+             "2000015124781237 — a second pack sibling's own line "
+             "wasn't delivered yet when the invoice was first built, so "
+             "only one of its two products ever made it onto the "
+             "posted invoice and its credit note, both silently short "
+             "by that missing line's own amount, with nothing else ever "
+             "catching or correcting it. False whenever move_ids is "
+             "empty (nothing posted yet to compare).",
+    )
+    meli_order_has_partial_refund = fields.Boolean(
+        string='Order Has Partial Refund', compute='_compute_meli_amount_mismatch',
+        store=True,
+        help="True when the related sale order's own cached status "
+             "(sale_order_id.meli_last_status) is 'partially_refunded' "
+             "— the most common real explanation for meli_amount_"
+             "mismatch on a 'factura' document: the sale's own "
+             "amount_total never changes for a partial refund (only a "
+             "credit note is issued for it), so it will keep differing "
+             "from the invoice's own XML total by design, not by error. "
+             "Read from the locally-cached status (refreshed on every "
+             "order-status notification/poll), not a live API call, so "
+             "it can lag briefly behind Mercado Libre's own real-time "
+             "status — same tradeoff meli_last_status itself already "
+             "has everywhere else in this module.",
     )
     meli_amount_mismatch_notified = fields.Boolean(
         default=False, copy=False,
@@ -263,14 +328,16 @@ class MeliInvoiceDocument(models.Model):
     )
     meli_needs_manual_credit_note = fields.Boolean(
         string='Needs Manual Credit Note', default=False, copy=False,
-        help="True for a devolution/credit-note document whose order's "
-             "own LIVE Mercado Libre status is NOT 'cancelled' (a genuine "
-             "partial refund, not a full cancellation) — automating this "
-             "credit note is deliberately paused for now (2026-09-16, "
-             "user decision): apply it manually for the exact product/ "
-             "quantity/amount its own XML reports, without touching "
-             "stock or the sale. Also excludes this document from the "
-             "'Has Sale But Not Applied' automatic retry cron "
+        help="True for a devolution/credit-note document that couldn't "
+             "be applied automatically: either its order's own LIVE "
+             "Mercado Libre status is neither 'cancelled' nor "
+             "'partially_refunded' yet (nothing confirmed to act on), "
+             "or it IS a confirmed partial refund but its own CFDI "
+             "concept(s) couldn't be confidently matched to one exact "
+             "invoice line/quantity — apply it manually for the exact "
+             "product/quantity/amount its own XML reports, without "
+             "touching stock or the sale. Also excludes this document "
+             "from the 'Has Sale But Not Applied' automatic retry cron "
              "(_cron_retry_unapplied_documents) — it will never become "
              "'Applied in Odoo' on its own, so retrying it automatically "
              "would just repeat the same manual-review chatter message "
@@ -318,10 +385,54 @@ class MeliInvoiceDocument(models.Model):
              "cron) resolves it.",
     )
 
+    meli_sale_delivered = fields.Boolean(
+        string='Sale Delivered', compute='_compute_meli_sale_delivered',
+        search='_search_meli_sale_delivered',
+        help="True once at least one unit of this document's own sale "
+             "has actually left the warehouse (a done outgoing stock "
+             "move) — scoped to this document's own sibling within a "
+             "pack when it belongs to one, or the whole order "
+             "otherwise; True regardless of whether that stock was "
+             "later returned. 2026-09-21 user request: 'Has Sale But "
+             "Not Applied' (see is_applied) lumps together several "
+             "different reasons a document never got a real invoice/"
+             "credit note; the most common one for a still-fresh order "
+             "is simply that nothing has been delivered yet, so Odoo's "
+             "own delivery-based invoicing policy has nothing to "
+             "invoice yet. False here on a 'Has Sale But Not Applied' "
+             "document narrows it down to exactly that cause — see the "
+             "'Not Applied: Nothing Delivered Yet' filter. Not stored, "
+             "same reasoning as meli_stock_return_pending's own help "
+             "text: always computed fresh from the real stock moves, "
+             "never a flag that could go stale.",
+    )
+
     @api.depends('move_ids')
     def _compute_is_applied(self):
         for document in self:
             document.is_applied = bool(document.move_ids)
+
+    def _compute_meli_sale_delivered(self):
+        for document in self:
+            delivered = False
+            if document.sale_order_id:
+                order = document.sale_order_id
+                lines = order._meli_sibling_lines(document.meli_order_id)
+                if lines:
+                    delivered_qty, __ = order._meli_sibling_delivered_and_returned_qty(lines)
+                    delivered = delivered_qty > 0
+            document.meli_sale_delivered = delivered
+
+    def _search_meli_sale_delivered(self, operator, value):
+        # Non-stored (see the field's own help text) — evaluated in
+        # Python over the small set of documents that could possibly
+        # qualify, same convention as _search_meli_stock_return_pending.
+        want = bool(value) if operator == '=' else not bool(value)
+        candidates = self.search([('sale_order_id', '!=', False)])
+        matching_ids = candidates.filtered(
+            lambda d: d.meli_sale_delivered
+        ).ids
+        return [('id', 'in' if want else 'not in', matching_ids)]
 
     def _compute_meli_stock_return_pending(self):
         for document in self:
@@ -373,12 +484,41 @@ class MeliInvoiceDocument(models.Model):
                 )
             document.meli_xml_total = xml_total or 0.0
 
-    @api.depends('meli_xml_total', 'meli_has_xml', 'sale_order_id.amount_total')
+    @api.depends('xml_file')
+    def _compute_meli_emisor_rfc(self):
+        for document in self:
+            emisor_rfc = False
+            if document.xml_file:
+                emisor_rfc = self._meli_parse_emisor_rfc_from_xml(
+                    base64.b64decode(document.xml_file)
+                )
+            document.meli_emisor_rfc = emisor_rfc or False
+
+    @api.depends('transaction_type', 'meli_emisor_rfc')
+    def _compute_meli_bill_to_deremate(self):
+        for document in self:
+            document.meli_bill_to_deremate = bool(
+                document.transaction_type in ('resale', 'resale_devolution')
+                or document.meli_emisor_rfc == MELI_DEREMATE_RFC
+            )
+
+    @api.depends(
+        'meli_xml_total', 'meli_has_xml', 'sale_order_id.amount_total',
+        'sale_order_id.meli_last_status', 'move_ids.amount_total', 'move_ids.state',
+    )
     def _compute_meli_amount_mismatch(self):
         for document in self:
             document.meli_amount_mismatch = bool(
                 document.meli_has_xml and document.sale_order_id
                 and abs(document.meli_xml_total - document.sale_order_id.amount_total) > 0.05
+            )
+            document.meli_order_has_partial_refund = (
+                document.sale_order_id.meli_last_status == 'partially_refunded'
+            )
+            live_moves = document.move_ids.filtered(lambda m: m.state != 'cancel')
+            document.meli_move_amount_mismatch = bool(
+                document.meli_has_xml and live_moves
+                and abs(sum(live_moves.mapped('amount_total')) - document.meli_xml_total) > 0.05
             )
 
     _sql_constraints = [(
@@ -900,6 +1040,28 @@ class MeliInvoiceDocument(models.Model):
             return float(total)
         except ValueError:
             return False
+
+    @staticmethod
+    def _meli_parse_emisor_rfc_from_xml(xml_bytes):
+        """The CFDI's own cfdi:Emisor Rfc attribute — the real fiscal
+        entity that stamped this specific document, used to recognise a
+        '1P' sale invoiced under DEREMATE.COM DE MEXICO instead of
+        Mercado Libre's own entity (see MELI_DEREMATE_RFC). Namespace-
+        agnostic (etree.QName(node).localname), same technique as
+        _meli_parse_concepts_from_xml, since a CFDI's namespace prefix
+        isn't guaranteed. Returns False (never raises) on malformed XML
+        or a missing Emisor/Rfc, same convention as every other XML
+        parser in this class.
+        """
+        try:
+            root = etree.fromstring(xml_bytes)
+        except etree.XMLSyntaxError:
+            return False
+        for node in root.iter():
+            if etree.QName(node).localname != 'Emisor':
+                continue
+            return node.get('Rfc') or False
+        return False
 
     @staticmethod
     def _meli_parse_concepts_from_xml(xml_bytes):
