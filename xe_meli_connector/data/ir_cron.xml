@@ -12,6 +12,28 @@
             <field name="active">True</field>
         </record>
 
+        <record id="ir_cron_meli_retry_missing_deliveries" model="ir.cron">
+            <field name="name">Mercado Libre: Retry Missing Delivery Transfers (backup)</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_retry_missing_deliveries()</field>
+            <field name="interval_number">30</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="ir_cron_meli_poll_orders" model="ir.cron">
+            <field name="name">Mercado Libre: Poll Recent Orders (backup)</field>
+            <field name="model_id" ref="model_meli_config"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_poll_orders()</field>
+            <field name="interval_number">30</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+        </record>
+
         <record id="ir_cron_meli_poll_invoices" model="ir.cron">
             <field name="name">Mercado Libre: Reconcile Missed Invoice Notifications (backup)</field>
             <field name="model_id" ref="model_meli_config"/>

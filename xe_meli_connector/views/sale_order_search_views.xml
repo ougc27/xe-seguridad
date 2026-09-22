@@ -50,6 +50,17 @@
                 <filter string="Mercado Libre: Envío Custom"
                         name="meli_shipping_scheme_custom"
                         domain="[('meli_shipping_scheme', '=', 'custom')]"/>
+                <!-- 2026-09-21 user request: "de mis ventas cuánto el
+                     cupón cayó en mí, de cuánto fue el descuento y si
+                     Mercado Libre en algunas el descuento cayó en él"
+                     — see sale.order.meli_discount_amount/meli_
+                     discount_ml_funded_amount's own help text. -->
+                <filter string="Mercado Libre: Con Descuento/Cupón"
+                        name="meli_has_discount"
+                        domain="[('meli_discount_amount', '&gt;', 0)]"/>
+                <filter string="Mercado Libre: Descuento Subsidiado por Mercado Libre"
+                        name="meli_discount_ml_funded"
+                        domain="[('meli_discount_ml_funded_amount', '&gt;', 0)]"/>
             </filter>
         </field>
     </record>
