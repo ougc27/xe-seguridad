@@ -264,6 +264,50 @@ class TestSaleOrderMeliImport(TransactionCase):
             for msg in order.message_ids
         ))
 
+    def test_pack_sibling_added_to_already_cancelled_pack_does_not_lose_its_line(self):
+        """Fix 2026-09-23 (real production bug, pack
+        2000015116272807/S847810): a sibling discovered for a pack
+        whose own sale.order is ALREADY 'cancel' (the pack's
+        first-seen sibling arrived pre-cancelled and went through the
+        full recovery sequence before this second sibling was ever
+        known) used to lose its own line entirely — _create_invoices()
+        raises UserError for a cancelled sale (nothing invoiceable),
+        and that exception was left completely unguarded right after
+        _meli_add_pack_sibling_lines added the line, aborting the whole
+        call and rolling back the line with it. Every single retry
+        failed identically, forever.
+        """
+        self._pack_product('ZTEST-CXL-A', 'CANCELLED PACK PRODUCT A')
+        self._pack_product('ZTEST-CXL-B', 'CANCELLED PACK PRODUCT B')
+        first_data = self._order_data(
+            order_id='2000018900000001', sku='ZTEST-CXL-A', pack_id='2000018900000000',
+        )
+        second_data = self._order_data(
+            order_id='2000018900000002', sku='ZTEST-CXL-B', pack_id='2000018900000000',
+        )
+        order = self.env['sale.order']._meli_create_from_order_data(self.config, first_data)
+        # Writing state directly rather than action_cancel(): this
+        # shared database's own xe_pacific/xe_customs action_cancel()
+        # overrides add unrelated business gates (down payments,
+        # delivered-product checks) that have nothing to do with this
+        # fix — only the plain 'cancel' state itself matters for
+        # reproducing the real bug (_create_invoices() refusing a
+        # cancelled sale).
+        order.state = 'cancel'
+
+        added_to = self.env['sale.order']._meli_create_from_order_data(self.config, second_data)
+
+        self.assertEqual(added_to, order)
+        self.assertTrue(order.order_line.filtered(
+            lambda l: l.meli_order_id == '2000018900000002'
+        ), "the second sibling's own line must survive, not be rolled back")
+        # The reconciliation failure itself degrades to a logged
+        # exception (_logger.exception), never chatter — same
+        # convention stock_picking.py's own equivalent guard uses —
+        # so there's nothing further to assert on the order's own
+        # message_ids here; surviving the call without raising, with
+        # the line intact, is the whole point of this fix.
+
     def test_full_pack_sibling_line_auto_validates_its_own_picking(self):
         # Final branch review finding C2: a new sale.order.line added to
         # an already-confirmed Full order (via
