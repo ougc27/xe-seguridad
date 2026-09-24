@@ -450,9 +450,10 @@ msgstr ""
 #. odoo-python
 #: code:addons/xe_meli_connector/models/sale_order.py:0
 #, python-format
-msgid "Credit note %s covers this sibling's own portion of the invoice."
+msgid "Credit note %s covers this document's own portion of the invoice."
 msgstr ""
-"La nota de crédito %s cubre la parte de este pedido dentro de la factura."
+"La nota de crédito %s cubre la parte de este documento dentro de la "
+"factura."
 
 #. module: xe_meli_connector
 #. odoo-python
@@ -507,6 +508,21 @@ msgstr ""
 " a nivel pedido (sin reclamo) aún no se ha confirmado contra una página "
 "real, así que verifica que abra el hilo correcto una vez desplegado. Solo "
 "MLM, como el resto de este módulo."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_order_detail_url
+msgid ""
+"Direct link to this order's own detail page on Mercado Libre's seller "
+"portal (2026-09-24, user-confirmed URL pattern, real example: https://"
+"vendedores.mercadolibre.com.mx/ventas/2000014993970687/detalle). Same "
+"pack_id-first convention as meli_portal_url. MLM-only, like the rest of "
+"this module."
+msgstr ""
+"Enlace directo al detalle de este pedido en el portal de vendedores de "
+"Mercado Libre (2026-09-24, patrón de URL confirmado por el usuario, "
+"ejemplo real: https://vendedores.mercadolibre.com.mx/ventas/"
+"2000014993970687/detalle). Misma convención que meli_portal_url (usa "
+"pack_id primero si existe). Solo MLM, como el resto de este módulo."
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__display_name
@@ -1150,6 +1166,11 @@ msgstr "Fecha de Creación de la Orden en Mercado Libre"
 #: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order_line__meli_order_id
 msgid "Mercado Libre Order ID"
 msgstr "Order ID de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_order_detail_url
+msgid "Mercado Libre Order Link"
+msgstr "Enlace a la Venta de Mercado Libre"
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_order_date_closed
@@ -1805,6 +1826,11 @@ msgstr "Abrir mensajería"
 
 #. module: xe_meli_connector
 #: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_order_form_meli
+msgid "Open Order"
+msgstr "Abrir venta"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_order_form_meli
 msgid "Open in Mercado Libre"
 msgstr "Abrir en Mercado Libre"
 
@@ -2419,6 +2445,22 @@ msgstr ""
 "crédito cuya propia línea no se pudo relacionar en su momento y está "
 "esperando un reintento manual (botón 'Reintentar Reconciliación de "
 "Facturación' de la Venta)."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"The related credit note's own concepts also covered %(other_ids)s — a "
+"DIFFERENT individual order within this same pack, never itself reported "
+"'cancelled' — so its own delivered stock was returned here too, since "
+"Mercado Libre already credited it in the same document."
+msgstr ""
+"Los propios conceptos de la nota de crédito relacionada también cubrían "
+"%(other_ids)s — un pedido individual DISTINTO dentro de este mismo pack, "
+"que nunca reportó 'cancelled' por su cuenta — así que su propio inventario "
+"entregado también se devolvió aquí, ya que Mercado Libre ya lo acreditó en "
+"el mismo documento."
 
 #. module: xe_meli_connector
 #. odoo-python
@@ -3382,11 +3424,6 @@ msgstr ""
 "corrigen solas en segundo plano, sin afectar las que ya están completas."
 
 #. module: xe_meli_connector
-#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__meli_bill_to_deremate
-msgid "Bill To Deremate"
-msgstr "Facturar a Deremate"
-
-#. module: xe_meli_connector
 #. odoo-python
 #: code:addons/xe_meli_connector/models/sale_order.py:0
 msgid ""
@@ -3409,11 +3446,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
 msgid "Invoice/CFDI Amount Mismatch"
 msgstr "Descuadre Factura/CFDI"
-
-#. module: xe_meli_connector
-#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__meli_emisor_rfc
-msgid "Issuer RFC (XML)"
-msgstr "RFC Emisor (XML)"
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_discount_amount
@@ -3541,19 +3573,6 @@ msgid "Sale Delivered"
 msgstr "Venta Entregada"
 
 #. module: xe_meli_connector
-#: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__meli_emisor_rfc
-msgid ""
-"The RFC stamped on the CFDI's own cfdi:Emisor node — whichever real fiscal "
-"entity actually issued this document (Mercado Libre's own, or DEREMATE.COM "
-"DE MEXICO for a '1P' sale — see MELI_DEREMATE_RFC in this file). Empty when "
-"there's no XML yet or it couldn't be parsed."
-msgstr ""
-"El RFC timbrado en el propio nodo cfdi:Emisor del CFDI — la entidad fiscal "
-"real que emitió este documento (la propia de Mercado Libre, o DEREMATE.COM "
-"DE MEXICO para una venta '1P' — ver MELI_DEREMATE_RFC en este archivo). "
-"Vacío cuando aún no hay XML o no se pudo interpretar."
-
-#. module: xe_meli_connector
 #: model:ir.model.fields,help:xe_meli_connector.field_sale_order_line__meli_discount_ml_funded_amount
 msgid ""
 "The portion of meli_discount_amount that Mercado Libre itself (or a "
@@ -3613,23 +3632,6 @@ msgstr ""
 "líneas de esta venta (sale.order.line.meli_discount_amount, sumado). 0 "
 "cuando ninguna línea tuvo descuento. Solo informativo — nunca afecta "
 "amount_total."
-
-#. module: xe_meli_connector
-#: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__meli_bill_to_deremate
-msgid ""
-"True for a 'resale'/'resale_devolution' document, or one whose own "
-"meli_emisor_rfc is DEREMATE.COM DE MEXICO's RFC (DCM991109KR2) — the two "
-"ways a '1P' sale is recognisable today (2026-09-21, user decision). Used by "
-"sale.order._meli_invoice_partner_id to bill the factura/nota de crédito this"
-" document creates to DEREMATE.COM DE MEXICO instead of Mercado Libre's own "
-"billing contact."
-msgstr ""
-"Verdadero para un documento 'resale'/'resale_devolution', o uno cuyo propio "
-"meli_emisor_rfc sea el RFC de DEREMATE.COM DE MEXICO (DCM991109KR2) — las "
-"dos formas en que hoy se reconoce una venta '1P' (decisión del usuario, "
-"21-09-2026). Usado por sale.order._meli_invoice_partner_id para facturar la "
-"factura/nota de crédito que genera este documento a DEREMATE.COM DE MEXICO "
-"en lugar del contacto de facturación propio de Mercado Libre."
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__meli_needs_manual_credit_note

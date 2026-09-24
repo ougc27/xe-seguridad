@@ -1,6 +1,6 @@
 {
     'name': 'Mercado Libre Connector (Invoicing)',
-    'version': '17.0.1.0.6',
+    'version': '17.0.1.0.7',
     'license': 'LGPL-3',
     'author': 'XE Brands',
     'category': 'Sales/Sales',

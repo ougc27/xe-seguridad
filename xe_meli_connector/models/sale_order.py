@@ -51,14 +51,6 @@ MELI_REFACTURA_CANCEL_REASON = '01'
 # at all: if Ventiapp hasn't injected it by then, it never will.
 MELI_ORDER_RECOVERY_GRACE_MINUTES = 15
 
-# Fix 2026-09-21 (user decision): every 'resale'/'1P' factura or nota de
-# crédito is billed to DEREMATE.COM DE MEXICO, S. DE R.L. DE C.V.
-# (res.partner id 293846) instead of Mercado Libre's own billing contact
-# (meli.config.partner_id) — see _meli_invoice_partner_id and
-# meli.invoice.document.meli_bill_to_deremate for how a document is
-# recognised as one of those two.
-MELI_DEREMATE_PARTNER_ID = 293846
-
 # Fix 2026-09-22 (user decision, re-enabling the sale.order injector):
 # a sale.order created by user id 8 (Horacio González Montfort) for
 # partner_id 87659 (MERCADO LIBRE) is a manual/internal record, never a
@@ -402,6 +394,32 @@ class SaleOrder(models.Model):
             order.meli_portal_url = (
                 'https://vendedores.mercadolibre.com.mx/ventas/nueva/'
                 f'mensajeria/{portal_id}'
+                if portal_id else False
+            )
+
+    meli_order_detail_url = fields.Char(
+        string='Mercado Libre Order Link', compute='_compute_meli_order_detail_url',
+        help="Direct link to this order's own detail page on Mercado "
+             "Libre's seller portal (2026-09-24, user-confirmed URL "
+             "pattern, real example: https://vendedores.mercadolibre."
+             "com.mx/ventas/2000014993970687/detalle). Same pack_id-"
+             "first convention as meli_portal_url. MLM-only, like the "
+             "rest of this module.",
+    )
+
+    @api.depends('reference', 'meli_order_id')
+    def _compute_meli_order_detail_url(self):
+        for order in self:
+            # Fix 2026-09-24 (user-directed): sourced from order.reference
+            # (falling back to meli_order_id) rather than meli_pack_id —
+            # reference already carries the right id (pack id when this
+            # order is part of one, the plain order id otherwise; see
+            # _meli_create_from_order_data's own 'reference': customer_ref
+            # assignment) for BOTH connector-created and Ventiapp-adopted
+            # orders alike.
+            portal_id = order.reference or order.meli_order_id
+            order.meli_order_detail_url = (
+                f'https://vendedores.mercadolibre.com.mx/ventas/{portal_id}/detalle'
                 if portal_id else False
             )
 
@@ -1758,20 +1776,27 @@ class SaleOrder(models.Model):
         """The core work of a partial cancellation, without the pack-
         closure check — see _meli_process_partial_cancellation's own
         docstring for why that check is kept separate and only runs
-        from there. Only THIS sibling's own line(s) — found via
-        sale.order.line.meli_order_id — are touched: its own delivered
-        stock is returned, its own portion of the invoice is credited
-        (see _meli_relate_partial_cancellation_credit_note: a
-        line-scoped, hand-built credit note — never the shared,
-        whole-invoice account.move.reversal wizard
-        _meli_reconcile_invoicing uses for a TOTAL cancellation, which
-        mirrors EVERY line of the source invoice and would over-refund
-        any OTHER sibling sharing that same consolidated invoice). The
-        sale itself is never cancelled, no other sibling's line/
-        inventory/revenue is touched, and — Fix 2026-09-15 — this
-        sibling's own line quantity/amount is never touched either (see
-        the Quantity comment below): only its stock and its credit note
-        reflect the cancellation.
+        from there. Starts from THIS sibling's own line(s) — found via
+        sale.order.line.meli_order_id — to build/find its own portion
+        of the invoice's credit note (see _meli_relate_partial_
+        cancellation_credit_note: a line-scoped, hand-built credit
+        note — never the shared, whole-invoice account.move.reversal
+        wizard _meli_reconcile_invoicing uses for a TOTAL cancellation,
+        which mirrors EVERY line of the source invoice and would
+        over-refund any OTHER sibling sharing that same consolidated
+        invoice). The physical stock return that follows is then scoped
+        to whatever that credit note ACTUALLY ends up covering — usually
+        just this same sibling, but Mercado Libre can file one
+        devolución document whose own concepts span more than one
+        individual order in the pack (Fix round 9 — see the inline
+        comment where `lines` gets reassigned below), in which case that
+        other sibling's own delivered stock is returned here too. The
+        sale itself is never cancelled directly by this method (that's
+        _meli_close_pack_if_every_sibling_cancelled's job, once every
+        sibling reaches its own final state), and — Fix 2026-09-15 —
+        no line's own quantity/amount is ever touched either (see the
+        Quantity comment below): only stock and credit notes reflect
+        the cancellation.
 
         Deliberately runs the credit-note step BEFORE the stock return:
         stock.picking._action_done() (xe_meli_connector's own override)
@@ -1869,11 +1894,38 @@ class SaleOrder(models.Model):
         if not credit_note:
             return
 
-        # ---- Inventory: return ONLY this sibling's own delivered moves.
-        # Same by-code stock.return.picking pattern as
-        # _meli_return_full_pickings, scoped down to the moves whose
-        # sale_line_id belongs to this sibling (stock_stock.move.
-        # sale_line_id is set by core sale_stock's own stock rules).
+        # Fix 2026-09-22 round 9 (user-directed, real production bug,
+        # order S978385/pack 2000015158767125): Mercado Libre can file
+        # ONE devolución document whose own concepts span MULTIPLE
+        # individual orders within the same pack — confirmed here: the
+        # XML total ($497.30) equals the ENTIRE invoice's own total, with
+        # one concept for THIS notified sibling (JCP03) and one for a
+        # DIFFERENT sibling (CJC01) that was never itself reported
+        # 'cancelled'. _meli_relate_partial_cancellation_credit_note
+        # already matches and credits every one of those concepts
+        # against the sale's own lines regardless of which sibling
+        # triggered this call (see its own docstring: "matched across
+        # the WHOLE pack's invoice, not just cancelled_order_id's own
+        # sibling") — but the physical return below used to stay scoped
+        # to `lines` (this one sibling only), leaving the other
+        # sibling's own already-delivered stock never returned even
+        # though its product was already fiscally credited in the very
+        # same credit note. The credit note actually built is the
+        # ground truth for what Mercado Libre is reversing — the return
+        # must cover whatever it covers. Falls back to the original,
+        # narrower `lines` when the credit note has no product line(s)
+        # of its own to key off (e.g. a discount-only line, which
+        # deliberately carries no sale_line_ids — see Fix round 5's own
+        # comment below), preserving the old, single-sibling behaviour
+        # in every other case.
+        credited_lines = credit_note.invoice_line_ids.mapped('sale_line_ids') & self.order_line
+        lines = credited_lines or lines
+
+        # ---- Inventory: return every delivered move belonging to
+        # whichever line(s) this credit note actually covers (see the
+        # comment above — usually just this sibling's own line(s), but
+        # not always). Same by-code stock.return.picking pattern as
+        # _meli_return_full_pickings.
         done_pickings = self.picking_ids.filtered(
             lambda p: p.state == 'done' and p.picking_type_id.code == 'outgoing'
         )
@@ -1977,6 +2029,17 @@ class SaleOrder(models.Model):
             }
             for line in lines
         )
+        # Fix 2026-09-22 round 9 (see the `credited_lines`/`lines`
+        # reassignment above): once the credit note's own concepts span
+        # more than just the notified sibling, the "other sibling(s)
+        # left completely untouched" wording below would be flatly
+        # false — this pack DID have another individual order's own
+        # stock/credit touched, by the very same document. Reported as
+        # its own extra sentence rather than rewriting every branch's
+        # wording inline.
+        other_covered_sibling_ids = (
+            set(lines.mapped('meli_order_id')) - {False, cancelled_order_id}
+        )
         if not total_delivered_qty:
             # (a) Never delivered at all — nothing physical to return.
             message = _(
@@ -2017,10 +2080,18 @@ class SaleOrder(models.Model):
                 "sibling(s) were left completely untouched."
                 "<br/>Line(s): %(product_lines)s."
             ) % {'order_id': cancelled_order_id, 'product_lines': product_lines or '-'}
+        if other_covered_sibling_ids:
+            message += '<br/>' + _(
+                "The related credit note's own concepts also covered "
+                "%(other_ids)s — a DIFFERENT individual order within "
+                "this same pack, never itself reported 'cancelled' — so "
+                "its own delivered stock was returned here too, since "
+                "Mercado Libre already credited it in the same document."
+            ) % {'other_ids': ', '.join(sorted(other_covered_sibling_ids))}
         if credit_note:
             message += '<br/>' + _(
-                "Credit note %s covers this sibling's own portion of the "
-                "invoice."
+                "Credit note %s covers this document's own portion of "
+                "the invoice."
             ) % credit_note.name
         self.message_post(body=message)
 
@@ -2564,22 +2635,34 @@ class SaleOrder(models.Model):
                     # the chatter.
                     reconcile_failed = False
                     try:
-                        self._meli_reconcile_invoicing()
+                        # Fix 2026-09-24 (real production bug, orders
+                        # 993840/994428, user-directed): a real
+                        # PostgreSQL error inside the reconciler (e.g. a
+                        # NOT NULL violation) aborts the transaction —
+                        # this method used to call
+                        # _meli_recover_aborted_transaction() here, which
+                        # did a bare self.env.cr.rollback(). That's a
+                        # FULL transaction rollback, not a scoped one —
+                        # nested inside queue_job_cron_jobrunner's own
+                        # per-job savepoint (this whole method runs
+                        # inside a queue.job), it silently invalidated
+                        # THAT outer savepoint too. The job's own later
+                        # attempt to roll back to it then raised
+                        # InvalidSavepointSpecification, cascading into
+                        # InFailedSqlTransaction and leaving the job
+                        # permanently stuck 'pending' — blocking every
+                        # other job behind it in the queue, confirmed
+                        # exactly this way in production. A `with
+                        # self.env.cr.savepoint():` here instead performs
+                        # a properly SCOPED rollback (ROLLBACK TO
+                        # SAVEPOINT, not a bare ROLLBACK) on failure,
+                        # restoring a clean, postable transaction state
+                        # without touching anything outside this
+                        # method's own boundary — the chatter message
+                        # below still posts fine either way.
+                        with self.env.cr.savepoint():
+                            self._meli_reconcile_invoicing()
                     except Exception:
-                        # Safety net only: a real PostgreSQL error (e.g. a
-                        # NOT NULL violation somewhere inside the
-                        # reconciler) aborts the transaction and would
-                        # make the message_post() below fail with
-                        # InFailedSqlTransaction too, leaving the operator
-                        # with no chatter message at all and nothing but a
-                        # failed queue job. So recover the transaction
-                        # FIRST, before trying to report anything.
-                        # _meli_recover_aborted_transaction()
-                        # is itself a no-op unless the transaction is
-                        # genuinely broken (or under tests), so it's safe
-                        # to call unconditionally here even for an
-                        # ordinary, non-DB exception.
-                        self._meli_recover_aborted_transaction()
                         _logger.exception(
                             "Mercado Libre order %s: stock return and sale "
                             "cancellation succeeded, but reconciling "
@@ -2776,7 +2859,21 @@ class SaleOrder(models.Model):
             with self.env.cr.savepoint():
                 self._meli_reconcile_invoicing()
         except Exception:
-            self._meli_recover_aborted_transaction()
+            # Fix 2026-09-24 (real production bug, orders 993840/994428):
+            # this used to also call _meli_recover_aborted_transaction()
+            # here — a bare self.env.cr.rollback() (FULL transaction
+            # rollback), redundant with — and far more destructive than
+            # — the `with self.env.cr.savepoint():` above, which already
+            # rolls back cleanly to just this method's own boundary the
+            # instant the exception happens. That extra full rollback
+            # corrupted queue_job_cron_jobrunner's own outer per-job
+            # savepoint, which doesn't exist to roll back to anymore by
+            # the time the job runner itself tries — the exact
+            # InvalidSavepointSpecification/InFailedSqlTransaction
+            # cascade confirmed in production, leaving the job stuck
+            # 'pending' forever and blocking everything queued behind
+            # it. See this method's own Phase 2 equivalent below for the
+            # same fix, and _meli_flag_status_change's matching one.
             _logger.exception(
                 "Mercado Libre order %s: could not create/relate this "
                 "order's own invoice before automatic cancellation-on-"
@@ -2834,9 +2931,16 @@ class SaleOrder(models.Model):
 
         reconcile_failed = False
         try:
-            self._meli_reconcile_invoicing()
+            # Fix 2026-09-24: same scoped-savepoint fix as the try/except
+            # above — see its own comment for the full story (real
+            # production bug, orders 993840/994428). This call used to
+            # run unwrapped, with _meli_recover_aborted_transaction()'s
+            # bare self.env.cr.rollback() as the only recovery on
+            # failure — a full transaction rollback that corrupted
+            # queue_job_cron_jobrunner's own outer per-job savepoint.
+            with self.env.cr.savepoint():
+                self._meli_reconcile_invoicing()
         except Exception:
-            self._meli_recover_aborted_transaction()
             _logger.exception(
                 "Mercado Libre order %s: stock return and sale "
                 "cancellation succeeded, but reconciling invoicing "
@@ -3774,10 +3878,7 @@ class SaleOrder(models.Model):
                 invoice_date = self._meli_document_invoice_date(invoice_document)
                 if invoice_date:
                     new_invoice.invoice_date = invoice_date
-                # 2026-09-21 (user decision): 'resale'/'1P' sales bill to
-                # DEREMATE.COM DE MEXICO, not Mercado Libre's own billing
-                # contact — see _meli_invoice_partner_id's own docstring.
-                new_invoice.partner_id = self._meli_invoice_partner_id(invoice_document, config)
+                new_invoice.partner_id = config.partner_id.id
                 new_invoice.action_post()
                 self._meli_relate_invoice_document(new_invoice, invoice_document)
                 self.message_post(body=_(
@@ -4170,10 +4271,6 @@ class SaleOrder(models.Model):
                 credit_note_date = self._meli_document_invoice_date(credit_note_document)
                 if credit_note_date:
                     credit_note.invoice_date = credit_note_date
-                # 2026-09-21 (user decision): same 'resale'/'1P' billing
-                # rule as the invoice step above — the wizard otherwise
-                # copies source_invoice's own partner_id unchanged.
-                credit_note.partner_id = self._meli_invoice_partner_id(credit_note_document, config)
                 credit_note.action_post()
             elif is_confirmed_partial_refund:
                 # Confirmed partial refund: the order stays exactly as
@@ -4228,26 +4325,6 @@ class SaleOrder(models.Model):
                 "Mercado Libre document %(document)s."
             ) % {'credit_note': credit_note.name,
                  'document': credit_note_document.meli_invoice_id or credit_note_document.id})
-
-    def _meli_invoice_partner_id(self, document, config):
-        """Which res.partner a factura/nota de crédito this document
-        creates should bill to (2026-09-21, user decision): DEREMATE.COM
-        DE MEXICO (MELI_DEREMATE_PARTNER_ID) for a 'resale'/'1P' sale,
-        Mercado Libre's own billing contact (config.partner_id)
-        otherwise — today's existing default, unchanged.
-
-        Checks BOTH this document's own meli_bill_to_deremate (transaction_
-        type or its CFDI's own Emisor Rfc, see that field's help text)
-        AND this order's own meli_transaction_type == 'resale' — the
-        latter catches a credit note whose own transaction_type
-        ('devolution') doesn't by itself say 'resale', but belongs to an
-        order already known to be one from its own factura document.
-        """
-        bill_to_deremate = bool(
-            self.meli_transaction_type == 'resale'
-            or (document and document.meli_bill_to_deremate)
-        )
-        return MELI_DEREMATE_PARTNER_ID if bill_to_deremate else config.partner_id.id
 
     @staticmethod
     def _meli_document_invoice_date(document):
@@ -4565,12 +4642,6 @@ class SaleOrder(models.Model):
         meli_invoice_not_usable_statuses = (
             MELI_INVOICE_DEAD_STATUSES | MELI_INVOICE_NOT_YET_AUTHORIZED_STATUSES
         )
-        # 2026-09-21: needed by _meli_invoice_partner_id's own "not
-        # resale/1P" fallback, same lookup _meli_reconcile_invoicing
-        # itself already does.
-        config = self.env['meli.config'].sudo().search([
-            ('company_id', '=', self.company_id.id), ('state', '=', 'connected'),
-        ], limit=1)
 
         # Scoped to THIS sibling's own meli_order_id, deliberately NOT to
         # sale_order_id (which _meli_reconcile_invoicing's own search
@@ -4835,55 +4906,74 @@ class SaleOrder(models.Model):
             for matched_line in matched_lines:
                 vals = matched_line._prepare_invoice_line()
                 concept = matched_concept_by_line_id.get(matched_line.id)
-                if concept and abs(
-                    concept['importe'] - concept['cantidad'] * matched_line.price_unit
-                ) > 0.05:
-                    # Fix 2026-09-22 round 4 (user-directed, real case
-                    # above): a genuine DISCOUNT-type partial refund —
-                    # same quantity as the sale, no units returned (the
-                    # pack branch above only reaches this method for a
-                    # confirmed partially_refunded status, never a
-                    # cancellation), but Mercado Libre's own CFDI
-                    # amount is LESS than cantidad × this line's normal
-                    # unit price (here, exactly 90% of it). Copying the
-                    # sale line's own full price like the plain-return
-                    # case below would over-credit the customer by the
-                    # difference. The document's own amount is used
-                    # directly as this line's price instead — "the
-                    # document IS the truth", the same principle this
-                    # method already applies to WHICH products/
-                    # quantities to credit, now extended to HOW MUCH.
+                if concept:
+                    # Fix 2026-09-24 (real production bug, order
+                    # S975652/pack 2000015132783453, user-directed): a
+                    # genuine partial-QUANTITY refund (here: 1 of the 2
+                    # units ordered) used to fall into the `else` branch
+                    # below — abs(concept['importe'] - concept['cantidad']
+                    # * matched_line.price_unit) reads well under the
+                    # 5-cent tolerance for this exact case (the concept's
+                    # own amount already IS cantidad × the normal unit
+                    # price, just for the REDUCED cantidad, not the
+                    # line's full product_uom_qty) — so this used to
+                    # silently credit the line's FULL ordered quantity
+                    # (2 units, the whole order's own total) for what
+                    # Mercado Libre's own document plainly reports as a
+                    # refund of only 1. The document's own concept is
+                    # always the ground truth for how much to credit —
+                    # never the sale line's own ordered quantity, which
+                    # this automation never touches (see this method's
+                    # own docstring) and so has no idea how many units
+                    # were actually returned.
                     vals['quantity'] = concept['cantidad']
-                    vals['price_unit'] = concept['importe'] / concept['cantidad']
-                    # Fix 2026-09-22 round 6 (real regression round 5's
-                    # own fix introduced, caught by the test suite) — see
-                    # _meli_build_partial_credit_note's own identical fix
-                    # for the full explanation: sale_line_ids is kept
-                    # (never popped) here — removing it also made this
-                    # line invisible to sale.order.invoice_ids itself
-                    # (Odoo core computes that purely from order_line.
-                    # invoice_lines.move_id, the same inverse relation),
-                    # breaking source_invoice/existing_refund lookups and
-                    # the "Facturas" smart button for this credit note.
-                    # meli_discount_adjustment flags this line instead, so
-                    # SaleOrderLine._compute_qty_invoiced's own override
-                    # adds its quantity back after core's subtraction —
-                    # never returned, so it must never net qty_invoiced
-                    # down, but still needs to stay linked to the sale
-                    # line for everything else.
-                    vals['meli_discount_adjustment'] = True
+                    if abs(
+                        concept['importe'] - concept['cantidad'] * matched_line.price_unit
+                    ) > 0.05:
+                        # Fix 2026-09-22 round 4 (user-directed, real
+                        # case above): a genuine DISCOUNT-type partial
+                        # refund — same quantity as the sale, no units
+                        # returned, but Mercado Libre's own CFDI amount
+                        # is LESS than cantidad × this line's normal
+                        # unit price (here, exactly 90% of it). Copying
+                        # the sale line's own normal price would
+                        # over-credit the customer by the difference.
+                        # The document's own amount is used directly as
+                        # this line's price instead — "the document IS
+                        # the truth", the same principle this method
+                        # already applies to WHICH products/quantities
+                        # to credit, now extended to HOW MUCH.
+                        vals['price_unit'] = concept['importe'] / concept['cantidad']
+                        # Fix 2026-09-22 round 6 (real regression round 5's
+                        # own fix introduced, caught by the test suite) — see
+                        # _meli_build_partial_credit_note's own identical fix
+                        # for the full explanation: sale_line_ids is kept
+                        # (never popped) here — removing it also made this
+                        # line invisible to sale.order.invoice_ids itself
+                        # (Odoo core computes that purely from order_line.
+                        # invoice_lines.move_id, the same inverse relation),
+                        # breaking source_invoice/existing_refund lookups and
+                        # the "Facturas" smart button for this credit note.
+                        # meli_discount_adjustment flags this line instead, so
+                        # SaleOrderLine._compute_qty_invoiced's own override
+                        # adds its quantity back after core's subtraction —
+                        # never returned, so it must never net qty_invoiced
+                        # down, but still needs to stay linked to the sale
+                        # line for everything else.
+                        vals['meli_discount_adjustment'] = True
                 else:
+                    # No readable concept for this line at all (the
+                    # "Fallback (no readable concepts on this XML)"
+                    # branch above) — the whole-line, full-quantity
+                    # credit is the correct behavior ONLY in that
+                    # genuinely concept-free case.
                     vals['quantity'] = matched_line.product_uom_qty
                 line_vals_list.append(vals)
 
             credit_note = self.env['account.move'].create({
                 'move_type': 'out_refund',
                 'reversed_entry_id': source_invoice.id,
-                # 2026-09-21 (user decision): 'resale'/'1P' sales bill
-                # to DEREMATE.COM DE MEXICO, not source_invoice's own
-                # partner — see _meli_invoice_partner_id's own
-                # docstring.
-                'partner_id': self._meli_invoice_partner_id(credit_note_document, config),
+                'partner_id': source_invoice.partner_id.id,
                 'currency_id': source_invoice.currency_id.id,
                 'company_id': source_invoice.company_id.id,
                 # Fix 4 (2026-09-09, user-directed follow-up): dated from
@@ -4930,28 +5020,25 @@ class SaleOrder(models.Model):
             return True
         return False
 
-    def _meli_recover_aborted_transaction(self):
-        """After a real PostgreSQL error the transaction is aborted, and
-        every later query — including the chatter message the operator
-        still needs — fails with InFailedSqlTransaction. Rolling back is
-        what makes reporting possible again.
-
-        Guarded by the exact same _can_commit() check as the Phase 1
-        commit, for the same reason: under tests self.env.cr is a REAL
-        cursor, so an unconditional rollback would throw away the test's
-        own fixtures — and there is nothing to recover from anyway,
-        because l10n_mx_edi's PAC code doesn't commit under tests either.
-        """
-        if self.env['l10n_mx_edi.document']._can_commit():
-            self.env.cr.rollback()
+    # Fix 2026-09-24: _meli_recover_aborted_transaction() used to live
+    # here — a bare self.env.cr.rollback() (full transaction rollback)
+    # called from inside the except blocks above whenever
+    # _meli_reconcile_invoicing() failed. Removed entirely: every one of
+    # its call sites now wraps the risky call in its own `with
+    # self.env.cr.savepoint():` instead, which performs the equivalent
+    # recovery (a clean, postable transaction, ready for the chatter
+    # message that follows) via a properly SCOPED rollback (ROLLBACK TO
+    # SAVEPOINT) rather than a full one. The full rollback this method
+    # did was nested inside queue_job_cron_jobrunner's own outer per-job
+    # savepoint (this whole call chain runs inside a queue.job) and
+    # silently invalidated it — confirmed in production (orders
+    # 993840/994428) via the resulting InvalidSavepointSpecification /
+    # InFailedSqlTransaction cascade, which left the job stuck 'pending'
+    # forever and blocked every other job queued behind it.
 
     @api.model
     def _meli_create_from_order_data(self, config, order_data):
         order_id = str(order_data.get('id'))
-        existing = self.search([('meli_order_id', '=', order_id)], limit=1)
-        if existing:
-            return existing
-
         # pack_id has to be known before the 'not paid yet' check below:
         # a status-change notification for a sibling order (cancelled,
         # pending_cancel, partially_refunded — see
@@ -4966,6 +5053,43 @@ class SaleOrder(models.Model):
         # is spec section 5, explicitly paused) — this only restores the
         # manual-review chatter visibility a non-pack order already had.
         pack_id = str(order_data.get('pack_id') or '') or False
+
+        # Fix 2026-09-24 (real production bug, packs 2000015175016735/
+        # 2000015180304759, and — round 2 — plain non-pack orders
+        # 993840/994428/994473, all user-directed): two queue.job
+        # workers running genuinely concurrently (confirmed: this
+        # started right after a second "Queue Job Runner" cron was
+        # added) can both reach the "does a sale.order already exist
+        # for this?" check below before either one's own create() has
+        # committed — both see nothing, both create their OWN separate
+        # sale.order for the same real Mercado Libre order/pack. Round 1
+        # only locked by pack_id, on the theory that a plain, non-pack
+        # order was already fully covered by the `existing` search
+        # further below — wrong: that search is read-only and racy just
+        # like the pack one, and round 2's real production evidence
+        # (three separate 'cancelled on arrival' orders, each crashing
+        # with MissingError on a sale.order its OWN job had just
+        # created and lost to a concurrent duplicate) confirmed the
+        # exact same race happens for a lone order too. Locked by
+        # `pack_id or order_id` now, and moved BEFORE the `existing`
+        # search below (not just before the pack-sibling branch), so
+        # the entire "does this already exist? if not, create it" check
+        # is atomic for BOTH shapes — a Postgres transaction-scoped
+        # advisory lock: the second worker blocks here until the first
+        # one's transaction (its own queue.job commit, per
+        # queue_job_cron_jobrunner's own commit=True) is done, then sees
+        # the first worker's sale.order for real instead of racing past
+        # it. hashtext() collapses the id string to the int Postgres'
+        # single-argument pg_advisory_xact_lock overload expects; a hash
+        # collision between two DIFFERENT ids would only ever cost
+        # unnecessary serialization between them, never incorrect data.
+        self.env.cr.execute(
+            "SELECT pg_advisory_xact_lock(hashtext(%s))", (pack_id or order_id,),
+        )
+
+        existing = self.search([('meli_order_id', '=', order_id)], limit=1)
+        if existing:
+            return existing
 
         # Adopt a sale.order some OTHER system (Ventiapp, this
         # connector's predecessor) already created for this same real
@@ -5352,7 +5476,39 @@ class SaleOrder(models.Model):
                 # already-cancelled-pack branch above — see that call's
                 # own comment for why this needs to happen explicitly
                 # right here, not left to some other event.
-                pack_order._meli_reconcile_invoicing()
+                #
+                # Fix 2026-09-23 (real production bug, pack
+                # 2000015116272807/S847810): left completely unguarded
+                # before this fix — when pack_order is already 'cancel'
+                # (its own first-seen sibling arrived already cancelled
+                # and went through the full recovery sequence before
+                # this LATER sibling was even known), _create_invoices()
+                # inside _meli_reconcile_invoicing() raises UserError
+                # ("no hay artículos disponibles para facturar") since a
+                # cancelled sale has nothing invoiceable. Uncaught here,
+                # that exception aborted the ENTIRE call — including the
+                # sibling line _meli_add_pack_sibling_lines had JUST
+                # added moments above — so the sibling's own line was
+                # silently lost on every single retry (all 8, identical
+                # failure each time), never surfacing anywhere for a
+                # human to see. Same savepoint + broad except convention
+                # stock_picking.py's own _action_done already uses for
+                # this exact same call (a failure here is an invoicing/
+                # CFDI-side hiccup, never a reason to lose commercial
+                # data — the sale itself, the line just added, and this
+                # sibling's own eventual cancellation/stock-return are
+                # all handled elsewhere and must survive regardless).
+                try:
+                    with self.env.cr.savepoint():
+                        pack_order._meli_reconcile_invoicing()
+                except Exception:
+                    _logger.exception(
+                        "Mercado Libre order %s: invoicing reconciliation "
+                        "failed after adding individual order %s's own "
+                        "line to this pack — left pending for manual "
+                        "review (the line itself was kept).",
+                        pack_order.client_order_ref, order_id,
+                    )
                 return added_to
 
         resolved_lines, unmapped_skus = self._meli_build_order_lines(order_data, order_id)

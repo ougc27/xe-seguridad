@@ -77,18 +77,6 @@ MELI_INVOICE_DEAD_STATUSES = {'rejected', 'cancelled', 'canceled'}
 # one, so it keeps being treated as ready, exactly as before this fix.
 MELI_INVOICE_NOT_YET_AUTHORIZED_STATUSES = {'pending_authorization', 'interrupted'}
 
-# Fix 2026-09-21 (user-directed): a '1P' (First Party) Mercado Libre sale
-# — XE sells at wholesale and Mercado Libre itself sets the final price,
-# markets and delivers it — has no dedicated flag anywhere in the API the
-# user is aware of. The user's own fallback: this document's own CFDI
-# Emisor Rfc (the entity that actually stamped it) is DCM991109KR2 —
-# DEREMATE.COM DE MEXICO, S. DE R.L. DE C.V. — whenever a '1P' sale gets
-# invoiced under that entity rather than Mercado Libre's own. See
-# sale.order._meli_invoice_partner_id, which uses this together with the
-# 'resale' scheme to decide which partner a factura/nota de crédito bills.
-MELI_DEREMATE_RFC = 'DCM991109KR2'
-
-
 class MeliInvoiceDocument(models.Model):
     _name = 'meli.invoice.document'
     _description = 'Mercado Libre Invoice/Credit Note (native invoicer XML)'
@@ -257,25 +245,6 @@ class MeliInvoiceDocument(models.Model):
              "cfdi:Comprobante node) — the real fiscal total Mercado "
              "Libre invoiced, independent of whatever Odoo's own sale "
              "order computed. 0.0 when there's no XML yet.",
-    )
-    meli_emisor_rfc = fields.Char(
-        string='Issuer RFC (XML)', compute='_compute_meli_emisor_rfc', store=True,
-        help="The RFC stamped on the CFDI's own cfdi:Emisor node — "
-             "whichever real fiscal entity actually issued this document "
-             "(Mercado Libre's own, or DEREMATE.COM DE MEXICO for a '1P' "
-             "sale — see MELI_DEREMATE_RFC in this file). Empty when "
-             "there's no XML yet or it couldn't be parsed.",
-    )
-    meli_bill_to_deremate = fields.Boolean(
-        string='Bill To Deremate', compute='_compute_meli_bill_to_deremate',
-        store=True,
-        help="True for a 'resale'/'resale_devolution' document, or one "
-             "whose own meli_emisor_rfc is DEREMATE.COM DE MEXICO's RFC "
-             "(DCM991109KR2) — the two ways a '1P' sale is recognisable "
-             "today (2026-09-21, user decision). Used by "
-             "sale.order._meli_invoice_partner_id to bill the factura/"
-             "nota de crédito this document creates to DEREMATE.COM DE "
-             "MEXICO instead of Mercado Libre's own billing contact.",
     )
     meli_amount_mismatch = fields.Boolean(
         string='Invoice/Sale Amount Mismatch', compute='_compute_meli_amount_mismatch',
@@ -502,24 +471,6 @@ class MeliInvoiceDocument(models.Model):
                     base64.b64decode(document.xml_file)
                 )
             document.meli_xml_total = xml_total or 0.0
-
-    @api.depends('xml_file')
-    def _compute_meli_emisor_rfc(self):
-        for document in self:
-            emisor_rfc = False
-            if document.xml_file:
-                emisor_rfc = self._meli_parse_emisor_rfc_from_xml(
-                    base64.b64decode(document.xml_file)
-                )
-            document.meli_emisor_rfc = emisor_rfc or False
-
-    @api.depends('transaction_type', 'meli_emisor_rfc')
-    def _compute_meli_bill_to_deremate(self):
-        for document in self:
-            document.meli_bill_to_deremate = bool(
-                document.transaction_type in ('resale', 'resale_devolution')
-                or document.meli_emisor_rfc == MELI_DEREMATE_RFC
-            )
 
     @api.depends(
         'meli_xml_total', 'meli_has_xml', 'sale_order_id.amount_total',
@@ -786,6 +737,15 @@ class MeliInvoiceDocument(models.Model):
         meli.config (true today: XE Brands) and uses its company_id for
         every orphaned document found. Revisit if a second company ever
         gets its own Mercado Libre connection.
+
+        Fix 2026-09-24 (real production incident, order_id
+        2000000005969244, documents 15630/15678): excludes transaction_
+        type 'service_test' — Mercado Libre's own connectivity test
+        ping, sent periodically against a made-up order_id that will
+        never exist. Without this, every cycle re-enqueues
+        _meli_import_order for it, which 404s against the real API
+        forever — this order_id alone had retried every 30 minutes for
+        over a week straight before being noticed.
         """
         config = self.env['meli.config'].sudo().search([
             ('state', '=', 'connected'),
@@ -794,6 +754,7 @@ class MeliInvoiceDocument(models.Model):
             return
         orphaned_order_ids = set(self.sudo().search([
             ('sale_order_id', '=', False), ('meli_order_id', '!=', False),
+            ('transaction_type', '!=', 'service_test'),
         ]).mapped('meli_order_id'))
         for order_id in orphaned_order_ids:
             self.env['sale.order'].sudo().with_delay(
@@ -1059,28 +1020,6 @@ class MeliInvoiceDocument(models.Model):
             return float(total)
         except ValueError:
             return False
-
-    @staticmethod
-    def _meli_parse_emisor_rfc_from_xml(xml_bytes):
-        """The CFDI's own cfdi:Emisor Rfc attribute — the real fiscal
-        entity that stamped this specific document, used to recognise a
-        '1P' sale invoiced under DEREMATE.COM DE MEXICO instead of
-        Mercado Libre's own entity (see MELI_DEREMATE_RFC). Namespace-
-        agnostic (etree.QName(node).localname), same technique as
-        _meli_parse_concepts_from_xml, since a CFDI's namespace prefix
-        isn't guaranteed. Returns False (never raises) on malformed XML
-        or a missing Emisor/Rfc, same convention as every other XML
-        parser in this class.
-        """
-        try:
-            root = etree.fromstring(xml_bytes)
-        except etree.XMLSyntaxError:
-            return False
-        for node in root.iter():
-            if etree.QName(node).localname != 'Emisor':
-                continue
-            return node.get('Rfc') or False
-        return False
 
     @staticmethod
     def _meli_parse_concepts_from_xml(xml_bytes):

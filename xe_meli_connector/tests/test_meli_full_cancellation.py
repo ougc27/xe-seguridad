@@ -314,51 +314,25 @@ class TestMeliFullCancellationAutomation(TransactionCase):
         self.assertEqual(len(order.picking_ids), picking_count_before)
         self.assertIn('review manually', self._chatter(order))
 
-    def test_recover_aborted_transaction_rolls_back_only_when_allowed(self):
-        """Important #1, the guard itself: the rollback must be gated by
-        the same _can_commit() check as the Phase 1 commit, or it would
-        destroy the fixtures of every test that ever reaches it.
-        """
-        order = self._create_full_order('FCXT-0017')
-        document_model = type(self.env['l10n_mx_edi.document'])
-
-        with patch.object(type(self.env.cr), 'rollback') as mock_rollback:
-            order._meli_recover_aborted_transaction()
-        mock_rollback.assert_not_called()
-
-        with patch.object(
-            document_model, '_can_commit', return_value=True,
-        ), patch.object(type(self.env.cr), 'rollback') as mock_rollback:
-            order._meli_recover_aborted_transaction()
-        mock_rollback.assert_called_once()
-
     def test_real_database_error_still_posts_a_chatter_message(self):
-        """Important #1: a genuine PostgreSQL error inside Phase 2 (not
-        just a Python exception) aborts the transaction, and every later
-        query — including the chatter message the operator needs — then
-        fails with InFailedSqlTransaction. The operator would be left
-        with nothing but a failed queue job.
-
-        Under tests the production rollback is a deliberate no-op (a real
-        one would throw away this test's own fixtures), so the recovery
-        hook is patched with the test-scoped equivalent: ROLLBACK TO a
-        savepoint taken just before the call. What that verifies is
-        exactly the bug — the hook is reached on this path, before
-        message_post — plus the fact that once the transaction is
-        recovered, the message really does get posted. The guard's own
-        _can_commit() gating is covered by the test above.
+        """Fix 2026-09-24 (real production bug, orders 993840/994428/
+        994473): a genuine PostgreSQL error inside Phase 2 aborts the
+        transaction. This used to be recovered via
+        _meli_recover_aborted_transaction() — a bare self.env.cr.
+        rollback() (a FULL transaction rollback) — which, in production,
+        silently invalidated queue_job_cron_jobrunner's own outer
+        per-job savepoint (this whole call chain runs inside a
+        queue.job), cascading into InvalidSavepointSpecification /
+        InFailedSqlTransaction and leaving the job stuck 'pending'
+        forever, blocking every other job queued behind it. That method
+        is gone now — the reconcile call is wrapped in its own `with
+        self.env.cr.savepoint():` instead, which recovers via a properly
+        SCOPED ROLLBACK TO SAVEPOINT, touching only this method's own
+        boundary. This proves that recovery still works: the chatter
+        message below still posts fine after a real DB-level failure,
+        not just an ordinary Python exception.
         """
         order = self._create_full_order('FCXT-0018')
-        self.env.flush_all()
-        self.env.cr.execute('SAVEPOINT meli_i1_test')
-        recovered = []
-
-        def _recover(*args, **kwargs):
-            self.env.cr.execute('ROLLBACK TO SAVEPOINT meli_i1_test')
-            # What the real cr.rollback() also does: drop the ORM caches
-            # and any pending writes, which no longer match the database.
-            self.env.cr.clear()
-            recovered.append(True)
 
         def _abort_the_transaction(*args, **kwargs):
             # A real database error, rejected by PostgreSQL itself rather
@@ -371,17 +345,9 @@ class TestMeliFullCancellationAutomation(TransactionCase):
         with patch.object(
             type(order), '_meli_reconcile_invoicing',
             side_effect=_abort_the_transaction,
-        ), patch.object(
-            type(order), '_meli_recover_aborted_transaction',
-            side_effect=_recover,
         ):
             order._meli_flag_status_change(self._order_data())
 
-        self.assertTrue(
-            recovered,
-            "the transaction-recovery hook was never reached — the "
-            "chatter message would have died with InFailedSqlTransaction",
-        )
         self.assertIn('manual review', self._chatter(order))
 
     def test_invoice_reconciliation_failure_does_not_roll_back_stock_and_sale(self):
@@ -2057,7 +2023,7 @@ class TestMeliInvoicingLifecycle(TransactionCase):
         return order, second_product
 
     def test_partial_cancellation_only_touches_the_cancelled_siblings_line(self):
-        order, _second_product = self._create_meli_pack(
+        order, second_product = self._create_meli_pack(
             'FIVT-PACK', 'FIVT-PACK-A', 'ZTEST-FIVT', 'FIVT-PACK-B', 'ZTEST-FIVT-2',
         )
         line_a = order.order_line.filtered(lambda l: l.meli_order_id == 'FIVT-PACK-A')
@@ -2073,10 +2039,25 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             'xml_file': base64.b64encode(self._fake_cfdi_xml('945')),
         })
         order._meli_reconcile_invoicing()
-        # No credit-note document exists yet for this sibling — this
-        # covers the "physical return happens before Mercado Libre's own
-        # credit-note webhook arrives" ordering too: stock/quantity must
-        # still be resolved correctly even with nothing yet to credit.
+        # Fix 2026-09-24 (round 8's own "if not credit_note: return"
+        # guard, added in an earlier session, made this test's own
+        # premise — a stock return with no credit-note document at all
+        # — impossible: physically returning stock without ever
+        # crediting it back would leave a real inconsistency (see
+        # _meli_apply_partial_cancellation's own docstring). A
+        # devolution document naming sibling B's own product by exact
+        # name is enough for _meli_relate_partial_cancellation_credit_
+        # note's layer-1 match to resolve it unambiguously, regardless
+        # of sibling A also being on the same order.
+        self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-PACK-B', 'transaction_type': 'devolution',
+            'meli_invoice_id': '9000000000000176',
+            'xml_file': base64.b64encode(
+                self._fake_multi_concept_credit_note_xml(
+                    '1076', [(second_product.name, 1, 100.0)],
+                )
+            ),
+        })
         outbound_picking = order.picking_ids
 
         order._meli_process_partial_cancellation('FIVT-PACK-B')
@@ -2097,7 +2078,12 @@ class TestMeliInvoicingLifecycle(TransactionCase):
         # delivered move must still show no return of its own.
         line_a_move = outbound_picking.move_ids.filtered(lambda m: m.sale_line_id == line_a)
         self.assertFalse(line_a_move.returned_move_ids)
-        self.assertFalse(order.invoice_ids.filtered(lambda m: m.move_type == 'out_refund'))
+        # The devolution document above IS a credit note for sibling B's
+        # own product — it must be related now (the whole reason the
+        # stock return above was even allowed to proceed).
+        credit_note = order.invoice_ids.filtered(lambda m: m.move_type == 'out_refund')
+        self.assertTrue(credit_note)
+        self.assertEqual(credit_note.invoice_line_ids.product_id, second_product)
         self.assertTrue(any(
             'FIVT-PACK-B' in (msg.body or '') for msg in order.message_ids
         ))
@@ -2144,7 +2130,7 @@ class TestMeliInvoicingLifecycle(TransactionCase):
         the transfer "never completed" / "no delivered stock" when it
         plainly was delivered and already returned, the first time.
         """
-        order, _second_product = self._create_meli_pack(
+        order, second_product = self._create_meli_pack(
             'FIVT-PACK-CHAT', 'FIVT-PACK-CHAT-A', 'ZTEST-FIVT-CHAT-A',
             'FIVT-PACK-CHAT-B', 'ZTEST-FIVT-CHAT-B',
         )
@@ -2158,6 +2144,19 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             'xml_file': base64.b64encode(self._fake_cfdi_xml('947')),
         })
         order._meli_reconcile_invoicing()
+        # Fix 2026-09-24 (round 8's own "if not credit_note: return"
+        # guard): see test_partial_cancellation_only_touches_the_
+        # cancelled_siblings_line's own identical fix for the full
+        # explanation.
+        self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-PACK-CHAT-B', 'transaction_type': 'devolution',
+            'meli_invoice_id': '9000000000000178',
+            'xml_file': base64.b64encode(
+                self._fake_multi_concept_credit_note_xml(
+                    '1078', [(second_product.name, 1, 100.0)],
+                )
+            ),
+        })
         order._meli_process_partial_cancellation('FIVT-PACK-CHAT-B')
 
         order._meli_process_partial_cancellation('FIVT-PACK-CHAT-B')
@@ -2292,7 +2291,7 @@ class TestMeliInvoicingLifecycle(TransactionCase):
         return order, second_product
 
     def test_partial_cancellation_wired_through_flag_status_change(self):
-        order, _second_product = self._create_meli_full_pack(
+        order, second_product = self._create_meli_full_pack(
             'FIVT-PACKW', 'FIVT-PACKW-A', 'ZTEST-FIVTW-A', 'FIVT-PACKW-B', 'ZTEST-FIVTW-B',
         )
         line_a = order.order_line.filtered(lambda l: l.meli_order_id == 'FIVT-PACKW-A')
@@ -2306,6 +2305,19 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             'xml_file': base64.b64encode(self._fake_cfdi_xml('948')),
         })
         order._meli_reconcile_invoicing()
+        # Fix 2026-09-24 (round 8's own "if not credit_note: return"
+        # guard): see test_partial_cancellation_only_touches_the_
+        # cancelled_siblings_line's own identical fix for the full
+        # explanation.
+        self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-PACKW-B', 'transaction_type': 'devolution',
+            'meli_invoice_id': '9000000000000179',
+            'xml_file': base64.b64encode(
+                self._fake_multi_concept_credit_note_xml(
+                    '1079', [(second_product.name, 1, 100.0)],
+                )
+            ),
+        })
 
         order._meli_flag_status_change({'id': 'FIVT-PACKW-B', 'status': 'cancelled'})
 
@@ -2333,7 +2345,7 @@ class TestMeliInvoicingLifecycle(TransactionCase):
         policy — proven here by asserting the invoice exists BEFORE
         checking the return.
         """
-        order, _second_product = self._create_meli_full_pack(
+        order, second_product = self._create_meli_full_pack(
             'FIVT-PACK7', 'FIVT-PACK7-A', 'ZTEST-FIVT7-A', 'FIVT-PACK7-B', 'ZTEST-FIVT7-B',
         )
         line_b = order.order_line.filtered(lambda l: l.meli_order_id == 'FIVT-PACK7-B')
@@ -2341,6 +2353,23 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             'meli_order_id': 'FIVT-PACK7-A', 'transaction_type': 'sale',
             'meli_invoice_id': '9000000000000075',
             'xml_file': base64.b64encode(self._fake_cfdi_xml('944')),
+        })
+        # Fix 2026-09-24 (round 8's own "if not credit_note: return"
+        # guard): see test_partial_cancellation_only_touches_the_
+        # cancelled_siblings_line's own identical fix for the full
+        # explanation. _meli_process_partial_cancellation's own Step 1
+        # (self._meli_reconcile_invoicing()) creates/posts the 'sale'
+        # invoice above before this document ever gets matched, so
+        # source_invoice exists by the time the credit-note step needs
+        # it.
+        self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-PACK7-B', 'transaction_type': 'devolution',
+            'meli_invoice_id': '9000000000000175',
+            'xml_file': base64.b64encode(
+                self._fake_multi_concept_credit_note_xml(
+                    '1075', [(second_product.name, 1, 100.0)],
+                )
+            ),
         })
 
         order._meli_flag_status_change({'id': 'FIVT-PACK7-B', 'status': 'cancelled'})
@@ -2683,6 +2712,24 @@ class TestMeliInvoicingLifecycle(TransactionCase):
         self.assertEqual(len(credit_notes), 1, "must be ONE single credit note, never split")
         credited_lines = credit_notes.invoice_line_ids.filtered(lambda l: l.display_type == 'product')
         self.assertEqual(set(credited_lines.mapped('product_id').ids), {self.product.id, second_product.id})
+
+        # Fix 2026-09-22 round 9 (user-directed, real production bug,
+        # order S978385/pack 2000015158767125): the credit note above
+        # already covers BOTH siblings' own product — sibling B's own
+        # delivered stock must be physically returned by this SAME call
+        # too, even though only sibling A was ever reported 'cancelled'.
+        # Before this fix, only A's own outbound move got returned,
+        # leaving B's own delivered stock stuck forever and the sale
+        # itself never closed.
+        line_b = order.order_line.filtered(lambda l: l.meli_order_id == 'FIVT-PACKZ-B')
+        outbound_move_b = order.picking_ids.filtered(
+            lambda p: p.picking_type_id.code == 'outgoing'
+        ).move_ids.filtered(lambda m: m.sale_line_id == line_b)
+        self.assertTrue(outbound_move_b.returned_move_ids)
+        self.assertEqual(outbound_move_b.returned_move_ids.state, 'done')
+        # Both siblings are now settled (stock returned + credited) —
+        # the whole pack sale is cancelled automatically.
+        self.assertEqual(order.state, 'cancel')
 
     def test_pack_credit_note_pending_until_missing_sibling_added_then_self_corrects(self):
         """Fix 2026-09-19 (user decision: "pendiente por descuadre venta
@@ -3383,7 +3430,7 @@ class TestMeliInvoicingLifecycle(TransactionCase):
         processed on its own, not silently dropped just because the
         raw status string happens to repeat.
         """
-        order, _second_product = self._create_meli_full_pack(
+        order, second_product = self._create_meli_full_pack(
             'FIVT-PACKD', 'FIVT-PACKD-A', 'ZTEST-FIVTD-A', 'FIVT-PACKD-B', 'ZTEST-FIVTD-B',
         )
         line_a = order.order_line.filtered(lambda l: l.meli_order_id == 'FIVT-PACKD-A')
@@ -3397,6 +3444,28 @@ class TestMeliInvoicingLifecycle(TransactionCase):
             'xml_file': base64.b64encode(self._fake_cfdi_xml('949')),
         })
         order._meli_reconcile_invoicing()
+        # Fix 2026-09-24 (round 8's own "if not credit_note: return"
+        # guard): both siblings need their own devolution document — see
+        # test_partial_cancellation_only_touches_the_cancelled_siblings_
+        # line's own identical fix for the full explanation.
+        self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-PACKD-B', 'transaction_type': 'devolution',
+            'meli_invoice_id': '9000000000000180',
+            'xml_file': base64.b64encode(
+                self._fake_multi_concept_credit_note_xml(
+                    '1080', [(second_product.name, 1, 100.0)],
+                )
+            ),
+        })
+        self.env['meli.invoice.document'].sudo().create({
+            'meli_order_id': 'FIVT-PACKD-A', 'transaction_type': 'devolution',
+            'meli_invoice_id': '9000000000000181',
+            'xml_file': base64.b64encode(
+                self._fake_multi_concept_credit_note_xml(
+                    '1081', [(self.product.name, 1, 100.0)],
+                )
+            ),
+        })
 
         order._meli_flag_status_change({'id': 'FIVT-PACKD-B', 'status': 'cancelled'})
         self.assertEqual(order.meli_last_status, 'cancelled')
