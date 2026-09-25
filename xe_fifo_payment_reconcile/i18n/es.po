@@ -1,0 +1,278 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* xe_fifo_payment_reconcile
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-25 00:00+0000\n"
+"PO-Revision-Date: 2026-09-25 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "%(invoice)s (due %(due)s), residual %(residual)s"
+msgstr "%(invoice)s (vence %(due)s), residual %(residual)s"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "Amount applied: %s"
+msgstr "Monto aplicado: %s"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "Batch time: %.2f s"
+msgstr "Tiempo del lote: %.2f s"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "Concurrency conflict persisted after %s retries."
+msgstr "El conflicto de concurrencia persistió después de %s reintentos."
+
+#. module: xe_fifo_payment_reconcile
+#: model:ir.model.fields.selection,name:xe_fifo_payment_reconcile.selection__account_payment__fifo_reconcile_state__done
+msgid "Done"
+msgstr "Terminado"
+
+#. module: xe_fifo_payment_reconcile
+#: model:ir.model.fields.selection,name:xe_fifo_payment_reconcile.selection__account_payment__fifo_reconcile_state__done_residual
+msgid "Done with Residual"
+msgstr "Terminado con saldo"
+
+#. module: xe_fifo_payment_reconcile
+#: model:ir.model.fields.selection,name:xe_fifo_payment_reconcile.selection__account_payment__fifo_reconcile_state__error
+msgid "Error"
+msgstr "Error"
+
+#. module: xe_fifo_payment_reconcile
+#: model:ir.model.fields,field_description:xe_fifo_payment_reconcile.field_res_partner__fifo_auto_reconcile
+msgid "FIFO Auto-Reconcile"
+msgstr "Conciliación FIFO automática"
+
+#. module: xe_fifo_payment_reconcile
+#: model:ir.model.fields,field_description:xe_fifo_payment_reconcile.field_account_payment__fifo_retry_count
+msgid "FIFO Concurrency Retries"
+msgstr "Reintentos FIFO por concurrencia"
+
+#. module: xe_fifo_payment_reconcile
+#: model:ir.model.fields,field_description:xe_fifo_payment_reconcile.field_account_payment__fifo_partner_enabled
+msgid "FIFO Enabled for Partner"
+msgstr "Conciliación FIFO habilitada en el contacto"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+msgid "FIFO reconcile batch"
+msgstr "Lote de conciliación FIFO"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+msgid "FIFO reconcile error. The batch was rolled back."
+msgstr "Error en la conciliación FIFO. El lote se revirtió."
+
+#. module: xe_fifo_payment_reconcile
+#: model:ir.model.fields,field_description:xe_fifo_payment_reconcile.field_account_payment__fifo_reconcile_state
+msgid "FIFO Reconcile State"
+msgstr "Estado FIFO"
+
+#. module: xe_fifo_payment_reconcile
+#: model:ir.actions.server,name:xe_fifo_payment_reconcile.ir_cron_fifo_reconcile_ir_actions_server
+msgid "FIFO Reconcile: Apply Released Customer Payments"
+msgstr "Conciliación FIFO: aplicar pagos de clientes liberados"
+
+#. module: xe_fifo_payment_reconcile
+#: model_terms:ir.ui.view,arch_db:xe_fifo_payment_reconcile.view_account_payment_search_fifo_reconcile
+msgid "FIFO State"
+msgstr "Estado FIFO"
+
+#. module: xe_fifo_payment_reconcile
+#: model_terms:ir.ui.view,arch_db:xe_fifo_payment_reconcile.view_account_payment_search_fifo_reconcile
+msgid "FIFO: Done"
+msgstr "FIFO: Terminados"
+
+#. module: xe_fifo_payment_reconcile
+#: model_terms:ir.ui.view,arch_db:xe_fifo_payment_reconcile.view_account_payment_search_fifo_reconcile
+msgid "FIFO: Done with Residual"
+msgstr "FIFO: Terminados con saldo"
+
+#. module: xe_fifo_payment_reconcile
+#: model_terms:ir.ui.view,arch_db:xe_fifo_payment_reconcile.view_account_payment_search_fifo_reconcile
+msgid "FIFO: Error"
+msgstr "FIFO: Con error"
+
+#. module: xe_fifo_payment_reconcile
+#: model_terms:ir.ui.view,arch_db:xe_fifo_payment_reconcile.view_account_payment_search_fifo_reconcile
+msgid "FIFO: In Progress"
+msgstr "FIFO: En proceso"
+
+#. module: xe_fifo_payment_reconcile
+#: model_terms:ir.ui.view,arch_db:xe_fifo_payment_reconcile.view_account_payment_search_fifo_reconcile
+msgid "FIFO: Pending"
+msgstr "FIFO: Pendientes"
+
+#. module: xe_fifo_payment_reconcile
+#: model_terms:ir.ui.view,arch_db:xe_fifo_payment_reconcile.view_account_payment_search_fifo_reconcile
+msgid "FIFO: Released"
+msgstr "FIFO: Liberados"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "First invoice: %s"
+msgstr "Primera factura: %s"
+
+#. module: xe_fifo_payment_reconcile
+#: model:ir.model.fields.selection,name:xe_fifo_payment_reconcile.selection__account_payment__fifo_reconcile_state__in_progress
+msgid "In Progress"
+msgstr "En proceso"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "Invariant failed: amount applied to the payment (%(applied)s) differs from the amount applied to invoices (%(invoices)s)."
+msgstr "Falló un invariante: el monto aplicado al pago (%(applied)s) es distinto de lo aplicado a las facturas (%(invoices)s)."
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "Invariant failed: amount applied to the payment (%(applied)s) differs from the expected amount (%(expected)s)."
+msgstr "Falló un invariante: el monto aplicado al pago (%(applied)s) es distinto del esperado (%(expected)s)."
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "Invoice %(invoice)s has a receivable line without a debit residual (%(residual)s)."
+msgstr "La factura %(invoice)s tiene una línea por cobrar sin residual deudor (%(residual)s)."
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "Invoice %(invoice)s has no open receivable lines in account %(account)s."
+msgstr "La factura %(invoice)s no tiene líneas por cobrar abiertas en la cuenta %(account)s."
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "Invoices applied: %(invoices)s (lines: %(lines)s)"
+msgstr "Facturas aplicadas: %(invoices)s (líneas: %(lines)s)"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "Last invoice: %s"
+msgstr "Última factura: %s"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "max batch size: %s"
+msgstr "lote máx.: %s"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "No eligible invoices left. Unapplied payment residual: %s"
+msgstr "No quedan facturas elegibles. Saldo sin aplicar del pago: %s"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+msgid "None"
+msgstr "Ninguna"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "Partial invoice: %s"
+msgstr "Factura parcial: %s"
+
+#. module: xe_fifo_payment_reconcile
+#: model:ir.model.fields.selection,name:xe_fifo_payment_reconcile.selection__account_payment__fifo_reconcile_state__pending
+msgid "Pending"
+msgstr "Pendiente"
+
+#. module: xe_fifo_payment_reconcile
+#: model:ir.model.fields,field_description:xe_fifo_payment_reconcile.field_account_payment__fifo_reconcile_release
+msgid "Release for FIFO Reconcile"
+msgstr "Liberar para conciliación FIFO"
+
+#. module: xe_fifo_payment_reconcile
+#: model:res.groups,name:xe_fifo_payment_reconcile.group_fifo_reconcile_release
+msgid "Release payments for FIFO reconcile"
+msgstr "Liberar pagos para conciliación FIFO"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "Remaining payment residual: %s"
+msgstr "Residual restante del pago: %s"
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "The payment currency (%(payment)s) must match the company currency (%(company)s)."
+msgstr "La moneda del pago (%(payment)s) debe coincidir con la moneda de la compañía (%(company)s)."
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "The payment has %s open receivable lines; exactly one was expected."
+msgstr "El pago tiene %s líneas por cobrar abiertas; se esperaba exactamente una."
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+msgid "The payment has no residual left to reconcile."
+msgstr "El pago ya no tiene saldo por conciliar."
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "The payment's receivable line residual is not a credit (%s)."
+msgstr "El residual de la línea por cobrar del pago no es un crédito (%s)."
+
+#. module: xe_fifo_payment_reconcile
+#. odoo-python
+#: code:addons/xe_fifo_payment_reconcile/models/account_payment.py:0
+#, python-format
+msgid "The reconciliation did not persist: residual in database %(persisted)s, expected %(expected)s."
+msgstr "La conciliación no persistió: residual en la base de datos %(persisted)s, esperado %(expected)s."
+
+#. module: xe_fifo_payment_reconcile
+#: model:ir.model.fields,help:xe_fifo_payment_reconcile.field_account_payment__fifo_reconcile_release
+msgid "Turn on to let the background process apply this payment to the partner's oldest open PUE invoices. It turns itself off once the process ends (done, done with residual or error). Turning it off while in progress pauses the process; turning it back on resumes or retries it."
+msgstr "Actívalo para que el proceso en segundo plano aplique este pago a las facturas PUE abiertas más antiguas del contacto. Se desactiva solo cuando el proceso termina (terminado, terminado con saldo o error). Desactivarlo a mitad del proceso lo pausa; volver a activarlo lo continúa o lo reintenta."
+
+#. module: xe_fifo_payment_reconcile
+#: model:ir.model.fields,help:xe_fifo_payment_reconcile.field_res_partner__fifo_auto_reconcile
+msgid "When enabled on the commercial partner, its released customer payments are applied automatically against its oldest open PUE invoices (FIFO), in background batches."
+msgstr "Si se activa en el contacto comercial, sus pagos de cliente liberados se aplican automáticamente contra sus facturas PUE abiertas más antiguas (FIFO), en lotes en segundo plano."
