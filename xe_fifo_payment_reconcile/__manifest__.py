@@ -28,6 +28,7 @@ See README.md for setup and states.
     'data': [
         'security/fifo_reconcile_security.xml',
         'views/res_partner_views.xml',
+        'views/account_payment_views.xml',
     ],
     'installable': True,
     'application': False,
