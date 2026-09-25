@@ -6,7 +6,7 @@
         <field name="model">meli.invoice.document</field>
         <field name="arch" type="xml">
             <tree string="Mercado Libre Invoicing" create="0" edit="0"
-                  decoration-danger="status in ('rejected', 'cancelled') or meli_amount_mismatch"
+                  decoration-danger="status in ('rejected', 'cancelled') or meli_amount_mismatch or meli_move_amount_mismatch"
                   decoration-info="meli_needs_manual_credit_note"
                   decoration-warning="(sale_order_id and not is_applied and not meli_needs_manual_credit_note) or meli_stock_return_pending">
                 <field name="meli_order_id"/>
@@ -26,17 +26,21 @@
                 <field name="meli_has_xml" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="meli_xml_total" optional="hide"/>
                 <field name="meli_amount_mismatch" widget="boolean_toggle" readonly="1" optional="hide"/>
+                <field name="meli_move_amount_mismatch" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="meli_order_has_partial_refund" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="meli_has_refacturacion" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="meli_has_credit_note" widget="boolean_toggle" readonly="1" optional="hide"/>
+                <field name="meli_stock_return_state" optional="show"
+                       groups="__export__.res_groups_226_2f47e690"/>
                 <field name="issue_date"/>
                 <field name="last_synced_at"/>
                 <button name="action_meli_rescue_xml" type="object"
                         string="Rescue XML" icon="fa-file-code-o"
                         invisible="meli_has_xml"/>
-                <button name="action_meli_retry_sale_order_confirmation" type="object"
-                        string="Retry Confirmation" icon="fa-refresh"
-                        invisible="meli_sale_order_state != 'draft'"/>
+                <button name="action_meli_open_quarantine_return_wizard"
+                        type="object" string="Confirm Physical Return"
+                        groups="__export__.res_groups_226_2f47e690"
+                        invisible="not sale_order_id or sale_order_id.meli_last_status != 'cancelled' or meli_stock_return_state == 'done'"/>
             </tree>
         </field>
     </record>
@@ -78,6 +82,7 @@
                             <field name="meli_stock_return_pending"/>
                             <field name="meli_xml_total" invisible="not meli_has_xml"/>
                             <field name="meli_amount_mismatch" invisible="not meli_has_xml"/>
+                            <field name="meli_move_amount_mismatch" invisible="not meli_has_xml"/>
                             <field name="meli_order_has_partial_refund"/>
                             <field name="meli_has_refacturacion"/>
                             <field name="meli_has_credit_note"/>
@@ -124,12 +129,18 @@
                         domain="[('meli_needs_manual_credit_note', '=', True)]"/>
                 <filter name="stock_return_pending" string="Stock Return Pending (Pack)"
                         domain="[('meli_stock_return_pending', '=', True)]"/>
+                <filter name="pending_physical_return" string="Pending Physical Return (Non-Full)"
+                        groups="__export__.res_groups_226_2f47e690"
+                        domain="[('sale_order_id.meli_last_status', '=', 'cancelled'),
+                                 ('sale_order_id.meli_stock_return_state', '!=', 'done')]"/>
                 <filter name="cancelled_or_rejected" string="Cancelled/Rejected"
                         domain="[('status', 'in', ('cancelled', 'rejected'))]"/>
                 <filter name="missing_xml" string="Missing XML File"
                         domain="[('meli_has_xml', '=', False)]"/>
                 <filter name="amount_mismatch" string="Invoice/Sale Amount Mismatch"
                         domain="[('meli_amount_mismatch', '=', True)]"/>
+                <filter name="move_amount_mismatch" string="Invoice/CFDI Amount Mismatch"
+                        domain="[('meli_move_amount_mismatch', '=', True)]"/>
                 <filter name="order_has_partial_refund" string="Order Has Partial Refund"
                         domain="[('meli_order_has_partial_refund', '=', True)]"/>
                 <filter name="meli_has_refacturacion" string="Refactured Sale"
