@@ -329,6 +329,29 @@ class SaleOrder(models.Model):
              "order, or when the automation fails and falls back to the "
              "manual-review message.",
     )
+    meli_stock_return_state = fields.Selection([
+        ('partial', 'Partial'),
+        ('done', 'Done'),
+        ('settled', 'Settled'),
+    ], string='Physical Return Status', copy=False,
+        help="Tracks the PHYSICAL side of a non-Full order's total "
+             "cancellation/return (2026-09-24 user request, Phase 2) — "
+             "separate from and later than the automated stock-to-"
+             "transit step (which only moves the order's stock to the "
+             "shared 'Devoluciones en tránsito ML' location, never all "
+             "the way back into real, sellable stock). Empty/unset for "
+             "every order this doesn't apply to; only ever set by the "
+             "manual quarantine-return wizard. 'Partial': some, but not "
+             "all, of this order's stock was moved from transit into "
+             "the warehouse's own quarantine location — the wizard can "
+             "still be run again for whatever's left. 'Done': every "
+             "unit was moved into quarantine — the order drops out of "
+             "the pending-review filter and the wizard can no longer be "
+             "run for it. 'Settled': some or all of this order's stock "
+             "will never come back (written off) — a deliberate human "
+             "decision via the wizard's own 'Settle' button, only "
+             "available once this is already 'Partial'.",
+    )
     meli_order_date_created = fields.Datetime(
         string='Mercado Libre Order Created At', copy=False,
         help="date_created from the Mercado Libre order resource — when "
@@ -564,8 +587,12 @@ class SaleOrder(models.Model):
             ('meli_order_id', 'in', list(sibling_ids)),
         ]).mapped('meli_order_id'))
         for missing_order_id in sorted(sibling_ids - known_ids):
+            # priority=0 (was 8, 2026-09-24 user-directed): this
+            # connector is the only real consumer of this queue —
+            # creating a sale is never lower priority than anything
+            # else in it.
             self.with_delay(
-                priority=8, channel='root.meli_sales', max_retries=8,
+                priority=0, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_recover_order_{missing_order_id}",
                 description=(
                     f"Import missing pack sibling order {missing_order_id} "
@@ -1117,6 +1144,67 @@ class SaleOrder(models.Model):
             },
         }
 
+    def _meli_infer_cancelled_from_credit_note(self):
+        """Called whenever a credit-note/devolution document resolves to
+        this non-Full order (2026-09-24 user request, Phase 1 of the
+        Monterrey XE2 total-cancellation project) — a live 'cancelled'
+        notification is the normal way meli_last_status gets set, but
+        for an order adopted from VentiApp before this connector
+        tracked status at all, no notification may ever have set it.
+        Keeping meli_last_status as the single source of truth this
+        way — updated here, never a separate/parallel check duplicated
+        elsewhere — means every other piece of this project (the
+        pending-review filter, the automated stock-to-transit step)
+        can simply trust this one field instead of re-deriving "is
+        this genuinely cancelled" its own way. A one-off Server Action
+        reusing this same method is how the pre-existing backlog of
+        already-arrived documents gets caught up once, historically;
+        nothing here is specific to that one-time run.
+
+        Fix 2026-09-25 (real, serious production-risk bug, user-caught:
+        sale 987494/pack 2000015132783453, genuinely 'partially_
+        refunded' per VentiApp's own panel, had meli_last_status
+        wrongly forced to 'cancelled'): a credit-note/devolution
+        document existing at all does NOT by itself prove a full
+        cancellation — Mercado Libre issues the exact same document
+        type/transaction_type for a genuine PARTIAL refund too (see
+        _meli_reconcile_invoicing's own is_confirmed_partial_refund
+        check, which already knows this). The previous version of this
+        method skipped straight to writing 'cancelled' without ever
+        checking Mercado Libre's own LIVE status first — fetched here
+        now, exactly like _meli_reconcile_invoicing already does for
+        the same order, and this method becomes a genuine no-op
+        (nothing written at all) for anything other than a live status
+        of literally 'cancelled'. A live API failure also degrades to
+        a no-op — never guesses, never writes a wrong status on a
+        transient error.
+
+        Deliberately a no-op for a Full order too: a live 'cancelled'
+        notification always arrives for those (Mercado Libre's own
+        fulfillment flow depends on it), so meli_last_status is already
+        reliable there — this exists only to cover non-Full's real gap.
+        """
+        self.ensure_one()
+        if self.meli_last_status == 'cancelled':
+            return
+        config = self.env['meli.config'].sudo().search([
+            ('company_id', '=', self.company_id.id), ('state', '=', 'connected'),
+        ], limit=1)
+        is_full = bool(
+            config and config.warehouse_fulfillment_id
+            and self.warehouse_id == config.warehouse_fulfillment_id
+        )
+        if is_full or not config:
+            return
+        live_order_id = self.meli_order_id or self.reference
+        try:
+            live_order_data = config._api_get(f'/orders/{live_order_id}')
+        except requests.exceptions.RequestException:
+            return
+        if (live_order_data or {}).get('status') != 'cancelled':
+            return
+        self.meli_last_status = 'cancelled'
+
     def action_meli_retry_invoicing_reconciliation(self):
         """Manual button: re-runs _meli_reconcile_invoicing right now
         (idempotent — see that method's own docstring), then, for a
@@ -1656,6 +1744,437 @@ class SaleOrder(models.Model):
                 ) % new_picking.name)
             new_pickings |= new_picking
         return new_pickings
+
+    def _meli_return_full_pickings_to_transit(self):
+        """Same by-code stock.return.picking mechanism as
+        _meli_return_full_pickings, but always to the shared
+        'Devoluciones en tránsito ML' location (2026-09-24 user
+        request, Monterrey XE2 total-cancellation project, Phase 1)
+        instead of the warehouse's own configured return location — a
+        non-Full order's stock genuinely left XE's control via a real
+        carrier; crediting it straight back into sellable stock the
+        instant Mercado Libre reports a cancellation would be lying to
+        inventory before the product has physically come back. Phase
+        2's own manual quarantine-return wizard (not built yet) is
+        what later confirms the product's real arrival and moves it
+        the rest of the way, once a human looks at it.
+        """
+        self.ensure_one()
+        location = self.env['stock.location'].sudo().search([
+            ('name', '=', 'Devoluciones en tránsito ML'),
+            ('company_id', 'in', [self.company_id.id, False]),
+        ], limit=1)
+        if not location:
+            raise UserError(_(
+                "The shared 'Devoluciones en tránsito ML' location is "
+                "not configured — cannot return stock automatically."
+            ))
+        done_pickings = self.picking_ids.filtered(
+            lambda p: p.state == 'done' and p.picking_type_id.code == 'outgoing'
+        )
+        new_pickings = self.env['stock.picking']
+        for picking in done_pickings:
+            returnable_moves = picking.move_ids.filtered(
+                lambda m: m.state == 'done' and not m.returned_move_ids.filtered(
+                    lambda r: r.state != 'cancel'
+                )
+            )
+            lines = [
+                (0, 0, {
+                    'product_id': move.product_id.id,
+                    'quantity': move.quantity,
+                    'move_id': move.id,
+                    'uom_id': move.product_id.uom_id.id,
+                })
+                for move in returnable_moves
+            ]
+            if not lines:
+                continue
+            return_wizard = self.env['stock.return.picking'].with_context(
+                active_ids=picking.ids, active_id=picking.id, active_model='stock.picking',
+            ).create({
+                'location_id': location.id,
+                'picking_id': picking.id,
+                'product_return_moves': lines,
+            })
+            new_picking_id, _picking_type_id = return_wizard._create_returns()
+            new_picking = self.env['stock.picking'].browse(new_picking_id)
+            # Fix 2026-09-25 (user-directed, real production case
+            # S955745): same reasoning as _meli_quarantine_move_stock's
+            # own identical fix — a plain stock.return.picking copy()
+            # keeps the ORIGINAL move's own procurement group (this
+            # sale's own), which made this transit-bound transfer show
+            # up as one of the sale's own pickings (inflating its
+            # "Entrega" smart-button count) even though it has no
+            # bearing on qty_delivered/qty_invoiced. Cleared here,
+            # before validation; the chatter message the caller posts
+            # is the only trace connecting the two.
+            new_picking.group_id = False
+            new_picking.move_ids.group_id = False
+            result = new_picking.button_validate()
+            if isinstance(result, dict):
+                raise UserError(_(
+                    "Automatic validation of the return transfer %s "
+                    "needs manual confirmation (e.g. insufficient "
+                    "stock) — cannot auto-cancel this order."
+                ) % new_picking.name)
+            new_pickings |= new_picking
+        return new_pickings
+
+    def _meli_return_sibling_pickings_to_transit(self, lines):
+        """Same by-code stock.return.picking mechanism and same
+        transit destination as _meli_return_full_pickings_to_transit,
+        but scoped to ONE pack sibling's own line(s) only — same
+        move-scoping technique _meli_apply_partial_cancellation already
+        uses for its own (Full-only) stock return. 2026-09-25 user
+        request: a non-Full pack sibling reported genuinely CANCELLED
+        (not just a partial refund) gets its own share of Phase 1's
+        total-cancellation policy — only THIS sibling's delivered
+        stock goes to transit; every other, still-legitimate sibling
+        in the pack is left completely untouched.
+        """
+        self.ensure_one()
+        location = self.env['stock.location'].sudo().search([
+            ('name', '=', 'Devoluciones en tránsito ML'),
+            ('company_id', 'in', [self.company_id.id, False]),
+        ], limit=1)
+        if not location:
+            raise UserError(_(
+                "The shared 'Devoluciones en tránsito ML' location is "
+                "not configured — cannot return stock automatically."
+            ))
+        done_pickings = self.picking_ids.filtered(
+            lambda p: p.state == 'done' and p.picking_type_id.code == 'outgoing'
+        )
+        sibling_moves = done_pickings.move_ids.filtered(
+            lambda m: m.sale_line_id in lines and m.state == 'done'
+        )
+        returnable_moves = sibling_moves.filtered(
+            lambda m: not m.returned_move_ids.filtered(lambda r: r.state != 'cancel')
+        )
+        new_pickings = self.env['stock.picking']
+        for picking in returnable_moves.picking_id:
+            picking_moves = returnable_moves.filtered(lambda m: m.picking_id == picking)
+            return_lines = [
+                (0, 0, {
+                    'product_id': move.product_id.id,
+                    'quantity': move.quantity,
+                    'move_id': move.id,
+                    'uom_id': move.product_id.uom_id.id,
+                })
+                for move in picking_moves
+            ]
+            return_wizard = self.env['stock.return.picking'].with_context(
+                active_ids=picking.ids, active_id=picking.id, active_model='stock.picking',
+            ).create({
+                'location_id': location.id,
+                'picking_id': picking.id,
+                'product_return_moves': return_lines,
+            })
+            new_picking_id, __ = return_wizard._create_returns()
+            new_picking = self.env['stock.picking'].browse(new_picking_id)
+            # Fix 2026-09-25 (user-directed, real production case
+            # S955745): same reasoning as _meli_return_full_pickings_
+            # to_transit's own identical fix — never let this
+            # transit-bound transfer inherit the sale's own procurement
+            # group, or it inflates the "Entrega" smart-button count
+            # with a movement that has no bearing on qty_delivered/
+            # qty_invoiced. The chatter message below is the only
+            # trace connecting the two.
+            new_picking.group_id = False
+            new_picking.move_ids.group_id = False
+            result = new_picking.button_validate()
+            if isinstance(result, dict):
+                raise UserError(_(
+                    "Automatic validation of the return transfer %s "
+                    "needs manual confirmation (e.g. insufficient "
+                    "stock) — cannot auto-process this sibling's "
+                    "cancellation."
+                ) % new_picking.name)
+            new_pickings |= new_picking
+        if new_pickings:
+            # Fix 2026-09-25 (real bug: the raw <a> tag showed up as
+            # literal text in the chatter instead of rendering as a
+            # link): building it INSIDE a _() % {...} substitution gets
+            # HTML-escaped somewhere along Odoo's own translation
+            # pipeline. Same proven pattern _meli_post_with_mention
+            # already uses for its own @-mention link: the HTML is
+            # built as a plain string and concatenated onto the
+            # (fully resolved, translated) text with '+', never
+            # embedded inside a translatable string's own substitution.
+            message = _(
+                "Individual order %(order_id)s's own stock was "
+                "returned to the transit location 'Devoluciones en "
+                "tránsito ML' via transfer(s): "
+            ) % {'order_id': lines.mapped('meli_order_id')[:1] or '?'}
+            message += ', '.join(
+                f'<a href="#" data-oe-model="stock.picking" data-oe-id="{picking.id}" '
+                f'class="o_mail_redirect">{picking.name}</a>'
+                for picking in new_pickings
+            )
+            message += _(
+                " — pending physical confirmation before it re-enters "
+                "real stock."
+            )
+            self.message_post(body=message)
+        return new_pickings
+
+    def _meli_process_non_full_total_cancellation(self):
+        """Phase 1 of the Monterrey XE2 (non-Full) total-cancellation
+        project (2026-09-24 user request) — the non-Full counterpart
+        of _meli_process_full_cancellation, called from the same place
+        (this order's credit-note step in _meli_reconcile_invoicing)
+        but in the OPPOSITE order: the caller builds and posts the
+        credit note BEFORE calling this method, never after. The user's
+        own condition for cancelling ("una vez teniendo entregado 0 y
+        facturado 0") can only both be true once the credit note
+        already exists — Full's own pipeline runs stock+cancel first
+        instead because neither condition matters for a Full order: the
+        inventory never really left XE's own control.
+
+        Returns stock to the shared transit location, never straight
+        back into real, sellable stock — see
+        _meli_return_full_pickings_to_transit's own docstring for why.
+        Raises on any failure — the caller wraps this in a savepoint
+        and falls back to manual review, same convention as
+        _meli_process_full_cancellation.
+        """
+        self.ensure_one()
+        self = self.with_context(meli_reconciling_invoicing=True)
+        actions = []
+        returns = self._meli_return_full_pickings_to_transit()
+        if returns:
+            # Fix 2026-09-25: HTML built via plain concatenation, never
+            # embedded inside a _() % {...} substitution — see
+            # _meli_return_sibling_pickings_to_transit's own identical
+            # fix for why.
+            action_text = _(
+                "Stock was returned to the transit location "
+                "'Devoluciones en tránsito ML' via transfer(s): "
+            )
+            action_text += ', '.join(
+                f'<a href="#" data-oe-model="stock.picking" data-oe-id="{picking.id}" '
+                f'class="o_mail_redirect">{picking.name}</a>'
+                for picking in returns
+            )
+            action_text += _(
+                " — pending physical confirmation before it re-enters "
+                "real stock."
+            )
+            actions.append(action_text)
+        if self.locked:
+            self.action_unlock()
+        self.with_context(disable_cancel_warning=True).action_cancel()
+        actions.append(_("The sale order was cancelled."))
+        self.meli_auto_cancellation_processed = True
+        return actions
+
+    def action_meli_open_quarantine_return_wizard(self):
+        """Manual button (2026-09-24 user request, Phase 2 of the
+        Monterrey XE2 total-cancellation project) — opens the wizard
+        that physically confirms how much of this order's stock, sitting
+        in the shared 'Devoluciones en tránsito ML' location since Phase
+        1 ran, has actually come back to the warehouse. Only meant for a
+        Mercado Libre order genuinely already cancelled by Phase 1 —
+        re-checked here, not just trusted from whatever list/filter the
+        user clicked this from, since that view can lag behind a very
+        recent change.
+        """
+        self.ensure_one()
+        # Fix 2026-09-25 (real bug, this "invoicing-only" build):
+        # meli_sync_source is only ever set by this connector's own
+        # order-adoption/creation logic, which isn't wired up in every
+        # deployment (see this module's own manifest description) — an
+        # order whose invoicing this connector already handles can
+        # still have meli_sync_source empty, VentiApp having created it
+        # with no adoption step ever running. meli_last_status is a
+        # more reliable "is this genuinely Mercado Libre" signal here:
+        # nothing else in this module ever sets it.
+        if not self.meli_last_status:
+            raise UserError(_(
+                "This is not a Mercado Libre order."
+            ))
+        if self.meli_last_status != 'cancelled':
+            raise UserError(_(
+                "This order's own Mercado Libre status is not "
+                "'cancelled' — refresh and try again."
+            ))
+        # Fix 2026-09-25 (user-directed correction): meli_last_status
+        # can already read 'cancelled' before the sale itself actually
+        # is — that field is set the moment a credit-note document
+        # arrives (_meli_infer_cancelled_from_credit_note), which can
+        # happen before Phase 1 finishes applying the credit note and
+        # cancelling the sale (e.g. no posted invoice yet to credit
+        # against). Nothing to physically confirm until the sale is
+        # genuinely cancelled.
+        if self.state != 'cancel':
+            raise UserError(_(
+                "This sale hasn't been cancelled yet — nothing to "
+                "confirm physically."
+            ))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Confirm Physical Return"),
+            'res_model': 'meli.quarantine.return.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_sale_order_id': self.id},
+        }
+
+    def _meli_quarantine_transit_pickings(self):
+        """This order's own delivery-to-transit picking(s), created by
+        _meli_return_full_pickings_to_transit (Phase 1) — the source of
+        truth for what's left to move into quarantine (Phase 2), read
+        straight from the real, already-validated transfers rather than
+        any separate counter that could go stale.
+        """
+        self.ensure_one()
+        transit_location = self.env['stock.location'].sudo().search([
+            ('name', '=', 'Devoluciones en tránsito ML'),
+            ('company_id', 'in', [self.company_id.id, False]),
+        ], limit=1)
+        if not transit_location:
+            return self.env['stock.picking'], self.env['stock.move']
+        pickings = self.picking_ids.filtered(
+            lambda p: p.state == 'done' and p.location_dest_id == transit_location
+        )
+        return pickings, pickings.move_ids.filtered(lambda m: m.state == 'done')
+
+    def _meli_quarantine_remaining_by_product(self):
+        """{product: remaining quantity} still sitting in transit for
+        this order and not yet moved into quarantine — the SAME
+        delivered/returned-quantity bookkeeping pattern used everywhere
+        else in this module (see
+        _meli_sibling_delivered_and_returned_qty), applied one level
+        further: here 'delivered' means 'moved into transit' and
+        'returned' means 'moved from transit into quarantine'.
+        """
+        self.ensure_one()
+        __, transit_moves = self._meli_quarantine_transit_pickings()
+        remaining = {}
+        for move in transit_moves:
+            already_moved_on = sum(
+                move.returned_move_ids.filtered(
+                    lambda m: m.state == 'done'
+                ).mapped('quantity')
+            )
+            qty = move.quantity - already_moved_on
+            if qty > 0:
+                remaining[move.product_id] = remaining.get(move.product_id, 0.0) + qty
+        return remaining
+
+    def _meli_quarantine_move_stock(self, quantities_by_product, location_id):
+        """The wizard's own Confirm action: moves whatever quantity the
+        user entered per product from transit into the chosen quarantine
+        location, by returning the specific transit move(s) that still
+        have that much left — same by-code stock.return.picking pattern
+        as every other stock movement in this module. Raises UserError
+        (never a silent failure) if there isn't enough left to move for
+        some product, or if Odoo can't auto-validate the transfer (e.g.
+        wants a backorder/insufficient-stock confirmation) — the wizard
+        itself surfaces that as a normal error notification.
+
+        Returns True when this call fully exhausts every remaining unit
+        for this order (nothing left afterward at all) — the caller uses
+        this to decide between meli_stock_return_state 'done' and
+        'partial'.
+        """
+        self.ensure_one()
+        __, transit_moves = self._meli_quarantine_transit_pickings()
+        new_pickings = self.env['stock.picking']
+        for product, quantity in quantities_by_product.items():
+            if quantity <= 0:
+                continue
+            remaining_qty = quantity
+            candidate_moves = transit_moves.filtered(
+                lambda m: m.product_id == product
+            )
+            for move in candidate_moves:
+                if remaining_qty <= 0:
+                    break
+                already_moved_on = sum(
+                    move.returned_move_ids.filtered(
+                        lambda m: m.state == 'done'
+                    ).mapped('quantity')
+                )
+                move_remaining = move.quantity - already_moved_on
+                if move_remaining <= 0:
+                    continue
+                take_qty = min(move_remaining, remaining_qty)
+                return_wizard = self.env['stock.return.picking'].with_context(
+                    active_ids=move.picking_id.ids, active_id=move.picking_id.id,
+                    active_model='stock.picking',
+                ).create({
+                    'location_id': location_id,
+                    'picking_id': move.picking_id.id,
+                    'product_return_moves': [(0, 0, {
+                        'product_id': product.id,
+                        'quantity': take_qty,
+                        'move_id': move.id,
+                        'uom_id': product.uom_id.id,
+                    })],
+                })
+                new_picking_id, __ = return_wizard._create_returns()
+                new_picking = self.env['stock.picking'].browse(new_picking_id)
+                # Fix 2026-09-25 (user-directed): a plain
+                # stock.return.picking copy() keeps the ORIGINAL move's
+                # own procurement group — which is this sale's own
+                # group (the same reason stock.picking.sale_id resolves
+                # at all, see _meli_apply_partial_cancellation's own
+                # docstring on this exact mechanism). Left alone, this
+                # quarantine-bound transfer would show up as one of the
+                # sale's own pickings — confusing next to the real
+                # delivery/invoicing picture, and with no bearing on
+                # qty_delivered/qty_invoiced at all. Cleared here, right
+                # after creation and before validation, so it stands on
+                # its own; the sale's own chatter link below is the only
+                # trace connecting the two.
+                new_picking.group_id = False
+                new_picking.move_ids.group_id = False
+                result = new_picking.button_validate()
+                if isinstance(result, dict):
+                    raise UserError(_(
+                        "Automatic validation of the quarantine transfer "
+                        "%s needs manual confirmation (e.g. insufficient "
+                        "stock) — review and apply it manually, then try "
+                        "again for what's left."
+                    ) % new_picking.name)
+                new_pickings |= new_picking
+                remaining_qty -= take_qty
+            if remaining_qty > 0:
+                raise UserError(_(
+                    "Only %(available)s of %(product)s is left in "
+                    "transit for this order — cannot move %(requested)s."
+                ) % {
+                    'available': quantity - remaining_qty,
+                    'product': product.display_name,
+                    'requested': quantity,
+                })
+        # Fix 2026-09-25 (user-directed, real bug: the raw <a> tag
+        # showed up as literal text instead of rendering as a link):
+        # links straight to each transfer via chatter (same generic
+        # record-link mechanism this module's own _meli_post_with_
+        # mention already uses for a partner @-mention, here pointed at
+        # stock.picking instead) — never as one of this sale's own
+        # pickings (see the group_id clearing above for why), so this
+        # is the only trace connecting the two. Built via plain string
+        # concatenation, never embedded inside a _() % {...}
+        # substitution — Odoo's own translation pipeline HTML-escapes a
+        # substituted value there, exactly the same fix
+        # _meli_return_sibling_pickings_to_transit needed for its own
+        # identical link.
+        message = _(
+            "Physical return confirmed to quarantine location "
+            "%(location)s via transfer(s): "
+        ) % {'location': self.env['stock.location'].browse(location_id).display_name}
+        message += ', '.join(
+            f'<a href="#" data-oe-model="stock.picking" data-oe-id="{picking.id}" '
+            f'class="o_mail_redirect">{picking.name}</a>'
+            for picking in new_pickings
+        )
+        message += '.'
+        self.message_post(body=message)
+        return not any(self._meli_quarantine_remaining_by_product().values())
 
     def _meli_process_partial_cancellation(self, cancelled_order_id):
         """Cancellation/return of ONE individual Mercado Libre order
@@ -4027,6 +4546,21 @@ class SaleOrder(models.Model):
                     continue
                 handled_sibling_ids.add(cancelled_order_id)
 
+                # Fix 2026-09-25 (user-directed, real production case,
+                # pack 2000018289334426): a non-Full pack sibling can
+                # also be genuinely, fully CANCELLED — not just
+                # partially refunded — in which case the total-
+                # cancellation policy (Phase 1 of the Monterrey XE2
+                # project) applies to that ONE sibling: relate the
+                # credit note, then return THAT sibling's own delivered
+                # stock to the shared transit location, then close the
+                # whole pack once every sibling has reached this same
+                # state — see _meli_return_sibling_pickings_to_transit
+                # and _meli_close_pack_if_every_sibling_cancelled below.
+                # Previously this fell through to the same manual-review
+                # message as an unconfirmed status, even for a document
+                # whose own XML plainly covers the sibling's full amount.
+                sibling_is_cancelled = False
                 if not is_full:
                     try:
                         live_sibling_data = config._api_get(f'/orders/{cancelled_order_id}')
@@ -4042,18 +4576,20 @@ class SaleOrder(models.Model):
                             'order_id': cancelled_order_id or '?',
                         })
                         continue
+                    live_sibling_status = (live_sibling_data or {}).get('status')
                     sibling_is_confirmed_partial_refund = (
-                        (live_sibling_data or {}).get('status') == 'partially_refunded'
+                        live_sibling_status == 'partially_refunded'
                     )
-                    if not sibling_is_confirmed_partial_refund:
+                    sibling_is_cancelled = live_sibling_status == 'cancelled'
+                    if not sibling_is_confirmed_partial_refund and not sibling_is_cancelled:
                         self.message_post(body=_(
                             "Mercado Libre generated a credit note "
                             "(%(document)s) for order %(order_id)s (one "
                             "individual order within this pack) — review "
                             "manually and apply it; a non-Full pack only "
                             "automates a credit note when Mercado Libre "
-                            "confirms a partial refund for that specific "
-                            "order."
+                            "confirms a partial refund or a full "
+                            "cancellation for that specific order."
                         ) % {
                             'document': document.meli_invoice_id or document.id,
                             'order_id': cancelled_order_id or '?',
@@ -4090,10 +4626,80 @@ class SaleOrder(models.Model):
                 # like this one — related to its sale_order_id but never
                 # actually applied — is available on demand instead, via
                 # action_meli_retry_invoicing_reconciliation.
-                self._meli_relate_partial_cancellation_credit_note(
+                sibling_credit_note = self._meli_relate_partial_cancellation_credit_note(
                     sibling_lines, cancelled_order_id,
                     extra_payment_lines_by_document=credit_note_payment_lines_by_document,
                 )
+                # Fix 2026-09-25 (real bug, user-caught: order 987494/
+                # pack 2000015132783453 — genuinely partially_refunded,
+                # meli_last_status stayed stuck at its old value even
+                # after this fix's own sibling_is_confirmed_partial_
+                # refund branch above ran): this whole pack branch never
+                # wrote meli_last_status at all, for either outcome —
+                # only the non-pack branch further below did (see its
+                # own is_confirmed_partial_refund/is_full_cancellation
+                # cases). A pack order (self.meli_pack_id truthy) always
+                # takes THIS branch and returns before ever reaching that
+                # code, so the field just never updated for a pack
+                # sibling's confirmed partial refund. Mirrors the
+                # non-pack case: only written once the credit note
+                # actually got related (sibling_credit_note truthy) —
+                # an unmatched document means nothing was really applied
+                # yet. The cancelled case doesn't need this here: it's
+                # already covered once _meli_close_pack_if_every_
+                # sibling_cancelled below actually cancels the sale.
+                if sibling_is_confirmed_partial_refund and sibling_credit_note:
+                    self.meli_last_status = 'partially_refunded'
+                # Fix 2026-09-25 (see this branch's own comment above):
+                # only for a genuinely CANCELLED sibling, and only once
+                # its credit note actually got related (sibling_credit_
+                # note empty means the concepts couldn't be matched yet
+                # — nothing to physically return against an unrelated
+                # fiscal document, same "never guess" principle as every
+                # other credit-note gate in this method). Never for a
+                # confirmed partial refund: that never touches stock,
+                # by design (see is_confirmed_partial_refund's own
+                # handling in the non-pack branch below).
+                if sibling_is_cancelled and sibling_credit_note:
+                    try:
+                        with self.env.cr.savepoint():
+                            self._meli_return_sibling_pickings_to_transit(sibling_lines)
+                    except Exception:
+                        _logger.exception(
+                            "Mercado Libre order %s: individual order "
+                            "%s (part of this non-Full pack) was "
+                            "cancelled and its credit note related, but "
+                            "returning its own stock to transit failed "
+                            "— needs manual review.",
+                            self.client_order_ref, cancelled_order_id,
+                        )
+                        self._meli_notify_queue_job_managers(_(
+                            "Mercado Libre order %(order_id)s (part of "
+                            "this non-Full pack) was cancelled and its "
+                            "credit note was related, but returning its "
+                            "own stock to the transit location failed "
+                            "— review manually."
+                        ) % {'order_id': cancelled_order_id})
+                        continue
+                    try:
+                        with self.env.cr.savepoint():
+                            self._meli_close_pack_if_every_sibling_cancelled()
+                    except Exception:
+                        _logger.exception(
+                            "Mercado Libre order %s: every visible "
+                            "sibling in this non-Full pack now appears "
+                            "cancelled, but automatically cancelling "
+                            "the sale itself failed — needs manual "
+                            "review.", self.client_order_ref,
+                        )
+                        self.message_post(body=_(
+                            "Every individual order within this pack "
+                            "now appears cancelled, but the sale itself "
+                            "could not be cancelled automatically — "
+                            "review manually. (This sibling's own "
+                            "credit note and stock return above still "
+                            "completed successfully.)"
+                        ))
             return
 
         source_invoice = self.invoice_ids.filtered(
@@ -4125,8 +4731,19 @@ class SaleOrder(models.Model):
         # automate regardless of Full/non-Full. Moved up from further
         # below, where it used to run only AFTER a non-Full order had
         # already been unconditionally blocked.
+        # Fix 2026-09-25 (real bug, order S953238, VentiApp-adopted):
+        # meli_order_id is never filled for an order adopted from
+        # VentiApp — only reference/client_order_ref carries Mercado
+        # Libre's own id for those (see meli.invoice.document.
+        # sale_order_id's own help text on the same gap). Without this
+        # fallback, this call built '/orders/False' and 400'd every
+        # time, permanently blocking this whole credit-note step for
+        # every adopted order — not just a non-Full total cancellation,
+        # ANY credit note (including the confirmed-partial-refund case
+        # already automated since 2026-09-22).
+        live_order_id = self.meli_order_id or self.reference
         try:
-            live_order_data = config._api_get(f'/orders/{self.meli_order_id}')
+            live_order_data = config._api_get(f'/orders/{live_order_id}')
         except requests.exceptions.RequestException:
             self.message_post(body=_(
                 "Mercado Libre generated a credit note for this order, "
@@ -4159,7 +4776,15 @@ class SaleOrder(models.Model):
         # anything else not yet confirmed either way (still 'paid',
         # 'pending_cancel', etc.) still falls to manual review too, via
         # this exact same message.
-        if not is_full and not is_confirmed_partial_refund:
+        # Fix 2026-09-24 (user-directed, Monterrey XE2 total-
+        # cancellation project, Phase 1): a genuine full cancellation is
+        # now automated regardless of Full/non-Full too — see
+        # _meli_process_non_full_total_cancellation's own docstring for
+        # the non-Full pipeline. Full/non-Full still decides WHICH
+        # pipeline runs (and in which order relative to the credit
+        # note) a few lines below; it no longer decides WHETHER one
+        # runs at all.
+        if not is_full_cancellation and not is_confirmed_partial_refund:
             newest_document = credit_note_documents[-1]
             self.message_post(body=_(
                 "Mercado Libre generated a credit note (%(document)s) "
@@ -4232,15 +4857,28 @@ class SaleOrder(models.Model):
                 continue
 
             if is_full_cancellation:
-                if not full_cancellation_done:
+                # Fix 2026-09-24 (Monterrey XE2 total-cancellation
+                # project, Phase 1): Full runs its own stock-return +
+                # action_cancel() pipeline BEFORE the credit note below —
+                # none of that inventory ever really left XE's control,
+                # so there's nothing to wait for. Non-Full runs the
+                # OPPOSITE order: the credit note is built and posted
+                # FIRST, and _meli_process_non_full_total_cancellation
+                # only runs after — the user's own condition for
+                # cancelling ("entregado 0 y facturado 0") can only both
+                # be true once the credit note already exists. Either
+                # way, only once per call regardless of how many
+                # documents this loop iterates (full_cancellation_done),
+                # since both pipelines are idempotent by themselves but
+                # a second action_cancel() on an already-cancelled order
+                # raises.
+                if is_full and not full_cancellation_done:
                     # Runs the SAME stock-return + action_cancel() pipeline
                     # the order-status webhook path uses (Phase 1) — here
                     # triggered instead by discovering, via the live API,
                     # that Mercado Libre already considers this order
                     # cancelled, even though no 'cancelled' notification
-                    # for it was ever received/processed locally. Once per
-                    # call: idempotent by itself (see its own docstring),
-                    # no need to repeat per credit-note document.
+                    # for it was ever received/processed locally.
                     self._meli_process_full_cancellation(config)
                     self.meli_last_status = 'cancelled'
                     full_cancellation_done = True
@@ -4272,6 +4910,10 @@ class SaleOrder(models.Model):
                 if credit_note_date:
                     credit_note.invoice_date = credit_note_date
                 credit_note.action_post()
+                if not is_full and not full_cancellation_done:
+                    self._meli_process_non_full_total_cancellation()
+                    self.meli_last_status = 'cancelled'
+                    full_cancellation_done = True
             elif is_confirmed_partial_refund:
                 # Confirmed partial refund: the order stays exactly as
                 # it is — never cancelled, its stock never touched
@@ -4297,6 +4939,17 @@ class SaleOrder(models.Model):
                 )
                 if not credit_note:
                     continue
+                # Fix 2026-09-25 (user-directed): the is_full_cancellation
+                # branch above already writes meli_last_status —
+                # mirrored here so a confirmed partial refund is just as
+                # visible on the order's own record. Nothing else in
+                # this "invoicing-only" build ever updates this field
+                # for that status (there is no order-status webhook
+                # wired up here — see this module's own manifest
+                # description), so without this it stayed stuck at
+                # whatever it read before, even once the live API had
+                # already confirmed the real, current status.
+                self.meli_last_status = 'partially_refunded'
             else:
                 # Live status is neither 'cancelled' nor
                 # 'partially_refunded' (still 'paid', 'pending_cancel'

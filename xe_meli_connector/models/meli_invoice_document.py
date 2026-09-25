@@ -252,7 +252,10 @@ class MeliInvoiceDocument(models.Model):
         help="True when meli_xml_total and the related sale order's own "
              "amount_total differ by more than 5 cents (2026-09-14 "
              "user request) — filterable here so these can be found and "
-             "reviewed manually.",
+             "reviewed manually. Fix 2026-09-24 (user-directed): always "
+             "False while meli_order_has_partial_refund is True — see "
+             "that field's own help text for why that gap is expected "
+             "by design there, never an error to review.",
     )
     meli_move_amount_mismatch = fields.Boolean(
         string='Invoice/CFDI Amount Mismatch', compute='_compute_meli_amount_mismatch',
@@ -478,12 +481,13 @@ class MeliInvoiceDocument(models.Model):
     )
     def _compute_meli_amount_mismatch(self):
         for document in self:
-            document.meli_amount_mismatch = bool(
-                document.meli_has_xml and document.sale_order_id
-                and abs(document.meli_xml_total - document.sale_order_id.amount_total) > 0.05
-            )
             document.meli_order_has_partial_refund = (
                 document.sale_order_id.meli_last_status == 'partially_refunded'
+            )
+            document.meli_amount_mismatch = bool(
+                not document.meli_order_has_partial_refund
+                and document.meli_has_xml and document.sale_order_id
+                and abs(document.meli_xml_total - document.sale_order_id.amount_total) > 0.05
             )
             live_moves = document.move_ids.filtered(lambda m: m.state != 'cancel')
             document.meli_move_amount_mismatch = bool(
@@ -592,6 +596,12 @@ class MeliInvoiceDocument(models.Model):
         for document in self.filtered('sale_order_id'):
             try:
                 with self.env.cr.savepoint():
+                    # Fix 2026-09-24 (Monterrey XE2 total-cancellation
+                    # project, Phase 1) — see the other call site's
+                    # identical comment, in _meli_upsert, for why this
+                    # is needed here too.
+                    if document.transaction_type in MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES:
+                        document.sale_order_id._meli_infer_cancelled_from_credit_note()
                     document.sale_order_id._meli_reconcile_invoicing()
             except Exception:
                 _logger.exception(
@@ -757,8 +767,16 @@ class MeliInvoiceDocument(models.Model):
             ('transaction_type', '!=', 'service_test'),
         ]).mapped('meli_order_id'))
         for order_id in orphaned_order_ids:
+            # priority=0 (was 8, 2026-09-24 user-directed): same
+            # reasoning as Trigger B's own identical call above — this
+            # connector is the only real consumer of this queue. No
+            # extra eta needed here on top of it, unlike Trigger B: this
+            # cron itself already only runs every 30 minutes, so a
+            # document only reaches this loop after already having had
+            # a full cycle for the order's own normal import to land
+            # first.
             self.env['sale.order'].sudo().with_delay(
-                priority=8, channel='root.meli_sales', max_retries=8,
+                priority=0, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_recover_order_{order_id}",
             )._meli_import_order(config.company_id.id, order_id)
 
@@ -921,9 +939,26 @@ class MeliInvoiceDocument(models.Model):
             # identity_key dedupes: several documents for the same order
             # arriving close together must not enqueue redundant recovery
             # jobs.
+            #
+            # Fix 2026-09-24 (user-directed, real production noise: order
+            # 2000000005969244 and several others in the same failed-job
+            # review): an invoice can arrive via webhook mere seconds
+            # before the order itself does through its own, entirely
+            # separate pipeline — attempting the recovery immediately
+            # just wastes an API call on a 404 that resolves itself
+            # moments later anyway (every order is always imported
+            # through its own path regardless of this one). eta=900 (15
+            # minutes) gives that normal path every reasonable chance to
+            # land first; identity_key still dedupes against it if the
+            # order shows up before this job ever runs. priority=0 (was
+            # 8): this connector is the only real consumer of this queue
+            # ("invoicing-only build" — nothing else competes for it),
+            # so once the delay elapses this should run immediately, not
+            # queue behind other, truly lower-priority sweeps.
             self.env['sale.order'].sudo().with_delay(
-                priority=8, channel='root.meli_sales', max_retries=8,
+                priority=0, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_recover_order_{order_id}",
+                eta=900,
             )._meli_import_order(company_id, order_id)
 
         if document.sale_order_id:
@@ -942,6 +977,15 @@ class MeliInvoiceDocument(models.Model):
             # the two hooks consistent.
             try:
                 with self.env.cr.savepoint():
+                    # Fix 2026-09-24 (user-directed, Monterrey XE2 total-
+                    # cancellation project, Phase 1): a credit-note/
+                    # devolution document arriving here is itself proof
+                    # this order was cancelled on Mercado Libre's own
+                    # side — see _meli_infer_cancelled_from_credit_note's
+                    # own docstring for why meli_last_status can't
+                    # already be trusted alone for a non-Full order.
+                    if document.transaction_type in MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES:
+                        document.sale_order_id._meli_infer_cancelled_from_credit_note()
                     document.sale_order_id._meli_reconcile_invoicing()
             except Exception:
                 _logger.exception(

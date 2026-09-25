@@ -3746,3 +3746,252 @@ msgstr ""
 "ligeramente retrasado respecto al estatus en tiempo real de Mercado Libre — "
 "el mismo compromiso que ya tiene meli_last_status en todo el resto de este "
 "módulo."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_stock_return_state
+msgid "Physical Return Status"
+msgstr "Estatus de Devolución Física"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__sale_order__meli_stock_return_state__partial
+msgid "Partial"
+msgstr "Parcial"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__sale_order__meli_stock_return_state__done
+msgid "Done"
+msgstr "Completado"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__sale_order__meli_stock_return_state__settled
+msgid "Settled"
+msgstr "Liquidado"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_stock_return_state
+msgid ""
+"Tracks the PHYSICAL side of a non-Full order's total cancellation/return "
+"(2026-09-24 user request, Phase 2) — separate from and later than the "
+"automated stock-to-transit step (which only moves the order's stock to the "
+"shared 'Devoluciones en tránsito ML' location, never all the way back into "
+"real, sellable stock). Empty/unset for every order this doesn't apply to; "
+"only ever set by the manual quarantine-return wizard. 'Partial': some, but "
+"not all, of this order's stock was moved from transit into the warehouse's "
+"own quarantine location — the wizard can still be run again for whatever's "
+"left. 'Done': every unit was moved into quarantine — the order drops out "
+"of the pending-review filter and the wizard can no longer be run for it. "
+"'Settled': some or all of this order's stock will never come back (written "
+"off) — a deliberate human decision via the wizard's own 'Settle' button, "
+"only available once this is already 'Partial'."
+msgstr ""
+"Registra el lado FÍSICO de la cancelación/devolución total de una venta no-"
+"Full (petición del usuario 2026-09-24, Fase 2) — separado de, y posterior "
+"a, el paso automático de stock a tránsito (que solo mueve el stock de la "
+"venta a la ubicación compartida 'Devoluciones en tránsito ML', nunca de "
+"vuelta a stock real y vendible). Vacío/sin definir para toda venta a la "
+"que esto no aplica; solo lo define el wizard manual de devolución a "
+"cuarentena. 'Parcial': parte, pero no todo, del stock de esta venta se "
+"movió de tránsito a la cuarentena del almacén — el wizard todavía se puede "
+"volver a ejecutar por lo que falte. 'Completado': se movió toda la "
+"cantidad a cuarentena — la venta sale del filtro de revisión pendiente y "
+"el wizard ya no se puede volver a ejecutar para ella. 'Liquidado': parte o "
+"todo el stock de esta venta nunca va a regresar (se da de baja) — una "
+"decisión humana deliberada vía el botón 'Liquidar' del wizard, disponible "
+"solo una vez que ya está en 'Parcial'."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "Stock was returned to the transit location 'Devoluciones en tránsito ML' via transfer(s): "
+msgstr "El stock se devolvió a la ubicación de tránsito 'Devoluciones en tránsito ML' vía la(s) transferencia(s): "
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid " — pending physical confirmation before it re-enters real stock."
+msgstr " — pendiente de confirmación física antes de volver a stock real."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"The shared 'Devoluciones en tránsito ML' location is not configured — "
+"cannot return stock automatically."
+msgstr ""
+"La ubicación compartida 'Devoluciones en tránsito ML' no está configurada "
+"— no se puede devolver el stock automáticamente."
+
+
+#. module: xe_meli_connector
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_open_quarantine_return_wizard
+#: model:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
+msgid "Confirm Physical Return"
+msgstr "Confirmar Devolución Física"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_quarantine_return_wizard__location_id
+msgid "Quarantine Location"
+msgstr "Ubicación de Cuarentena"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_quarantine_return_wizard__line_ids
+msgid "Products"
+msgstr "Productos"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_quarantine_return_wizard_line__max_quantity
+msgid "Remaining"
+msgstr "Restante"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_quarantine_return_wizard_line__quantity
+msgid "Quantity to Confirm"
+msgstr "Cantidad a Confirmar"
+
+#. module: xe_meli_connector
+#: model:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
+msgid "Confirm"
+msgstr "Confirmar"
+
+#. module: xe_meli_connector
+#: model:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
+msgid "Settle"
+msgstr "Liquidar"
+
+#. module: xe_meli_connector
+#: model:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
+msgid "This moves real inventory into the quarantine location. Are you sure?"
+msgstr "Esto mueve inventario real a la ubicación de cuarentena. ¿Estás seguro?"
+
+#. module: xe_meli_connector
+#: model:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
+msgid "Are you sure? This product will be treated as never coming back."
+msgstr "¿Estás seguro? Este producto se tratará como que nunca va a regresar."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "This is not a Mercado Libre order."
+msgstr "Esta no es una venta de Mercado Libre."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"This order's own Mercado Libre status is not 'cancelled' — refresh and try "
+"again."
+msgstr ""
+"El estatus de Mercado Libre de esta venta no es 'cancelled' — actualiza e "
+"intenta de nuevo."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Automatic validation of the quarantine transfer %s needs manual "
+"confirmation (e.g. insufficient stock) — review and apply it manually, "
+"then try again for what's left."
+msgstr ""
+"La validación automática de la transferencia a cuarentena %s necesita "
+"confirmación manual (por ejemplo, stock insuficiente) — revísala y "
+"aplícala manualmente, luego vuelve a intentar con lo que falte."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Only %(available)s of %(product)s is left in transit for this order — "
+"cannot move %(requested)s."
+msgstr ""
+"Solo quedan %(available)s de %(product)s en tránsito para esta venta — no "
+"se puede mover %(requested)s."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "Physical return confirmed to quarantine location %(location)s via transfer(s): "
+msgstr "Devolución física confirmada a la ubicación de cuarentena %(location)s vía la(s) transferencia(s): "
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/wizards/meli_quarantine_return_wizard.py:0
+msgid "Enter at least one quantity greater than zero."
+msgstr "Ingresa al menos una cantidad mayor a cero."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/wizards/meli_quarantine_return_wizard.py:0
+msgid "Select a quarantine location first."
+msgstr "Selecciona primero una ubicación de cuarentena."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/wizards/meli_quarantine_return_wizard.py:0
+msgid ""
+"Settling is only available once this order's own return is already "
+"Partial."
+msgstr ""
+"Liquidar solo está disponible una vez que la devolución de esta venta ya "
+"está en Parcial."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/wizards/meli_quarantine_return_wizard.py:0
+msgid ""
+"Marked as Settled — the remaining stock for this order will not be "
+"returned."
+msgstr ""
+"Marcado como Liquidado — el stock restante de esta venta no se va a "
+"devolver."
+
+#. module: xe_meli_connector
+#: model:ir.ui.view,arch_db:xe_meli_connector.view_sales_order_filter_meli
+msgid "Mercado Libre: Devolución Física Pendiente"
+msgstr "Mercado Libre: Devolución Física Pendiente"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_quarantine_return_wizard__meli_stock_return_state
+msgid "Physical Return Status"
+msgstr "Estatus de Devolución Física"
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "This sale hasn't been cancelled yet — nothing to confirm physically."
+msgstr "Esta venta todavía no se ha cancelado — no hay nada que confirmar físicamente."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Mercado Libre generated a credit note (%(document)s) for order "
+"%(order_id)s (one individual order within this pack) — review manually "
+"and apply it; a non-Full pack only automates a credit note when Mercado "
+"Libre confirms a partial refund or a full cancellation for that specific "
+"order."
+msgstr ""
+"Mercado Libre generó una nota de crédito (%(document)s) para el pedido "
+"%(order_id)s (un pedido individual dentro de este pack) — revisar y "
+"aplicar manualmente; en un pack no Full solo se automatiza la nota de "
+"crédito cuando Mercado Libre confirma un reembolso parcial o una "
+"cancelación total para ese pedido específico."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Individual order %(order_id)s's own stock was returned to the transit "
+"location 'Devoluciones en tránsito ML' via transfer(s): "
+msgstr ""
+"El stock propio del pedido individual %(order_id)s se devolvió a la "
+"ubicación de tránsito 'Devoluciones en tránsito ML' vía la(s) "
+"transferencia(s): "
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Mercado Libre order %(order_id)s (part of this non-Full pack) was "
+"cancelled and its credit note was related, but returning its own stock to "
+"the transit location failed — review manually."
+msgstr ""
+"Mercado Libre reporta que el pedido %(order_id)s (parte de este pack no "
+"Full) fue cancelado y su nota de crédito se relacionó, pero devolver su "
+"propio stock a la ubicación de tránsito falló — revisar manualmente."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Every individual order within this pack now appears cancelled, but the "
+"sale itself could not be cancelled automatically — review manually. (This "
+"sibling's own credit note and stock return above still completed "
+"successfully.)"
+msgstr ""
+"Todos los pedidos individuales dentro de este pack ya aparecen cancelados, "
+"pero la venta en sí no se pudo cancelar automáticamente — revisar "
+"manualmente. (La nota de crédito y la devolución de stock de este pedido "
+"individual sí se completaron correctamente.)"
