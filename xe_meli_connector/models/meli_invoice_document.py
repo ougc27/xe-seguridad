@@ -238,22 +238,6 @@ class MeliInvoiceDocument(models.Model):
              "some scenario left the order created but unconfirmed, so "
              "nothing got delivered/invoiced automatically).",
     )
-    meli_stock_return_state = fields.Selection(
-        related='sale_order_id.meli_stock_return_state',
-        string='Physical Return Status',
-        help="Related from the sale order — see that field's own help "
-             "text (2026-09-24 user request, Phase 2 of the Monterrey "
-             "XE2 total-cancellation project). Only shown here to whoever "
-             "holds the group this whole project is gated behind.",
-    )
-    meli_order_last_status = fields.Char(
-        related='sale_order_id.meli_last_status', string='Sale Order Last Status',
-        help="Related from the sale order, plain (non-dotted) field so "
-             "the 'Confirm Physical Return' button's own invisible "
-             "condition can reference it directly — Odoo's view "
-             "validator requires every field a modifier expression "
-             "touches to be present in the view by name.",
-    )
     meli_xml_total = fields.Float(
         string='Invoiced Total (XML)', compute='_compute_meli_xml_total',
         store=True, digits=(16, 2),
@@ -1536,17 +1520,6 @@ class MeliInvoiceDocument(models.Model):
             else:
                 still_missing += 1
         return rescued, still_missing
-
-    def action_meli_open_quarantine_return_wizard(self):
-        """List-view button (2026-09-24 user request, Phase 2): thin
-        delegate to sale.order's own action of the same name — lets a
-        user open the wizard directly from a row in this document list
-        (filtered to pending physical returns) without navigating to the
-        sale order form first. ensure_one() lives on the delegate target,
-        not here, since a click always comes from exactly one row.
-        """
-        self.ensure_one()
-        return self.sale_order_id.action_meli_open_quarantine_return_wizard()
 
     def action_meli_rescue_xml(self):
         """Manual button: on-demand re-fetch of the XML file for

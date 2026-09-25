@@ -17,6 +17,12 @@
                 <field name="meli_last_status" optional="hide"/>
                 <field name="meli_has_refacturacion" optional="hide" widget="boolean_toggle"/>
                 <field name="meli_has_credit_note" optional="hide" widget="boolean_toggle"/>
+                <!-- 2026-09-24 user request, Phase 2 of the Monterrey
+                     XE2 total-cancellation project: informational only
+                     here — the button that actually acts on it lives on
+                     the form view, on purpose (never in this list). -->
+                <field name="meli_stock_return_state" optional="hide"
+                       groups="__export__.res_groups_226_2f47e690"/>
             </field>
         </field>
     </record>

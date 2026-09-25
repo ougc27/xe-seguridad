@@ -61,6 +61,19 @@
                 <filter string="Mercado Libre: Descuento Subsidiado por Mercado Libre"
                         name="meli_discount_ml_funded"
                         domain="[('meli_discount_ml_funded_amount', '&gt;', 0)]"/>
+                <!-- 2026-09-24 user request, Phase 2 of the Monterrey
+                     XE2 total-cancellation project: every non-Full order
+                     Mercado Libre reports as cancelled whose physical
+                     return isn't fully confirmed yet (meli_stock_return_
+                     state unset/'partial' — never 'settled' either, a
+                     deliberate human decision that it's done for good).
+                     Group-gated the same as the wizard/button that acts
+                     on it. -->
+                <filter string="Mercado Libre: Devolución Física Pendiente"
+                        name="meli_pending_physical_return"
+                        groups="__export__.res_groups_226_2f47e690"
+                        domain="[('meli_last_status', '=', 'cancelled'),
+                                 ('meli_stock_return_state', 'not in', ('done', 'settled'))]"/>
             </filter>
         </field>
     </record>
