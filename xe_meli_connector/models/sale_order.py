@@ -1788,6 +1788,79 @@ class SaleOrder(models.Model):
             new_pickings |= new_picking
         return new_pickings
 
+    def _meli_return_sibling_pickings_to_transit(self, lines):
+        """Same by-code stock.return.picking mechanism and same
+        transit destination as _meli_return_full_pickings_to_transit,
+        but scoped to ONE pack sibling's own line(s) only — same
+        move-scoping technique _meli_apply_partial_cancellation already
+        uses for its own (Full-only) stock return. 2026-09-25 user
+        request: a non-Full pack sibling reported genuinely CANCELLED
+        (not just a partial refund) gets its own share of Phase 1's
+        total-cancellation policy — only THIS sibling's delivered
+        stock goes to transit; every other, still-legitimate sibling
+        in the pack is left completely untouched.
+        """
+        self.ensure_one()
+        location = self.env['stock.location'].sudo().search([
+            ('name', '=', 'Devoluciones en tránsito ML'),
+            ('company_id', 'in', [self.company_id.id, False]),
+        ], limit=1)
+        if not location:
+            raise UserError(_(
+                "The shared 'Devoluciones en tránsito ML' location is "
+                "not configured — cannot return stock automatically."
+            ))
+        done_pickings = self.picking_ids.filtered(
+            lambda p: p.state == 'done' and p.picking_type_id.code == 'outgoing'
+        )
+        sibling_moves = done_pickings.move_ids.filtered(
+            lambda m: m.sale_line_id in lines and m.state == 'done'
+        )
+        returnable_moves = sibling_moves.filtered(
+            lambda m: not m.returned_move_ids.filtered(lambda r: r.state != 'cancel')
+        )
+        new_pickings = self.env['stock.picking']
+        for picking in returnable_moves.picking_id:
+            picking_moves = returnable_moves.filtered(lambda m: m.picking_id == picking)
+            return_lines = [
+                (0, 0, {
+                    'product_id': move.product_id.id,
+                    'quantity': move.quantity,
+                    'move_id': move.id,
+                    'uom_id': move.product_id.uom_id.id,
+                })
+                for move in picking_moves
+            ]
+            return_wizard = self.env['stock.return.picking'].with_context(
+                active_ids=picking.ids, active_id=picking.id, active_model='stock.picking',
+            ).create({
+                'location_id': location.id,
+                'picking_id': picking.id,
+                'product_return_moves': return_lines,
+            })
+            new_picking_id, __ = return_wizard._create_returns()
+            new_picking = self.env['stock.picking'].browse(new_picking_id)
+            result = new_picking.button_validate()
+            if isinstance(result, dict):
+                raise UserError(_(
+                    "Automatic validation of the return transfer %s "
+                    "needs manual confirmation (e.g. insufficient "
+                    "stock) — cannot auto-process this sibling's "
+                    "cancellation."
+                ) % new_picking.name)
+            new_pickings |= new_picking
+        if new_pickings:
+            self.message_post(body=_(
+                "Individual order %(order_id)s's own stock was "
+                "returned to the transit location 'Devoluciones en "
+                "tránsito ML' via transfer(s) %(pickings)s — pending "
+                "physical confirmation before it re-enters real stock."
+            ) % {
+                'order_id': lines.mapped('meli_order_id')[:1] or '?',
+                'pickings': ', '.join(new_pickings.mapped('name')),
+            })
+        return new_pickings
+
     def _meli_process_non_full_total_cancellation(self):
         """Phase 1 of the Monterrey XE2 (non-Full) total-cancellation
         project (2026-09-24 user request) — the non-Full counterpart
@@ -1838,7 +1911,16 @@ class SaleOrder(models.Model):
         recent change.
         """
         self.ensure_one()
-        if not self.meli_sync_source:
+        # Fix 2026-09-25 (real bug, this "invoicing-only" build):
+        # meli_sync_source is only ever set by this connector's own
+        # order-adoption/creation logic, which isn't wired up in every
+        # deployment (see this module's own manifest description) — an
+        # order whose invoicing this connector already handles can
+        # still have meli_sync_source empty, VentiApp having created it
+        # with no adoption step ever running. meli_last_status is a
+        # more reliable "is this genuinely Mercado Libre" signal here:
+        # nothing else in this module ever sets it.
+        if not self.meli_last_status:
             raise UserError(_(
                 "This is not a Mercado Libre order."
             ))
@@ -1846,6 +1928,19 @@ class SaleOrder(models.Model):
             raise UserError(_(
                 "This order's own Mercado Libre status is not "
                 "'cancelled' — refresh and try again."
+            ))
+        # Fix 2026-09-25 (user-directed correction): meli_last_status
+        # can already read 'cancelled' before the sale itself actually
+        # is — that field is set the moment a credit-note document
+        # arrives (_meli_infer_cancelled_from_credit_note), which can
+        # happen before Phase 1 finishes applying the credit note and
+        # cancelling the sale (e.g. no posted invoice yet to credit
+        # against). Nothing to physically confirm until the sale is
+        # genuinely cancelled.
+        if self.state != 'cancel':
+            raise UserError(_(
+                "This sale hasn't been cancelled yet — nothing to "
+                "confirm physically."
             ))
         return {
             'type': 'ir.actions.act_window',
@@ -1951,6 +2046,21 @@ class SaleOrder(models.Model):
                 })
                 new_picking_id, __ = return_wizard._create_returns()
                 new_picking = self.env['stock.picking'].browse(new_picking_id)
+                # Fix 2026-09-25 (user-directed): a plain
+                # stock.return.picking copy() keeps the ORIGINAL move's
+                # own procurement group — which is this sale's own
+                # group (the same reason stock.picking.sale_id resolves
+                # at all, see _meli_apply_partial_cancellation's own
+                # docstring on this exact mechanism). Left alone, this
+                # quarantine-bound transfer would show up as one of the
+                # sale's own pickings — confusing next to the real
+                # delivery/invoicing picture, and with no bearing on
+                # qty_delivered/qty_invoiced at all. Cleared here, right
+                # after creation and before validation, so it stands on
+                # its own; the sale's own chatter link below is the only
+                # trace connecting the two.
+                new_picking.group_id = False
+                new_picking.move_ids.group_id = False
                 result = new_picking.button_validate()
                 if isinstance(result, dict):
                     raise UserError(_(
@@ -1970,12 +2080,24 @@ class SaleOrder(models.Model):
                     'product': product.display_name,
                     'requested': quantity,
                 })
+        # Fix 2026-09-25 (user-directed): links straight to each
+        # transfer via chatter (same generic record-link mechanism this
+        # module's own _meli_post_with_mention already uses for a
+        # partner @-mention, here pointed at stock.picking instead) —
+        # never as one of this sale's own pickings (see the group_id
+        # clearing above for why), so this is the only trace connecting
+        # the two.
+        picking_links = ', '.join(
+            f'<a href="#" data-oe-model="stock.picking" data-oe-id="{picking.id}" '
+            f'class="o_mail_redirect">{picking.name}</a>'
+            for picking in new_pickings
+        )
         self.message_post(body=_(
             "Physical return confirmed to quarantine location "
             "%(location)s via transfer(s) %(pickings)s."
         ) % {
             'location': self.env['stock.location'].browse(location_id).display_name,
-            'pickings': ', '.join(new_pickings.mapped('name')),
+            'pickings': picking_links,
         })
         return not any(self._meli_quarantine_remaining_by_product().values())
 
@@ -4349,6 +4471,21 @@ class SaleOrder(models.Model):
                     continue
                 handled_sibling_ids.add(cancelled_order_id)
 
+                # Fix 2026-09-25 (user-directed, real production case,
+                # pack 2000018289334426): a non-Full pack sibling can
+                # also be genuinely, fully CANCELLED — not just
+                # partially refunded — in which case the total-
+                # cancellation policy (Phase 1 of the Monterrey XE2
+                # project) applies to that ONE sibling: relate the
+                # credit note, then return THAT sibling's own delivered
+                # stock to the shared transit location, then close the
+                # whole pack once every sibling has reached this same
+                # state — see _meli_return_sibling_pickings_to_transit
+                # and _meli_close_pack_if_every_sibling_cancelled below.
+                # Previously this fell through to the same manual-review
+                # message as an unconfirmed status, even for a document
+                # whose own XML plainly covers the sibling's full amount.
+                sibling_is_cancelled = False
                 if not is_full:
                     try:
                         live_sibling_data = config._api_get(f'/orders/{cancelled_order_id}')
@@ -4364,18 +4501,20 @@ class SaleOrder(models.Model):
                             'order_id': cancelled_order_id or '?',
                         })
                         continue
+                    live_sibling_status = (live_sibling_data or {}).get('status')
                     sibling_is_confirmed_partial_refund = (
-                        (live_sibling_data or {}).get('status') == 'partially_refunded'
+                        live_sibling_status == 'partially_refunded'
                     )
-                    if not sibling_is_confirmed_partial_refund:
+                    sibling_is_cancelled = live_sibling_status == 'cancelled'
+                    if not sibling_is_confirmed_partial_refund and not sibling_is_cancelled:
                         self.message_post(body=_(
                             "Mercado Libre generated a credit note "
                             "(%(document)s) for order %(order_id)s (one "
                             "individual order within this pack) — review "
                             "manually and apply it; a non-Full pack only "
                             "automates a credit note when Mercado Libre "
-                            "confirms a partial refund for that specific "
-                            "order."
+                            "confirms a partial refund or a full "
+                            "cancellation for that specific order."
                         ) % {
                             'document': document.meli_invoice_id or document.id,
                             'order_id': cancelled_order_id or '?',
@@ -4412,10 +4551,60 @@ class SaleOrder(models.Model):
                 # like this one — related to its sale_order_id but never
                 # actually applied — is available on demand instead, via
                 # action_meli_retry_invoicing_reconciliation.
-                self._meli_relate_partial_cancellation_credit_note(
+                sibling_credit_note = self._meli_relate_partial_cancellation_credit_note(
                     sibling_lines, cancelled_order_id,
                     extra_payment_lines_by_document=credit_note_payment_lines_by_document,
                 )
+                # Fix 2026-09-25 (see this branch's own comment above):
+                # only for a genuinely CANCELLED sibling, and only once
+                # its credit note actually got related (sibling_credit_
+                # note empty means the concepts couldn't be matched yet
+                # — nothing to physically return against an unrelated
+                # fiscal document, same "never guess" principle as every
+                # other credit-note gate in this method). Never for a
+                # confirmed partial refund: that never touches stock,
+                # by design (see is_confirmed_partial_refund's own
+                # handling in the non-pack branch below).
+                if sibling_is_cancelled and sibling_credit_note:
+                    try:
+                        with self.env.cr.savepoint():
+                            self._meli_return_sibling_pickings_to_transit(sibling_lines)
+                    except Exception:
+                        _logger.exception(
+                            "Mercado Libre order %s: individual order "
+                            "%s (part of this non-Full pack) was "
+                            "cancelled and its credit note related, but "
+                            "returning its own stock to transit failed "
+                            "— needs manual review.",
+                            self.client_order_ref, cancelled_order_id,
+                        )
+                        self._meli_notify_queue_job_managers(_(
+                            "Mercado Libre order %(order_id)s (part of "
+                            "this non-Full pack) was cancelled and its "
+                            "credit note was related, but returning its "
+                            "own stock to the transit location failed "
+                            "— review manually."
+                        ) % {'order_id': cancelled_order_id})
+                        continue
+                    try:
+                        with self.env.cr.savepoint():
+                            self._meli_close_pack_if_every_sibling_cancelled()
+                    except Exception:
+                        _logger.exception(
+                            "Mercado Libre order %s: every visible "
+                            "sibling in this non-Full pack now appears "
+                            "cancelled, but automatically cancelling "
+                            "the sale itself failed — needs manual "
+                            "review.", self.client_order_ref,
+                        )
+                        self.message_post(body=_(
+                            "Every individual order within this pack "
+                            "now appears cancelled, but the sale itself "
+                            "could not be cancelled automatically — "
+                            "review manually. (This sibling's own "
+                            "credit note and stock return above still "
+                            "completed successfully.)"
+                        ))
             return
 
         source_invoice = self.invoice_ids.filtered(
@@ -4447,8 +4636,19 @@ class SaleOrder(models.Model):
         # automate regardless of Full/non-Full. Moved up from further
         # below, where it used to run only AFTER a non-Full order had
         # already been unconditionally blocked.
+        # Fix 2026-09-25 (real bug, order S953238, VentiApp-adopted):
+        # meli_order_id is never filled for an order adopted from
+        # VentiApp — only reference/client_order_ref carries Mercado
+        # Libre's own id for those (see meli.invoice.document.
+        # sale_order_id's own help text on the same gap). Without this
+        # fallback, this call built '/orders/False' and 400'd every
+        # time, permanently blocking this whole credit-note step for
+        # every adopted order — not just a non-Full total cancellation,
+        # ANY credit note (including the confirmed-partial-refund case
+        # already automated since 2026-09-22).
+        live_order_id = self.meli_order_id or self.reference
         try:
-            live_order_data = config._api_get(f'/orders/{self.meli_order_id}')
+            live_order_data = config._api_get(f'/orders/{live_order_id}')
         except requests.exceptions.RequestException:
             self.message_post(body=_(
                 "Mercado Libre generated a credit note for this order, "

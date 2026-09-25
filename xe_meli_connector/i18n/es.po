@@ -3946,3 +3946,59 @@ msgstr "Mercado Libre: Devolución Física Pendiente"
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_quarantine_return_wizard__meli_stock_return_state
 msgid "Physical Return Status"
 msgstr "Estatus de Devolución Física"
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "This sale hasn't been cancelled yet — nothing to confirm physically."
+msgstr "Esta venta todavía no se ha cancelado — no hay nada que confirmar físicamente."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Mercado Libre generated a credit note (%(document)s) for order "
+"%(order_id)s (one individual order within this pack) — review manually "
+"and apply it; a non-Full pack only automates a credit note when Mercado "
+"Libre confirms a partial refund or a full cancellation for that specific "
+"order."
+msgstr ""
+"Mercado Libre generó una nota de crédito (%(document)s) para el pedido "
+"%(order_id)s (un pedido individual dentro de este pack) — revisar y "
+"aplicar manualmente; en un pack no Full solo se automatiza la nota de "
+"crédito cuando Mercado Libre confirma un reembolso parcial o una "
+"cancelación total para ese pedido específico."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Individual order %(order_id)s's own stock was returned to the transit "
+"location 'Devoluciones en tránsito ML' via transfer(s) %(pickings)s — "
+"pending physical confirmation before it re-enters real stock."
+msgstr ""
+"El stock propio del pedido individual %(order_id)s se devolvió a la "
+"ubicación de tránsito 'Devoluciones en tránsito ML' vía la(s) "
+"transferencia(s) %(pickings)s — pendiente de confirmación física antes de "
+"volver a stock real."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Mercado Libre order %(order_id)s (part of this non-Full pack) was "
+"cancelled and its credit note was related, but returning its own stock to "
+"the transit location failed — review manually."
+msgstr ""
+"Mercado Libre reporta que el pedido %(order_id)s (parte de este pack no "
+"Full) fue cancelado y su nota de crédito se relacionó, pero devolver su "
+"propio stock a la ubicación de tránsito falló — revisar manualmente."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Every individual order within this pack now appears cancelled, but the "
+"sale itself could not be cancelled automatically — review manually. (This "
+"sibling's own credit note and stock return above still completed "
+"successfully.)"
+msgstr ""
+"Todos los pedidos individuales dentro de este pack ya aparecen cancelados, "
+"pero la venta en sí no se pudo cancelar automáticamente — revisar "
+"manualmente. (La nota de crédito y la devolución de stock de este pedido "
+"individual sí se completaron correctamente.)"

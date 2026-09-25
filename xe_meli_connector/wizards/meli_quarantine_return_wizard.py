@@ -109,9 +109,18 @@ class MeliQuarantineReturnWizardLine(models.TransientModel):
     wizard_id = fields.Many2one(
         'meli.quarantine.return.wizard', required=True, ondelete='cascade',
     )
-    product_id = fields.Many2one('product.product', required=True, readonly=True)
+    # Fix 2026-09-25 (real bug): readonly=True at the FIELD level (not
+    # just the view's own readonly="1") made the web client omit this
+    # value entirely when creating a brand new line straight from
+    # default_get's own (0, 0, vals) commands — "Confirm" then failed
+    # with "no configuró un campo obligatorio" on product_id. Display-
+    # only is enforced in the view instead; the field itself stays
+    # writable so defaults reach the database.
+    product_id = fields.Many2one('product.product', required=True)
+    # Same fix as product_id above: no field-level readonly, so its
+    # default value from (0, 0, vals) actually reaches the database.
     max_quantity = fields.Float(
-        string='Remaining', readonly=True,
+        string='Remaining',
         help="Still sitting in transit for this order, not yet confirmed "
              "into quarantine — the quantity field below can only be "
              "lowered, never raised past this.",

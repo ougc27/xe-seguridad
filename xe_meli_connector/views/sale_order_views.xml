@@ -47,7 +47,7 @@
                 <button name="action_meli_open_quarantine_return_wizard" type="object"
                         string="Confirm Physical Return"
                         class="btn-secondary" groups="__export__.res_groups_226_2f47e690"
-                        invisible="not meli_sync_source or meli_last_status != 'cancelled' or meli_stock_return_state == 'done'"/>
+                        invisible="state != 'cancel' or meli_last_status != 'cancelled' or meli_stock_return_state == 'done'"/>
             </xpath>
         </field>
     </record>
