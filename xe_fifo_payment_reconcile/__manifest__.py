@@ -27,6 +27,8 @@ See README.md for setup and states.
     'depends': ['account', 'mail', 'l10n_mx_edi'],
     'data': [
         'security/fifo_reconcile_security.xml',
+        'data/ir_config_parameter.xml',
+        'data/ir_cron.xml',
         'views/res_partner_views.xml',
         'views/account_payment_views.xml',
     ],

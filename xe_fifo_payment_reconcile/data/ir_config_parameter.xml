@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Número de facturas por lote. Se puede ajustar desde Ajustes >
+             Técnico > Parámetros del sistema sin volver a desplegar. -->
+        <record id="param_fifo_reconcile_batch_size" model="ir.config_parameter">
+            <field name="key">xe_fifo_payment_reconcile.fifo_reconcile_batch_size</field>
+            <field name="value">250</field>
+        </record>
+    </data>
+</odoo>
