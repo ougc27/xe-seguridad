@@ -88,7 +88,12 @@ class MeliOAuthController(http.Controller):
             config = self._find_config_by_ml_user_id(payload)
             if config:
                 request.env['sale.order'].sudo().with_delay(
-                    priority=5, channel='root.meli_sales', max_retries=8,
+                    # Priority 3 (2026-09-23, user-directed): sales must
+                    # queue ahead of invoices — an invoice/credit-note
+                    # document can't relate to a sale order that doesn't
+                    # exist yet, so letting orders lag behind only makes
+                    # invoices pile up waiting on them.
+                    priority=3, channel='root.meli_sales', max_retries=8,
                     description=f"Import Mercado Libre order {order_id}",
                     identity_key=f"meli_import_order_{order_id}",
                 )._meli_import_order(config.company_id.id, order_id)
@@ -107,10 +112,13 @@ class MeliOAuthController(http.Controller):
             config = self._find_config_by_ml_user_id(payload)
             if config:
                 request.env['meli.invoice.document'].sudo().with_delay(
-                    # Priority 3 (vs. the 5 used by order/claim webhooks)
-                    # — invoices got de-prioritized by default and lagged
-                    # behind, per the user 2026-09-04.
-                    priority=3, channel='root.meli_sales', max_retries=8,
+                    # Priority 5 (2026-09-23, user-directed: sales now
+                    # queue ahead of invoices — see the order webhook's
+                    # own priority=3 comment just above). Previously 3,
+                    # itself already lower than the 5 orders used to
+                    # carry back then (per the user 2026-09-04) — that
+                    # relative ordering flips here on purpose.
+                    priority=5, channel='root.meli_sales', max_retries=8,
                     description=f"Import Mercado Libre invoice {invoice_id}",
                     identity_key=f"meli_import_invoice_{invoice_id}",
                 )._meli_import_invoice_document(config.company_id.id, invoice_id)

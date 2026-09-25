@@ -16,8 +16,12 @@
                 <field name="meli_last_status" invisible="not meli_last_status" readonly="1"/>
                 <field name="meli_order_date_created" invisible="not meli_order_date_created" readonly="1"/>
                 <field name="meli_order_date_closed" invisible="not meli_order_date_closed" readonly="1"/>
+                <field name="meli_order_detail_url" widget="url" string="Open in Mercado Libre"
+                       invisible="not meli_order_detail_url" text="Open Order"
+                       groups="xe_meli_connector.group_meli_user"/>
                 <field name="meli_portal_url" widget="url" string="Open in Mercado Libre"
-                       invisible="not meli_portal_url" text="Open Messaging"/>
+                       invisible="not meli_portal_url" text="Open Messaging"
+                       groups="xe_meli_connector.group_meli_user"/>
                 <field name="meli_discount_amount" invisible="not meli_discount_amount" readonly="1"/>
                 <field name="meli_discount_ml_funded_amount"
                        invisible="not meli_discount_ml_funded_amount" readonly="1"/>
@@ -39,6 +43,10 @@
                         string="Retry Invoicing"
                         class="btn-secondary" groups="xe_meli_connector.group_meli_user"
                         invisible="not meli_sync_source or not meli_has_unapplied_document"/>
+                <button name="action_meli_open_quarantine_return_wizard" type="object"
+                        string="Confirm Physical Return"
+                        class="btn-secondary" groups="__export__.res_groups_226_2f47e690"
+                        invisible="not meli_sync_source or meli_last_status != 'cancelled' or meli_stock_return_state == 'done'"/>
             </xpath>
         </field>
     </record>

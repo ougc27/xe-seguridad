@@ -77,18 +77,6 @@ MELI_INVOICE_DEAD_STATUSES = {'rejected', 'cancelled', 'canceled'}
 # one, so it keeps being treated as ready, exactly as before this fix.
 MELI_INVOICE_NOT_YET_AUTHORIZED_STATUSES = {'pending_authorization', 'interrupted'}
 
-# Fix 2026-09-21 (user-directed): a '1P' (First Party) Mercado Libre sale
-# — XE sells at wholesale and Mercado Libre itself sets the final price,
-# markets and delivers it — has no dedicated flag anywhere in the API the
-# user is aware of. The user's own fallback: this document's own CFDI
-# Emisor Rfc (the entity that actually stamped it) is DCM991109KR2 —
-# DEREMATE.COM DE MEXICO, S. DE R.L. DE C.V. — whenever a '1P' sale gets
-# invoiced under that entity rather than Mercado Libre's own. See
-# sale.order._meli_invoice_partner_id, which uses this together with the
-# 'resale' scheme to decide which partner a factura/nota de crédito bills.
-MELI_DEREMATE_RFC = 'DCM991109KR2'
-
-
 class MeliInvoiceDocument(models.Model):
     _name = 'meli.invoice.document'
     _description = 'Mercado Libre Invoice/Credit Note (native invoicer XML)'
@@ -250,6 +238,14 @@ class MeliInvoiceDocument(models.Model):
              "some scenario left the order created but unconfirmed, so "
              "nothing got delivered/invoiced automatically).",
     )
+    meli_stock_return_state = fields.Selection(
+        related='sale_order_id.meli_stock_return_state',
+        string='Physical Return Status',
+        help="Related from the sale order — see that field's own help "
+             "text (2026-09-24 user request, Phase 2 of the Monterrey "
+             "XE2 total-cancellation project). Only shown here to whoever "
+             "holds the group this whole project is gated behind.",
+    )
     meli_xml_total = fields.Float(
         string='Invoiced Total (XML)', compute='_compute_meli_xml_total',
         store=True, digits=(16, 2),
@@ -258,32 +254,35 @@ class MeliInvoiceDocument(models.Model):
              "Libre invoiced, independent of whatever Odoo's own sale "
              "order computed. 0.0 when there's no XML yet.",
     )
-    meli_emisor_rfc = fields.Char(
-        string='Issuer RFC (XML)', compute='_compute_meli_emisor_rfc', store=True,
-        help="The RFC stamped on the CFDI's own cfdi:Emisor node — "
-             "whichever real fiscal entity actually issued this document "
-             "(Mercado Libre's own, or DEREMATE.COM DE MEXICO for a '1P' "
-             "sale — see MELI_DEREMATE_RFC in this file). Empty when "
-             "there's no XML yet or it couldn't be parsed.",
-    )
-    meli_bill_to_deremate = fields.Boolean(
-        string='Bill To Deremate', compute='_compute_meli_bill_to_deremate',
-        store=True,
-        help="True for a 'resale'/'resale_devolution' document, or one "
-             "whose own meli_emisor_rfc is DEREMATE.COM DE MEXICO's RFC "
-             "(DCM991109KR2) — the two ways a '1P' sale is recognisable "
-             "today (2026-09-21, user decision). Used by "
-             "sale.order._meli_invoice_partner_id to bill the factura/"
-             "nota de crédito this document creates to DEREMATE.COM DE "
-             "MEXICO instead of Mercado Libre's own billing contact.",
-    )
     meli_amount_mismatch = fields.Boolean(
         string='Invoice/Sale Amount Mismatch', compute='_compute_meli_amount_mismatch',
         store=True,
         help="True when meli_xml_total and the related sale order's own "
              "amount_total differ by more than 5 cents (2026-09-14 "
              "user request) — filterable here so these can be found and "
-             "reviewed manually.",
+             "reviewed manually. Fix 2026-09-24 (user-directed): always "
+             "False while meli_order_has_partial_refund is True — see "
+             "that field's own help text for why that gap is expected "
+             "by design there, never an error to review.",
+    )
+    meli_move_amount_mismatch = fields.Boolean(
+        string='Invoice/CFDI Amount Mismatch', compute='_compute_meli_amount_mismatch',
+        store=True,
+        help="True when the REAL Odoo invoice/credit note this document "
+             "was applied to (move_ids) doesn't add up to meli_xml_total "
+             "(more than 5 cents off) — a different, more serious gap "
+             "than meli_amount_mismatch: that one only ever compares the "
+             "XML against the SALE's own total (which can already "
+             "include a pack sibling's line added after this move was "
+             "posted), never against what was actually invoiced/"
+             "credited. Real production case: order S974870/pack "
+             "2000015124781237 — a second pack sibling's own line "
+             "wasn't delivered yet when the invoice was first built, so "
+             "only one of its two products ever made it onto the "
+             "posted invoice and its credit note, both silently short "
+             "by that missing line's own amount, with nothing else ever "
+             "catching or correcting it. False whenever move_ids is "
+             "empty (nothing posted yet to compare).",
     )
     meli_order_has_partial_refund = fields.Boolean(
         string='Order Has Partial Refund', compute='_compute_meli_amount_mismatch',
@@ -423,6 +422,25 @@ class MeliInvoiceDocument(models.Model):
                 and document.meli_pack_id
                 and document.sale_order_id
                 and document.transaction_type in MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES
+                # Fix 2026-09-22 (real production bug, user-caught: a
+                # document could show BOTH "Order Has Partial Refund"
+                # and "Stock Return Pending" checked at once — a
+                # confirmed partial refund (see sale.order._meli_build_
+                # partial_credit_note/_meli_relate_partial_cancellation_
+                # credit_note's own discount-type branch, account.move.
+                # line.meli_discount_adjustment) never touches stock at
+                # all — nothing was ever delivered-and-not-returned to
+                # begin with, so "pending" makes no sense for it.
+                # delivered_qty > returned_qty below is naturally True
+                # for a discount (delivered=1, returned=0), even though
+                # this was never a physical return — checked against
+                # the credit note's OWN posted move, not the order's
+                # possibly-stale cached status, since a pack can have
+                # siblings in different states at once.
+                and not any(
+                    document.move_ids.filtered(lambda m: m.state == 'posted')
+                    .invoice_line_ids.mapped('meli_discount_adjustment')
+                )
             ):
                 order = document.sale_order_id
                 lines = order._meli_sibling_lines(document.meli_order_id)
@@ -465,36 +483,24 @@ class MeliInvoiceDocument(models.Model):
                 )
             document.meli_xml_total = xml_total or 0.0
 
-    @api.depends('xml_file')
-    def _compute_meli_emisor_rfc(self):
-        for document in self:
-            emisor_rfc = False
-            if document.xml_file:
-                emisor_rfc = self._meli_parse_emisor_rfc_from_xml(
-                    base64.b64decode(document.xml_file)
-                )
-            document.meli_emisor_rfc = emisor_rfc or False
-
-    @api.depends('transaction_type', 'meli_emisor_rfc')
-    def _compute_meli_bill_to_deremate(self):
-        for document in self:
-            document.meli_bill_to_deremate = bool(
-                document.transaction_type in ('resale', 'resale_devolution')
-                or document.meli_emisor_rfc == MELI_DEREMATE_RFC
-            )
-
     @api.depends(
         'meli_xml_total', 'meli_has_xml', 'sale_order_id.amount_total',
-        'sale_order_id.meli_last_status',
+        'sale_order_id.meli_last_status', 'move_ids.amount_total', 'move_ids.state',
     )
     def _compute_meli_amount_mismatch(self):
         for document in self:
-            document.meli_amount_mismatch = bool(
-                document.meli_has_xml and document.sale_order_id
-                and abs(document.meli_xml_total - document.sale_order_id.amount_total) > 0.05
-            )
             document.meli_order_has_partial_refund = (
                 document.sale_order_id.meli_last_status == 'partially_refunded'
+            )
+            document.meli_amount_mismatch = bool(
+                not document.meli_order_has_partial_refund
+                and document.meli_has_xml and document.sale_order_id
+                and abs(document.meli_xml_total - document.sale_order_id.amount_total) > 0.05
+            )
+            live_moves = document.move_ids.filtered(lambda m: m.state != 'cancel')
+            document.meli_move_amount_mismatch = bool(
+                document.meli_has_xml and live_moves
+                and abs(sum(live_moves.mapped('amount_total')) - document.meli_xml_total) > 0.05
             )
 
     _sql_constraints = [(
@@ -598,6 +604,12 @@ class MeliInvoiceDocument(models.Model):
         for document in self.filtered('sale_order_id'):
             try:
                 with self.env.cr.savepoint():
+                    # Fix 2026-09-24 (Monterrey XE2 total-cancellation
+                    # project, Phase 1) — see the other call site's
+                    # identical comment, in _meli_upsert, for why this
+                    # is needed here too.
+                    if document.transaction_type in MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES:
+                        document.sale_order_id._meli_infer_cancelled_from_credit_note()
                     document.sale_order_id._meli_reconcile_invoicing()
             except Exception:
                 _logger.exception(
@@ -743,6 +755,15 @@ class MeliInvoiceDocument(models.Model):
         meli.config (true today: XE Brands) and uses its company_id for
         every orphaned document found. Revisit if a second company ever
         gets its own Mercado Libre connection.
+
+        Fix 2026-09-24 (real production incident, order_id
+        2000000005969244, documents 15630/15678): excludes transaction_
+        type 'service_test' — Mercado Libre's own connectivity test
+        ping, sent periodically against a made-up order_id that will
+        never exist. Without this, every cycle re-enqueues
+        _meli_import_order for it, which 404s against the real API
+        forever — this order_id alone had retried every 30 minutes for
+        over a week straight before being noticed.
         """
         config = self.env['meli.config'].sudo().search([
             ('state', '=', 'connected'),
@@ -751,10 +772,19 @@ class MeliInvoiceDocument(models.Model):
             return
         orphaned_order_ids = set(self.sudo().search([
             ('sale_order_id', '=', False), ('meli_order_id', '!=', False),
+            ('transaction_type', '!=', 'service_test'),
         ]).mapped('meli_order_id'))
         for order_id in orphaned_order_ids:
+            # priority=0 (was 8, 2026-09-24 user-directed): same
+            # reasoning as Trigger B's own identical call above — this
+            # connector is the only real consumer of this queue. No
+            # extra eta needed here on top of it, unlike Trigger B: this
+            # cron itself already only runs every 30 minutes, so a
+            # document only reaches this loop after already having had
+            # a full cycle for the order's own normal import to land
+            # first.
             self.env['sale.order'].sudo().with_delay(
-                priority=8, channel='root.meli_sales', max_retries=8,
+                priority=0, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_recover_order_{order_id}",
             )._meli_import_order(config.company_id.id, order_id)
 
@@ -917,9 +947,26 @@ class MeliInvoiceDocument(models.Model):
             # identity_key dedupes: several documents for the same order
             # arriving close together must not enqueue redundant recovery
             # jobs.
+            #
+            # Fix 2026-09-24 (user-directed, real production noise: order
+            # 2000000005969244 and several others in the same failed-job
+            # review): an invoice can arrive via webhook mere seconds
+            # before the order itself does through its own, entirely
+            # separate pipeline — attempting the recovery immediately
+            # just wastes an API call on a 404 that resolves itself
+            # moments later anyway (every order is always imported
+            # through its own path regardless of this one). eta=900 (15
+            # minutes) gives that normal path every reasonable chance to
+            # land first; identity_key still dedupes against it if the
+            # order shows up before this job ever runs. priority=0 (was
+            # 8): this connector is the only real consumer of this queue
+            # ("invoicing-only build" — nothing else competes for it),
+            # so once the delay elapses this should run immediately, not
+            # queue behind other, truly lower-priority sweeps.
             self.env['sale.order'].sudo().with_delay(
-                priority=8, channel='root.meli_sales', max_retries=8,
+                priority=0, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_recover_order_{order_id}",
+                eta=900,
             )._meli_import_order(company_id, order_id)
 
         if document.sale_order_id:
@@ -938,6 +985,15 @@ class MeliInvoiceDocument(models.Model):
             # the two hooks consistent.
             try:
                 with self.env.cr.savepoint():
+                    # Fix 2026-09-24 (user-directed, Monterrey XE2 total-
+                    # cancellation project, Phase 1): a credit-note/
+                    # devolution document arriving here is itself proof
+                    # this order was cancelled on Mercado Libre's own
+                    # side — see _meli_infer_cancelled_from_credit_note's
+                    # own docstring for why meli_last_status can't
+                    # already be trusted alone for a non-Full order.
+                    if document.transaction_type in MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES:
+                        document.sale_order_id._meli_infer_cancelled_from_credit_note()
                     document.sale_order_id._meli_reconcile_invoicing()
             except Exception:
                 _logger.exception(
@@ -1016,28 +1072,6 @@ class MeliInvoiceDocument(models.Model):
             return float(total)
         except ValueError:
             return False
-
-    @staticmethod
-    def _meli_parse_emisor_rfc_from_xml(xml_bytes):
-        """The CFDI's own cfdi:Emisor Rfc attribute — the real fiscal
-        entity that stamped this specific document, used to recognise a
-        '1P' sale invoiced under DEREMATE.COM DE MEXICO instead of
-        Mercado Libre's own entity (see MELI_DEREMATE_RFC). Namespace-
-        agnostic (etree.QName(node).localname), same technique as
-        _meli_parse_concepts_from_xml, since a CFDI's namespace prefix
-        isn't guaranteed. Returns False (never raises) on malformed XML
-        or a missing Emisor/Rfc, same convention as every other XML
-        parser in this class.
-        """
-        try:
-            root = etree.fromstring(xml_bytes)
-        except etree.XMLSyntaxError:
-            return False
-        for node in root.iter():
-            if etree.QName(node).localname != 'Emisor':
-                continue
-            return node.get('Rfc') or False
-        return False
 
     @staticmethod
     def _meli_parse_concepts_from_xml(xml_bytes):
@@ -1494,6 +1528,17 @@ class MeliInvoiceDocument(models.Model):
             else:
                 still_missing += 1
         return rescued, still_missing
+
+    def action_meli_open_quarantine_return_wizard(self):
+        """List-view button (2026-09-24 user request, Phase 2): thin
+        delegate to sale.order's own action of the same name — lets a
+        user open the wizard directly from a row in this document list
+        (filtered to pending physical returns) without navigating to the
+        sale order form first. ensure_one() lives on the delegate target,
+        not here, since a click always comes from exactly one row.
+        """
+        self.ensure_one()
+        return self.sale_order_id.action_meli_open_quarantine_return_wizard()
 
     def action_meli_rescue_xml(self):
         """Manual button: on-demand re-fetch of the XML file for

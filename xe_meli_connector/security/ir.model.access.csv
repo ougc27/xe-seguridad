@@ -7,3 +7,5 @@ access_meli_invoice_import_batch_wizard_user,meli.invoice.import.batch.wizard.us
 access_meli_invoice_import_batch_user,meli.invoice.import.batch.user,model_meli_invoice_import_batch,group_meli_user,1,0,0,0
 access_meli_invoice_import_batch_line_user,meli.invoice.import.batch.line.user,model_meli_invoice_import_batch_line,group_meli_user,1,1,0,0
 access_meli_order_import_wizard_user,meli.order.import.wizard.user,model_meli_order_import_wizard,group_meli_user,1,1,1,1
+access_meli_quarantine_return_wizard_user,meli.quarantine.return.wizard.user,model_meli_quarantine_return_wizard,__export__.res_groups_226_2f47e690,1,1,1,1
+access_meli_quarantine_return_wizard_line_user,meli.quarantine.return.wizard.line.user,model_meli_quarantine_return_wizard_line,__export__.res_groups_226_2f47e690,1,1,1,1
