@@ -616,8 +616,12 @@ class MeliConfig(models.Model):
                 # stuck on an unmapped SKU is worth another look, in case
                 # the mapping was completed since it was first created.
                 continue
+            # priority=0 (was 8, 2026-09-24 user-directed): this
+            # connector is the only real consumer of this queue —
+            # creating a sale is never lower priority than anything
+            # else in it.
             SaleOrder.with_delay(
-                priority=8, channel='root.meli_sales', max_retries=8,
+                priority=0, channel='root.meli_sales', max_retries=8,
                 description=f"Import Mercado Libre order {order_id} (polling)",
                 identity_key=f"meli_import_order_{order_id}",
             )._meli_import_order(self.company_id.id, order_id)

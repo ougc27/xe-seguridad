@@ -35,9 +35,6 @@
                 <button name="action_meli_rescue_xml" type="object"
                         string="Rescue XML" icon="fa-file-code-o"
                         invisible="meli_has_xml"/>
-                <button name="action_meli_retry_sale_order_confirmation" type="object"
-                        string="Retry Confirmation" icon="fa-refresh"
-                        invisible="meli_sale_order_state != 'draft'"/>
             </tree>
         </field>
     </record>
