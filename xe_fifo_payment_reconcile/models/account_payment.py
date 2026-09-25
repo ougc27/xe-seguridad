@@ -72,6 +72,19 @@ class AccountPayment(models.Model):
         string='FIFO Concurrency Retries', copy=False, default=0,
     )
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        # Un pago creado ya liberado (importación o API) también arranca en pendiente
+        vals_list = [
+            dict(vals, fifo_reconcile_state='pending', fifo_retry_count=0)
+            if vals.get('fifo_reconcile_release') else vals
+            for vals in vals_list
+        ]
+        payments = super().create(vals_list)
+        if any(payment.fifo_reconcile_release for payment in payments):
+            payments._fifo_reconcile_trigger_cron()
+        return payments
+
     def write(self, vals):
         released = vals.get('fifo_reconcile_release')
         if released:
@@ -114,10 +127,14 @@ class AccountPayment(models.Model):
         self.ensure_one()
         start_time = time.monotonic()
         try:
-            # Si algo falla dentro del savepoint, solo se revierte este lote
+            # Savepoint externo: si falla el candado de persistencia o el
+            # registro del resultado, también se revierte el lote. El interno
+            # es el del lote; el candado verifica que de verdad se liberó.
             with self.env.cr.savepoint():
-                result = self._fifo_reconcile_apply_batch()
-            self._fifo_reconcile_check_persisted(result)
+                with self.env.cr.savepoint():
+                    result = self._fifo_reconcile_apply_batch()
+                self._fifo_reconcile_check_persisted(result)
+                self._fifo_reconcile_log_result(result, time.monotonic() - start_time)
         except PsycopgError as error:
             self.env.invalidate_all(flush=False)
             if error.pgcode in CONCURRENCY_ERROR_CODES:
@@ -129,18 +146,24 @@ class AccountPayment(models.Model):
             self.env.invalidate_all(flush=False)
             self._fifo_reconcile_handle_error(error)
             return
+        if result['state'] == 'in_progress':
+            # Encadena el siguiente lote de inmediato
+            self._fifo_reconcile_trigger_cron()
 
-        # --- Registro fuera del savepoint ---
-        elapsed = time.monotonic() - start_time
+    def _fifo_reconcile_log_result(self, result, elapsed):
+        """Registra el estado y el resumen del lote. Va fuera del savepoint
+        del lote, pero dentro del externo: si esta escritura choca por
+        concurrencia, se revierte también el lote y se reintenta.
+        """
+        self.ensure_one()
         state = result['state']
         vals = {'fifo_reconcile_state': state, 'fifo_retry_count': 0}
         if state in FINAL_STATES:
             vals['fifo_reconcile_release'] = False
         self.write(vals)
         self.message_post(body=self._fifo_reconcile_summary_html(result, elapsed))
-        if state == 'in_progress':
-            # Encadena el siguiente lote de inmediato
-            self._fifo_reconcile_trigger_cron()
+        # Forzar la escritura aquí para que un conflicto salga dentro del try
+        self.env.flush_all()
 
     @api.model
     def _fifo_reconcile_batch_size(self):
@@ -361,11 +384,13 @@ class AccountPayment(models.Model):
 
     def _fifo_reconcile_handle_error(self, error, prefix=None):
         self.ensure_one()
-        _logger.exception("FIFO reconcile: error on payment %s, batch rolled back", self.id)
         if isinstance(error, UserError):
+            # Error de validación esperado: no hace falta el traceback completo
             error_text = error.args[0] if error.args else str(error)
+            _logger.warning("FIFO reconcile: error on payment %s, batch rolled back: %s", self.id, error_text)
         else:
             error_text = '%s: %s' % (type(error).__name__, error)
+            _logger.exception("FIFO reconcile: error on payment %s, batch rolled back", self.id)
         self.write({'fifo_reconcile_state': 'error', 'fifo_reconcile_release': False})
         body = Markup('<p><b>%s</b></p>') % _("FIFO reconcile error. The batch was rolled back.")
         if prefix:

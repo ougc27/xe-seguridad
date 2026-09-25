@@ -83,7 +83,8 @@ No hay modelos nuevos, por lo que no hace falta `ir.model.access.csv`.
 
 ## Seguridad
 
-Grupo `group_fifo_reconcile_release` ("FIFO Reconcile: Release Payments"),
+Grupo `group_fifo_reconcile_release` ("Release payments for FIFO reconcile",
+traducido "Liberar pagos para conciliación FIFO"),
 sin categoría, para no mezclarse con el selector de roles de Contabilidad.
 La restricción es solo a nivel vista (`groups=` en el campo del
 formulario); no se valida el grupo en `write()` (decisión explícita).
@@ -96,6 +97,8 @@ formulario); no se valida el grupo en `write()` (decisión explícita).
   Reactivar equivale a reintentar o continuar.
 - Con `boolean_toggle`, Odoo 17 guarda el pago al activarlo, así que el
   cron arranca en cuanto el usuario lo activa.
+- `create()` aplica la misma regla a un pago creado ya liberado
+  (importación o API).
 - Pausa: si el usuario lo desmarca a mitad del proceso, el pago queda en
   `pending`/`in_progress` con el booleano apagado y el cron no lo toma.
 
@@ -175,13 +178,16 @@ residual de la parcial cae en la línea de mayor monto del lote.
 
 ### Transacción y candado de persistencia
 
-- El lote va dentro de `with self.env.cr.savepoint():`. No hay commits
-  manuales.
-- Al salir del savepoint: `invalidate_all()`, se relee desde BD el
-  residual de la línea del pago y se compara con el esperado; si difiere,
-  es error.
-- El registro del estado y el mensaje del chatter van fuera del
-  savepoint.
+- Dos savepoints anidados (`with self.env.cr.savepoint():`), sin commits
+  manuales. El interno envuelve el lote.
+- Al salir del interno: `invalidate_all()`, se relee desde BD el residual
+  de la línea del pago y se compara con el esperado; si difiere, es error.
+- El registro del estado y el resumen del chatter de un lote exitoso van
+  fuera del savepoint del lote pero dentro del externo, con `flush_all()`:
+  si el candado o esa escritura fallan, se revierte también el lote (el
+  mensaje "el lote se revirtió" siempre es cierto) y un choque de
+  concurrencia ahí entra a la lógica de reintentos.
+- El registro de errores (estado `error` y chatter) va fuera de ambos.
 
 ### Estado resultante
 
