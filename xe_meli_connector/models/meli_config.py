@@ -422,7 +422,7 @@ class MeliConfig(models.Model):
         partner id in the domain (safe if partner_id ever changes, and
         multi-company/multi-account-safe by construction).
         """
-        partner_ids = self.with_context(active_test=False).search([]).mapped('partner_id').ids
+        partner_ids = self.sudo().with_context(active_test=False).search([]).mapped('partner_id').ids
         return {
             'type': 'ir.actions.act_window',
             'name': _('Orders'),
