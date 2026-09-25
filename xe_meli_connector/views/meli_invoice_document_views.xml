@@ -37,10 +37,11 @@
                 <button name="action_meli_rescue_xml" type="object"
                         string="Rescue XML" icon="fa-file-code-o"
                         invisible="meli_has_xml"/>
+                <field name="meli_order_last_status" invisible="1"/>
                 <button name="action_meli_open_quarantine_return_wizard"
                         type="object" string="Confirm Physical Return"
                         groups="__export__.res_groups_226_2f47e690"
-                        invisible="not sale_order_id or sale_order_id.meli_last_status != 'cancelled' or meli_stock_return_state == 'done'"/>
+                        invisible="not sale_order_id or meli_order_last_status != 'cancelled' or meli_stock_return_state == 'done'"/>
             </tree>
         </field>
     </record>

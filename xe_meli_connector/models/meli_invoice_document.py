@@ -246,6 +246,14 @@ class MeliInvoiceDocument(models.Model):
              "XE2 total-cancellation project). Only shown here to whoever "
              "holds the group this whole project is gated behind.",
     )
+    meli_order_last_status = fields.Char(
+        related='sale_order_id.meli_last_status', string='Sale Order Last Status',
+        help="Related from the sale order, plain (non-dotted) field so "
+             "the 'Confirm Physical Return' button's own invisible "
+             "condition can reference it directly — Odoo's view "
+             "validator requires every field a modifier expression "
+             "touches to be present in the view by name.",
+    )
     meli_xml_total = fields.Float(
         string='Invoiced Total (XML)', compute='_compute_meli_xml_total',
         store=True, digits=(16, 2),

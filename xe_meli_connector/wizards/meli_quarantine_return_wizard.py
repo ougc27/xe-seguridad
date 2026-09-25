@@ -20,6 +20,14 @@ class MeliQuarantineReturnWizard(models.TransientModel):
         'sale.order', string='Sale Order', required=True, readonly=True,
     )
     company_id = fields.Many2one(related='sale_order_id.company_id')
+    meli_stock_return_state = fields.Selection(
+        related='sale_order_id.meli_stock_return_state',
+        string='Physical Return Status',
+        help="Plain (non-dotted) related field so the 'Settle' button's "
+             "own invisible condition can reference it directly — "
+             "Odoo's view validator requires every field a modifier "
+             "expression touches to be present in the view by name.",
+    )
     location_id = fields.Many2one(
         'stock.location', string='Quarantine Location', required=True,
         domain="[('company_id', '=', company_id), ('name', '=', 'Cuarentena')]",

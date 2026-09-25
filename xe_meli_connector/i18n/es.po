@@ -3945,3 +3945,13 @@ msgstr ""
 #: model:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
 msgid "Pending Physical Return (Non-Full)"
 msgstr "Devolución Física Pendiente (No-Full)"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__meli_order_last_status
+msgid "Sale Order Last Status"
+msgstr "Último Estatus de la Venta"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_quarantine_return_wizard__meli_stock_return_state
+msgid "Physical Return Status"
+msgstr "Estatus de Devolución Física"

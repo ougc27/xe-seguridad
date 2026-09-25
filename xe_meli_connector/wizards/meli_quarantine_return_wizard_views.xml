@@ -8,6 +8,7 @@
             <form string="Confirm Physical Return">
                 <field name="sale_order_id" invisible="1"/>
                 <field name="company_id" invisible="1"/>
+                <field name="meli_stock_return_state" invisible="1"/>
                 <group>
                     <field name="location_id"/>
                 </group>
@@ -24,7 +25,7 @@
                             confirm="This moves real inventory into the quarantine location. Are you sure?"/>
                     <button name="action_settle" type="object"
                             string="Settle"
-                            invisible="sale_order_id.meli_stock_return_state != 'partial'"
+                            invisible="meli_stock_return_state != 'partial'"
                             confirm="Are you sure? This product will be treated as never coming back."/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
