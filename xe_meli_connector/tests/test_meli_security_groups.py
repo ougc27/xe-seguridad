@@ -59,13 +59,23 @@ class TestMeliSecurityGroups(TransactionCase):
         with self.assertRaises(AccessError):
             self.env['meli.sku.mapping'].with_user(self.user_basic).search([])
 
-    def test_advanced_user_can_manage_sku_mapping_but_not_config(self):
-        mapping = self.env['meli.sku.mapping'].with_user(self.user_advanced).create({
-            'product_id': self.product.id, 'meli_sku': 'ADV-SKU-01',
-        })
-        self.assertTrue(mapping)
+    def test_advanced_user_cannot_access_config_or_sku_mapping(self):
+        # Fix 2026-09-25 (user decision): SKU Mapping moved from
+        # group_meli_advanced to group_meli_admin-only, same as
+        # Configuración/Import Order/the Excel invoice wizards — an
+        # "Advanced" user is no longer enough for either.
+        with self.assertRaises(AccessError):
+            self.env['meli.sku.mapping'].with_user(self.user_advanced).create({
+                'product_id': self.product.id, 'meli_sku': 'ADV-SKU-01',
+            })
         with self.assertRaises(AccessError):
             self.config.with_user(self.user_advanced).read(['company_id'])
+
+    def test_admin_user_can_manage_sku_mapping(self):
+        mapping = self.env['meli.sku.mapping'].with_user(self.user_admin).create({
+            'product_id': self.product.id, 'meli_sku': 'ADMIN-SKU-01',
+        })
+        self.assertTrue(mapping)
 
     def test_basic_user_can_refresh_invoice_document_status(self):
         # Found in practice 2026-09-08: meli.invoice.document was left
@@ -91,15 +101,23 @@ class TestMeliSecurityGroups(TransactionCase):
         )
         self.assertEqual(
             set(self.env.ref('xe_meli_connector.action_meli_sku_mapping').groups_id.ids),
-            {self.group_advanced.id},
+            {self.group_admin.id},
         )
         self.assertEqual(
-            set(self.env.ref('xe_meli_connector.action_meli_orders_server').groups_id.ids),
+            set(self.env.ref('xe_meli_connector.action_meli_orders').groups_id.ids),
             {self.group_user.id},
         )
         self.assertEqual(
-            set(self.env.ref('xe_meli_connector.action_meli_claims').groups_id.ids),
-            {self.group_user.id},
+            set(self.env.ref('xe_meli_connector.action_meli_order_import_wizard').groups_id.ids),
+            {self.group_admin.id},
+        )
+        self.assertEqual(
+            set(self.env.ref('xe_meli_connector.action_meli_invoice_import_batch_wizard').groups_id.ids),
+            {self.group_admin.id},
+        )
+        self.assertEqual(
+            set(self.env.ref('xe_meli_connector.action_meli_invoice_import_batches').groups_id.ids),
+            {self.group_admin.id},
         )
 
     def test_admin_user_can_access_config_including_sensitive_fields(self):

@@ -39,7 +39,7 @@
         <field name="res_model">meli.invoice.import.batch.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_admin')])]"/>
     </record>
 
     <menuitem id="menu_meli_invoice_import_batch_wizard"
@@ -47,6 +47,6 @@
         parent="menu_meli_root"
         action="action_meli_invoice_import_batch_wizard"
         sequence="13"
-        groups="group_meli_user"/>
+        groups="group_meli_admin"/>
 
 </odoo>

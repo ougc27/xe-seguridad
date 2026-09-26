@@ -142,6 +142,15 @@
                         domain="[('meli_warehouse_kind', '=', 'full')]"/>
                 <filter name="warehouse_default" string="Monterrey XE2 Warehouse"
                         domain="[('meli_warehouse_kind', '=', 'default')]"/>
+                <separator/>
+                <!-- Fix 2026-09-25 (user request): date="issue_date" is
+                     the special filter shape (see addenda_heb's own
+                     identical usage) that gives a submenu with quick
+                     ranges (Hoy, Este mes, etc.) AND month/quarter/year
+                     selection — plain <field name="issue_date"/> in
+                     search arch does neither, it only lets you type a
+                     single date to filter on directly. -->
+                <filter name="filter_issue_date" string="Issue Date" date="issue_date"/>
                 <group expand="0" string="Group By">
                     <filter name="group_by_document_type" string="Document Type" context="{'group_by': 'document_type'}"/>
                     <filter name="group_by_transaction_type" string="Transaction Type" context="{'group_by': 'transaction_type'}"/>

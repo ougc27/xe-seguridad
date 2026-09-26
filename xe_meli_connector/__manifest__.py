@@ -1,6 +1,6 @@
 {
     'name': 'Mercado Libre Connector (Invoicing)',
-    'version': '17.0.1.0.7',
+    'version': '17.0.1.0.9',
     'license': 'LGPL-3',
     'author': 'XE Brands',
     'category': 'Sales/Sales',
@@ -27,7 +27,6 @@ on its own — no order/claim webhook or polling is wired up in this build.
         'views/sale_order_tree_views.xml',
         'views/meli_invoice_document_views.xml',
         'views/meli_invoice_import_batch_views.xml',
-        'wizards/meli_invoice_recovery_wizard_views.xml',
         'wizards/meli_invoice_import_batch_wizard_views.xml',
         'wizards/meli_order_import_wizard_views.xml',
         'wizards/meli_quarantine_return_wizard_views.xml',

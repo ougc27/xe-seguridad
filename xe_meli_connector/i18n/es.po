@@ -103,13 +103,6 @@ msgstr "%(updated)s documento(s) actualizado(s)."
 
 #. module: xe_meli_connector
 #. odoo-python
-#: code:addons/xe_meli_connector/wizards/meli_invoice_recovery_wizard.py:0
-#, python-format
-msgid "'From' must be earlier than 'To'."
-msgstr "'Desde' debe ser anterior a 'Hasta'."
-
-#. module: xe_meli_connector
-#. odoo-python
 #: code:addons/xe_meli_connector/models/sale_order.py:0
 #, python-format
 msgid ""
@@ -255,7 +248,6 @@ msgstr ""
 
 #. module: xe_meli_connector
 #: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_import_batch_wizard_form
-#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_recovery_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -402,7 +394,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__create_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__create_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__create_uid
-#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__create_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__create_uid
 msgid "Created by"
 msgstr "Creado por"
@@ -420,7 +411,6 @@ msgstr "Creado por xe_meli_connector"
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__create_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__create_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__create_date
-#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__create_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__create_date
 msgid "Created on"
 msgstr "Creado el"
@@ -530,7 +520,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__display_name
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__display_name
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__display_name
-#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__display_name
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__display_name
 msgid "Display Name"
 msgstr "Nombre para Mostrar"
@@ -719,11 +708,6 @@ msgid "Followers (Partners)"
 msgstr "Seguidores (Contactos)"
 
 #. module: xe_meli_connector
-#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__date_from
-msgid "From"
-msgstr "Desde"
-
-#. module: xe_meli_connector
 #. odoo-python
 #: code:addons/xe_meli_connector/models/sale_order.py:0
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__warehouse_fulfillment_id
@@ -786,7 +770,6 @@ msgstr "Tiene un Documento de Mercado Libre sin Aplicar"
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__id
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__id
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__id
-#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__id
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__id
 msgid "ID"
 msgstr "ID"
@@ -918,6 +901,7 @@ msgstr "Es Seguidor"
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__issue_date
+#: model:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
 msgid "Issue Date"
 msgstr "Fecha de Emisión"
 
@@ -967,7 +951,6 @@ msgstr "Última Sincronización"
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__write_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__write_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__write_uid
-#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__write_uid
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__write_uid
 msgid "Last Updated by"
 msgstr "Última Actualización por"
@@ -978,7 +961,6 @@ msgstr "Última Actualización por"
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch__write_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_line__write_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_import_batch_wizard__write_date
-#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__write_date
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_sku_mapping__write_date
 msgid "Last Updated on"
 msgstr "Última Actualización el"
@@ -1072,7 +1054,6 @@ msgstr ""
 #: code:addons/xe_meli_connector/models/meli_invoice_document.py:0
 #: code:addons/xe_meli_connector/models/meli_invoice_document.py:0
 #: code:addons/xe_meli_connector/models/meli_invoice_document.py:0
-#: code:addons/xe_meli_connector/wizards/meli_invoice_recovery_wizard.py:0
 #: model:ir.module.category,name:xe_meli_connector.module_category_meli
 #: model:ir.ui.menu,name:xe_meli_connector.menu_meli_root
 #: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_config_form
@@ -1842,7 +1823,7 @@ msgstr "Order ID (Excel)"
 #. module: xe_meli_connector
 #. odoo-python
 #: code:addons/xe_meli_connector/models/meli_config.py:0
-#: model:ir.actions.server,name:xe_meli_connector.action_meli_orders_server
+#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_orders
 #: model:ir.ui.menu,name:xe_meli_connector.menu_meli_orders
 #, python-format
 msgid "Orders"
@@ -1926,12 +1907,6 @@ msgid "Reason: %(description)s (requested by %(requested_by)s)."
 msgstr "Motivo: %(description)s (solicitado por %(requested_by)s)."
 
 #. module: xe_meli_connector
-#: model:ir.model,name:xe_meli_connector.model_meli_invoice_recovery_wizard
-msgid "Recover Mercado Libre Invoice Documents for a Date Range"
-msgstr ""
-"Recuperar Documentos de Factura de Mercado Libre para un Rango de Fechas"
-
-#. module: xe_meli_connector
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__redirect_uri
 msgid "Redirect URI"
 msgstr "Redirect URI"
@@ -1972,22 +1947,6 @@ msgstr "Factura/Nota de Crédito Relacionada"
 #: model:ir.model.fields.selection,name:xe_meli_connector.selection__meli_invoice_import_batch_line__status__related
 msgid "Related to Sale"
 msgstr "Relacionado con la Venta"
-
-#. module: xe_meli_connector
-#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_recovery_wizard_form
-msgid "Rescue"
-msgstr "Rescatar"
-
-#. module: xe_meli_connector
-#: model:ir.actions.act_window,name:xe_meli_connector.action_meli_invoice_recovery_wizard
-#: model:ir.ui.menu,name:xe_meli_connector.menu_meli_invoice_recovery
-msgid "Rescue Invoices"
-msgstr "Rescatar Facturas"
-
-#. module: xe_meli_connector
-#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_recovery_wizard_form
-msgid "Rescue Mercado Libre Invoices"
-msgstr "Rescatar Facturas Mercado Libre"
 
 #. module: xe_meli_connector
 #: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_form
@@ -2119,30 +2078,6 @@ msgstr ""
 " reclamos — ver _poll_recent_claims."
 
 #. module: xe_meli_connector
-#. odoo-python
-#: code:addons/xe_meli_connector/wizards/meli_invoice_recovery_wizard.py:0
-#, python-format
-msgid ""
-"Se encoló la búsqueda de facturas para el rango seleccionado — revisa "
-"'Facturación Mercado Libre' en unos minutos."
-msgstr ""
-"Se encoló la búsqueda de facturas para el rango seleccionado — revisa "
-"'Facturación Mercado Libre' en unos minutos."
-
-#. module: xe_meli_connector
-#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_recovery_wizard_form
-msgid ""
-"Searches, among the Mercado Libre orders in this date\n"
-"                    range, for any invoice or credit note Mercado Libre\n"
-"                    already issued and imports it into\n"
-"                    \"Mercado Libre Invoicing\"."
-msgstr ""
-"Busca, entre los pedidos de Mercado Libre en este rango\n"
-"                    de fechas, cualquier factura o nota de crédito que\n"
-"                    Mercado Libre ya haya emitido, y la importa a\n"
-"                    \"Facturación Mercado Libre\"."
-
-#. module: xe_meli_connector
 #: model:ir.model.fields,help:xe_meli_connector.field_meli_config__shipping_item_id
 msgid ""
 "Service product used for the shipping-surcharge line added to orders whose "
@@ -2232,6 +2167,33 @@ msgstr "Configuración"
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__shipping_item_id
 msgid "Shipping Item"
 msgstr "Artículo de Envío"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__discount_item_id
+msgid "Partial Refund Item"
+msgstr "Artículo de Reembolso Parcial"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_config__discount_item_id
+msgid ""
+"Service product used for EVERY line of a partial-refund credit note "
+"(sale.order._meli_build_partial_credit_note) — 2026-09-25 user decision: a "
+"confirmed partial refund ('partially_refunded' live status) never "
+"represents a real physical return, so it must never touch the real "
+"product's own qty_delivered/qty_invoiced or stock. Using a dedicated, "
+"unlinked service product for the credit note line (never the original "
+"product) accomplishes that for free — the line carries no sale_line_ids at "
+"all, so nothing on the real product line ever nets down."
+msgstr ""
+"Producto de servicio usado para TODAS las líneas de una nota de crédito por "
+"reembolso parcial (sale.order._meli_build_partial_credit_note) — decisión "
+"del usuario, 25-09-2026: un reembolso parcial confirmado (status en vivo "
+"'partially_refunded') nunca representa una devolución física real, así que "
+"nunca debe tocar el qty_delivered/qty_invoiced ni el stock del producto "
+"real. Usar un producto de servicio dedicado y sin vínculo para la línea de "
+"la nota de crédito (nunca el producto original) logra esto gratis — la "
+"línea no lleva sale_line_ids en absoluto, así que nada en la línea del "
+"producto real se netea."
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__meli_sale_order_state
@@ -2480,7 +2442,6 @@ msgstr "No hay una conexión activa de Mercado Libre para la compañía %s."
 #. odoo-python
 #: code:addons/xe_meli_connector/models/sale_order.py:0
 #: code:addons/xe_meli_connector/wizards/meli_invoice_import_batch_wizard.py:0
-#: code:addons/xe_meli_connector/wizards/meli_invoice_recovery_wizard.py:0
 #, python-format
 msgid "There is no active Mercado Libre connection for this company."
 msgstr "No hay una conexión activa de Mercado Libre para esta compañía."
@@ -2607,11 +2568,6 @@ msgstr ""
 "futuras (facturación, cancelaciones) se manejarán automáticamente de aquí en"
 " adelante. Sus propios detalles comerciales (líneas, precios, cliente, "
 "almacén) se dejaron sin tocar."
-
-#. module: xe_meli_connector
-#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_recovery_wizard__date_to
-msgid "To"
-msgstr "Hasta"
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_config__token_expires_at
@@ -3768,6 +3724,11 @@ msgid "Settled"
 msgstr "Liquidado"
 
 #. module: xe_meli_connector
+#: model:ir.model.fields.selection,name:xe_meli_connector.selection__sale_order__meli_stock_return_state__never_shipped
+msgid "Never Shipped"
+msgstr "Nunca Entregado"
+
+#. module: xe_meli_connector
 #: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_stock_return_state
 msgid ""
 "Tracks the PHYSICAL side of a non-Full order's total cancellation/return "
@@ -3782,7 +3743,14 @@ msgid ""
 "of the pending-review filter and the wizard can no longer be run for it. "
 "'Settled': some or all of this order's stock will never come back (written "
 "off) — a deliberate human decision via the wizard's own 'Settle' button, "
-"only available once this is already 'Partial'."
+"only available once this is already 'Partial'. 'Never Shipped' (2026-09-25 "
+"user request): set automatically, never by the wizard — this order's own "
+"outgoing transfer was cancelled directly because it was never validated to "
+"begin with (see _meli_process_non_full_total_cancellation's own docstring), "
+"so there is no physical stock to confirm back into quarantine at all; drops "
+"out of the pending-review filter/wizard exactly like 'Done', but for the "
+"opposite reason (nothing ever left, instead of everything already having "
+"come back)."
 msgstr ""
 "Registra el lado FÍSICO de la cancelación/devolución total de una venta no-"
 "Full (petición del usuario 2026-09-24, Fase 2) — separado de, y posterior "
@@ -3797,7 +3765,14 @@ msgstr ""
 "el wizard ya no se puede volver a ejecutar para ella. 'Liquidado': parte o "
 "todo el stock de esta venta nunca va a regresar (se da de baja) — una "
 "decisión humana deliberada vía el botón 'Liquidar' del wizard, disponible "
-"solo una vez que ya está en 'Parcial'."
+"solo una vez que ya está en 'Parcial'. 'Nunca Entregado' (petición del "
+"usuario 2026-09-25): se define automáticamente, nunca por el wizard — el "
+"traslado de salida propio de esta venta se canceló directamente porque "
+"nunca se llegó a validar (ver el propio docstring de "
+"_meli_process_non_full_total_cancellation), así que no hay stock físico "
+"alguno que confirmar de vuelta en cuarentena; sale del filtro de revisión "
+"pendiente/wizard exactamente igual que 'Completado', pero por la razón "
+"opuesta (nunca salió nada, en vez de que ya todo haya regresado)."
 
 #. module: xe_meli_connector
 #: code:addons/xe_meli_connector/models/sale_order.py:0
@@ -3818,6 +3793,75 @@ msgstr ""
 "La ubicación compartida 'Devoluciones en tránsito ML' no está configurada "
 "— no se puede devolver el stock automáticamente."
 
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"Transfer(s) %(pickings)s were cancelled — never validated, so no real "
+"stock ever left the warehouse for them."
+msgstr ""
+"Se cancelaron el/los traslado(s) %(pickings)s — nunca se validaron, así "
+"que ningún stock real llegó a salir del almacén por ellos."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"Mercado Libre generated a partial-refund credit note (%(document)s), but "
+"this company's Mercado Libre connection has no 'Partial Refund Item' "
+"configured — review manually."
+msgstr ""
+"Mercado Libre generó una nota de crédito de reembolso parcial "
+"(%(document)s), pero la conexión de Mercado Libre de esta compañía no "
+"tiene configurado un 'Artículo de Reembolso Parcial' — revisar "
+"manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"Mercado Libre generated a credit note (%(document)s) for order "
+"%(order_id)s (one individual order within this pack) — confirmed as a "
+"partial refund, but this company's Mercado Libre connection has no "
+"'Partial Refund Item' configured — review manually."
+msgstr ""
+"Mercado Libre generó una nota de crédito (%(document)s) para el pedido "
+"%(order_id)s (un pedido individual dentro de este pack) — confirmado como "
+"reembolso parcial, pero la conexión de Mercado Libre de esta compañía no "
+"tiene configurado un 'Artículo de Reembolso Parcial' — revisar "
+"manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"Mercado Libre generated a credit note (%(document)s) for order "
+"%(order_id)s (one individual order within this pack), but its own CFDI has "
+"no readable line item(s) — review manually."
+msgstr ""
+"Mercado Libre generó una nota de crédito (%(document)s) para el pedido "
+"%(order_id)s (un pedido individual dentro de este pack), pero su propio "
+"CFDI no tiene ningún concepto legible — revisar manualmente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"Mercado Libre generated a credit note (%(document)s) for order "
+"%(order_id)s (one individual order within this pack), but its own line "
+"item(s) could not be matched to exactly one product on this sale — review "
+"manually."
+msgstr ""
+"Mercado Libre generó una nota de crédito (%(document)s) para el pedido "
+"%(order_id)s (un pedido individual dentro de este pack), pero su(s) "
+"concepto(s) no se pudieron emparejar con exactamente un producto de esta "
+"venta — revisar manualmente."
+
 
 #. module: xe_meli_connector
 #: model:ir.actions.act_window,name:xe_meli_connector.action_meli_open_quarantine_return_wizard
@@ -3834,6 +3878,11 @@ msgstr "Ubicación de Cuarentena"
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_quarantine_return_wizard__line_ids
 msgid "Products"
 msgstr "Productos"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_quarantine_return_wizard_line__product_id
+msgid "Product"
+msgstr "Producto"
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_quarantine_return_wizard_line__max_quantity

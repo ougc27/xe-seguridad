@@ -30,7 +30,7 @@
         <field name="res_model">meli.order.import.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_admin')])]"/>
     </record>
 
     <menuitem id="menu_meli_order_import"
@@ -38,6 +38,6 @@
         parent="menu_meli_root"
         action="action_meli_order_import_wizard"
         sequence="6"
-        groups="group_meli_user"/>
+        groups="group_meli_admin"/>
 
 </odoo>

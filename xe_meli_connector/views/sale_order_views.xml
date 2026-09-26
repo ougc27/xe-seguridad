@@ -47,7 +47,7 @@
                 <button name="action_meli_open_quarantine_return_wizard" type="object"
                         string="Confirm Physical Return"
                         class="btn-secondary" groups="__export__.res_groups_226_2f47e690"
-                        invisible="state != 'cancel' or meli_last_status != 'cancelled' or meli_stock_return_state == 'done'"/>
+                        invisible="state != 'cancel' or meli_last_status != 'cancelled' or meli_stock_return_state in ('done', 'never_shipped')"/>
             </xpath>
         </field>
     </record>
@@ -69,18 +69,30 @@
         </field>
     </record>
 
-    <record id="action_meli_orders_server" model="ir.actions.server">
+    <record id="action_meli_orders" model="ir.actions.act_window">
         <field name="name">Orders</field>
-        <field name="model_id" ref="model_meli_config"/>
-        <field name="state">code</field>
-        <field name="code">action = model.action_open_meli_orders()</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,form</field>
+        <!-- Fix 2026-09-25 (real bug, user-caught: Pedro Cortez, only in
+             group_meli_user, could not open this menu at all — Odoo
+             core only lets a real system Administrator EXECUTE an
+             ir.actions.server (the previous shape of this action),
+             regardless of ir.model.access — granting read access to
+             that model wasn't enough. A plain ir.actions.act_window
+             has no such restriction. meli_order_id is set for every
+             order this connector ever created OR adopted (see
+             sale.order._meli_create_from_order_data's own adoption
+             branch, which sets it too) — a simpler, equally reliable
+             filter than the old server action's live meli.config.
+             partner_id lookup, with no code execution needed at all. -->
+        <field name="domain">[('meli_order_id', '!=', False)]</field>
         <field name="groups_id" eval="[(6, 0, [ref('group_meli_user')])]"/>
     </record>
 
     <menuitem id="menu_meli_orders"
         name="Orders"
         parent="menu_meli_root"
-        action="action_meli_orders_server"
+        action="action_meli_orders"
         sequence="5"
         groups="group_meli_user"/>
 
