@@ -709,7 +709,22 @@ class MeliInvoiceDocument(models.Model):
             # text), so retrying it here would just repeat the exact
             # same manual-review chatter message every 30 minutes.
             ('meli_needs_manual_credit_note', '=', False),
-            ('meli_needs_manual_mismatch_review', '=', False),
+            # Fix 2026-09-25 (user-directed, real gap: 78 real documents
+            # confirmed stuck like this): meli_needs_manual_mismatch_
+            # review used to ALSO be excluded here — but unlike meli_
+            # needs_manual_credit_note, this one genuinely can resolve
+            # on its own (a missing pack sibling gets its SKU mapped,
+            # or its line added), and both places that set this flag
+            # already guard their own chatter message with "if not
+            # already set" — so retrying here was never going to repeat
+            # the message, only silently no-op until the day it's
+            # actually fixed. The exclusion was pure dead weight:
+            # sale.order._meli_relate_partial_cancellation_credit_note
+            # and _meli_reconcile_invoicing's own invoice-creation step
+            # both now clear this flag themselves the moment the
+            # mismatch genuinely resolves (see either one's own
+            # comment) — no longer permanently excluded from ever
+            # being retried.
             '|',
                 ('is_applied', '=', False),
                 '&', ('meli_pack_id', '!=', False),

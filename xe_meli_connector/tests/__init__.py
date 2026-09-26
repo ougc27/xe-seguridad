@@ -5,7 +5,6 @@ from . import test_meli_config_retry
 from . import test_meli_full_cancellation
 from . import test_meli_invoice_document
 from . import test_meli_invoice_import_batch
-from . import test_meli_invoice_recovery_wizard
 from . import test_controller
 from . import test_cron
 from . import test_meli_sku_mapping

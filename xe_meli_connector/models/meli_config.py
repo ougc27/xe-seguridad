@@ -173,6 +173,20 @@ class MeliConfig(models.Model):
              "'SHIPPING-VA' — changing this field to a product with a "
              "different default_code requires updating that logic too.",
     )
+    discount_item_id = fields.Many2one(
+        'product.product', string='Partial Refund Item',
+        domain=[('type', '=', 'service')],
+        help="Service product used for EVERY line of a partial-refund "
+             "credit note (sale.order._meli_build_partial_credit_note) "
+             "— 2026-09-25 user decision: a confirmed partial refund "
+             "('partially_refunded' live status) never represents a "
+             "real physical return, so it must never touch the real "
+             "product's own qty_delivered/qty_invoiced or stock. Using "
+             "a dedicated, unlinked service product for the credit "
+             "note line (never the original product) accomplishes "
+             "that for free — the line carries no sale_line_ids at "
+             "all, so nothing on the real product line ever nets down.",
+    )
 
     _sql_constraints = [(
         'company_id_uniq', 'unique(company_id)',

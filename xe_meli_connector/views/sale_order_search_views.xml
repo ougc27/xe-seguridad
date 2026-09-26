@@ -87,7 +87,7 @@
                         groups="__export__.res_groups_226_2f47e690"
                         domain="[('state', '=', 'cancel'),
                                  ('meli_last_status', '=', 'cancelled'),
-                                 ('meli_stock_return_state', 'not in', ('done', 'settled')),
+                                 ('meli_stock_return_state', 'not in', ('done', 'settled', 'never_shipped')),
                                  ('warehouse_id.name', '=', 'Monterrey XE2')]"/>
             </filter>
         </field>

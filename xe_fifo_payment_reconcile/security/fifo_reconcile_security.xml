@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Sin categoría a propósito: así no se mezcla con el selector de
+             roles de Contabilidad en el formulario del usuario. -->
+        <record id="group_fifo_reconcile_release" model="res.groups">
+            <field name="name">Release payments for FIFO reconcile</field>
+        </record>
+
+    </data>
+</odoo>

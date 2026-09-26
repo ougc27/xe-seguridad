@@ -34,7 +34,7 @@
         <field name="name">SKU Mapping</field>
         <field name="res_model">meli.sku.mapping</field>
         <field name="view_mode">tree,form</field>
-        <field name="groups_id" eval="[(6, 0, [ref('group_meli_advanced')])]"/>
+        <field name="groups_id" eval="[(6, 0, [ref('group_meli_admin')])]"/>
     </record>
 
     <menuitem id="menu_meli_sku_mapping"
@@ -42,6 +42,6 @@
         parent="menu_meli_root"
         action="action_meli_sku_mapping"
         sequence="10"
-        groups="group_meli_advanced"/>
+        groups="group_meli_admin"/>
 
 </odoo>

@@ -49,6 +49,7 @@
                         <field name="warehouse_fulfillment_id"/>
                         <field name="warehouse_default_id"/>
                         <field name="shipping_item_id"/>
+                        <field name="discount_item_id"/>
                     </group>
                     <group string="Tokens" invisible="state == 'not_connected'">
                         <field name="access_token" password="True"/>

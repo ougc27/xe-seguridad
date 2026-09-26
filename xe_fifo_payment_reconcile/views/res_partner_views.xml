@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_property_form_fifo_reconcile" model="ir.ui.view">
+        <field name="name">res.partner.property.form.fifo.reconcile</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='accounting_entries']/field[@name='property_account_payable_id']" position="after">
+                <field name="fifo_auto_reconcile"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
