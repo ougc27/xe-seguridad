@@ -362,6 +362,43 @@ class SaleOrder(models.Model):
              "opposite reason (nothing ever left, instead of everything "
              "already having come back).",
     )
+    meli_cancelled_without_document = fields.Boolean(
+        string='Cancelled Without Any Mercado Libre Document', copy=False,
+        help="Set daily by _cron_meli_flag_cancelled_without_document "
+             "(2026-09-28 user request): true when this order has been "
+             "cancelled (state='cancel', meli_last_status='cancelled') "
+             "for over a day and Mercado Libre never generated ANY "
+             "credit-note document for it at all (checked live against "
+             "meli.invoice.document — not merely 'not yet applied', "
+             "genuinely never issued). Different from and complementary "
+             "to meli_has_unapplied_document: that one means a document "
+             "DOES exist but wasn't applied; this one means no document "
+             "ever arrived to apply in the first place, on this "
+             "connector's own side — worth escalating to Mercado Libre "
+             "if a credit note is genuinely owed. Cleared automatically "
+             "the next time this cron runs and finds a document now "
+             "exists.",
+    )
+    meli_is_full_warehouse = fields.Boolean(
+        string='Is Full Warehouse Order',
+        compute='_compute_meli_is_full_warehouse', store=True,
+        help="True when this order's own warehouse is the company's "
+             "configured Mercado Libre Full fulfillment warehouse "
+             "(meli.config.warehouse_fulfillment_id). 2026-09-28 "
+             "user-directed fix: the 'Confirm Physical Return' button "
+             "was showing on genuine Full orders — this whole "
+             "quarantine-return project only ever applies to non-Full "
+             "(Monterrey XE2) orders, since Full's own stock never "
+             "leaves Mercado Libre's control in a way that needs a "
+             "human to confirm it physically arrived. A view's own "
+             "invisible= attribute can only read fields already on the "
+             "record — it can't look up meli.config directly — so this "
+             "field exists purely to make that check renderable; the "
+             "same logic is also re-verified server-side (never trust "
+             "the view alone) inside "
+             "action_meli_open_quarantine_return_wizard, which still "
+             "raises if this is somehow stale.",
+    )
     meli_order_date_created = fields.Datetime(
         string='Mercado Libre Order Created At', copy=False,
         help="date_created from the Mercado Libre order resource — when "
@@ -2010,8 +2047,34 @@ class SaleOrder(models.Model):
         self.ensure_one()
         self = self.with_context(meli_reconciling_invoicing=True)
         actions = []
+        # Fix 2026-09-28 (real production bug, user-caught: order
+        # S974294/id 986134): a picking already in xe_pacific's own
+        # custom 'transit' state (a "remisión" already handed to a
+        # carrier) is NOT the same as one that was "never validated" —
+        # physical stock may genuinely already be on its way to the
+        # customer. Blindly calling action_cancel() on it here (as
+        # every OTHER state not in ('done', 'cancel') used to get)
+        # risks marking a transfer cancelled while the product is still
+        # actually being delivered — exactly backwards from the user's
+        # own principle: nothing can be automated here until a human
+        # confirms with the carrier whether it was delivered or not
+        # (see the raise below, which routes this to the caller's
+        # existing manual-review fallback instead of ever touching a
+        # 'transit' picking).
+        in_transit_pickings = self.picking_ids.filtered(
+            lambda p: p.state == 'transit' and p.picking_type_id.code == 'outgoing'
+        )
+        if in_transit_pickings:
+            raise UserError(_(
+                "Transfer(s) %(pickings)s already show 'remisión' "
+                "(handed to a carrier) — cannot automatically cancel "
+                "them or this sale. A human must first confirm with the "
+                "carrier whether the product was actually delivered, "
+                "then either validate or cancel the transfer manually "
+                "before this can be resolved."
+            ) % {'pickings': ', '.join(in_transit_pickings.mapped('name'))})
         pending_pickings = self.picking_ids.filtered(
-            lambda p: p.state not in ('done', 'cancel')
+            lambda p: p.state not in ('done', 'cancel', 'transit')
             and p.picking_type_id.code == 'outgoing'
         )
         if pending_pickings:
@@ -2058,6 +2121,71 @@ class SaleOrder(models.Model):
         self.meli_auto_cancellation_processed = True
         return actions
 
+    def _meli_is_full_warehouse_order(self):
+        """Same 'is_full' check computed inline, over and over,
+        throughout this whole file's own Python methods — extracted
+        here as the one shared helper. Recomputed fresh on every call
+        — cheap (one meli.config lookup) and never stale; also the
+        logic behind the stored meli_is_full_warehouse field below
+        (2026-09-28 user decision: the field only exists because a
+        view's invisible= attribute needs it — every server-side
+        Python caller keeps using this method directly instead of the
+        field, so a config change is never masked by a stale stored
+        value here).
+        """
+        self.ensure_one()
+        config = self.env['meli.config'].sudo().search([
+            ('company_id', '=', self.company_id.id), ('state', '=', 'connected'),
+        ], limit=1)
+        return bool(
+            config and config.warehouse_fulfillment_id
+            and self.warehouse_id == config.warehouse_fulfillment_id
+        )
+
+    @api.depends('warehouse_id', 'company_id')
+    def _compute_meli_is_full_warehouse(self):
+        for order in self:
+            order.meli_is_full_warehouse = order._meli_is_full_warehouse_order()
+
+    def action_cancel(self):
+        """Extends core's own action_cancel() (sale/models/sale_order.py)
+        — this override is the one, centralized place that always runs
+        regardless of HOW a sale gets cancelled: this module's own
+        automated pipelines (_meli_process_non_full_total_cancellation,
+        _meli_close_pack_if_every_sibling_cancelled — both already set
+        this directly too, redundantly but harmlessly, before this
+        override existed) AND a plain, manual click on Odoo's own
+        "Cancel" button by a real person.
+
+        Fix 2026-09-28 (real bug, user-caught: 7 real non-Full orders
+        confirmed via Mercado Libre's own API — S977803 among them —
+        that Mercado Libre itself never invoiced at all, cancelled
+        manually by a human directly in Odoo rather than through any of
+        this module's own automation): meli_stock_return_state stayed
+        empty forever for a manually-cancelled order with nothing ever
+        delivered, same "Confirm Physical Return" button/pending-review
+        filter gap as the two automated paths already had. This one
+        override closes it for every cancellation path at once, present
+        or future — never overwrites an existing value (e.g. 'partial'
+        or 'done', already set for real reasons), and only applies to a
+        genuine Mercado Libre non-Full order (meli_last_status set,
+        never Full — Full's own pipeline never uses this field at all,
+        see _meli_is_full_warehouse_order's own docstring).
+        """
+        res = super().action_cancel()
+        for order in self:
+            if (
+                order.meli_last_status
+                and not order._meli_is_full_warehouse_order()
+                and not order.meli_stock_return_state
+            ):
+                transit_pickings, __ = order._meli_quarantine_transit_pickings()
+                if not transit_pickings and not order.picking_ids.filtered(
+                    lambda p: p.state == 'done' and p.picking_type_id.code == 'outgoing'
+                ):
+                    order.meli_stock_return_state = 'never_shipped'
+        return res
+
     def action_meli_open_quarantine_return_wizard(self):
         """Manual button (2026-09-24 user request, Phase 2 of the
         Monterrey XE2 total-cancellation project) — opens the wizard
@@ -2100,6 +2228,24 @@ class SaleOrder(models.Model):
             raise UserError(_(
                 "This sale hasn't been cancelled yet — nothing to "
                 "confirm physically."
+            ))
+        # Fix 2026-09-28 (real bug, user-caught: this button showed up
+        # for a genuine Full order): the whole quarantine-return project
+        # is exclusively a non-Full/Monterrey XE2 policy — a Full
+        # order's own cancellation pipeline
+        # (_meli_process_full_cancellation) never uses the shared
+        # 'Devoluciones en tránsito ML' location this wizard reads from
+        # at all, so there is never anything real for it to confirm.
+        # Server-side only, on purpose — see _meli_is_full_warehouse_
+        # order's own docstring for why this was deliberately never
+        # turned into a field the view's button could gate on directly
+        # (2026-09-28 user decision): the button itself still shows for
+        # a Full order, but using it raises this clear error instead of
+        # silently opening a wizard with nothing real to confirm.
+        if self._meli_is_full_warehouse_order():
+            raise UserError(_(
+                "This is a Full order — physical return confirmation "
+                "only applies to non-Full (Monterrey XE2) orders."
             ))
         return {
             'type': 'ir.actions.act_window',
@@ -2380,6 +2526,92 @@ class SaleOrder(models.Model):
         )
         return delivered_qty, returned_qty
 
+    def _meli_sibling_no_physical_return(self, config, cancelled_order_id):
+        """Fetches ONE specific sibling's own live order resource
+        (never cached — see this method's own callers for why a fresh
+        check every time matters) and decides whether Mercado Libre
+        actually expects the product back at all.
+
+        2026-09-28 user-directed, real production case (order S986975/
+        pack 2000015218945115, sibling 2000018655614890): a genuinely
+        'cancelled' live status can ALSO mean a mediation/claim that
+        Mercado Libre's own Full seller-protection resolved in the
+        seller's favor — confirmed live: status 'cancelled',
+        cancel_detail.group == 'mediations', requested_by == 'meli',
+        the buyer's own payment shows 'refunded' (Mercado Libre pays
+        that back out of its own pocket, not the seller's), and
+        order_request.return is None — Mercado Libre never opened an
+        actual physical-return process for it. Treating that exactly
+        like an ordinary physical cancellation would be wrong twice
+        over: the seller never loses the sale's own money, and the
+        product was never actually coming back.
+
+        Returns (live_status, no_physical_return). no_physical_return
+        is True for a confirmed partial refund ('partially_refunded',
+        which by definition never involves a physical return) OR a
+        'cancelled' order genuinely resolved via a claim/mediation
+        without a physical return. False (never True) whenever the
+        live call itself fails — degrades to the ordinary, more
+        cautious physical-return handling rather than ever skipping a
+        return Mercado Libre genuinely expects.
+
+        Fix 2026-09-28b (user-directed, real production case: order
+        S968162/2000018469824348 — a genuine mediation-refund case
+        that still had its stock wrongly sent to quarantine transit):
+        order_request.return alone is NOT a reliable signal by itself
+        — confirmed via Mercado Libre's own documentation
+        ("Gestionar resolución de reclamos") and a real claim
+        (5581797679, PDD9946) whose own order ALSO read
+        order_request.return: None, yet still genuinely resolved via
+        return_product being offered and the seller instead accepting
+        a straight refund. The authoritative signal is the CLAIM's own
+        resolution (order.mediations[].id ->
+        /post-purchase/v1/claims/{id}) — resolution.reason
+        'payment_refunded' means the seller/Mercado Libre refunded the
+        money directly and the claim closed with the buyer keeping the
+        product; any other/unknown reason (e.g. a genuine
+        return_product flow, where a return shipping label is
+        generated and the refund only completes once that return
+        ships/delivers) degrades to the ordinary, cautious physical-
+        return handling — this method never guesses in the direction
+        that would skip a return Mercado Libre actually expects.
+        """
+        try:
+            live_data = config._api_get(f'/orders/{cancelled_order_id}') or {}
+        except requests.exceptions.RequestException:
+            return None, False
+        return self._meli_no_physical_return_from_order_data(config, live_data)
+
+    def _meli_no_physical_return_from_order_data(self, config, live_data):
+        """Same decision as _meli_sibling_no_physical_return, but from
+        an order resource the caller already fetched — used by
+        _meli_reconcile_invoicing, which already has its own live
+        order data in hand at the point it needs this, to avoid a
+        redundant second '/orders/{id}' round-trip for the exact same
+        order on the exact same call.
+        """
+        live_status = live_data.get('status')
+        if live_status == 'partially_refunded':
+            return live_status, True
+        if live_status != 'cancelled':
+            return live_status, False
+        cancel_detail = live_data.get('cancel_detail') or {}
+        if cancel_detail.get('group') != 'mediations':
+            # An ordinary (non-claim) cancellation — order_request.return
+            # is the only signal available here, same as before this fix.
+            no_return_requested = (live_data.get('order_request') or {}).get('return') is None
+            return live_status, no_return_requested
+        mediation_id = next(iter(live_data.get('mediations') or []), {}).get('id')
+        if not mediation_id:
+            no_return_requested = (live_data.get('order_request') or {}).get('return') is None
+            return live_status, no_return_requested
+        try:
+            claim_data = config._api_get(f'/post-purchase/v1/claims/{mediation_id}') or {}
+        except requests.exceptions.RequestException:
+            return live_status, False
+        resolution_reason = (claim_data.get('resolution') or {}).get('reason')
+        return live_status, resolution_reason == 'payment_refunded'
+
     def _meli_apply_partial_cancellation(self, cancelled_order_id):
         """The core work of a partial cancellation, without the pack-
         closure check — see _meli_process_partial_cancellation's own
@@ -2449,6 +2681,49 @@ class SaleOrder(models.Model):
             # queue.job._subscribe_users_domain/_message_post_on_failure).
             self._meli_notify_zero_line_sibling_cancellation(cancelled_order_id)
             return
+
+        # Fix 2026-09-28 (user-directed, real production case: order
+        # S986975/pack 2000015218945115, sibling 2000018655614890): this
+        # method used to assume EVERY notified status change means a
+        # genuine physical cancellation — always crediting the real
+        # product and always physically returning stock, with no live
+        # check at all (unlike _meli_reconcile_invoicing's own pack
+        # credit-note step, which does check). Confirmed live against
+        # Mercado Libre's own API for the real case above: status was
+        # 'cancelled', but cancel_detail.group == 'mediations' (Mercado
+        # Libre's own Full seller-protection resolved a claim, gave the
+        # seller the sale's own money, and refunds the buyer itself) —
+        # AND order_request.return was None, meaning Mercado Libre never
+        # opened a physical return process for it at all. Physically
+        # returning stock and netting the real product's own qty_
+        # delivered/qty_invoiced in that case is wrong twice over: the
+        # seller never loses the sale's own money, and the product was
+        # never actually coming back. See _meli_sibling_no_physical_
+        # return's own docstring for the exact live signal checked, and
+        # note it is re-checked fresh every time this method runs — if
+        # Mercado Libre later DOES open a real return request for this
+        # same order, the very next call correctly falls through to the
+        # ordinary physical-return path below instead.
+        config = self.env['meli.config'].sudo().search([
+            ('company_id', '=', self.company_id.id), ('state', '=', 'connected'),
+        ], limit=1)
+        if config:
+            __, no_physical_return = self._meli_sibling_no_physical_return(
+                config, cancelled_order_id,
+            )
+            if no_physical_return:
+                credit_note = self._meli_relate_confirmed_partial_refund_credit_note(
+                    cancelled_order_id,
+                )
+                if credit_note:
+                    self.message_post(body=_(
+                        "Mercado Libre resolved order %(order_id)s (one "
+                        "individual order within this pack) without "
+                        "requesting the product back — credited via "
+                        "%(credit_note)s, stock and quantities left "
+                        "untouched."
+                    ) % {'order_id': cancelled_order_id, 'credit_note': credit_note.name})
+                return
 
         credit_note = self._meli_relate_partial_cancellation_credit_note(
             lines, cancelled_order_id,
@@ -2858,6 +3133,30 @@ class SaleOrder(models.Model):
         # this field once the sale is already 'cancel', so without this
         # it stayed wrong on the order's own record indefinitely.
         self.meli_last_status = 'cancelled'
+        # Fix 2026-09-28 (real bug, user-caught: order S991962/pack
+        # 2000015246996787): this pack-closure path never wrote
+        # meli_stock_return_state at all, unlike _meli_process_non_full_
+        # total_cancellation (which sets 'never_shipped' — see that
+        # field's own help text — when nothing was ever delivered). Every
+        # sibling here was closed through the DIFFERENT, per-sibling
+        # _meli_apply_partial_cancellation path instead, which never
+        # touches this field either, so it stayed empty even when NO
+        # sibling in the whole pack ever had anything delivered (this
+        # order's only picking was cancelled before it was ever
+        # validated) — the "Confirm Physical Return" button/pending-
+        # review filter kept showing this order as if a physical
+        # confirmation was still owed. Checked here, once, at the exact
+        # moment the whole pack is confirmed closed: if no transit
+        # picking exists for ANY sibling (nothing ever needed quarantine
+        # confirmation in the first place), set 'never_shipped'. Never
+        # overwrites an existing value (e.g. 'partial', already set by a
+        # sibling whose stock genuinely did reach transit and is only
+        # partly confirmed back) — only fills in the gap when this field
+        # was never touched at all.
+        if not self.meli_stock_return_state:
+            transit_pickings, __ = self._meli_quarantine_transit_pickings()
+            if not transit_pickings:
+                self.meli_stock_return_state = 'never_shipped'
         self.message_post(body=_(
             "Every individual order within this pack has now been "
             "cancelled — the sale itself was cancelled automatically."
@@ -2888,11 +3187,64 @@ class SaleOrder(models.Model):
         credit-note-adjacent (see, e.g., the double-refund guards in
         _meli_reconcile_invoicing and
         _meli_relate_partial_cancellation_credit_note).
+
+        Fix 2026-09-28 (user-directed, real production case: order
+        S986975/pack 2000015218945115): a sibling resolved via a
+        confirmed refund/mediation with no physical return expected
+        (see _meli_sibling_no_physical_return) is a THIRD, equally
+        final way for a sibling to be "genuinely cancelled" — neither
+        of the two checks above ever applies to it on purpose:
+        returned_qty never reaches delivered_qty (nothing is ever
+        physically returned by design) and its own credit note carries
+        no sale_line_ids at all (built via discount_item_id — see
+        _meli_relate_confirmed_partial_refund_credit_note's own
+        docstring), so the sale_line_ids-based "credited_lines" check
+        would never recognize it either. Checked first, via the exact
+        same live signal _meli_apply_partial_cancellation itself uses
+        to decide whether to skip the physical return in the first
+        place — re-verified here rather than cached, so a pack whose
+        every remaining sibling was resolved this way still correctly
+        closes instead of staying open forever.
+
+        Fix 2026-09-28b (real production bug, user-caught: orders
+        S983240/S983241, pack siblings 2000018625320002/
+        2000018625330702 — confirmed live: status 'partially_refunded',
+        NOT 'cancelled'): _meli_sibling_no_physical_return's own
+        no_physical_return flag is True for BOTH a genuinely cancelled
+        mediation AND an ordinary 'partially_refunded' order — the
+        latter is by definition still an ACTIVE, delivered order that
+        only had part of its money refunded; Mercado Libre never
+        considers it cancelled at all (see this module's own "SIEMPRE
+        que sea partially_refund será por ese producto" principle).
+        Treating it as "fully cancelled" here closed the ENTIRE sale
+        the moment its credit note was related — wrongly cancelling a
+        still-legitimate 'sale'. Only a live_status of 'cancelled'
+        itself (the mediation case the fix above was written for) may
+        ever count as "this sibling is done" — 'partially_refunded'
+        falls through to the checks below instead, which correctly
+        never close the pack over it (returned_qty never reaches
+        delivered_qty for it, by design).
         """
         self.ensure_one()
         lines = self._meli_sibling_lines(sibling_id)
         if not lines:
             return False
+        config = self.env['meli.config'].sudo().search([
+            ('company_id', '=', self.company_id.id), ('state', '=', 'connected'),
+        ], limit=1)
+        if config:
+            live_status, no_physical_return = self._meli_sibling_no_physical_return(
+                config, sibling_id,
+            )
+            if no_physical_return and live_status == 'cancelled':
+                from .meli_invoice_document import MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES
+                credit_note_documents = self.env['meli.invoice.document'].sudo().search([
+                    ('meli_order_id', '=', sibling_id),
+                    ('transaction_type', 'in', list(MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES)),
+                ])
+                return bool(
+                    credit_note_documents.move_ids.filtered(lambda m: m.state != 'cancel')
+                )
         delivered_qty, returned_qty = self._meli_sibling_delivered_and_returned_qty(lines)
         if returned_qty < delivered_qty:
             return False
@@ -2956,6 +3308,62 @@ class SaleOrder(models.Model):
         self.with_context(mail_post_autofollow=False).message_post(
             body=body, partner_ids=manager_partner_ids,
         )
+
+    @api.model
+    def _cron_meli_flag_cancelled_without_document(self):
+        """Daily diagnostic (2026-09-28 user request) — a sale
+        genuinely cancelled on Mercado Libre for over a day with no
+        credit-note document of any kind ever seen locally is worth a
+        human's attention: either Mercado Libre genuinely never issued
+        one (nothing to reconcile, safe to ignore) or it owes one and
+        never sent it (worth escalating on Mercado Libre's own side).
+        Scoped to genuinely cancelled orders only (state='cancel' AND
+        meli_last_status='cancelled') — an order still 'sale' with a
+        stale meli_last_status (e.g. S974294/id 986134's own "waiting
+        on a human to check the carrier" case) is a different, already
+        -flagged-elsewhere situation, not this one.
+
+        Deliberately checks BOTH meli_order_id and meli_pack_id (for a
+        pack, a credit note can be filed against either the pack's own
+        id or one specific sibling's) — same convention as this
+        module's own _meli_recover_cancelled_on_arrival_full.
+        """
+        from .meli_invoice_document import MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES
+        cutoff = fields.Datetime.now() - timedelta(days=1)
+        candidates = self.search([
+            ('state', '=', 'cancel'),
+            ('meli_last_status', '=', 'cancelled'),
+            ('write_date', '<=', cutoff),
+            ('meli_order_id', '!=', False),
+        ])
+        Document = self.env['meli.invoice.document'].sudo()
+        to_flag = self.browse()
+        to_clear = self.browse()
+        for order in candidates:
+            order_ids = (
+                [order.meli_pack_id, order.meli_order_id] if order.meli_pack_id
+                else [order.meli_order_id]
+            )
+            has_credit_note = bool(Document.search_count([
+                ('meli_order_id', 'in', order_ids),
+                ('transaction_type', 'in', list(MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES)),
+            ]))
+            if has_credit_note:
+                if order.meli_cancelled_without_document:
+                    to_clear |= order
+            elif not order.meli_cancelled_without_document:
+                to_flag |= order
+        if to_flag:
+            to_flag.meli_cancelled_without_document = True
+            for order in to_flag:
+                order._meli_notify_queue_job_managers(_(
+                    "This order has been cancelled for over a day, but "
+                    "Mercado Libre never generated any credit-note "
+                    "document for it — verify whether one is genuinely "
+                    "owed and needs to be requested/reviewed manually."
+                ))
+        if to_clear:
+            to_clear.meli_cancelled_without_document = False
 
     def _meli_notify_zero_line_sibling_cancellation(self, cancelled_order_id):
         """Fix 2: a cancelled sibling with zero resolvable lines (every
@@ -3186,6 +3594,88 @@ class SaleOrder(models.Model):
                 return
 
             if is_full:
+                # Fix 2026-09-28c (real production bug, user-caught:
+                # orders S983240/S983241, individual orders
+                # 2000018625320002/2000018625330702 — confirmed live:
+                # status 'partially_refunded', product delivered and
+                # never returned, only part of the money given back).
+                # Before this fix, a plain (non-pack) Full order
+                # reporting 'cancelled' fell straight into
+                # _meli_process_full_cancellation below unconditionally
+                # — physically returning stock, building a real-product
+                # credit note, and cancelling the whole sale — even when
+                # Mercado Libre's own order_request.return was never
+                # opened (a confirmed partial refund or a mediation/claim
+                # resolved in the seller's favor, exactly the case
+                # _meli_sibling_no_physical_return/_meli_apply_partial_
+                # cancellation already guard against for a PACK sibling).
+                # Checked here too, for the exact same reason: a
+                # 'partially_refunded' order is never actually cancelled
+                # on Mercado Libre's side and must stay 'sale' (see this
+                # module's own "SIEMPRE que sea partially_refund será
+                # por ese producto" principle); a 'cancelled' mediation
+                # (order_request.return is None) is genuinely over, but
+                # still never expects the product back, so it's
+                # cancelled WITHOUT any stock return, and credited via
+                # the same DESCUENTO-based credit note as the pack case.
+                live_status, no_physical_return = self._meli_sibling_no_physical_return(
+                    config, notified_order_id,
+                )
+                if no_physical_return:
+                    try:
+                        with self.env.cr.savepoint():
+                            self._meli_reconcile_invoicing()
+                            credit_note = self._meli_relate_confirmed_partial_refund_credit_note(
+                                notified_order_id,
+                            )
+                            if live_status == 'cancelled':
+                                if self.locked:
+                                    self.action_unlock()
+                                self.with_context(
+                                    disable_cancel_warning=True,
+                                ).action_cancel()
+                    except Exception:
+                        _logger.exception(
+                            "Mercado Libre order %s: automatic "
+                            "confirmed-refund processing failed for a "
+                            "Full order without a physical return — "
+                            "needs manual review.", self.client_order_ref,
+                        )
+                        self._meli_notify_queue_job_managers(_(
+                            "Mercado Libre reports this order was "
+                            "resolved without a physical return (a "
+                            "confirmed partial refund or a mediation/"
+                            "claim), but automatic processing failed — "
+                            "review manually."
+                        ))
+                        return
+                    if live_status == 'cancelled':
+                        self.meli_last_status = 'cancelled'
+                        message = _(
+                            "Mercado Libre resolved this order via a "
+                            "mediation/claim in the seller's favor — no "
+                            "physical return was expected. The sale was "
+                            "cancelled without returning stock."
+                        )
+                        if credit_note:
+                            message += ' ' + _(
+                                "Credited via %s.",
+                            ) % credit_note.name
+                    else:
+                        if credit_note:
+                            self.meli_last_status = 'partially_refunded'
+                        message = _(
+                            "Mercado Libre reports a confirmed partial "
+                            "refund for this order (no physical return "
+                            "expected) — the sale itself was left open."
+                        )
+                        if credit_note:
+                            message += ' ' + _(
+                                "Credited via %s.",
+                            ) % credit_note.name
+                    self._meli_notify_queue_job_managers(message)
+                    return
+
                 try:
                     with self.env.cr.savepoint():
                         actions = self._meli_process_full_cancellation(config)
@@ -4984,6 +5474,28 @@ class SaleOrder(models.Model):
         # before.
         is_confirmed_partial_refund = live_status == 'partially_refunded'
 
+        # Fix 2026-09-28 (user-directed, real production case: order
+        # S968162/2000018469824348 — a claim resolved via a straight
+        # refund to the buyer, who keeps the product, still had its
+        # stock wrongly sent to quarantine transit and the sale
+        # cancelled): a live status of 'cancelled' does NOT always
+        # mean a real physical cancellation — see
+        # _meli_no_physical_return_from_order_data's own docstring for
+        # the claim-resolution signal that tells them apart. When it
+        # doesn't, this is reclassified as a confirmed partial refund
+        # instead: the sale stays exactly as it was (delivered,
+        # invoiced), only a DESCUENTO-based credit note is related —
+        # never the whole-invoice reversal / stock return /
+        # action_cancel() the genuine is_full_cancellation branch below
+        # performs.
+        if is_full_cancellation:
+            __, no_physical_return = self._meli_no_physical_return_from_order_data(
+                config, live_order_data or {},
+            )
+            if no_physical_return:
+                is_full_cancellation = False
+                is_confirmed_partial_refund = True
+
         # Fix 2026-09-22 round 2 (user-directed correction, real gap:
         # this used to block EVERY credit note on a non-Full order,
         # including a genuine partial refund — "no es devolución es
@@ -5050,6 +5562,40 @@ class SaleOrder(models.Model):
                 continue
 
             if existing_live_refund or credit_note_created:
+                # Fix 2026-09-28 (real production bug, user-caught:
+                # order S974294/id 986134, chatter spammed every 30
+                # minutes for 15+ hours straight): before this fix, an
+                # own EARLIER attempt that already built+posted this
+                # exact credit note (ref carries this document's own
+                # meli_invoice_id) but crashed on a LATER step — e.g.
+                # the picking-cancel-while-in-transit guard added the
+                # same day — was indistinguishable from a genuinely
+                # different, conflicting refund. Every retry since then
+                # saw its own orphaned refund and gave up, forever,
+                # without ever finishing the one step that was
+                # actually still missing (relating the document, then
+                # retrying the stock/order cancellation). Recognized
+                # here and linked/finished instead of treated as a
+                # conflict.
+                own_orphaned_refund = existing_live_refund.filtered(
+                    lambda m: not m.meli_invoice_document_id
+                    and credit_note_document.meli_invoice_id
+                    and credit_note_document.meli_invoice_id in (m.ref or '')
+                )
+                if own_orphaned_refund:
+                    credit_note = own_orphaned_refund[0]
+                    self._meli_relate_invoice_document(credit_note, credit_note_document)
+                    credit_note_created = credit_note
+                    if is_full_cancellation and not full_cancellation_done:
+                        if is_full:
+                            self._meli_process_full_cancellation(config)
+                        else:
+                            self._meli_process_non_full_total_cancellation()
+                        self.meli_last_status = live_status
+                        full_cancellation_done = True
+                    elif is_confirmed_partial_refund:
+                        self.meli_last_status = live_status
+                    continue
                 # Critical fix: Mercado Libre can issue a REPLACEMENT
                 # devolución CFDI for the same cancellation — a genuinely
                 # different meli.invoice.document row (see _meli_upsert's
@@ -5060,12 +5606,21 @@ class SaleOrder(models.Model):
                 # uncapped double refund — degrade to manual review
                 # instead. Auto-superseding the old credit note requires
                 # accounting judgment out of scope for this fix.
-                self.message_post(body=_(
-                    "Mercado Libre generated another credit note "
-                    "(%(document)s) for this order, but a credit note "
-                    "already exists for it — review manually, this new "
-                    "document was not applied automatically."
-                ) % {'document': credit_note_document.meli_invoice_id or credit_note_document.id})
+                #
+                # Fix 2026-09-28: "notified once" via
+                # meli_needs_manual_credit_note (deliberately permanent
+                # — see that field's own help text) instead of posting
+                # unconditionally — this exact message used to repeat
+                # every 30 minutes forever for a genuinely unresolved
+                # duplicate (same real bug as order S974294 above).
+                if not credit_note_document.meli_needs_manual_credit_note:
+                    credit_note_document.meli_needs_manual_credit_note = True
+                    self.message_post(body=_(
+                        "Mercado Libre generated another credit note "
+                        "(%(document)s) for this order, but a credit note "
+                        "already exists for it — review manually, this new "
+                        "document was not applied automatically."
+                    ) % {'document': credit_note_document.meli_invoice_id or credit_note_document.id})
                 continue
 
             if not source_invoice:
@@ -5191,7 +5746,17 @@ class SaleOrder(models.Model):
                 # description), so without this it stayed stuck at
                 # whatever it read before, even once the live API had
                 # already confirmed the real, current status.
-                self.meli_last_status = 'partially_refunded'
+                #
+                # Fix 2026-09-28: live_status, not a hardcoded
+                # 'partially_refunded' — this branch is also reached
+                # for a genuinely 'cancelled' claim resolved via a
+                # straight refund (see the reclassification a few
+                # lines above is_confirmed_partial_refund's own
+                # assignment); the order's own status field must keep
+                # reflecting Mercado Libre's REAL status, not be
+                # overwritten with a misleading value just because the
+                # credit-note handling happens to be identical.
+                self.meli_last_status = live_status
             else:
                 # Live status is neither 'cancelled' nor
                 # 'partially_refunded' (still 'paid', 'pending_cancel'

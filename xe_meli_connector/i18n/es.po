@@ -901,7 +901,7 @@ msgstr "Es Seguidor"
 
 #. module: xe_meli_connector
 #: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__issue_date
-#: model:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
 msgid "Issue Date"
 msgstr "Fecha de Emisión"
 
@@ -3775,6 +3775,43 @@ msgstr ""
 "opuesta (nunca salió nada, en vez de que ya todo haya regresado)."
 
 #. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_is_full_warehouse
+msgid "Is Full Warehouse Order"
+msgstr "Es Venta de Almacén Full"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_is_full_warehouse
+msgid ""
+"True when this order's own warehouse is the company's configured Mercado "
+"Libre Full fulfillment warehouse (meli.config.warehouse_fulfillment_id). "
+"2026-09-28 user-directed fix: the 'Confirm Physical Return' button was "
+"showing on genuine Full orders — this whole quarantine-return project "
+"only ever applies to non-Full (Monterrey XE2) orders, since Full's own "
+"stock never leaves Mercado Libre's control in a way that needs a human to "
+"confirm it physically arrived. A view's own invisible= attribute can "
+"only read fields already on the record — it can't look up meli.config "
+"directly — so this field exists purely to make that check renderable; "
+"the same logic is also re-verified server-side (never trust the view "
+"alone) inside action_meli_open_quarantine_return_wizard, which still "
+"raises if this is somehow stale."
+msgstr ""
+"Verdadero cuando el almacén de esta venta es el almacén de cumplimiento "
+"Full de Mercado Libre configurado para la compañía "
+"(meli.config.warehouse_fulfillment_id). Corrección del 2026-09-28 "
+"(petición del usuario): el botón 'Confirmar Devolución Física' aparecía "
+"en ventas genuinamente Full — todo este proyecto de devolución a "
+"cuarentena solo aplica a ventas no-Full (Monterrey XE2), ya que el stock "
+"de Full nunca sale del control de Mercado Libre de una forma que "
+"necesite que un humano confirme que llegó físicamente. El atributo "
+"invisible= de una vista solo puede leer campos que ya están en el "
+"registro — no puede consultar meli.config directamente — así que este "
+"campo existe únicamente para hacer ese chequeo posible en la vista; la "
+"misma lógica también se vuelve a verificar del lado del servidor (nunca "
+"confiar solo en la vista) dentro de action_meli_open_quarantine_return_"
+"wizard, que igual lanza un error si este campo llegara a estar "
+"desactualizado."
+
+#. module: xe_meli_connector
 #: code:addons/xe_meli_connector/models/sale_order.py:0
 msgid "Stock was returned to the transit location 'Devoluciones en tránsito ML' via transfer(s): "
 msgstr "El stock se devolvió a la ubicación de tránsito 'Devoluciones en tránsito ML' vía la(s) transferencia(s): "
@@ -3865,7 +3902,7 @@ msgstr ""
 
 #. module: xe_meli_connector
 #: model:ir.actions.act_window,name:xe_meli_connector.action_meli_open_quarantine_return_wizard
-#: model:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
 msgid "Confirm Physical Return"
 msgstr "Confirmar Devolución Física"
 
@@ -3895,22 +3932,27 @@ msgid "Quantity to Confirm"
 msgstr "Cantidad a Confirmar"
 
 #. module: xe_meli_connector
-#: model:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
 msgid "Confirm"
 msgstr "Confirmar"
 
 #. module: xe_meli_connector
-#: model:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
 msgid "Settle"
 msgstr "Liquidar"
 
 #. module: xe_meli_connector
-#: model:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
 msgid "This moves real inventory into the quarantine location. Are you sure?"
 msgstr "Esto mueve inventario real a la ubicación de cuarentena. ¿Estás seguro?"
 
 #. module: xe_meli_connector
-#: model:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_quarantine_return_wizard_form
 msgid "Are you sure? This product will be treated as never coming back."
 msgstr "¿Estás seguro? Este producto se tratará como que nunca va a regresar."
 
@@ -3982,7 +4024,7 @@ msgstr ""
 "devolver."
 
 #. module: xe_meli_connector
-#: model:ir.ui.view,arch_db:xe_meli_connector.view_sales_order_filter_meli
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_sales_order_filter_meli
 msgid "Mercado Libre: Devolución Física Pendiente"
 msgstr "Mercado Libre: Devolución Física Pendiente"
 
@@ -3995,6 +4037,17 @@ msgstr "Estatus de Devolución Física"
 #: code:addons/xe_meli_connector/models/sale_order.py:0
 msgid "This sale hasn't been cancelled yet — nothing to confirm physically."
 msgstr "Esta venta todavía no se ha cancelado — no hay nada que confirmar físicamente."
+
+#. module: xe_meli_connector
+#. odoo-python
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+#, python-format
+msgid ""
+"This is a Full order — physical return confirmation only applies to non-"
+"Full (Monterrey XE2) orders."
+msgstr ""
+"Esta es una venta Full — la confirmación de devolución física solo aplica "
+"a ventas no-Full (Monterrey XE2)."
 
 #. module: xe_meli_connector
 #: code:addons/xe_meli_connector/models/sale_order.py:0
@@ -4044,3 +4097,118 @@ msgstr ""
 "pero la venta en sí no se pudo cancelar automáticamente — revisar "
 "manualmente. (La nota de crédito y la devolución de stock de este pedido "
 "individual sí se completaron correctamente.)"
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Mercado Libre resolved order %(order_id)s (one individual order within "
+"this pack) without requesting the product back — credited via "
+"%(credit_note)s, stock and quantities left untouched."
+msgstr ""
+"Mercado Libre resolvió el pedido %(order_id)s (un pedido individual "
+"dentro de este pack) sin solicitar el producto de vuelta — se "
+"acreditó vía %(credit_note)s, sin tocar stock ni cantidades."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Mercado Libre reports this order was resolved without a physical return "
+"(a confirmed partial refund or a mediation/claim), but automatic "
+"processing failed — review manually."
+msgstr ""
+"Mercado Libre reporta que este pedido se resolvió sin devolución física "
+"(un reembolso parcial confirmado o una mediación/reclamo), pero el "
+"procesamiento automático falló — revisar manualmente."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Mercado Libre resolved this order via a mediation/claim in the seller's "
+"favor — no physical return was expected. The sale was cancelled without "
+"returning stock."
+msgstr ""
+"Mercado Libre resolvió este pedido vía una mediación/reclamo a favor del "
+"vendedor — no se esperaba ninguna devolución física. La venta se canceló "
+"sin devolver stock."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid "Credited via %s."
+msgstr "Acreditado vía %s."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Mercado Libre reports a confirmed partial refund for this order (no "
+"physical return expected) — the sale itself was left open."
+msgstr ""
+"Mercado Libre reporta un reembolso parcial confirmado para este pedido "
+"(no se esperaba devolución física) — la venta en sí se dejó abierta."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"Transfer(s) %(pickings)s already show 'remisión' (handed to a carrier) — "
+"cannot automatically cancel them or this sale. A human must first confirm "
+"with the carrier whether the product was actually delivered, then either "
+"validate or cancel the transfer manually before this can be resolved."
+msgstr ""
+"El(los) traslado(s) %(pickings)s ya muestran 'remisión' (entregado a una "
+"paquetería) — no se pueden cancelar automáticamente, ni la venta. Un "
+"humano debe primero confirmar con la paquetería si el producto se "
+"entregó o no, y después validar o cancelar el traslado manualmente antes "
+"de que esto se pueda resolver."
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_cancelled_without_document
+msgid "Cancelled Without Any Mercado Libre Document"
+msgstr "Cancelada Sin Ningún Documento de Mercado Libre"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_cancelled_without_document
+msgid ""
+"Set daily by _cron_meli_flag_cancelled_without_document (2026-09-28 user "
+"request): true when this order has been cancelled (state='cancel', "
+"meli_last_status='cancelled') for over a day and Mercado Libre never "
+"generated ANY credit-note document for it at all (checked live against "
+"meli.invoice.document — not merely 'not yet applied', genuinely never "
+"issued). Different from and complementary to meli_has_unapplied_document: "
+"that one means a document DOES exist but wasn't applied; this one means "
+"no document ever arrived to apply in the first place, on this "
+"connector's own side — worth escalating to Mercado Libre if a credit "
+"note is genuinely owed. Cleared automatically the next time this cron "
+"runs and finds a document now exists."
+msgstr ""
+"Se define diariamente por _cron_meli_flag_cancelled_without_document "
+"(petición del usuario 2026-09-28): verdadero cuando esta venta lleva "
+"cancelada (state='cancel', meli_last_status='cancelled') más de un día y "
+"Mercado Libre nunca generó NINGÚN documento de nota de crédito para ella "
+"(verificado en vivo contra meli.invoice.document — no solo 'aún no "
+"aplicado', genuinamente nunca emitido). Distinto y complementario a "
+"meli_has_unapplied_document: ese significa que el documento SÍ existe "
+"pero no se aplicó; este significa que ningún documento llegó siquiera "
+"para aplicar, de este lado del conector — vale la pena escalarlo a "
+"Mercado Libre si en realidad se debe una nota de crédito. Se limpia "
+"automáticamente la próxima vez que corre este cron y encuentra que ya "
+"existe un documento."
+
+#. module: xe_meli_connector
+#: code:addons/xe_meli_connector/models/sale_order.py:0
+msgid ""
+"This order has been cancelled for over a day, but Mercado Libre never "
+"generated any credit-note document for it — verify whether one is "
+"genuinely owed and needs to be requested/reviewed manually."
+msgstr ""
+"Esta venta lleva cancelada más de un día, pero Mercado Libre nunca "
+"generó ningún documento de nota de crédito para ella — verificar si en "
+"realidad se debe una y si necesita solicitarse/revisarse manualmente."
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_order_filter_meli
+msgid "Meli: Cancelled, No Document At All"
+msgstr "Meli: Cancelada, Sin Ningún Documento"
+
+#. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
+msgid "Cancelled Sale, Document Not Applied"
+msgstr "Venta Cancelada, Documento Sin Aplicar"
