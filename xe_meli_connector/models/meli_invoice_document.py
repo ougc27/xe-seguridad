@@ -290,7 +290,21 @@ class MeliInvoiceDocument(models.Model):
              "order-status notification/poll), not a live API call, so "
              "it can lag briefly behind Mercado Libre's own real-time "
              "status — same tradeoff meli_last_status itself already "
-             "has everywhere else in this module.",
+             "has everywhere else in this module.\n"
+             "Fix 2026-09-28 (real production false positives, orders "
+             "S986041/S978794): ALSO true when this exact document's own "
+             "related move already carries a meli_discount_adjustment "
+             "line — the one signal scoped to THIS specific document/"
+             "sibling rather than the whole consolidated sale order. "
+             "sale_order_id.meli_last_status is shared by every sibling "
+             "in a pack and gets overwritten by whichever one's event "
+             "happened most recently, so it can easily no longer read "
+             "'partially_refunded' for THIS document's own sibling even "
+             "though its credit note was correctly built as one (via "
+             "discount_item_id, only ever done once a confirmed partial "
+             "refund was verified live — see sale.order._meli_build_"
+             "partial_credit_note/_meli_relate_confirmed_partial_refund_"
+             "credit_note's own docstrings).",
     )
     meli_amount_mismatch_notified = fields.Boolean(
         default=False, copy=False,
@@ -481,15 +495,16 @@ class MeliInvoiceDocument(models.Model):
     )
     def _compute_meli_amount_mismatch(self):
         for document in self:
-            document.meli_order_has_partial_refund = (
+            live_moves = document.move_ids.filtered(lambda m: m.state != 'cancel')
+            document.meli_order_has_partial_refund = bool(
                 document.sale_order_id.meli_last_status == 'partially_refunded'
+                or live_moves.invoice_line_ids.filtered('meli_discount_adjustment')
             )
             document.meli_amount_mismatch = bool(
                 not document.meli_order_has_partial_refund
                 and document.meli_has_xml and document.sale_order_id
                 and abs(document.meli_xml_total - document.sale_order_id.amount_total) > 0.05
             )
-            live_moves = document.move_ids.filtered(lambda m: m.state != 'cancel')
             document.meli_move_amount_mismatch = bool(
                 document.meli_has_xml and live_moves
                 and abs(sum(live_moves.mapped('amount_total')) - document.meli_xml_total) > 0.05

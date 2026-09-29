@@ -99,5 +99,16 @@
             <field name="numbercall">-1</field>
             <field name="active">True</field>
         </record>
+
+        <record id="ir_cron_meli_flag_cancelled_without_document" model="ir.cron">
+            <field name="name">Mercado Libre: Flag Cancelled Orders With No Document At All</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_meli_flag_cancelled_without_document()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+        </record>
     </data>
 </odoo>

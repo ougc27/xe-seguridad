@@ -119,6 +119,14 @@
                 <filter name="not_applied_no_delivery" string="Not Applied: Nothing Delivered Yet"
                         domain="[('sale_order_id', '!=', False), ('is_applied', '=', False),
                                  ('meli_sale_delivered', '=', False)]"/>
+                <!-- 2026-09-28 user request: the sale itself is already
+                     cancelled, yet this document was never applied —
+                     worth a human's attention regardless of delivery
+                     status, since nothing here will ever resolve on its
+                     own once the sale is closed. -->
+                <filter name="not_applied_cancelled_sale" string="Cancelled Sale, Document Not Applied"
+                        domain="[('sale_order_id', '!=', False), ('is_applied', '=', False),
+                                 ('sale_order_id.state', '=', 'cancel')]"/>
                 <filter name="needs_manual_credit_note" string="Needs Manual Credit Note (Partial Refund)"
                         domain="[('meli_needs_manual_credit_note', '=', True)]"/>
                 <filter name="stock_return_pending" string="Stock Return Pending (Pack)"

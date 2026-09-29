@@ -12,6 +12,8 @@
                 <field name="meli_sync_source" invisible="not meli_sync_source" readonly="1"/>
                 <field name="meli_has_unapplied_document" invisible="1"/>
                 <field name="meli_stock_return_state" invisible="1"/>
+                <field name="meli_is_full_warehouse" invisible="1"/>
+                <field name="meli_cancelled_without_document" invisible="not meli_cancelled_without_document" readonly="1"/>
                 <field name="meli_has_refacturacion" invisible="not meli_has_refacturacion" readonly="1"/>
                 <field name="meli_has_credit_note" invisible="not meli_has_credit_note" readonly="1"/>
                 <field name="meli_last_status" invisible="not meli_last_status" readonly="1"/>
@@ -47,7 +49,7 @@
                 <button name="action_meli_open_quarantine_return_wizard" type="object"
                         string="Confirm Physical Return"
                         class="btn-secondary" groups="__export__.res_groups_226_2f47e690"
-                        invisible="state != 'cancel' or meli_last_status != 'cancelled' or meli_stock_return_state in ('done', 'never_shipped')"/>
+                        invisible="state != 'cancel' or meli_last_status != 'cancelled' or meli_stock_return_state in ('done', 'never_shipped') or meli_is_full_warehouse"/>
             </xpath>
         </field>
     </record>
@@ -65,6 +67,8 @@
                         domain="[('meli_has_refacturacion', '=', True)]"/>
                 <filter name="meli_has_credit_note" string="Meli: Has Credit Note"
                         domain="[('meli_has_credit_note', '=', True)]"/>
+                <filter name="meli_cancelled_without_document" string="Meli: Cancelled, No Document At All"
+                        domain="[('meli_cancelled_without_document', '=', True)]"/>
             </filter>
         </field>
     </record>
