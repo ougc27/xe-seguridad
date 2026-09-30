@@ -105,6 +105,20 @@
             <field name="model_id" ref="sale.model_sale_order"/>
             <field name="state">code</field>
             <field name="code">model._cron_meli_flag_cancelled_without_document()</field>
+            <!-- 22:00 Monterrey/CDMX (UTC-6, no DST) = 04:00 UTC -->
+            <field name="nextcall" eval="(DateTime.now().replace(hour=4, minute=0, second=0) + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="ir_cron_meli_recover_missing_invoice_documents" model="ir.cron">
+            <field name="name">Mercado Libre: Recover Missing Invoice/Resale Documents</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_meli_recover_missing_invoice_documents()</field>
+            <field name="nextcall" eval="(DateTime.now().replace(hour=4, minute=0, second=0) + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
             <field name="numbercall">-1</field>

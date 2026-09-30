@@ -14,6 +14,7 @@
                 <field name="meli_stock_return_state" invisible="1"/>
                 <field name="meli_is_full_warehouse" invisible="1"/>
                 <field name="meli_cancelled_without_document" invisible="not meli_cancelled_without_document" readonly="1"/>
+                <field name="meli_missing_invoice_document" invisible="not meli_missing_invoice_document" readonly="1"/>
                 <field name="meli_has_refacturacion" invisible="not meli_has_refacturacion" readonly="1"/>
                 <field name="meli_has_credit_note" invisible="not meli_has_credit_note" readonly="1"/>
                 <field name="meli_last_status" invisible="not meli_last_status" readonly="1"/>
@@ -69,6 +70,8 @@
                         domain="[('meli_has_credit_note', '=', True)]"/>
                 <filter name="meli_cancelled_without_document" string="Meli: Cancelled, No Document At All"
                         domain="[('meli_cancelled_without_document', '=', True)]"/>
+                <filter name="meli_missing_invoice_document" string="Meli: Missing Invoice/Resale Document"
+                        domain="[('meli_missing_invoice_document', '=', True)]"/>
             </filter>
         </field>
     </record>
