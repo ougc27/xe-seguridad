@@ -291,20 +291,11 @@ class MeliInvoiceDocument(models.Model):
              "it can lag briefly behind Mercado Libre's own real-time "
              "status — same tradeoff meli_last_status itself already "
              "has everywhere else in this module.\n"
-             "Fix 2026-09-28 (real production false positives, orders "
-             "S986041/S978794): ALSO true when this exact document's own "
-             "related move already carries a meli_discount_adjustment "
-             "line — the one signal scoped to THIS specific document/"
-             "sibling rather than the whole consolidated sale order. "
-             "sale_order_id.meli_last_status is shared by every sibling "
-             "in a pack and gets overwritten by whichever one's event "
-             "happened most recently, so it can easily no longer read "
-             "'partially_refunded' for THIS document's own sibling even "
-             "though its credit note was correctly built as one (via "
-             "discount_item_id, only ever done once a confirmed partial "
-             "refund was verified live — see sale.order._meli_build_"
-             "partial_credit_note/_meli_relate_confirmed_partial_refund_"
-             "credit_note's own docstrings).",
+             "Also true for a credit note that belongs to just one "
+             "order within a Mercado Libre pack, or that was already "
+             "built as a discount-style adjustment — in either case, "
+             "comparing it against the whole order's total is expected "
+             "to differ and isn't a real mismatch.",
     )
     meli_amount_mismatch_notified = fields.Boolean(
         default=False, copy=False,
@@ -491,13 +482,40 @@ class MeliInvoiceDocument(models.Model):
 
     @api.depends(
         'meli_xml_total', 'meli_has_xml', 'sale_order_id.amount_total',
-        'sale_order_id.meli_last_status', 'move_ids.amount_total', 'move_ids.state',
+        'sale_order_id.meli_last_status', 'sale_order_id.meli_pack_id',
+        'transaction_type', 'move_ids.amount_total', 'move_ids.state',
     )
     def _compute_meli_amount_mismatch(self):
         for document in self:
             live_moves = document.move_ids.filtered(lambda m: m.state != 'cancel')
+            # Fix 2026-09-29 (real production bug, user-caught: documents
+            # 28872/26307/25639, orders S986975/S986041/S978794— all 3
+            # still showed the mismatch after the 2026-09-28
+            # meli_discount_adjustment fix, because their own credit
+            # note was built via _meli_relate_partial_cancellation_
+            # credit_note (a REAL-PRODUCT, line-scoped partial
+            # cancellation credit note — never sets
+            # meli_discount_adjustment, that flag only exists on a
+            # DESCUENTO-based one) and their order's own
+            # meli_last_status had already moved on to 'cancelled' from
+            # some OTHER, later sibling event, not 'partially_refunded'.
+            # The real, general invariant: a credit note related to an
+            # order that's part of a PACK is, by construction, always
+            # scoped to ONE individual sibling's line(s) — never the
+            # whole consolidated order — so comparing its own XML total
+            # against sale_order_id.amount_total (which sums EVERY
+            # sibling's lines together) is never a meaningful check to
+            # begin with, regardless of which credit-note builder made
+            # it. meli_move_amount_mismatch (compared against the
+            # actual related move's own amount) is the reliable check
+            # for these — already correctly False for all 3.
+            is_pack_sibling_credit_note = bool(
+                document.sale_order_id.meli_pack_id
+                and document.transaction_type in MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES
+            )
             document.meli_order_has_partial_refund = bool(
-                document.sale_order_id.meli_last_status == 'partially_refunded'
+                is_pack_sibling_credit_note
+                or document.sale_order_id.meli_last_status == 'partially_refunded'
                 or live_moves.invoice_line_ids.filtered('meli_discount_adjustment')
             )
             document.meli_amount_mismatch = bool(
