@@ -390,6 +390,15 @@ class SaleOrder(models.Model):
              "their stock never physically leaves Mercado Libre's own "
              "warehouse.",
     )
+    meli_has_picking_in_transit = fields.Boolean(
+        string='Has a Delivery Already With the Carrier',
+        compute='_compute_meli_has_picking_in_transit', store=True,
+        help="True when at least one of this sale's own deliveries is "
+             "already handed to a carrier (en route) — a human must "
+             "first confirm with the carrier whether it was actually "
+             "delivered before this sale can be cancelled or its stock "
+             "returned; nothing here can be automated until then.",
+    )
     meli_order_date_created = fields.Datetime(
         string='Mercado Libre Order Created At', copy=False,
         help="date_created from the Mercado Libre order resource — when "
@@ -1909,13 +1918,44 @@ class SaleOrder(models.Model):
         still-legitimate siblings are never touched; (2) the transit
         location is only looked up once there's real, already-
         delivered stock that genuinely needs somewhere to go.
+
+        Fix 2026-09-30 (user-caught, real production case: the
+        equivalent, already-fixed gap in _meli_process_non_full_total_
+        cancellation — order S974294/pack 2000015147...): xe_pacific's
+        own custom 'transit' state ("Remisión" — already handed to a
+        carrier) is NOT the same as "never validated". The "pending"
+        filter above used to treat 'transit' as just another not-yet-
+        delivered state and cancel it outright via pending_moves.
+        _action_cancel() — wrong and dangerous: physical stock may
+        already be on its way to the customer, and nothing here can be
+        automated until a human confirms with the carrier whether it
+        was actually delivered. Excluded from the auto-cancel set here;
+        left completely untouched (neither cancelled nor returned) and
+        flagged instead, mirroring this method's sibling counterpart in
+        the Full pipeline (_meli_close_pack_if_every_sibling_cancelled's
+        own identical guard).
         """
         self.ensure_one()
+        in_transit_moves = self.picking_ids.filtered(
+            lambda p: p.state == 'transit' and p.picking_type_id.code == 'outgoing'
+        ).move_ids.filtered(lambda m: m.sale_line_id in lines)
+        if in_transit_moves:
+            self.message_post(body=_(
+                "Individual order %(order_id)s's own delivery "
+                "(%(pickings)s) is already with a carrier — a human "
+                "must first confirm with them whether it was actually "
+                "delivered before anything here can be automated. "
+                "Review manually."
+            ) % {
+                'order_id': lines.mapped('meli_order_id')[:1] or '?',
+                'pickings': ', '.join(in_transit_moves.picking_id.mapped('name')),
+            })
+            return self.env['stock.picking']
         pending_moves = self.picking_ids.filtered(
-            lambda p: p.state not in ('done', 'cancel')
+            lambda p: p.state not in ('done', 'cancel', 'transit')
             and p.picking_type_id.code == 'outgoing'
         ).move_ids.filtered(
-            lambda m: m.sale_line_id in lines and m.state not in ('done', 'cancel')
+            lambda m: m.sale_line_id in lines and m.state not in ('done', 'cancel', 'transit')
         )
         if pending_moves:
             pending_moves._action_cancel()
@@ -2002,6 +2042,100 @@ class SaleOrder(models.Model):
             message += _(
                 " — pending physical confirmation before it re-enters "
                 "real stock."
+            )
+            self.message_post(body=message)
+        return new_pickings
+
+    def _meli_return_full_sibling_pickings(self, lines):
+        """Same by-code stock.return.picking mechanism as
+        _meli_return_full_pickings, but scoped to ONE pack sibling's own
+        line(s) only (same move-scoping technique
+        _meli_return_sibling_pickings_to_transit already uses) — and,
+        unlike that method, straight back into the warehouse's own real
+        return location, never the shared transit/quarantine one: Full
+        trusts Mercado Libre's own fulfillment network without needing
+        a human to physically confirm the return first (see
+        _meli_return_full_pickings's own docstring for why).
+
+        Fix 2026-09-30 (user-caught, real production case S993864/order
+        2000018704548374, among many others — see
+        _meli_no_physical_return_from_order_data's own matching fix):
+        _meli_close_pack_if_every_sibling_cancelled used to call
+        action_cancel() with no check at all for a sibling whose stock
+        was genuinely delivered and never returned — Odoo's own
+        (Studio-configured) guard on sale.order then refuses to cancel
+        ("Contiene un producto entregado o tiene entregas con el estado
+        'Remisión'"), caught by the generic except Exception a few
+        lines up and degraded to an unhelpful, undifferentiated "review
+        manually" with no stock ever moved. This closes that gap at the
+        source rather than leaving every future occurrence to be found
+        and fixed by hand again.
+
+        Never touches a sibling with a delivery already in 'transit'
+        (handed to a carrier) — the caller checks for that first and
+        skips the whole close instead of ever reaching here; see that
+        caller's own comment for why.
+        """
+        self.ensure_one()
+        done_pickings = self.picking_ids.filtered(
+            lambda p: p.state == 'done' and p.picking_type_id.code == 'outgoing'
+        )
+        sibling_moves = done_pickings.move_ids.filtered(
+            lambda m: m.sale_line_id in lines and m.state == 'done'
+        )
+        returnable_moves = sibling_moves.filtered(
+            lambda m: not m.returned_move_ids.filtered(lambda r: r.state != 'cancel')
+        )
+        if not returnable_moves:
+            return self.env['stock.picking']
+        new_pickings = self.env['stock.picking']
+        for picking in returnable_moves.picking_id:
+            picking_moves = returnable_moves.filtered(lambda m: m.picking_id == picking)
+            location = picking.picking_type_id.return_picking_type_id.default_location_dest_id
+            if not location:
+                location = self.env['stock.location'].search([
+                    '|',
+                    '&', ('return_location', '=', True), ('company_id', '=', False),
+                    '&', ('return_location', '=', True), ('company_id', '=', picking.company_id.id),
+                ], limit=1)
+            if not location:
+                raise UserError(_(
+                    "No return location is configured for warehouse %s."
+                ) % picking.picking_type_id.warehouse_id.name)
+            return_wizard = self.env['stock.return.picking'].with_context(
+                active_ids=picking.ids, active_id=picking.id, active_model='stock.picking',
+            ).create({
+                'location_id': location.id,
+                'picking_id': picking.id,
+                'product_return_moves': [(0, 0, {
+                    'product_id': move.product_id.id,
+                    'quantity': move.quantity,
+                    'move_id': move.id,
+                    'uom_id': move.product_id.uom_id.id,
+                }) for move in picking_moves],
+            })
+            new_picking_id, __ = return_wizard._create_returns()
+            new_picking = self.env['stock.picking'].browse(new_picking_id)
+            new_picking.group_id = False
+            new_picking.move_ids.group_id = False
+            result = new_picking.button_validate()
+            if isinstance(result, dict):
+                raise UserError(_(
+                    "Automatic validation of the return transfer %s "
+                    "needs manual confirmation (e.g. insufficient "
+                    "stock) — cannot auto-process this sibling's "
+                    "cancellation."
+                ) % new_picking.name)
+            new_pickings |= new_picking
+        if new_pickings:
+            message = _(
+                "Individual order %(order_id)s's own stock was "
+                "returned directly to the warehouse via transfer(s): "
+            ) % {'order_id': lines.mapped('meli_order_id')[:1] or '?'}
+            message += ', '.join(
+                f'<a href="#" data-oe-model="stock.picking" data-oe-id="{picking.id}" '
+                f'class="o_mail_redirect">{picking.name}</a>'
+                for picking in new_pickings
             )
             self.message_post(body=message)
         return new_pickings
@@ -2137,6 +2271,13 @@ class SaleOrder(models.Model):
     def _compute_meli_is_full_warehouse(self):
         for order in self:
             order.meli_is_full_warehouse = order._meli_is_full_warehouse_order()
+
+    @api.depends('picking_ids.state')
+    def _compute_meli_has_picking_in_transit(self):
+        for order in self:
+            order.meli_has_picking_in_transit = bool(order.picking_ids.filtered(
+                lambda p: p.state == 'transit'
+            ))
 
     def action_cancel(self):
         """Extends core's own action_cancel() (sale/models/sale_order.py)
@@ -2517,6 +2658,21 @@ class SaleOrder(models.Model):
         )
         return delivered_qty, returned_qty
 
+    def _meli_delivered_not_yet_returned(self, order_id):
+        """True when THIS order's own real delivery (never Mercado
+        Libre's own tracking — see the caller's own docstring for why
+        that distinction matters) already moved product out of the
+        warehouse and none of it has been returned yet. `order_id` is
+        the specific individual order to check (a pack sibling, or the
+        plain order itself when not a pack) — resolved the same way
+        _meli_sibling_lines already does everywhere else in this file.
+        """
+        lines = self._meli_sibling_lines(order_id)
+        if not lines:
+            return False
+        delivered_qty, returned_qty = self._meli_sibling_delivered_and_returned_qty(lines)
+        return delivered_qty > returned_qty
+
     def _meli_sibling_no_physical_return(self, config, cancelled_order_id):
         """Fetches ONE specific sibling's own live order resource
         (never cached — see this method's own callers for why a fresh
@@ -2571,15 +2727,41 @@ class SaleOrder(models.Model):
             live_data = config._api_get(f'/orders/{cancelled_order_id}') or {}
         except requests.exceptions.RequestException:
             return None, False
-        return self._meli_no_physical_return_from_order_data(config, live_data)
+        return self._meli_no_physical_return_from_order_data(
+            config, live_data, order_id=cancelled_order_id,
+        )
 
-    def _meli_no_physical_return_from_order_data(self, config, live_data):
+    def _meli_no_physical_return_from_order_data(self, config, live_data, order_id=None):
         """Same decision as _meli_sibling_no_physical_return, but from
         an order resource the caller already fetched — used by
         _meli_reconcile_invoicing, which already has its own live
         order data in hand at the point it needs this, to avoid a
         redundant second '/orders/{id}' round-trip for the exact same
         order on the exact same call.
+
+        Fix 2026-09-30 (user-caught, real production case S993864/
+        order 2000018704548374, pack 2000015265303869): for an ordinary
+        (non-mediation) cancellation, order_request.return is None
+        literally just means Mercado Libre's own buyer_cancel_express
+        flow was used — it says nothing about whether OUR OWN
+        warehouse had already delivered real stock before the buyer
+        cancelled. Confirmed live: Mercado Libre's own order carried
+        the 'not_delivered' tag (never delivered on THEIR tracking),
+        yet this order's own picking (ML/OUT/520604) was already
+        'done' — Full auto-validates a delivery the moment an order is
+        paid, well before Mercado Libre's own carrier tracking catches
+        up, so "Mercado Libre says not delivered" and "we already
+        shipped it" are two independent facts. Treating order_id's own
+        real delivered-vs-returned quantity (not Mercado Libre's own
+        tracking) as an override is the same principle this module
+        already applies everywhere else in this file ("the document/
+        the real stock moves ARE the truth") — a return is required
+        whenever OUR OWN stock already left, no matter what Mercado
+        Libre's own request flow does or doesn't show. Only applies to
+        the two `order_request.return is None` fallbacks below — the
+        claim-resolution branch (resolution.reason == 'payment_refunded')
+        is Mercado Libre's own authoritative arbitration outcome, not a
+        guess, and is left untouched.
         """
         live_status = live_data.get('status')
         if live_status == 'partially_refunded':
@@ -2591,10 +2773,14 @@ class SaleOrder(models.Model):
             # An ordinary (non-claim) cancellation — order_request.return
             # is the only signal available here, same as before this fix.
             no_return_requested = (live_data.get('order_request') or {}).get('return') is None
+            if no_return_requested and order_id and self._meli_delivered_not_yet_returned(order_id):
+                no_return_requested = False
             return live_status, no_return_requested
         mediation_id = next(iter(live_data.get('mediations') or []), {}).get('id')
         if not mediation_id:
             no_return_requested = (live_data.get('order_request') or {}).get('return') is None
+            if no_return_requested and order_id and self._meli_delivered_not_yet_returned(order_id):
+                no_return_requested = False
             return live_status, no_return_requested
         try:
             claim_data = config._api_get(f'/post-purchase/v1/claims/{mediation_id}') or {}
@@ -3108,6 +3294,50 @@ class SaleOrder(models.Model):
                 "NOT cancelled automatically. Review manually."
             ))
             return
+        # Fix 2026-09-30 (user-caught, real production case S993864/
+        # order 2000018704548374, among 149+ others this same gap
+        # affected): this used to call action_cancel() straight away,
+        # trusting the (sometimes wrong — see
+        # _meli_no_physical_return_from_order_data's own matching fix)
+        # assumption that nothing here ever needs a physical return.
+        # Odoo's own (Studio-configured) guard on sale.order refuses to
+        # cancel a sale with delivered-and-not-returned stock or a
+        # delivery still in 'Remisión' (handed to a carrier) — caught
+        # by the broad except Exception around this whole method's own
+        # caller and degraded to an unhelpful, undifferentiated "review
+        # manually" with no stock ever moved. Checked explicitly here
+        # instead, for every sibling, before ever attempting the cancel:
+        # a delivery already with a carrier is never automated (a human
+        # must confirm with them first — same "nothing can be
+        # automated until delivered" principle as
+        # _meli_process_non_full_total_cancellation's own identical
+        # guard); genuinely delivered-but-unreturned stock is returned
+        # automatically, straight back to the warehouse (Full trusts
+        # Mercado Libre's own fulfillment network — see
+        # _meli_return_full_sibling_pickings's own docstring), before
+        # action_cancel() ever runs.
+        for sibling_id in sibling_ids:
+            sibling_lines = self._meli_sibling_lines(sibling_id)
+            if not sibling_lines:
+                continue
+            in_transit = self.picking_ids.filtered(
+                lambda p: p.state == 'transit'
+                and p.move_ids.filtered(lambda m: m.sale_line_id in sibling_lines)
+            )
+            if in_transit:
+                self.message_post(body=_(
+                    "Every individual order within this pack appears "
+                    "cancelled, but order %(order_id)s's own delivery "
+                    "(%(pickings)s) is already with a carrier — a human "
+                    "must first confirm with them whether it was "
+                    "actually delivered before this sale can be closed. "
+                    "Review manually."
+                ) % {
+                    'order_id': sibling_id,
+                    'pickings': ', '.join(in_transit.mapped('name')),
+                })
+                return
+            self._meli_return_full_sibling_pickings(sibling_lines)
         if self.locked:
             self.action_unlock()
         self.with_context(disable_cancel_warning=True).action_cancel()
@@ -3395,7 +3625,7 @@ class SaleOrder(models.Model):
         """
         cutoff = fields.Datetime.now() - timedelta(days=1)
         candidates = self.search([
-            ('meli_sync_source', '=', True),
+            ('meli_sync_source', '!=', False),
             ('meli_order_id', '!=', False),
             ('create_date', '<=', cutoff),
             ('meli_missing_invoice_document', '=', False),
@@ -5568,7 +5798,7 @@ class SaleOrder(models.Model):
         # performs.
         if is_full_cancellation:
             __, no_physical_return = self._meli_no_physical_return_from_order_data(
-                config, live_order_data or {},
+                config, live_order_data or {}, order_id=self.meli_order_id,
             )
             if no_physical_return:
                 is_full_cancellation = False
@@ -5988,19 +6218,11 @@ class SaleOrder(models.Model):
         def _normalize(text):
             return ' '.join((text or '').split()).casefold()
 
-        # Fix 2026-09-29 (see _meli_build_partial_credit_note's own
-        # identical fix for the full rationale): exclude the mandatory
-        # shipping line from the "exactly one line left unclaimed"
-        # fallback below — otherwise it always counts as a second
-        # candidate alongside a sale's own single real product line.
         shipping_config = self.env['meli.config'].sudo().search([
             ('company_id', '=', self.company_id.id), ('state', '=', 'connected'),
         ], limit=1)
         product_lines = self.order_line.filtered(
-            lambda l: (
-                not l.display_type and l.product_id
-                and l.product_id != shipping_config.shipping_item_id
-            )
+            lambda l: not l.display_type and l.product_id
         )
         used_lines = self.env['sale.order.line']
         line_vals_list = []
@@ -6027,10 +6249,25 @@ class SaleOrder(models.Model):
                     )
                     if keyword_match:
                         matching_lines = keyword_match
-                    elif len(product_lines - used_lines) == 1:
-                        matching_lines = product_lines - used_lines
                     else:
-                        matching_lines = self.env['sale.order.line']
+                        # Fix 2026-09-30 (see _meli_relate_confirmed_
+                        # partial_refund_credit_note's own identical fix
+                        # for the full rationale): prefer any remaining
+                        # REAL product line over shipping for the sole-
+                        # remaining fallback — shipping only wins when
+                        # it's genuinely the only thing left, which is
+                        # exactly the case for a concept that really is
+                        # the freight charge itself.
+                        remaining = product_lines - used_lines
+                        non_shipping_remaining = remaining.filtered(
+                            lambda l: l.product_id != shipping_config.shipping_item_id
+                        )
+                        if len(non_shipping_remaining) == 1:
+                            matching_lines = non_shipping_remaining
+                        elif len(remaining) == 1:
+                            matching_lines = remaining
+                        else:
+                            matching_lines = self.env['sale.order.line']
             if len(matching_lines) != 1:
                 unresolved_concepts.append(concept)
                 continue
@@ -6345,20 +6582,8 @@ class SaleOrder(models.Model):
             ) % {'document': credit_note_document.meli_invoice_id or credit_note_document.id})
             return self.env['account.move']
 
-        # Fix 2026-09-29 (real production bug, user-caught: orders
-        # S976032/S991798 — a single real product plus the mandatory
-        # shipping line, the single most common invoice shape in this
-        # whole account): the "exactly one line left unclaimed" fallback
-        # a few lines below never fired when it should have, because
-        # config.shipping_item_id's own line always counted as a SECOND
-        # candidate alongside the one real product — 2 remaining lines,
-        # never 1, even though there was genuinely no ambiguity at all
-        # (a devolución concept is never about the shipping charge
-        # itself). Excluded here so that fallback actually recognizes
-        # the ordinary single-product case it was written for.
         product_lines = source_invoice.invoice_line_ids.filtered(
             lambda l: l.display_type == 'product'
-            and l.product_id != config.shipping_item_id
         )
 
         def _normalize(text):
@@ -6401,10 +6626,28 @@ class SaleOrder(models.Model):
                     )
                     if keyword_match:
                         matching_lines = keyword_match
-                    elif len(product_lines - used_lines) == 1:
-                        matching_lines = product_lines - used_lines
                     else:
-                        matching_lines = self.env['account.move.line']
+                        # Fix 2026-09-30 (real production case S968162/
+                        # order 2000018469824348, see
+                        # _meli_relate_confirmed_partial_refund_credit_
+                        # note's own identical fix for the full
+                        # rationale): a devolución CAN genuinely include
+                        # the shipping charge as its own concept —
+                        # preferring any remaining real product line
+                        # first keeps the 2026-09-29 fix's own intent
+                        # (shipping never wins over an unclaimed
+                        # product); only once nothing but shipping is
+                        # left does this concept get to claim it.
+                        remaining = product_lines - used_lines
+                        non_shipping_remaining = remaining.filtered(
+                            lambda l: l.product_id != config.shipping_item_id
+                        )
+                        if len(non_shipping_remaining) == 1:
+                            matching_lines = non_shipping_remaining
+                        elif len(remaining) == 1:
+                            matching_lines = remaining
+                        else:
+                            matching_lines = self.env['account.move.line']
             if len(matching_lines) != 1:
                 self._meli_flag_credit_note_needs_manual_review(credit_note_document, _(
                     "Mercado Libre generated a partial-refund credit "
@@ -6433,6 +6676,17 @@ class SaleOrder(models.Model):
                 'quantity': 1,
                 'price_unit': concept['importe'],
                 'name': concept['descripcion'],
+                # Fix 2026-09-30 (user-caught, real production case
+                # S968162/S958834): missing here — a standalone
+                # discount_item_id line never touches physical stock,
+                # but without this flag meli.invoice_document._compute_
+                # meli_stock_return_pending's own discount-type
+                # exclusion never recognizes it as one, so it falsely
+                # reads "Stock Return Pending" forever (delivered_qty is
+                # naturally always > returned_qty for a discount, since
+                # nothing was ever, or ever will be, physically
+                # returned).
+                'meli_discount_adjustment': True,
             })
 
         credit_note = self.env['account.move'].create({
@@ -6644,22 +6898,11 @@ class SaleOrder(models.Model):
             # note can always be rebuilt from the sale's own truth,
             # independent of whichever invoice happens to exist right
             # now.
-            # Fix 2026-09-29 (real production bug, user-caught: order
-            # S957097/document 11636 — see _meli_build_partial_credit_
-            # note's own identical fix for the full rationale): the
-            # mandatory shipping line always counted as a second
-            # "remaining" candidate alongside the sale's own real
-            # product line(s), so the "exactly one line left unclaimed"
-            # fallback below never fired for the ordinary single-
-            # product case it exists for.
             shipping_config = self.env['meli.config'].sudo().search([
                 ('company_id', '=', self.company_id.id), ('state', '=', 'connected'),
             ], limit=1)
             product_lines = self.order_line.filtered(
-                lambda l: (
-                    l.product_id and not l.display_type
-                    and l.product_id != shipping_config.shipping_item_id
-                )
+                lambda l: l.product_id and not l.display_type
             )
             xml_bytes = base64.b64decode(credit_note_document.xml_file)
             concepts = credit_note_document._meli_parse_concepts_from_xml(xml_bytes)
@@ -6719,9 +6962,31 @@ class SaleOrder(models.Model):
                             )
                             if keyword_match:
                                 candidates = keyword_match
-                            elif len(product_lines - used_lines) == 1:
-                                candidates = product_lines - used_lines
                             else:
+                                # Fix 2026-09-30 (real production case
+                                # S968162/order 2000018469824348, see
+                                # _meli_relate_confirmed_partial_refund_
+                                # credit_note's own identical fix for
+                                # the full rationale): prefer any
+                                # remaining real product line over
+                                # shipping here — shipping only wins
+                                # when it's genuinely the only thing
+                                # left, which is exactly the case for a
+                                # concept that really is the freight
+                                # charge itself.
+                                remaining = product_lines - used_lines
+                                non_shipping_remaining = remaining.filtered(
+                                    lambda l: (
+                                        l.product_id != shipping_config.shipping_item_id
+                                    )
+                                )
+                                if len(non_shipping_remaining) == 1:
+                                    candidates = non_shipping_remaining
+                                elif len(remaining) == 1:
+                                    candidates = remaining
+                                else:
+                                    candidates = self.env['sale.order.line']
+                            if len(candidates) != 1:
                                 price_candidates = (product_lines - used_lines).filtered(
                                     lambda l: (
                                         abs(l.product_uom_qty - concept['cantidad']) < 0.001
@@ -7063,17 +7328,7 @@ class SaleOrder(models.Model):
         config = self.env['meli.config'].sudo().search([
             ('company_id', '=', self.company_id.id), ('state', '=', 'connected'),
         ], limit=1)
-        # Fix 2026-09-29 (see _meli_build_partial_credit_note's own
-        # identical fix for the full rationale): exclude the mandatory
-        # shipping line from the "exactly one line left unclaimed"
-        # fallback below — a 4th occurrence of the same bug, missed
-        # earlier because this one names its own candidate pool
-        # sibling_lines rather than product_lines.
         sibling_lines = self._meli_sibling_lines(cancelled_order_id)
-        if config:
-            sibling_lines = sibling_lines.filtered(
-                lambda l: l.product_id != config.shipping_item_id
-            )
 
         def _normalize(text):
             return ' '.join((text or '').split()).casefold()
@@ -7155,10 +7410,37 @@ class SaleOrder(models.Model):
                         )
                         if keyword_match:
                             candidates = keyword_match
-                        elif len(sibling_lines - used_lines) == 1:
-                            candidates = sibling_lines - used_lines
                         else:
-                            candidates = self.env['sale.order.line']
+                            # Fix 2026-09-30 (real production case
+                            # S968162/order 2000018469824348): the sole-
+                            # remaining fallback used to exclude the
+                            # shipping line from its candidate pool
+                            # entirely (2026-09-29 fix) to stop it from
+                            # absorbing a credit note that was really
+                            # only about the product — but Mercado
+                            # Libre's own devolución can genuinely
+                            # include a second concept for the freight
+                            # itself ("Servicios de transporte terrestre
+                            # de entrega de bienes"), which that blanket
+                            # exclusion then made impossible to ever
+                            # match. Preferring any remaining REAL
+                            # product line first keeps the original fix
+                            # intact (shipping never wins over an
+                            # unclaimed product); only once nothing but
+                            # shipping is left does this concept get to
+                            # claim it — exactly the case where the
+                            # credit note is genuinely crediting back
+                            # the freight charge too.
+                            remaining = sibling_lines - used_lines
+                            non_shipping_remaining = remaining.filtered(
+                                lambda l: not config or l.product_id != config.shipping_item_id
+                            )
+                            if len(non_shipping_remaining) == 1:
+                                candidates = non_shipping_remaining
+                            elif len(remaining) == 1:
+                                candidates = remaining
+                            else:
+                                candidates = self.env['sale.order.line']
                 if len(candidates) != 1:
                     unmatched = True
                     break
@@ -7168,6 +7450,15 @@ class SaleOrder(models.Model):
                     'quantity': 1,
                     'price_unit': concept['importe'],
                     'name': concept['descripcion'],
+                    # Fix 2026-09-30 (user-caught, real production case
+                    # S968162/S958834 — see _meli_build_partial_credit_
+                    # note's own identical fix for the full rationale):
+                    # without this, meli.invoice_document._compute_meli_
+                    # stock_return_pending's own discount-type exclusion
+                    # never recognizes this line as one, so a confirmed
+                    # partial refund that never touches stock falsely
+                    # reads "Stock Return Pending" forever.
+                    'meli_discount_adjustment': True,
                 })
             if unmatched:
                 self._meli_flag_credit_note_needs_manual_review(credit_note_document, _(
@@ -7617,24 +7908,42 @@ class SaleOrder(models.Model):
         # Recovery: an order whose very first-ever reported status is
         # 'cancelled' (never seen 'paid' by this connector) is normally
         # never created at all — see the `new_status not in ('paid',
-        # 'cancelled')` check above. For Full, only recover it when
-        # Mercado Libre already issued at least one real invoice/credit-
-        # note document for it (nothing to reconcile fiscally otherwise);
-        # for non-Full, always recover as far as create+confirm (see
-        # docs/superpowers/specs/2026-09-09-meli-cancelled-order-recovery-design.md).
-        # Searched by meli_order_id, trying the pack id first when this
-        # order is part of one — confirmed with the user that Mercado
-        # Libre invoices are filed under the pack id.
-        if new_status == 'cancelled' and is_fulfillment:
+        # 'cancelled')` check above. Recovered (Full: create+confirm+
+        # auto-cancel; non-Full: create+confirm, see
+        # docs/superpowers/specs/2026-09-09-meli-cancelled-order-recovery-design.md)
+        # only when there's real evidence of an actual transaction —
+        # either Mercado Libre's own paid_amount shows money genuinely
+        # changed hands at some point, or at least one real invoice/
+        # credit-note document already exists for it (nothing to
+        # reconcile fiscally otherwise). Searched by meli_order_id,
+        # trying the pack id first when this order is part of one —
+        # confirmed with the user that Mercado Libre invoices are filed
+        # under the pack id.
+        #
+        # Fix 2026-09-30 (user-directed, real production case S986375/
+        # order 2000018308277888): this used to only gate Full — a
+        # non-Full order was ALWAYS recovered regardless of whether it
+        # was ever paid. Confirmed live against Mercado Libre's own API:
+        # that order's payment was REJECTED (paid_amount=0, insufficient
+        # funds) and it has no invoice/credit-note document of any kind,
+        # under either the order id or the pack id, for any transaction
+        # type — yet it got created and confirmed as a real $929 sale
+        # anyway, with nothing to ever reconcile it against. The user's
+        # own standing rule ("se importan con pago, salvo que sí hubo
+        # pago o existe un documento fiscal real"): no real money and no
+        # real document means no real transaction happened, so there is
+        # nothing to recover — for EITHER shipping scheme now.
+        if new_status == 'cancelled':
             has_existing_documents = bool(
                 self.env['meli.invoice.document'].sudo().search([
                     ('meli_order_id', 'in', [pack_id, order_id] if pack_id else [order_id]),
                 ], limit=1)
             )
-            if not has_existing_documents:
+            ever_paid = (order_data.get('paid_amount') or 0) > 0
+            if not has_existing_documents and not ever_paid:
                 _logger.info(
-                    "Mercado Libre order %s is 'cancelled' and Full, "
-                    "with no invoice/credit-note document yet — "
+                    "Mercado Libre order %s is 'cancelled', was never "
+                    "paid, and has no invoice/credit-note document — "
                     "skipping import.", order_id,
                 )
                 return self.browse()
