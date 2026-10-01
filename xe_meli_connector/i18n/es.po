@@ -4229,6 +4229,30 @@ msgstr ""
 "intentarlo una vez que lo hayas revisado."
 
 #. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_has_picking_in_transit
+msgid "Has a Delivery Already With the Carrier"
+msgstr "Tiene una Entrega Ya en Manos del Transportista"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_sale_order__meli_has_picking_in_transit
+msgid ""
+"True when at least one of this sale's own deliveries is already handed "
+"to a carrier (en route) — a human must first confirm with the carrier "
+"whether it was actually delivered before this sale can be cancelled or "
+"its stock returned; nothing here can be automated until then."
+msgstr ""
+"Verdadero cuando al menos una de las entregas de esta venta ya está en "
+"manos de un transportista (en camino) — un humano debe confirmar primero "
+"con el transportista si realmente se entregó antes de poder cancelar "
+"esta venta o devolver su stock; nada de esto se puede automatizar antes "
+"de eso."
+
+#. module: xe_meli_connector
+#: model:ir.ui.view,arch_db:xe_meli_connector.view_order_filter_meli
+msgid "Meli: Delivery Already With Carrier"
+msgstr "Meli: Entrega Ya en Manos del Transportista"
+
+#. module: xe_meli_connector
 #: code:addons/xe_meli_connector/models/sale_order.py:0
 msgid ""
 "Recovered a '%(transaction_type)s' document (%(document)s) directly by "
