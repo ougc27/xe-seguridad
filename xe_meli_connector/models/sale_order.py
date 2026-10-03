@@ -2886,6 +2886,82 @@ class SaleOrder(models.Model):
                 no_physical_return = False
         return live_status, no_physical_return
 
+    def _meli_pack_credit_note_covers_subset_only(self, cancelled_order_id):
+        """Fallback-only check (see _meli_pack_all_siblings_cancelled_live
+        for the PRIMARY, live-API-based signal this method now only
+        backs up): True when this pack's own devolución document (found
+        by meli_pack_id, since Mercado Libre tags ONE shared document
+        under whichever sibling it treats as primary) exists but its
+        own XML total covers only PART of this pack's whole invoice.
+        Only ever consulted when the live check above couldn't run at
+        all (e.g. the API call itself failed) — a locally-cached XML
+        total is a weaker signal than asking Mercado Libre directly,
+        but still better than guessing. False (never overrides
+        anything) whenever there's no pack, no document yet, or no
+        posted invoice yet to compare against.
+        """
+        self.ensure_one()
+        if not self.meli_pack_id:
+            return False
+        from .meli_invoice_document import (
+            MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES, MELI_INVOICE_DEAD_STATUSES,
+            MELI_INVOICE_NOT_YET_AUTHORIZED_STATUSES,
+        )
+        not_usable = MELI_INVOICE_DEAD_STATUSES | MELI_INVOICE_NOT_YET_AUTHORIZED_STATUSES
+        document = self.env['meli.invoice.document'].sudo().search([
+            ('meli_pack_id', '=', self.meli_pack_id),
+            ('transaction_type', 'in', list(MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES)),
+            ('xml_file', '!=', False),
+            ('status', 'not in', list(not_usable)),
+        ], limit=1, order='create_date desc, id desc')
+        if not document:
+            return False
+        source_invoice = self.invoice_ids.filtered(
+            lambda m: m.move_type == 'out_invoice' and m.state == 'posted'
+        )[:1]
+        if not source_invoice:
+            return False
+        return document.meli_xml_total < (source_invoice.amount_total - 0.05)
+
+    def _meli_pack_all_siblings_cancelled_live(self, config):
+        """Fix 2026-10-02 (user-directed, real case S992811 — "si lo
+        haces por la API y hay varios siblings cancelados esperar que
+        todo se complete para aplicar nota de credito"): the PRIMARY
+        signal for whether a pack sibling's own cancellation is a
+        whole-pack physical cancellation or a genuine single-item
+        partial refund — asks Mercado Libre directly, for every
+        sibling this order currently knows about (self.order_line's own
+        meli_order_id values), whether its own live status is
+        'cancelled' too. Confirmed live for S992811: this sibling
+        (CAOR01RO) read 'cancelled' via mediation, while its pack-mate
+        (CAOR01BL) read 'status': 'paid' — a clean, authoritative
+        "not every sibling is cancelled" answer straight from the API,
+        no document/XML inference needed.
+
+        Returns True only when EVERY known sibling reads 'cancelled'
+        live right now (a genuine whole-pack event — proceed with the
+        real physical-return pipeline) — False whenever at least one
+        sibling is still active, OR a live check for any of them
+        couldn't be confirmed at all (degrades to the cautious, no
+        -physical-return-pipeline assumption rather than ever guessing
+        a whole-pack cancellation into being). Trivially True for a
+        single-sibling "pack" (nothing else to wait on).
+        """
+        self.ensure_one()
+        if not self.meli_pack_id:
+            return True
+        sibling_ids = set(self.order_line.mapped('meli_order_id')) - {False}
+        if not sibling_ids:
+            return True
+        for sibling_id in sibling_ids:
+            try:
+                live_data = config._api_get(f'/orders/{sibling_id}') or {}
+            except requests.exceptions.RequestException:
+                return False
+            if live_data.get('status') != 'cancelled':
+                return False
+        return True
+
     def _meli_apply_partial_cancellation(self, cancelled_order_id):
         """The core work of a partial cancellation, without the pack-
         closure check — see _meli_process_partial_cancellation's own
@@ -2985,6 +3061,27 @@ class SaleOrder(models.Model):
             __, no_physical_return = self._meli_sibling_no_physical_return(
                 config, cancelled_order_id,
             )
+            # Fix 2026-10-02 (user-caught, real production case S992811/
+            # pack 2000015255021215): the live-API signals above decide
+            # whether MERCADO LIBRE expects the product back, but say
+            # nothing about whether this is a whole-pack cancellation or
+            # a genuine single-item partial refund within an otherwise
+            # still-active pack (S992811's OTHER sibling, CAOR01BL,
+            # stayed 'paid' the whole time — only CAOR01RO was ever
+            # touched, confirmed by checking its OWN live status
+            # directly). User-directed (2026-10-02): check every known
+            # sibling's own live status before ever committing to the
+            # real physical-return pipeline — only proceed once EVERY
+            # one of them genuinely reads 'cancelled' too. Falls back to
+            # the weaker, locally-cached XML-total comparison only if
+            # that live check itself couldn't run at all.
+            if not no_physical_return:
+                if not self._meli_pack_all_siblings_cancelled_live(config):
+                    no_physical_return = True
+                else:
+                    no_physical_return = self._meli_pack_credit_note_covers_subset_only(
+                        cancelled_order_id,
+                    )
             if no_physical_return:
                 credit_note = self._meli_relate_confirmed_partial_refund_credit_note(
                     cancelled_order_id,
