@@ -5868,11 +5868,26 @@ class SaleOrder(models.Model):
                         })
                         continue
                     live_sibling_status = (live_sibling_data or {}).get('status')
-                    sibling_is_confirmed_partial_refund = (
-                        live_sibling_status == 'partially_refunded'
-                    )
-                    sibling_is_cancelled = live_sibling_status == 'cancelled'
-                    if not sibling_is_confirmed_partial_refund and not sibling_is_cancelled:
+                    # Fix 2026-10-02 (user-caught, real production case
+                    # S992811/pack 2000015255021215): a plain `status ==
+                    # 'cancelled'` check here — unlike
+                    # _meli_apply_partial_cancellation's own, already-fixed
+                    # _meli_sibling_no_physical_return call — ignored the
+                    # mediation-resolution signal entirely and never
+                    # checked whether this pack's OTHER siblings were still
+                    # active. This method re-runs every time ANY picking on
+                    # this pack validates (see this method's own docstring)
+                    # — including the reversal picking a human/script uses
+                    # to UNDO a wrongly-returned sibling — so the old check
+                    # re-triggered the exact same wrong physical return
+                    # every single time, a genuine infinite loop for a
+                    # confirmed partial refund mediation like this one.
+                    # Reusing the same shared classification (mediation
+                    # claim resolution + "are ALL known siblings genuinely
+                    # cancelled, confirmed live") as that already-fixed
+                    # caller closes this independent copy of the same gap.
+                    if live_sibling_status not in ('partially_refunded', 'cancelled'):
+                        sibling_is_cancelled = False
                         self.message_post(body=_(
                             "Mercado Libre generated a credit note "
                             "(%(document)s) for order %(order_id)s (one "
@@ -5886,6 +5901,20 @@ class SaleOrder(models.Model):
                             'order_id': cancelled_order_id or '?',
                         })
                         continue
+                    __, no_physical_return = self._meli_no_physical_return_from_order_data(
+                        config, live_sibling_data or {}, order_id=cancelled_order_id,
+                    )
+                    if not no_physical_return:
+                        if not self._meli_pack_all_siblings_cancelled_live(config):
+                            no_physical_return = True
+                        else:
+                            no_physical_return = self._meli_pack_credit_note_covers_subset_only(
+                                cancelled_order_id,
+                            )
+                    sibling_is_confirmed_partial_refund = no_physical_return
+                    sibling_is_cancelled = (
+                        live_sibling_status == 'cancelled' and not no_physical_return
+                    )
                 else:
                     # Fix 2026-09-25 (user decision: "SIEMPRE que sea
                     # partially_refund será por ese producto [DESCUENTO]
