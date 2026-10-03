@@ -1367,10 +1367,11 @@ class MeliInvoiceDocument(models.Model):
                 continue
             for transaction_type in MELI_INVOICE_TRANSACTION_TYPES:
                 self.with_delay(
-                    # Priority 6 (vs. the 8 used by order/claim polling
-                    # and batch import) — invoices got de-prioritized by
-                    # default and lagged behind, per the user 2026-09-04.
-                    priority=6, channel='root.meli_sales', max_retries=8,
+                    # priority=0 (2026-10-02, user-directed): every job
+                    # this connector enqueues now runs at the same, top
+                    # priority — this queue has no other consumer worth
+                    # deprioritizing against.
+                    priority=0, channel='root.meli_sales', max_retries=8,
                     description=(
                         f"Import Mercado Libre invoice for order {order_id} "
                         f"({transaction_type}, recovery)"

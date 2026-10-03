@@ -156,7 +156,7 @@ class MeliInvoiceImportBatchWizard(models.TransientModel):
                 # been imported (by then the identity_key is free again
                 # and this line's own pack_id gets applied).
                 Document.with_delay(
-                    priority=8, channel='root.meli_sales', max_retries=8,
+                    priority=0, channel='root.meli_sales', max_retries=8,
                     identity_key=f"meli_import_invoice_{invoice_id}",
                     eta=enqueued_count * MELI_BATCH_IMPORT_SECONDS_BETWEEN_JOBS,
                 )._meli_import_invoice_document_for_batch_line(
