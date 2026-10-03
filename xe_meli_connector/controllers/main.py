@@ -1,13 +1,44 @@
 import json
 import logging
+from datetime import timedelta
 
-from odoo import _, http
+from odoo import _, fields, http
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 
+# Fix 2026-10-02 (user-caught, real production case: job volume nearly
+# doubling, and — more seriously — two genuinely concurrent 'paid'
+# pack siblings each creating their own separate sale.order, packs
+# 2000015308820231/2000015308879705): queue_job's own identity_key
+# dedup only ever catches a duplicate notification while the ORIGINAL
+# job is still 'pending' in the queue. Mercado Libre re-sends the same
+# notification within seconds as a matter of course (confirmed live:
+# the same order_id generating 2-3 import jobs 5-90 seconds apart) —
+# with a single worker, the original job was still sitting in the
+# queue when the repeat arrived, so identity_key caught it every time.
+# Running two workers made the original job finish almost instantly,
+# so by the time the repeat notification lands, identity_key has
+# nothing left to dedupe against and a brand new job gets created.
+# This grace window closes that gap at the one place common to every
+# notification topic (the webhook itself, before any job ever gets
+# created) rather than chasing it inside each individual job — a
+# repeat for the exact same identity_key within this many seconds of
+# the first one is always the same Mercado Libre event, never a
+# genuine second state change worth its own job.
+MELI_NOTIFICATION_DEDUP_WINDOW_SECONDS = 30
+
 
 class MeliOAuthController(http.Controller):
+
+    def _recent_duplicate_job_exists(self, identity_key):
+        cutoff = fields.Datetime.now() - timedelta(
+            seconds=MELI_NOTIFICATION_DEDUP_WINDOW_SECONDS,
+        )
+        return bool(request.env['queue.job'].sudo().search_count([
+            ('identity_key', '=', identity_key),
+            ('date_created', '>=', cutoff),
+        ]))
 
     @http.route(
         '/meli/callback', type='http', auth='user', csrf=False,
@@ -87,16 +118,17 @@ class MeliOAuthController(http.Controller):
             order_id = resource.rstrip('/').split('/')[-1]
             config = self._find_config_by_ml_user_id(payload)
             if config:
-                request.env['sale.order'].sudo().with_delay(
-                    # Priority 3 (2026-09-23, user-directed): sales must
-                    # queue ahead of invoices — an invoice/credit-note
-                    # document can't relate to a sale order that doesn't
-                    # exist yet, so letting orders lag behind only makes
-                    # invoices pile up waiting on them.
-                    priority=3, channel='root.meli_sales', max_retries=8,
-                    description=f"Import Mercado Libre order {order_id}",
-                    identity_key=f"meli_import_order_{order_id}",
-                )._meli_import_order(config.company_id.id, order_id)
+                identity_key = f"meli_import_order_{order_id}"
+                if not self._recent_duplicate_job_exists(identity_key):
+                    request.env['sale.order'].sudo().with_delay(
+                        # priority=0 (2026-10-02, user-directed): every job
+                        # this connector enqueues now runs at the same, top
+                        # priority — this queue has no other consumer worth
+                        # deprioritizing against.
+                        priority=0, channel='root.meli_sales', max_retries=8,
+                        description=f"Import Mercado Libre order {order_id}",
+                        identity_key=identity_key,
+                    )._meli_import_order(config.company_id.id, order_id)
             else:
                 _logger.warning(
                     "Mercado Libre notification for unknown ml_user_id %s "
@@ -111,17 +143,17 @@ class MeliOAuthController(http.Controller):
             invoice_id = resource.rstrip('/').split('/')[-1]
             config = self._find_config_by_ml_user_id(payload)
             if config:
-                request.env['meli.invoice.document'].sudo().with_delay(
-                    # Priority 5 (2026-09-23, user-directed: sales now
-                    # queue ahead of invoices — see the order webhook's
-                    # own priority=3 comment just above). Previously 3,
-                    # itself already lower than the 5 orders used to
-                    # carry back then (per the user 2026-09-04) — that
-                    # relative ordering flips here on purpose.
-                    priority=5, channel='root.meli_sales', max_retries=8,
-                    description=f"Import Mercado Libre invoice {invoice_id}",
-                    identity_key=f"meli_import_invoice_{invoice_id}",
-                )._meli_import_invoice_document(config.company_id.id, invoice_id)
+                identity_key = f"meli_import_invoice_{invoice_id}"
+                if not self._recent_duplicate_job_exists(identity_key):
+                    request.env['meli.invoice.document'].sudo().with_delay(
+                        # priority=0 (2026-10-02, user-directed): every job
+                        # this connector enqueues now runs at the same, top
+                        # priority — this queue has no other consumer worth
+                        # deprioritizing against.
+                        priority=0, channel='root.meli_sales', max_retries=8,
+                        description=f"Import Mercado Libre invoice {invoice_id}",
+                        identity_key=identity_key,
+                    )._meli_import_invoice_document(config.company_id.id, invoice_id)
             else:
                 _logger.warning(
                     "Mercado Libre notification for unknown ml_user_id %s "

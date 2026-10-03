@@ -563,7 +563,7 @@ class SaleOrder(models.Model):
             remaining_seconds = self._meli_order_recovery_delay_seconds(order_data)
             if remaining_seconds:
                 self.with_delay(
-                    priority=8, channel='root.meli_sales', max_retries=8,
+                    priority=0, channel='root.meli_sales', max_retries=8,
                     identity_key=f"meli_recover_order_{order_id}",
                     eta=remaining_seconds,
                 )._meli_import_order(company_id, order_id)
@@ -819,7 +819,7 @@ class SaleOrder(models.Model):
         queued = 0
         for order in orders:
             order.with_delay(
-                priority=8, channel='root.meli_sales', max_retries=8,
+                priority=0, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_shipping_historical_repair_{order.id}",
                 description=f"Historical shipping-line repair check for {order.name}",
             )._meli_repair_missing_shipping_now(order.company_id.id)
@@ -950,7 +950,7 @@ class SaleOrder(models.Model):
         queued = 0
         for order in orders:
             order.with_delay(
-                priority=8, channel='root.meli_sales', max_retries=8,
+                priority=0, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_wrong_shipping_repair_{order.id}",
                 description=f"Wrong shipping line repair check for {order.name}",
             )._meli_repair_wrong_shipping_line_now(order.company_id.id)
@@ -1151,7 +1151,7 @@ class SaleOrder(models.Model):
         queued = 0
         for order in orders:
             order.with_delay(
-                priority=8, channel='root.meli_sales', max_retries=8,
+                priority=0, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_coupon_discount_repair_{order.id}",
                 description=f"Coupon discount repair check for {order.name}",
             )._meli_repair_missing_coupon_discount_now(order.company_id.id)
@@ -1195,7 +1195,7 @@ class SaleOrder(models.Model):
         queued = 0
         for order in orders:
             order.with_delay(
-                priority=8, channel='root.meli_sales', max_retries=8,
+                priority=0, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_pack_historical_repair_{order.id}",
                 description=f"Historical pack repair check for {order.name}",
             )._meli_repair_pack_siblings_now(order.company_id.id)
@@ -1780,6 +1780,16 @@ class SaleOrder(models.Model):
                     'quantity': move.quantity,
                     'move_id': move.id,
                     'uom_id': move.product_id.uom_id.id,
+                    # Fix 2026-10-01 (user-caught, real production case
+                    # S955701): without this, core Odoo's own qty_
+                    # delivered compute (sale_stock) never nets the
+                    # return back out of the line's delivered quantity
+                    # — the physical stock moves correctly, but Odoo
+                    # keeps reporting the product as delivered forever,
+                    # which also keeps the Studio guard that blocks
+                    # action_cancel() on a "delivered" line triggering
+                    # even after the return genuinely happened.
+                    'to_refund': True,
                 })
                 for move in returnable_moves
             ]
@@ -1855,6 +1865,16 @@ class SaleOrder(models.Model):
                     'quantity': move.quantity,
                     'move_id': move.id,
                     'uom_id': move.product_id.uom_id.id,
+                    # Fix 2026-10-01 (user-caught, real production case
+                    # S955701): without this, core Odoo's own qty_
+                    # delivered compute (sale_stock) never nets the
+                    # return back out of the line's delivered quantity
+                    # — the physical stock moves correctly, but Odoo
+                    # keeps reporting the product as delivered forever,
+                    # which also keeps the Studio guard that blocks
+                    # action_cancel() on a "delivered" line triggering
+                    # even after the return genuinely happened.
+                    'to_refund': True,
                 })
                 for move in returnable_moves
             ]
@@ -1988,6 +2008,12 @@ class SaleOrder(models.Model):
                     'quantity': move.quantity,
                     'move_id': move.id,
                     'uom_id': move.product_id.uom_id.id,
+                    # Fix 2026-10-01 (user-caught, real production case
+                    # S955701) — see _meli_return_full_pickings's own
+                    # identical fix for the full rationale: without
+                    # this, core Odoo's own qty_delivered compute never
+                    # nets this return back out.
+                    'to_refund': True,
                 })
                 for move in picking_moves
             ]
@@ -2112,6 +2138,7 @@ class SaleOrder(models.Model):
                     'quantity': move.quantity,
                     'move_id': move.id,
                     'uom_id': move.product_id.uom_id.id,
+                    'to_refund': True,
                 }) for move in picking_moves],
             })
             new_picking_id, __ = return_wizard._create_returns()
@@ -2139,6 +2166,48 @@ class SaleOrder(models.Model):
             )
             self.message_post(body=message)
         return new_pickings
+
+    def _meli_reset_qty_delivered_from_real_moves(self):
+        """Fix 2026-10-02 (user-caught, real production cases S1002443/
+        S1002442/S997887/S998100/S997427 — "tampoco se porque el
+        entregado esta en 1 si ni se ha entregado la venta"): Mercado
+        Libre can issue a real 'sale' CFDI for an order even when
+        nothing ever physically shipped — _meli_reconcile_invoicing's
+        own total_cancellation_no_delivery branch forces order_line.
+        qty_delivered = product_uom_qty by hand right before invoicing
+        in that case (there's a real factura to represent, and Odoo's
+        own delivery-based invoicing policy won't invoice an
+        undelivered line otherwise). Nothing ever reversed that
+        synthetic write once the order later, genuinely, gets
+        cancelled — every automated cancellation path only ever
+        touches stock.picking records, never order_line.qty_delivered
+        itself, so a line with no real stock move behind it at all
+        stayed stuck reading "1 delivered" forever even after the sale
+        itself cancelled.
+
+        Called unconditionally right before every automated
+        cancellation actually cancels the sale (both the Full and
+        non-Full pipelines) — for a line backed by real, done outgoing
+        stock moves this recomputes to the exact same value core's own
+        stock-based compute would already show (a genuine delivery,
+        net of any real return), so this is a pure no-op there; only a
+        synthetic/forced value with no real moves behind it — net
+        quantity 0 — ever actually changes.
+        """
+        for line in self.order_line.filtered(lambda l: l.product_id.type == 'product'):
+            done_moves = self.picking_ids.move_ids.filtered(
+                lambda m: m.sale_line_id == line and m.state == 'done'
+                and m.picking_type_id.code == 'outgoing'
+            )
+            delivered_qty = sum(done_moves.mapped('quantity'))
+            returned_qty = sum(
+                done_moves.mapped('returned_move_ids').filtered(
+                    lambda m: m.state == 'done'
+                ).mapped('quantity')
+            )
+            real_qty = delivered_qty - returned_qty
+            if line.qty_delivered != real_qty:
+                line.qty_delivered = real_qty
 
     def _meli_process_non_full_total_cancellation(self):
         """Phase 1 of the Monterrey XE2 (non-Full) total-cancellation
@@ -2239,6 +2308,7 @@ class SaleOrder(models.Model):
             # is the one meli_stock_return_state value set by CODE
             # rather than the wizard — see that field's own help text.
             self.meli_stock_return_state = 'never_shipped'
+        self._meli_reset_qty_delivered_from_real_moves()
         if self.locked:
             self.action_unlock()
         self.with_context(disable_cancel_warning=True).action_cancel()
@@ -2658,21 +2728,6 @@ class SaleOrder(models.Model):
         )
         return delivered_qty, returned_qty
 
-    def _meli_delivered_not_yet_returned(self, order_id):
-        """True when THIS order's own real delivery (never Mercado
-        Libre's own tracking — see the caller's own docstring for why
-        that distinction matters) already moved product out of the
-        warehouse and none of it has been returned yet. `order_id` is
-        the specific individual order to check (a pack sibling, or the
-        plain order itself when not a pack) — resolved the same way
-        _meli_sibling_lines already does everywhere else in this file.
-        """
-        lines = self._meli_sibling_lines(order_id)
-        if not lines:
-            return False
-        delivered_qty, returned_qty = self._meli_sibling_delivered_and_returned_qty(lines)
-        return delivered_qty > returned_qty
-
     def _meli_sibling_no_physical_return(self, config, cancelled_order_id):
         """Fetches ONE specific sibling's own live order resource
         (never cached — see this method's own callers for why a fresh
@@ -2757,37 +2812,79 @@ class SaleOrder(models.Model):
         already applies everywhere else in this file ("the document/
         the real stock moves ARE the truth") — a return is required
         whenever OUR OWN stock already left, no matter what Mercado
-        Libre's own request flow does or doesn't show. Only applies to
-        the two `order_request.return is None` fallbacks below — the
-        claim-resolution branch (resolution.reason == 'payment_refunded')
-        is Mercado Libre's own authoritative arbitration outcome, not a
-        guess, and is left untouched.
+        Libre's own request flow does or doesn't show.
+
+        Fix 2026-10-02 round 2 (user-directed, explicit real-world
+        scenarios walked through one by one — "si el producto se mando
+        deberia de ser nota de credito por descuento y si no se mando
+        por cancelacion"): two DIFFERENT stock-based overrides, applied
+        to different signals below — conflating them into one (an
+        earlier version of this same fix, caught via real production
+        data: pack siblings 2000018733400342/2000018733396708/
+        2000018739306846/2000018739312162, each genuinely delivered
+        and NOT yet returned, each wrongly left as "no physical return
+        needed" by that earlier mistake) silently broke the ordinary
+        delivered-but-not-returned case.
+
+        1. `unreliable_signal` branches (order_request.return is None,
+           for an ordinary cancellation OR a mediation with no
+           resolvable claim id) — NOT an authoritative signal either
+           way (see the Fix 2026-09-28b note above): overridden to
+           "needs the real pipeline" whenever delivered_qty <= 0
+           (nothing to return, but the sale is still void — a plain
+           cancel) OR delivered_qty > returned_qty (shipped, not yet
+           returned — an ordinary buyer cancellation almost always
+           means exactly this).
+        2. `partially_refunded` and a genuinely resolved mediation
+           (resolution.reason == 'payment_refunded') — Mercado Libre's
+           own authoritative word that the buyer keeps whatever shipped
+           and no return is expected: only overridden when nothing was
+           EVER delivered (delivered_qty <= 0) — the one fact no status
+           label or resolution can override, since there's no delivered
+           product for the buyer to have kept. Deliberately NEVER
+           overridden just because delivered_qty > returned_qty here —
+           that's the expected, correct shape of a genuine "customer
+           keeps it" resolution, not a sign something was missed.
+
+        Checked only against real stock moves, never Mercado Libre's
+        own status/tags/resolution text.
         """
         live_status = live_data.get('status')
+        unreliable_signal = False
         if live_status == 'partially_refunded':
-            return live_status, True
-        if live_status != 'cancelled':
+            no_physical_return = True
+        elif live_status != 'cancelled':
             return live_status, False
-        cancel_detail = live_data.get('cancel_detail') or {}
-        if cancel_detail.get('group') != 'mediations':
-            # An ordinary (non-claim) cancellation — order_request.return
-            # is the only signal available here, same as before this fix.
-            no_return_requested = (live_data.get('order_request') or {}).get('return') is None
-            if no_return_requested and order_id and self._meli_delivered_not_yet_returned(order_id):
-                no_return_requested = False
-            return live_status, no_return_requested
-        mediation_id = next(iter(live_data.get('mediations') or []), {}).get('id')
-        if not mediation_id:
-            no_return_requested = (live_data.get('order_request') or {}).get('return') is None
-            if no_return_requested and order_id and self._meli_delivered_not_yet_returned(order_id):
-                no_return_requested = False
-            return live_status, no_return_requested
-        try:
-            claim_data = config._api_get(f'/post-purchase/v1/claims/{mediation_id}') or {}
-        except requests.exceptions.RequestException:
-            return live_status, False
-        resolution_reason = (claim_data.get('resolution') or {}).get('reason')
-        return live_status, resolution_reason == 'payment_refunded'
+        else:
+            cancel_detail = live_data.get('cancel_detail') or {}
+            if cancel_detail.get('group') != 'mediations':
+                # An ordinary (non-claim) cancellation — order_request.
+                # return is the only signal available here.
+                no_physical_return = (live_data.get('order_request') or {}).get('return') is None
+                unreliable_signal = True
+            else:
+                mediation_id = next(iter(live_data.get('mediations') or []), {}).get('id')
+                if not mediation_id:
+                    no_physical_return = (live_data.get('order_request') or {}).get('return') is None
+                    unreliable_signal = True
+                else:
+                    try:
+                        claim_data = config._api_get(f'/post-purchase/v1/claims/{mediation_id}') or {}
+                    except requests.exceptions.RequestException:
+                        return live_status, False
+                    resolution_reason = (claim_data.get('resolution') or {}).get('reason')
+                    no_physical_return = resolution_reason == 'payment_refunded'
+
+        if no_physical_return and order_id:
+            lines = self._meli_sibling_lines(order_id)
+            delivered_qty, returned_qty = (
+                self._meli_sibling_delivered_and_returned_qty(lines) if lines else (0, 0)
+            )
+            if delivered_qty <= 0:
+                no_physical_return = False
+            elif unreliable_signal and delivered_qty > returned_qty:
+                no_physical_return = False
+        return live_status, no_physical_return
 
     def _meli_apply_partial_cancellation(self, cancelled_order_id):
         """The core work of a partial cancellation, without the pack-
@@ -2984,57 +3081,37 @@ class SaleOrder(models.Model):
         # ---- Inventory: return every delivered move belonging to
         # whichever line(s) this credit note actually covers (see the
         # comment above — usually just this sibling's own line(s), but
-        # not always). Same by-code stock.return.picking pattern as
-        # _meli_return_full_pickings.
+        # not always).
+        #
+        # Fix 2026-10-02 (user-directed, real production cases S996709/
+        # S997335): this used to always return straight back to
+        # whichever default return location the picking type is
+        # configured with, with NO is_full branch at all — harmless by
+        # accident for a Full order (Full's own default return location
+        # genuinely is its real warehouse), but this method itself was
+        # never actually reachable for a non-Full pack sibling before
+        # today (its only caller, _meli_process_partial_cancellation,
+        # was gated to Full-only inside _meli_flag_status_change — see
+        # that gate's own 2026-10-02 fix). Now that non-Full packs reach
+        # this too, the SAME is_full/non-Full split every other
+        # cancellation pipeline in this file already uses applies here:
+        # Full returns straight back to real stock (_meli_return_full_
+        # sibling_pickings); non-Full returns to the shared
+        # 'Devoluciones en tránsito ML' quarantine location pending a
+        # human's physical confirmation (_meli_return_sibling_pickings_
+        # to_transit) — including that method's own transit/pending-move
+        # handling this inline block never had at all.
+        if self._meli_is_full_warehouse_order():
+            new_pickings = self._meli_return_full_sibling_pickings(lines)
+        else:
+            new_pickings = self._meli_return_sibling_pickings_to_transit(lines)
+
         done_pickings = self.picking_ids.filtered(
             lambda p: p.state == 'done' and p.picking_type_id.code == 'outgoing'
         )
         sibling_moves = done_pickings.move_ids.filtered(
             lambda m: m.sale_line_id in lines and m.state == 'done'
         )
-        returnable_moves = sibling_moves.filtered(
-            lambda m: not m.returned_move_ids.filtered(lambda r: r.state != 'cancel')
-        )
-        new_pickings = self.env['stock.picking']
-        for picking in returnable_moves.picking_id:
-            picking_moves = returnable_moves.filtered(lambda m: m.picking_id == picking)
-            return_lines = [
-                (0, 0, {
-                    'product_id': move.product_id.id,
-                    'quantity': move.quantity,
-                    'move_id': move.id,
-                    'uom_id': move.product_id.uom_id.id,
-                })
-                for move in picking_moves
-            ]
-            location = picking.picking_type_id.return_picking_type_id.default_location_dest_id
-            if not location:
-                location = self.env['stock.location'].search([
-                    '|',
-                    '&', ('return_location', '=', True), ('company_id', '=', False),
-                    '&', ('return_location', '=', True), ('company_id', '=', picking.company_id.id),
-                ], limit=1)
-            if not location:
-                raise UserError(_(
-                    "No return location is configured for warehouse %s."
-                ) % picking.picking_type_id.warehouse_id.name)
-            return_wizard = self.env['stock.return.picking'].with_context(
-                active_ids=picking.ids, active_id=picking.id, active_model='stock.picking',
-            ).create({
-                'location_id': location.id,
-                'picking_id': picking.id,
-                'product_return_moves': return_lines,
-            })
-            new_picking_id, _picking_type_id = return_wizard._create_returns()
-            new_picking = self.env['stock.picking'].browse(new_picking_id)
-            result = new_picking.button_validate()
-            if isinstance(result, dict):
-                raise UserError(_(
-                    "Automatic validation of the return transfer %s needs "
-                    "manual confirmation (e.g. insufficient stock) — "
-                    "cannot auto-process this sibling's cancellation."
-                ) % new_picking.name)
-            new_pickings |= new_picking
 
         # ---- Quantity: deliberately NEVER touched. Fix 2026-09-15 (real
         # production bug, order 2000018329804996): this used to zero
@@ -3176,14 +3253,13 @@ class SaleOrder(models.Model):
         _meli_process_partial_cancellation's own docstring for why.
         """
         self.ensure_one()
-        config = self.env['meli.config'].sudo().search([
-            ('company_id', '=', self.company_id.id), ('state', '=', 'connected'),
-        ], limit=1)
-        is_full = bool(
-            config and config.warehouse_fulfillment_id
-            and self.warehouse_id == config.warehouse_fulfillment_id
-        )
-        if is_full and self.meli_pack_id:
+        # Fix 2026-10-02 (user-caught, real production cases S996709/
+        # S997335): no longer gated to is_full — see
+        # _meli_flag_status_change's own 2026-10-02 fix for the full
+        # rationale; _meli_close_pack_if_every_sibling_cancelled already
+        # dispatches on is_full internally for its own stock-return
+        # fallback.
+        if self.meli_pack_id:
             # Fix round 1 (2026-09-09, reviewer finding — Fix A): isolated
             # in its own savepoint, same convention as
             # _meli_auto_validate_full_pickings and stock_picking.py's own
@@ -3337,7 +3413,19 @@ class SaleOrder(models.Model):
                     'pickings': ', '.join(in_transit.mapped('name')),
                 })
                 return
-            self._meli_return_full_sibling_pickings(sibling_lines)
+            # Fix 2026-10-02 (user-caught, real production cases
+            # S996709/S997335): this fallback used to always call the
+            # Full-only return method unconditionally — harmless before
+            # today since this whole method was only ever reachable for
+            # a Full pack (see _meli_close_pack_after_partial_
+            # cancellation's own 2026-10-02 fix), but now non-Full packs
+            # reach here too, and non-Full stock must go to the shared
+            # quarantine location, never straight back into real,
+            # sellable stock.
+            if self._meli_is_full_warehouse_order():
+                self._meli_return_full_sibling_pickings(sibling_lines)
+            else:
+                self._meli_return_sibling_pickings_to_transit(sibling_lines)
         if self.locked:
             self.action_unlock()
         self.with_context(disable_cancel_warning=True).action_cancel()
@@ -3673,6 +3761,107 @@ class SaleOrder(models.Model):
                     "genuinely never invoiced this order."
                 ))
 
+    def _cron_meli_cancel_stale_undelivered_cancelled_orders(self):
+        """Daily safety net (2026-10-02, user-caught, real production
+        cases S979001/S979666): closes a structural gap none of this
+        module's existing cancellation automation ever covered. Every
+        other automated cancellation path is reached one of two ways —
+        _meli_flag_status_change's own 'is_full' branch (webhook-driven,
+        Full-only) or _meli_reconcile_invoicing's credit-note loop
+        (requires a meli.invoice.document credit-note row to exist at
+        all, see that method's own 'if not credit_note_documents:
+        return'). A non-Full order Mercado Libre cancels BEFORE ever
+        generating any fiscal document whatsoever — nothing to invoice,
+        nothing to credit, confirmed live for both cases above via
+        /orders/$ID — has no document for either path to ever react to,
+        so meli_last_status flips to 'cancelled' (set the moment any
+        notification/poll reports it — see _meli_flag_status_change's
+        own unconditional `self.meli_last_status = new_status`) and the
+        sale order itself just sits in 'sale' forever, waiting on a
+        document that will never arrive.
+
+        Scoped tightly to avoid ever touching a case some OTHER path
+        already owns: only orders with nothing INVOICED at all (a real
+        invoice means a fiscal document genuinely exists, which belongs
+        to the ordinary credit-note-driven reconciliation instead —
+        never this blunt whole-order cancel). Delivered-but-uninvoiced
+        IS handled here too (2026-10-02, user-directed: "si se entrego
+        que se cancele... que se devuelva el stock a transito si es
+        Monterrey XE2 y si es Full que se regrese al de ML Existencias")
+        — _meli_process_full_cancellation/_meli_process_non_full_total_
+        cancellation already return real delivered stock correctly
+        (straight back to the real warehouse for Full, to the shared
+        'Devoluciones en tránsito ML' quarantine location for non-Full)
+        as an ordinary part of what they do; nothing extra is needed
+        here beyond letting them run instead of skipping. Only this
+        connector's own orders
+        (meli_sync_source set, never meli_adopted — same safety gate
+        _meli_flag_status_change's own docstring explains), and only
+        for an order created at least a full day ago (create_date
+        cutoff, not write_date — 2026-10-02 user decision: this
+        connector only ever creates the sale order once Mercado Libre
+        itself reports a real payment, see _meli_create_from_order_data's
+        own cancelled-on-arrival gate, so a full day since CREATION is
+        already enough room for the normal, faster paths to have caught
+        a genuine cancellation first). Re-confirms against the LIVE
+        order before acting, exactly like every other recovery path in
+        this file — a locally-cached 'cancelled' that Mercado Libre
+        itself has since reversed must never be auto-cancelled here.
+        """
+        cutoff = fields.Datetime.now() - timedelta(days=1)
+        candidates = self.search([
+            ('state', 'not in', ('cancel', 'done')),
+            ('meli_last_status', '=', 'cancelled'),
+            ('meli_sync_source', '!=', False),
+            ('meli_adopted', '=', False),
+            ('meli_order_id', '!=', False),
+            ('create_date', '<=', cutoff),
+        ])
+        for order in candidates:
+            if order.order_line.filtered(lambda l: l.qty_invoiced):
+                continue
+            config = self.env['meli.config'].sudo().search([
+                ('company_id', '=', order.company_id.id), ('state', '=', 'connected'),
+            ], limit=1)
+            if not config:
+                continue
+            live_order_id = order.meli_order_id or order.reference
+            try:
+                live_order_data = config._api_get(f'/orders/{live_order_id}')
+            except requests.exceptions.RequestException:
+                continue
+            if (live_order_data or {}).get('status') != 'cancelled':
+                continue
+            is_full = order._meli_is_full_warehouse_order()
+            try:
+                with self.env.cr.savepoint():
+                    if is_full:
+                        order._meli_process_full_cancellation(config)
+                    else:
+                        order._meli_process_non_full_total_cancellation()
+            except Exception:
+                _logger.exception(
+                    "Mercado Libre order %s: automatic cancellation of "
+                    "a stale, uninvoiced order (no fiscal document ever "
+                    "generated) failed — needs manual review.",
+                    order.client_order_ref,
+                )
+                order._meli_notify_queue_job_managers(_(
+                    "Mercado Libre has reported this order as cancelled "
+                    "for over a day, nothing was ever invoiced, and no "
+                    "fiscal document was ever generated for it — but "
+                    "automatic cancellation failed. Review manually."
+                ))
+                continue
+            order.meli_last_status = 'cancelled'
+            order._meli_notify_queue_job_managers(_(
+                "Mercado Libre reports this order was cancelled, and "
+                "never generated any invoice or credit-note document at "
+                "all — the sale was cancelled automatically (any "
+                "delivered stock was returned as part of the usual "
+                "process); there is no fiscal document to reconcile."
+            ))
+
     def _meli_notify_zero_line_sibling_cancellation(self, cancelled_order_id):
         """Fix 2: a cancelled sibling with zero resolvable lines (every
         one of its SKUs unmapped) has nothing for
@@ -3871,7 +4060,25 @@ class SaleOrder(models.Model):
             # own early return), so routing here even for a still-
             # unmapped sibling costs nothing.
             notified_order_id = str(order_data.get('id') or '')
-            if is_full and self.meli_pack_id:
+            # Fix 2026-10-02 (user-caught, real production cases
+            # S996709/S997335: 2 of each pack's 3 siblings were
+            # genuinely cancelled on Mercado Libre's own side, confirmed
+            # live, and NEVER got cancelled here — this whole branch
+            # used to require is_full, leaving every non-Full
+            # (Monterrey XE2) pack sibling cancellation with no
+            # automated path at all, falling straight to the generic
+            # "review manually" message below with nothing ever acted
+            # on): _meli_process_partial_cancellation (and everything it
+            # calls — _meli_apply_partial_cancellation,
+            # _meli_close_pack_after_partial_cancellation) already
+            # dispatches on is_full internally wherever the actual stock
+            # destination differs (straight back to real stock for
+            # Full, to the 'Devoluciones en tránsito ML' quarantine
+            # location for non-Full — see _meli_apply_partial_
+            # cancellation's own 2026-10-02 fix), so this gate no longer
+            # needs is_full at all — only self.meli_pack_id, exactly
+            # like every one of those inner dispatches already check.
+            if self.meli_pack_id:
                 # Always returns below, success or failure — deliberately
                 # NEVER falls through into the whole-order `is_full`
                 # cancellation right after this block: that automation
@@ -4199,6 +4406,7 @@ class SaleOrder(models.Model):
             # worth surfacing (falls back to manual review), not something
             # to force past.
             self.action_unlock()
+        self._meli_reset_qty_delivered_from_real_moves()
         self.with_context(disable_cancel_warning=True).action_cancel()
         actions.append(_("The sale order was cancelled."))
         self.meli_auto_cancellation_processed = True
@@ -4701,7 +4909,7 @@ class SaleOrder(models.Model):
         queued = 0
         for order in orders:
             order.with_delay(
-                priority=8, channel='root.meli_sales', max_retries=8,
+                priority=0, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_move_amount_mismatch_repair_{order.id}",
                 description=f"Invoice/CFDI amount mismatch repair check for {order.name}",
             )._meli_repair_move_amount_mismatch_now()
@@ -5796,13 +6004,29 @@ class SaleOrder(models.Model):
         # never the whole-invoice reversal / stock return /
         # action_cancel() the genuine is_full_cancellation branch below
         # performs.
-        if is_full_cancellation:
+        # Fix 2026-10-02 (user-caught, real production cases S990639/
+        # S990869; explicit correction of an earlier, wrong attempt at
+        # this same fix that keyed off the credit note's own amount
+        # instead): now called for 'partially_refunded' too, not just
+        # 'cancelled' — _meli_no_physical_return_from_order_data's own
+        # final check (delivered_qty <= 0 overrides every branch, see
+        # its own 2026-10-02 fix note) is the single source of truth
+        # for "was anything ever actually delivered", regardless of
+        # which Mercado Libre status/resolution originally suggested
+        # 'no physical return needed'. A 100% money refund (mediación
+        # resuelta a favor del comprador, reembolso total) does NOT by
+        # itself mean the sale should be cancelled — "si el producto se
+        # mando deberia de ser nota de credito por descuento y si no se
+        # mando por cancelacion" (user, 2026-10-02): if it genuinely
+        # shipped, DESCUENTO stays correct no matter the refund amount;
+        # only "nothing ever shipped" ever justifies the real
+        # product-reversal + cancel-transfer + cancel-sale pipeline.
+        if live_status in ('cancelled', 'partially_refunded'):
             __, no_physical_return = self._meli_no_physical_return_from_order_data(
                 config, live_order_data or {}, order_id=self.meli_order_id,
             )
-            if no_physical_return:
-                is_full_cancellation = False
-                is_confirmed_partial_refund = True
+            is_confirmed_partial_refund = no_physical_return
+            is_full_cancellation = not no_physical_return
 
         # Fix 2026-09-22 round 2 (user-directed correction, real gap:
         # this used to block EVERY credit note on a non-Full order,
@@ -6824,23 +7048,41 @@ class SaleOrder(models.Model):
             MELI_INVOICE_DEAD_STATUSES | MELI_INVOICE_NOT_YET_AUTHORIZED_STATUSES
         )
 
-        # Scoped to THIS sibling's own meli_order_id, deliberately NOT to
-        # sale_order_id (which _meli_reconcile_invoicing's own search
-        # uses): a pack's consolidated sale_order_id is shared by every
-        # sibling, so searching by it alone would risk picking up a
-        # credit note actually meant for a DIFFERENT sibling.
-        # meli_order_id is the one field a document always carries for
-        # exactly the individual order it was issued against. No
+        # Fix 2026-10-02 (user-caught, real production cases S996709/
+        # S997335/pack 2000015292952875/2000015298515561 — "los
+        # siblings no necesitan tener documento, se hace un documento
+        # fiscal por pack id"): scoping strictly to THIS sibling's own
+        # meli_order_id — the ORIGINAL reasoning below — silently found
+        # NOTHING for 2 of 3 siblings in each of these real packs, even
+        # though a real, already-correct, already-posted devolución
+        # document for the WHOLE pack existed all along (3 concepts,
+        # one per product, $348.00 total matching the invoice exactly)
+        # — just filed under a DIFFERENT sibling's own order_id (this
+        # method's own docstring already documents this exact Mercado
+        # Libre behavior: "ONE shared devolución document per pack,
+        # tagged under whichever sibling it treats as primary" — the
+        # search just never actually matched that reality). Scoped to
+        # meli_pack_id instead whenever this order has one — every
+        # sibling in the same pack then finds the exact same document
+        # regardless of which one it's tagged under; a plain non-pack
+        # order keeps the original, narrower meli_order_id scoping
+        # (there's no pack-mate's document to ever find instead). No
         # `limit=1` and ordered oldest-first — see _meli_reconcile_
         # invoicing's own comment on its equivalent search for why
         # (Fix 3): an older, never-yet-related document for this same
         # sibling must not be permanently masked by a newer one.
-        credit_note_documents = self.env['meli.invoice.document'].sudo().search([
-            ('meli_order_id', '=', cancelled_order_id),
+        document_domain = [
             ('transaction_type', 'in', list(MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES)),
             ('xml_file', '!=', False),
             ('status', 'not in', list(meli_invoice_not_usable_statuses)),
-        ], order='create_date asc, id asc')
+        ]
+        if self.meli_pack_id:
+            document_domain.append(('meli_pack_id', '=', self.meli_pack_id))
+        else:
+            document_domain.append(('meli_order_id', '=', cancelled_order_id))
+        credit_note_documents = self.env['meli.invoice.document'].sudo().search(
+            document_domain, order='create_date asc, id asc',
+        )
         if not credit_note_documents:
             return self.env['account.move']
 
@@ -7737,7 +7979,27 @@ class SaleOrder(models.Model):
                 ) % {'ref': adoption_ref})
                 return self.browse()
 
-        if order_data.get('status') != 'paid' and pack_id:
+        # Fix 2026-10-02 (user-caught, real production bug: packs
+        # 2000015308820231/2000015308879705 — two genuinely 'paid'
+        # siblings of the same pack, each processed by a DIFFERENT
+        # queue_job worker running concurrently, each reaching here
+        # before the other's own sale.order creation had committed):
+        # this check used to only run for `status != 'paid'` — a
+        # 'paid' sibling always fell straight through to create its
+        # OWN separate sale.order below, with no attempt to consolidate
+        # into a pack sibling that might already exist (or that a
+        # concurrent worker is creating/just created). The
+        # pg_advisory_xact_lock above already serializes the two
+        # workers correctly; the bug was that only ONE of them (the
+        # one that actually creates the order) ever looked for an
+        # existing pack_order at all — the second, once it acquires
+        # the lock after the first commits, must ALSO check before
+        # falling through to its own create(). Checked unconditionally
+        # now, regardless of status — _meli_add_pack_sibling_lines/
+        # _meli_reconcile_invoicing below are already safe to run for
+        # an ordinary paid sibling (same idempotent calls this method
+        # already uses for the cancelled-sibling case).
+        if pack_id:
             pack_order = self.sudo().search([('meli_pack_id', '=', pack_id)], limit=1)
             if pack_order:
                 # Fix 2026-09-18 (real production bug — see
