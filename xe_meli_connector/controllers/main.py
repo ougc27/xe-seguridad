@@ -32,6 +32,31 @@ MELI_NOTIFICATION_DEDUP_WINDOW_SECONDS = 30
 class MeliOAuthController(http.Controller):
 
     def _recent_duplicate_job_exists(self, identity_key):
+        # Fix 2026-10-06 (user-caught, real production case: packs
+        # 2000015317436757/orders 2000018759123602, two genuinely
+        # duplicate sale.order records — S1002713/S1002718 — each with
+        # its own real stock movement/fiscal document split between
+        # them): a plain SELECT here is NOT atomic with the with_delay()
+        # INSERT that follows it in the caller — two webhook requests
+        # arriving in the same instant (confirmed live: both resulting
+        # queue.job rows share the exact same identity_key AND the exact
+        # same date_created, down to the second) each run this SELECT
+        # before either one's own job INSERT has committed, so both see
+        # "no duplicate yet" and both proceed — the classic check-then-
+        # act race, impossible to close with a tighter time window alone
+        # since the window was never the problem; the missing lock was.
+        # pg_advisory_xact_lock(hashtext(identity_key)) serializes any
+        # two concurrent requests for the SAME identity_key — the second
+        # one blocks here until the first's entire transaction (request)
+        # commits, at which point its own job row is genuinely visible,
+        # making this check correct instead of racy. Same proven
+        # technique sale.order._meli_create_from_order_data already uses
+        # for its own pack-consolidation check — scoped by identity_key
+        # here instead of pack_id/order_id, since this guard runs for
+        # every notification topic, not just order imports.
+        request.env.cr.execute(
+            "SELECT pg_advisory_xact_lock(hashtext(%s))", (identity_key,),
+        )
         cutoff = fields.Datetime.now() - timedelta(
             seconds=MELI_NOTIFICATION_DEDUP_WINDOW_SECONDS,
         )

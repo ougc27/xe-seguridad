@@ -30,6 +30,7 @@
                 <field name="meli_order_has_partial_refund" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="meli_has_refacturacion" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="meli_has_credit_note" widget="boolean_toggle" readonly="1" optional="hide"/>
+                <field name="meli_document_superseded" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="issue_date"/>
                 <field name="last_synced_at"/>
                 <button name="action_meli_rescue_xml" type="object"
@@ -80,6 +81,7 @@
                             <field name="meli_order_has_partial_refund"/>
                             <field name="meli_has_refacturacion"/>
                             <field name="meli_has_credit_note"/>
+                            <field name="meli_document_superseded"/>
                             <field name="issue_date"/>
                             <field name="last_synced_at"/>
                         </group>
@@ -145,6 +147,11 @@
                         domain="[('meli_has_refacturacion', '=', True)]"/>
                 <filter name="meli_has_credit_note" string="Sale With Credit Note"
                         domain="[('meli_has_credit_note', '=', True)]"/>
+                <filter name="meli_document_superseded" string="Superseded by Refacturación"
+                        domain="[('meli_document_superseded', '=', True)]"/>
+                <filter name="stuck_not_superseded" string="Stuck Pending Authorization (Needs Attention)"
+                        domain="[('status', 'in', ('pending_authorization', 'interrupted')),
+                                 ('meli_document_superseded', '=', False)]"/>
                 <separator/>
                 <filter name="warehouse_full" string="Full Warehouse"
                         domain="[('meli_warehouse_kind', '=', 'full')]"/>

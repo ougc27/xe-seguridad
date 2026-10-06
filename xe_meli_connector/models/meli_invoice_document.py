@@ -362,6 +362,29 @@ class MeliInvoiceDocument(models.Model):
              "cron) resolves it.",
     )
 
+    meli_document_superseded = fields.Boolean(
+        string='Superseded by Refacturación', compute='_compute_meli_document_superseded',
+        search='_search_meli_document_superseded',
+        help="True when a NEWER document for this exact same Mercado "
+             "Libre order (meli_order_id) and the same transaction_type "
+             "already exists and is already Applied in Odoo — Mercado "
+             "Libre replaced this one with that one (a refacturación), "
+             "so this older copy will never need to be acted on again. "
+             "Most commonly seen on a 'factura' stuck in "
+             "'pending_authorization'/'interrupted' forever: it isn't "
+             "stuck because of a bug — Mercado Libre simply moved on and "
+             "issued a replacement before this one ever finished, and "
+             "the real, current one is the newer document already "
+             "applied. Not stored (always computed fresh, never a flag "
+             "that could go stale) — use this filter to tell 'genuinely "
+             "needs attention' apart from 'already irrelevant, safely "
+             "ignore' among documents that never reached a final "
+             "status. Excluded from the pending-authorization refresh "
+             "cron for the same reason — there's no point spending an "
+             "API call re-checking a document Mercado Libre itself has "
+             "already moved past.",
+    )
+
     meli_sale_delivered = fields.Boolean(
         string='Sale Delivered', compute='_compute_meli_sale_delivered',
         search='_search_meli_sale_delivered',
@@ -408,6 +431,43 @@ class MeliInvoiceDocument(models.Model):
         candidates = self.search([('sale_order_id', '!=', False)])
         matching_ids = candidates.filtered(
             lambda d: d.meli_sale_delivered
+        ).ids
+        return [('id', 'in' if want else 'not in', matching_ids)]
+
+    def _meli_is_superseded(self):
+        """Shared core for _compute_meli_document_superseded and the
+        pending-authorization cron's own exclusion filter: True when a
+        newer document (create_date/id strictly after this one — same
+        tie-break convention as every other "newest wins" search in this
+        file) for the exact same meli_order_id + transaction_type
+        already exists and is already Applied in Odoo (move_ids set).
+        """
+        self.ensure_one()
+        if not self.meli_order_id or not self.transaction_type:
+            return False
+        newer = self.search([
+            ('id', '!=', self.id),
+            ('meli_order_id', '=', self.meli_order_id),
+            ('transaction_type', '=', self.transaction_type),
+            '|', ('create_date', '>', self.create_date),
+                 '&', ('create_date', '=', self.create_date), ('id', '>', self.id),
+        ])
+        return bool(newer.filtered(lambda d: d.move_ids))
+
+    def _compute_meli_document_superseded(self):
+        for document in self:
+            document.meli_document_superseded = document._meli_is_superseded()
+
+    def _search_meli_document_superseded(self, operator, value):
+        # Non-stored (see the field's own help text) — evaluated in
+        # Python over the small set of documents that could possibly
+        # qualify, same convention as _search_meli_sale_delivered.
+        want = bool(value) if operator == '=' else not bool(value)
+        candidates = self.search([
+            ('meli_order_id', '!=', False), ('transaction_type', '!=', False),
+        ])
+        matching_ids = candidates.filtered(
+            lambda d: d.meli_document_superseded
         ).ids
         return [('id', 'in' if want else 'not in', matching_ids)]
 
@@ -554,15 +614,38 @@ class MeliInvoiceDocument(models.Model):
             document.meli_warehouse_kind = kind
 
     @api.depends('meli_order_id', 'meli_linked_pack_id')
+    def _meli_prefer_active_order(self, candidates):
+        """Fix 2026-10-05 (user-caught, real production bug: a credit
+        note getting linked to a CANCELLED duplicate sale order instead
+        of the active one that actually carries Mercado Libre's own
+        original factura): every tier of _compute_sale_order_id below
+        used to take whichever match the database happened to return
+        first, with no preference at all — harmless when meli_order_id
+        is genuinely unique, but this connector's own known duplicate-
+        sale-order race (two sale.order records sharing the exact same
+        meli_order_id) means that's no longer guaranteed. A cancelled
+        duplicate is never the right target for a NEW document to link
+        to — it only still matches here at all because nothing ever
+        cleaned it up — so an active (non-cancelled) match always wins
+        when more than one candidate shares this same meli_order_id;
+        only falls back to a cancelled one when that's genuinely the
+        only match that exists.
+        """
+        if len(candidates) > 1:
+            active = candidates.filtered(lambda o: o.state != 'cancel')
+            if active:
+                candidates = active
+        return candidates[:1]
+
     def _compute_sale_order_id(self):
         SaleOrder = self.env['sale.order']
         SaleOrderLine = self.env['sale.order.line']
         for document in self:
             order = SaleOrder.browse()
             if document.meli_order_id:
-                order = SaleOrder.search(
-                    [('meli_order_id', '=', document.meli_order_id)], limit=1,
-                )
+                order = self._meli_prefer_active_order(SaleOrder.search(
+                    [('meli_order_id', '=', document.meli_order_id)],
+                ))
                 if not order:
                     # A pack sibling other than the first one: after
                     # consolidation, its own order id only lives on the
@@ -572,32 +655,32 @@ class MeliInvoiceDocument(models.Model):
                     # meli_pack_id) — see
                     # sale.order._meli_add_pack_sibling_lines.
                     line = SaleOrderLine.sudo().search(
-                        [('meli_order_id', '=', document.meli_order_id)], limit=1,
+                        [('meli_order_id', '=', document.meli_order_id)],
                     )
-                    order = line.order_id
+                    order = self._meli_prefer_active_order(line.mapped('order_id'))
                 if not order:
-                    order = SaleOrder.search([
+                    order = self._meli_prefer_active_order(SaleOrder.search([
                         '|',
                         ('client_order_ref', '=', document.meli_order_id),
                         ('reference', '=', document.meli_order_id),
-                    ], limit=1)
+                    ]))
                 if not order:
                     # Last resort: this document's own "order id" is
                     # actually a pack id — not expected from either known
                     # fetch path today, but cheap insurance against a
                     # future metadata shape reporting the pack instead of
                     # one specific sibling order.
-                    order = SaleOrder.search(
-                        [('meli_pack_id', '=', document.meli_order_id)], limit=1,
-                    )
+                    order = self._meli_prefer_active_order(SaleOrder.search(
+                        [('meli_pack_id', '=', document.meli_order_id)],
+                    ))
             if not order and document.meli_linked_pack_id:
                 # Bridges the gap the tiers above can't: a Ventiapp-adopted
                 # order's sale.order only ever knows its own pack_id, never
                 # this document's real meli_order_id — see
                 # meli_linked_pack_id's own help text.
-                order = SaleOrder.search(
-                    [('meli_pack_id', '=', document.meli_linked_pack_id)], limit=1,
-                )
+                order = self._meli_prefer_active_order(SaleOrder.search(
+                    [('meli_pack_id', '=', document.meli_linked_pack_id)],
+                ))
             document.sale_order_id = order
 
     def _meli_recompute_and_reconcile(self):
@@ -1513,11 +1596,18 @@ class MeliInvoiceDocument(models.Model):
         that's rare and, for the vast majority of documents, already
         covered by Mercado Libre's own 'invoices' webhook whenever it
         does fire.
+
+        Fix 2026-10-05 (user-directed): also skips any document
+        meli_document_superseded already recognizes as replaced by a
+        newer, already-applied document for the same order/transaction
+        type — a refacturación that fired before this older copy ever
+        got its own final status means it never will, no matter how
+        many times this re-checks it. See that field's own help text.
         """
         documents = self.sudo().search([
             ('status', 'in', list(MELI_INVOICE_NOT_YET_AUTHORIZED_STATUSES)),
             ('meli_invoice_id', '!=', False),
-        ])
+        ]).filtered(lambda document: not document.meli_document_superseded)
         if documents:
             documents._meli_refresh_status_now()
 

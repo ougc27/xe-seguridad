@@ -2283,6 +2283,51 @@ msgstr ""
 "%(pickings)s."
 
 #. module: xe_meli_connector
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
+msgid "Stuck Pending Authorization (Needs Attention)"
+msgstr "Atorado en Pendiente de Autorización (Requiere Atención)"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,field_description:xe_meli_connector.field_meli_invoice_document__meli_document_superseded
+#: model_terms:ir.ui.view,arch_db:xe_meli_connector.view_meli_invoice_document_search
+msgid "Superseded by Refacturación"
+msgstr "Reemplazado por Refacturación"
+
+#. module: xe_meli_connector
+#: model:ir.model.fields,help:xe_meli_connector.field_meli_invoice_document__meli_document_superseded
+msgid ""
+"True when a NEWER document for this exact same Mercado Libre order "
+"(meli_order_id) and the same transaction_type already exists and is "
+"already Applied in Odoo — Mercado Libre replaced this one with that one (a "
+"refacturación), so this older copy will never need to be acted on again. "
+"Most commonly seen on a 'factura' stuck in "
+"'pending_authorization'/'interrupted' forever: it isn't stuck because of a "
+"bug — Mercado Libre simply moved on and issued a replacement before this "
+"one ever finished, and the real, current one is the newer document already "
+"applied. Not stored (always computed fresh, never a flag that could go "
+"stale) — use this filter to tell 'genuinely needs attention' apart from "
+"'already irrelevant, safely ignore' among documents that never reached a "
+"final status. Excluded from the pending-authorization refresh cron for the "
+"same reason — there's no point spending an API call re-checking a document "
+"Mercado Libre itself has already moved past."
+msgstr ""
+"Verdadero cuando ya existe un documento MÁS NUEVO para este mismo pedido de"
+" Mercado Libre (meli_order_id) y el mismo transaction_type, y ese documento"
+" ya está Aplicado en Odoo — Mercado Libre reemplazó este por aquel (una "
+"refacturación), así que esta copia vieja ya nunca va a necesitar acción. Se"
+" ve más comúnmente en una 'factura' atorada para siempre en "
+"'pending_authorization'/'interrupted': no está atorada por un bug — "
+"Mercado Libre simplemente siguió adelante y emitió un reemplazo antes de "
+"que esta terminara, y la vigente de verdad es el documento más nuevo que "
+"ya está aplicado. No se almacena (siempre se calcula en vivo, nunca es un "
+"indicador que pueda quedar desactualizado) — usa este filtro para "
+"distinguir lo que de verdad necesita atención de lo que ya es irrelevante "
+"y se puede ignorar, entre los documentos que nunca llegaron a un estado "
+"final. Se excluye del cron de actualización de pendientes de autorización "
+"por la misma razón — no tiene caso gastar una llamada a la API revisando "
+"de nuevo un documento que Mercado Libre mismo ya dejó atrás."
+
+#. module: xe_meli_connector
 #: model:ir.model.fields,field_description:xe_meli_connector.field_sale_order__meli_sync_source
 msgid "Sync Source"
 msgstr "Origen de Sincronización"
