@@ -1911,7 +1911,7 @@ class SaleOrder(models.Model):
             new_pickings |= new_picking
         return new_pickings
 
-    def _meli_return_sibling_pickings_to_transit(self, lines):
+    def _meli_return_sibling_pickings_to_transit(self, lines, post_message=True):
         """Same by-code stock.return.picking mechanism and same
         transit destination as _meli_return_full_pickings_to_transit,
         but scoped to ONE pack sibling's own line(s) only — same
@@ -2045,7 +2045,7 @@ class SaleOrder(models.Model):
                     "cancellation."
                 ) % new_picking.name)
             new_pickings |= new_picking
-        if new_pickings:
+        if new_pickings and post_message:
             # Fix 2026-09-25 (real bug: the raw <a> tag showed up as
             # literal text in the chatter instead of rendering as a
             # link): building it INSIDE a _() % {...} substitution gets
@@ -2055,6 +2055,13 @@ class SaleOrder(models.Model):
             # built as a plain string and concatenated onto the
             # (fully resolved, translated) text with '+', never
             # embedded inside a translatable string's own substitution.
+            #
+            # Fix 2026-10-05 (user-directed, chatter noise): post_message
+            # lets a caller that already builds its own, fuller summary
+            # (e.g. _meli_apply_partial_cancellation's own outcome
+            # message, which already names these same transfers)
+            # suppress this one — same stock return otherwise got two
+            # separate, overlapping chatter entries.
             message = _(
                 "Individual order %(order_id)s's own stock was "
                 "returned to the transit location 'Devoluciones en "
@@ -2072,7 +2079,7 @@ class SaleOrder(models.Model):
             self.message_post(body=message)
         return new_pickings
 
-    def _meli_return_full_sibling_pickings(self, lines):
+    def _meli_return_full_sibling_pickings(self, lines, post_message=True):
         """Same by-code stock.return.picking mechanism as
         _meli_return_full_pickings, but scoped to ONE pack sibling's own
         line(s) only (same move-scoping technique
@@ -2154,7 +2161,7 @@ class SaleOrder(models.Model):
                     "cancellation."
                 ) % new_picking.name)
             new_pickings |= new_picking
-        if new_pickings:
+        if new_pickings and post_message:
             message = _(
                 "Individual order %(order_id)s's own stock was "
                 "returned directly to the warehouse via transfer(s): "
@@ -2166,6 +2173,43 @@ class SaleOrder(models.Model):
             )
             self.message_post(body=message)
         return new_pickings
+
+    def _meli_reconcile_after_picking_validated(self, picking_name):
+        """Queued counterpart of what stock_picking.py's own
+        _action_done() override used to run inline, synchronously, the
+        moment ANY Mercado Libre transfer validated (2026-10-05,
+        user-caught: validating a transfer felt slow) — this method's
+        own live Mercado Libre API calls (order status, mediation claim
+        lookups, and — since today's pack-sibling fixes — one more call
+        per sibling for _meli_pack_all_siblings_cancelled_live) used to
+        block the picking's own HTTP response until every one of them
+        finished. Moved to this connector's own ordinary queue.job
+        pace instead — exactly how every other Mercado Libre
+        reconciliation step in this file already runs — so validating a
+        transfer itself is instant again; the reconciliation work still
+        happens, just a few seconds later in the background.
+        """
+        self.ensure_one()
+        try:
+            with self.env.cr.savepoint():
+                self._meli_reconcile_invoicing()
+        except Exception:
+            _logger.exception(
+                "Mercado Libre order %s: invoicing reconciliation failed "
+                "after transfer %s was validated — left pending for "
+                "manual review.", self.client_order_ref, picking_name,
+            )
+        if self.state != 'cancel' and self.meli_pack_id:
+            try:
+                with self.env.cr.savepoint():
+                    self._meli_close_pack_if_every_sibling_cancelled()
+            except Exception:
+                _logger.exception(
+                    "Mercado Libre order %s: re-checking whether the "
+                    "whole pack could now close failed after transfer "
+                    "%s was validated — left pending for manual review.",
+                    self.client_order_ref, picking_name,
+                )
 
     def _meli_reset_qty_delivered_from_real_moves(self):
         """Fix 2026-10-02 (user-caught, real production cases S1002443/
@@ -2962,6 +3006,32 @@ class SaleOrder(models.Model):
                 return False
         return True
 
+    def _meli_pack_known_sibling_count(self):
+        """How many distinct individual Mercado Libre orders
+        (meli_order_id) this pack's consolidated sale.order currently
+        knows about, from its own order_line — 0 or 1 when this "pack"
+        in practice only ever had a single mapped sibling (Mercado
+        Libre still assigns a pack id to some single-item cart
+        checkouts even though there's only ever one order in it).
+
+        Fix 2026-10-05 (user-caught, real production cases S971295/
+        S975976/S976045/S964139 — all single-item "packs" resolved via
+        mediation, every one wrongly physically returned + fully
+        cancelled): _meli_pack_credit_note_covers_subset_only only has
+        something to compare against when there's a SECOND sibling's
+        own concept that could be left off the devolución document —
+        with a single known sibling, that document's own total is
+        always the WHOLE invoice by construction, so the subset check
+        always (and wrongly) confirms "this is a genuine whole-pack
+        physical return" for every one of these. Callers use this to
+        skip straight to "no physical return" instead whenever there's
+        nothing else in the pack to distinguish against — never for a
+        genuine multi-sibling pack, where the subset check still does
+        real, necessary work.
+        """
+        self.ensure_one()
+        return len(set(self.order_line.mapped('meli_order_id')) - {False})
+
     def _meli_apply_partial_cancellation(self, cancelled_order_id):
         """The core work of a partial cancellation, without the pack-
         closure check — see _meli_process_partial_cancellation's own
@@ -3077,6 +3147,22 @@ class SaleOrder(models.Model):
             # that live check itself couldn't run at all.
             if not no_physical_return:
                 if not self._meli_pack_all_siblings_cancelled_live(config):
+                    no_physical_return = True
+                elif self._meli_pack_known_sibling_count() <= 1:
+                    # Fix 2026-10-05 (user-caught, real production cases
+                    # S971295/S975976/S976045/S964139 — all single-item
+                    # "packs" resolved via mediation, every one wrongly
+                    # physically returned + fully cancelled): the subset
+                    # check below can only ever prove "not a whole-pack
+                    # return" by finding ANOTHER sibling's own concept
+                    # left uncredited on the same document — with a
+                    # single known sibling there is nothing else to find,
+                    # so it always falls through to "covers the whole
+                    # invoice" and wrongly confirms a physical return,
+                    # 100% of the time, for every single-item mediation
+                    # case. See _meli_pack_known_sibling_count's own
+                    # docstring for why this is never guessed into being
+                    # for a genuine multi-sibling pack.
                     no_physical_return = True
                 else:
                     no_physical_return = self._meli_pack_credit_note_covers_subset_only(
@@ -3199,9 +3285,9 @@ class SaleOrder(models.Model):
         # to_transit) — including that method's own transit/pending-move
         # handling this inline block never had at all.
         if self._meli_is_full_warehouse_order():
-            new_pickings = self._meli_return_full_sibling_pickings(lines)
+            new_pickings = self._meli_return_full_sibling_pickings(lines, post_message=False)
         else:
-            new_pickings = self._meli_return_sibling_pickings_to_transit(lines)
+            new_pickings = self._meli_return_sibling_pickings_to_transit(lines, post_message=False)
 
         done_pickings = self.picking_ids.filtered(
             lambda p: p.state == 'done' and p.picking_type_id.code == 'outgoing'
@@ -3489,10 +3575,31 @@ class SaleOrder(models.Model):
         # Mercado Libre's own fulfillment network — see
         # _meli_return_full_sibling_pickings's own docstring), before
         # action_cancel() ever runs.
+        #
+        # Fix 2026-10-05 (user-caught, real production cases S971295/
+        # S975976/S976045/S964139): a sibling resolved via a confirmed
+        # refund/mediation with no physical return expected (see
+        # _meli_sibling_no_physical_return) was ALREADY correctly left
+        # untouched by _meli_apply_partial_cancellation — delivered
+        # stock deliberately never returned, by design, for that case.
+        # Re-checked here too, fresh, before ever touching its stock:
+        # without this, closing the pack unconditionally returned that
+        # same sibling's stock anyway the moment every sibling finished,
+        # silently undoing the exact distinction the discount-credit-
+        # note path exists to make.
+        config = self.env['meli.config'].sudo().search([
+            ('company_id', '=', self.company_id.id), ('state', '=', 'connected'),
+        ], limit=1)
         for sibling_id in sibling_ids:
             sibling_lines = self._meli_sibling_lines(sibling_id)
             if not sibling_lines:
                 continue
+            if config:
+                __, sibling_no_physical_return = self._meli_sibling_no_physical_return(
+                    config, sibling_id,
+                )
+                if sibling_no_physical_return:
+                    continue
             in_transit = self.picking_ids.filtered(
                 lambda p: p.state == 'transit'
                 and p.move_ids.filtered(lambda m: m.sale_line_id in sibling_lines)
@@ -5906,6 +6013,16 @@ class SaleOrder(models.Model):
                     )
                     if not no_physical_return:
                         if not self._meli_pack_all_siblings_cancelled_live(config):
+                            no_physical_return = True
+                        # Fix 2026-10-05 (user-caught, real production
+                        # cases S971295/S975976/S976045/S964139 — see
+                        # _meli_apply_partial_cancellation's own matching
+                        # fix for the full rationale): the subset check
+                        # below can never prove anything for a single-
+                        # sibling pack, so it always wrongly confirms a
+                        # physical return for every single-item mediation
+                        # case instead.
+                        elif self._meli_pack_known_sibling_count() <= 1:
                             no_physical_return = True
                         else:
                             no_physical_return = self._meli_pack_credit_note_covers_subset_only(
