@@ -37,19 +37,7 @@ MELI_FISCAL_TIMEZONE = pytz.timezone('America/Monterrey')
 # that matches what's happening.
 MELI_REFACTURA_CANCEL_REASON = '01'
 
-# Fix 2026-09-14 (user request): _meli_import_order is this trimmed,
-# invoicing-only module's ONLY remaining way to auto-create a sale order
-# from Mercado Libre data — reached exclusively from meli.invoice.
-# document._meli_upsert's Trigger B (an invoice/credit-note arrived
-# orphaned). For a genuinely recent order, Ventiapp (the separate,
-# external system that normally injects these) hasn't necessarily had
-# its own chance yet — racing ahead and creating it here first would
-# permanently deny that order the "adopted" treatment (Ventiapp's own
-# commercial details preserved, this connector only takes over the
-# fiscal side going forward — see _meli_create_from_order_data's own
-# adoption-matching). Orders older than this grace period get no delay
-# at all: if Ventiapp hasn't injected it by then, it never will.
-MELI_ORDER_RECOVERY_GRACE_MINUTES = 15
+MELI_ORDER_RECOVERY_GRACE_MINUTES = 10
 
 # Fix 2026-09-22 (user decision, re-enabling the sale.order injector):
 # a sale.order created by user id 8 (Horacio González Montfort) for
@@ -519,8 +507,38 @@ class SaleOrder(models.Model):
         imports any sibling order_id Odoo doesn't know about yet —
         regardless of whether THIS call found an existing order or
         needed to create one.
+
+        Fix 2026-10-07 (user-caught, real production data: 230
+        InFailedSqlTransaction failures since 2026-09-16, confirmed via
+        queue.job timing data — the same order_id imported 3-4 times
+        within under a minute of each other). Root cause: this method
+        has TWO separate entry points that never dedupe against each
+        other at all — the 'orders_v2' webhook (identity_key
+        f"meli_import_order_{order_id}", deduped in controllers.py) and
+        _meli_ensure_all_pack_siblings_imported's own internal recovery
+        (identity_key f"meli_recover_order_{missing_order_id}", a
+        DIFFERENT string for the exact same order_id). Two genuinely
+        concurrent jobs from these two different paths can both pass
+        the `existing` check below before either one's own INSERT
+        commits, both proceed to create/touch the same order's related
+        records (partner, picking, procurement) at once — a real
+        database-level conflict somewhere in that chain, not caught by
+        anything here, that poisons the whole transaction and surfaces
+        later as the misleading InFailedSqlTransaction at job.store()
+        instead of whatever the real error actually was.
+        pg_advisory_xact_lock(hashtext(order_id)) — the same proven
+        technique already used for the webhook's own dedup check and
+        for pack-consolidation elsewhere in this file — serializes any
+        two concurrent calls for the SAME order_id regardless of which
+        path (webhook, internal recovery, a future third caller)
+        triggered them: the second one blocks here until the first's
+        entire transaction commits, at which point `existing` below
+        reliably finds what the first one just created.
         """
         order_id = str(order_id)
+        self.env.cr.execute(
+            "SELECT pg_advisory_xact_lock(hashtext(%s))", (f'meli_import_order_{order_id}',),
+        )
         existing = self.sudo().search([('meli_order_id', '=', order_id)], limit=1)
 
         config = self.env['meli.config'].sudo().search([
