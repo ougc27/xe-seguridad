@@ -2779,12 +2779,55 @@ class SaleOrder(models.Model):
         that would skip a return Mercado Libre actually expects.
         """
         try:
-            live_data = config._api_get(f'/orders/{cancelled_order_id}') or {}
+            live_data = self._meli_fetch_order_cached(config, cancelled_order_id) or {}
         except requests.exceptions.RequestException:
             return None, False
         return self._meli_no_physical_return_from_order_data(
             config, live_data, order_id=cancelled_order_id,
         )
+
+    def _meli_fetch_order_cached(self, config, order_id):
+        """Fix 2026-10-06 (user-directed, real production data: queue.job
+        duration logs showed several '_meli_import_invoice_document'
+        jobs taking 30-52 seconds — far more than the 2-3 network calls
+        that method itself makes — traced to this file's own pack-
+        sibling cancellation pipeline re-fetching the EXACT SAME
+        sibling's own '/orders/{id}' resource 2-3 times within that one
+        job: once in _meli_apply_partial_cancellation's own call to
+        _meli_sibling_no_physical_return, again inside _meli_pack_all_
+        siblings_cancelled_live's own loop over every sibling, and again
+        moments later in _meli_close_pack_if_every_sibling_cancelled's
+        own closing loop. With only 5 workers shared between this queue
+        and every user's own HTTP request in XE Brands — the only
+        company with any Mercado Libre traffic at all — a single job
+        sitting on a worker for 30-50s instead of 10-15s directly delays
+        unrelated people validating unrelated transfers.
+
+        This does NOT contradict _meli_sibling_no_physical_return's own
+        "never cached — fresh check every time matters" principle: that
+        principle is about never trusting a status fetched in an
+        EARLIER, separate job/request (where real time has passed and
+        Mercado Libre's own status could genuinely have changed) —
+        never about two calls microseconds apart inside the exact same
+        job's own single transaction, where nothing could have changed
+        between them anyway. Cached on the cursor, so it's scoped to
+        exactly one job/request and gone the moment it ends — it can
+        never leak a stale answer into a later, separate call.
+        """
+        cache = getattr(self.env.cr, '_meli_live_order_cache', None)
+        if cache is None:
+            cache = {}
+            self.env.cr._meli_live_order_cache = cache
+        key = (config.id, str(order_id))
+        if key not in cache:
+            try:
+                cache[key] = ('ok', config._api_get(f'/orders/{order_id}'))
+            except requests.exceptions.RequestException as exc:
+                cache[key] = ('error', exc)
+        outcome, value = cache[key]
+        if outcome == 'error':
+            raise value
+        return value
 
     def _meli_no_physical_return_from_order_data(self, config, live_data, order_id=None):
         """Same decision as _meli_sibling_no_physical_return, but from
@@ -2955,7 +2998,7 @@ class SaleOrder(models.Model):
             return True
         for sibling_id in sibling_ids:
             try:
-                live_data = config._api_get(f'/orders/{sibling_id}') or {}
+                live_data = self._meli_fetch_order_cached(config, sibling_id) or {}
             except requests.exceptions.RequestException:
                 return False
             if live_data.get('status') != 'cancelled':
@@ -5854,7 +5897,7 @@ class SaleOrder(models.Model):
                 sibling_is_confirmed_partial_refund = False
                 if not is_full:
                     try:
-                        live_sibling_data = config._api_get(f'/orders/{cancelled_order_id}')
+                        live_sibling_data = self._meli_fetch_order_cached(config, cancelled_order_id)
                     except requests.exceptions.RequestException:
                         self.message_post(body=_(
                             "Mercado Libre generated a credit note "
@@ -5940,7 +5983,7 @@ class SaleOrder(models.Model):
                     # Full's existing unconditional behavior, matching
                     # this whole branch's "Full never blocks" principle.
                     try:
-                        live_sibling_data = config._api_get(f'/orders/{cancelled_order_id}')
+                        live_sibling_data = self._meli_fetch_order_cached(config, cancelled_order_id)
                         sibling_is_confirmed_partial_refund = (
                             (live_sibling_data or {}).get('status') == 'partially_refunded'
                         )
@@ -6052,6 +6095,27 @@ class SaleOrder(models.Model):
                             "credit note and stock return above still "
                             "completed successfully.)"
                         ))
+            # Fix 2026-10-06 (user-caught, real production case S1005340/
+            # pack 2000015324508059, among every other pack order with a
+            # 'canceled'-status document still unapplied): this whole
+            # pack branch always returned here, before Step 5 ever ran —
+            # Step 5 (_meli_relate_dead_documents_as_cancelled_shadows)
+            # was simply unreachable for ANY pack order, not just a rare
+            # edge case. Only the 'sale'-type half of Step 5 is safe to
+            # run here unconditionally (is_full_cancellation=False,
+            # is_confirmed_partial_refund=False): that branch never
+            # looks at either flag or source_invoice at all (see its own
+            # "transaction_type not in MELI_INVOICE_CREDIT_NOTE_
+            # TRANSACTION_TYPES" tier). A pack's own credit-note-type
+            # dead documents still need a real per-sibling signal this
+            # branch doesn't compute in one shared order-level flag the
+            # way the non-pack branch below does — left for a future,
+            # properly pack-aware fix rather than guessed at here; they
+            # simply keep being skipped, exactly as before this call
+            # existed, never worse.
+            self._meli_relate_dead_documents_as_cancelled_shadows(
+                False, False, self.env['account.move'],
+            )
             return
 
         source_invoice = self.invoice_ids.filtered(
