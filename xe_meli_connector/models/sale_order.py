@@ -604,33 +604,22 @@ class SaleOrder(models.Model):
                 self._meli_ensure_all_pack_siblings_imported(config, pack_id, order_id)
             return existing
 
-        # Fix 2026-09-14 (user request): give Ventiapp its own chance to
-        # inject this order first, for a genuinely recent one — see
-        # MELI_ORDER_RECOVERY_GRACE_MINUTES. Only delays when there's
-        # nothing to adopt YET; an order Ventiapp already created (a real
-        # adoption match) proceeds immediately below, same as always —
-        # _meli_create_from_order_data adopts it there instead of
-        # creating a duplicate. Same (reference, meli_sync_source=False,
-        # state!=cancel) domain that method's own adoption match uses,
-        # checked here first purely to decide whether to wait at all.
-        adoption_ref = pack_id or order_id
-        already_adoptable = bool(self.sudo().search_count([
-            ('reference', '=', adoption_ref),
-            ('meli_sync_source', '=', False),
-            ('state', '!=', 'cancel'),
-            '!', '&',
-            ('create_uid', '=', MELI_ADOPTION_EXCLUDED_CREATE_UID),
-            ('partner_id', '=', MELI_ADOPTION_EXCLUDED_PARTNER_ID),
-        ]))
-        if not already_adoptable:
-            remaining_seconds = self._meli_order_recovery_delay_seconds(order_data)
-            if remaining_seconds:
-                self.with_delay(
-                    priority=0, channel='root.meli_sales', max_retries=8,
-                    identity_key=f"meli_recover_order_{order_id}",
-                    eta=remaining_seconds,
-                )._meli_import_order(company_id, order_id)
-                return self.browse()
+        # Fix 2026-09-14 (user request, REMOVED 2026-10-08): this used to
+        # give Ventiapp its own chance to inject this order first, for a
+        # genuinely recent one, delaying this order's own creation via
+        # MELI_ORDER_RECOVERY_GRACE_MINUTES and its own helper,
+        # _meli_order_recovery_delay_seconds (also removed). VentiApp is
+        # permanently off now (see that constant's own 2026-10-08 fix,
+        # set to 0), which made that helper always return 0 — the self-
+        # rescheduling block this comment used to introduce could never
+        # fire again anyway, so both were removed outright instead of
+        # leaving genuinely dead code in place (it was also the last
+        # remaining with_delay() call in this file missing its own
+        # explicit description — real production evidence, 2026-10-08:
+        # queue.job rows still showing the generic "Entry point for
+        # queue_job..." name came from exactly this block, confirming
+        # the code deployed at the time still had the old, non-zero
+        # grace value).
 
         order = self.sudo()._meli_create_from_order_data(config, order_data)
         if order:
@@ -9222,32 +9211,6 @@ class SaleOrder(models.Model):
         return parsed
 
     @api.model
-    def _meli_order_recovery_delay_seconds(self, order_data):
-        """Seconds left in MELI_ORDER_RECOVERY_GRACE_MINUTES's window,
-        counting from when this order was PAID — 0 once the window has
-        already elapsed, or neither timestamp can be parsed (create it
-        right now either way, no more waiting). See _meli_import_order's
-        own use of this for why the window exists at all.
-
-        date_closed, not date_created: same convention this method's own
-        caller already uses for date_order (2026-09-08 decision) — with
-        deferred payment methods (OXXO, transfer) date_created can be
-        days before the order is actually paid, which would start (and
-        immediately exhaust) Ventiapp's grace period long before Ventiapp
-        could possibly have anything to inject yet. Falls back to
-        date_created only if date_closed is somehow missing on a 'paid'
-        order (shouldn't happen in practice).
-        """
-        paid_at = (
-            self._meli_parse_datetime(order_data.get('date_closed'))
-            or self._meli_parse_datetime(order_data.get('date_created'))
-        )
-        if not paid_at:
-            return 0
-        elapsed = fields.Datetime.now() - paid_at
-        remaining = timedelta(minutes=MELI_ORDER_RECOVERY_GRACE_MINUTES) - elapsed
-        return max(0, int(remaining.total_seconds()))
-
     @api.model
     def _meli_find_order_by_id_or_pack(self, meli_id):
         """Same 4-tier fallback already used ad hoc by meli.claim and
