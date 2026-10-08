@@ -11,10 +11,11 @@ import dateutil.parser
 import pytz
 import requests
 from psycopg2 import OperationalError
+from psycopg2.extensions import TRANSACTION_STATUS_INERROR
 
 from odoo.service.model import PG_CONCURRENCY_ERRORS_TO_RETRY
 
-from odoo.addons.queue_job.exception import RetryableJobError
+from odoo.addons.queue_job.exception import NothingToDoJob, RetryableJobError
 
 _logger = logging.getLogger(__name__)
 
@@ -549,7 +550,51 @@ class SaleOrder(models.Model):
                 "There is no active Mercado Libre connection for company %s."
             ) % company_id)
 
-        order_data = config._api_get(f'/orders/{order_id}')
+        try:
+            order_data = config._api_get(f'/orders/{order_id}')
+        except requests.exceptions.HTTPError as exc:
+            # Fix 2026-10-07 (user-directed, real production data: of 249
+            # documents stuck without a sale order, a live check against
+            # Mercado Libre confirmed 212 of them read 403 'not_owned_
+            # order' — this order_id simply belongs to a DIFFERENT seller
+            # account entirely, not XE Brands — and 1 read 404 'order_
+            # not_found'. Neither is transient (unlike 429/5xx, already
+            # handled inside _api_request itself): no number of retries
+            # will ever change Mercado Libre's own answer. Without this,
+            # _cron_recover_orphaned_document_orders keeps re-enqueuing
+            # this same order_id forever, exactly the 'service_test'
+            # gap already fixed once before, now generalized to every
+            # permanent reason instead of just that one made-up id.
+            # Recorded on every meli.invoice.document carrying this
+            # order_id (there's no sale_order_id yet for this to live on
+            # instead) so the recovery cron can exclude it from here on.
+            status = exc.response.status_code if exc.response is not None else None
+            if status in (403, 404):
+                try:
+                    reason = exc.response.json().get('error') or str(status)
+                except ValueError:
+                    reason = str(status)
+                self.env['meli.invoice.document'].sudo().search([
+                    ('meli_order_id', '=', order_id),
+                    ('meli_order_import_error', '=', False),
+                ]).write({'meli_order_import_error': reason})
+                # Fix 2026-10-07 (user-directed, "como voy a poder
+                # identificar en la cola... que ya no se va a seguir
+                # ejecutando"): NothingToDoJob is queue_job's own built-in
+                # way to mark a job 'done' with a human-readable message
+                # attached, instead of silently returning a value nobody
+                # ever looks at — this reason now shows up directly in
+                # the Queue Jobs list/form (its own result/message), not
+                # just on meli.invoice.document, so a person scanning
+                # jobs sees immediately WHY this one will never run again
+                # without having to go find the document first.
+                raise NothingToDoJob(
+                    f"Mercado Libre: order {order_id} — {reason} (HTTP "
+                    f"{status}). This will never resolve — permanently "
+                    f"excluded from future retries."
+                )
+            raise
+
         pack_id = str(order_data.get('pack_id') or '') or False
 
         if existing:
@@ -1614,9 +1659,17 @@ class SaleOrder(models.Model):
         ]).filtered(
             lambda order: not order.picking_ids.filtered(lambda p: p.state != 'cancel')
         )
+        # Fix 2026-10-08 (same real incident/mechanism as meli.invoice.
+        # document._cron_retry_unapplied_documents's own identical fix —
+        # see that method's own comment for the full explanation): a
+        # SerializationFailure from one order here can otherwise leave
+        # the connection aborted for every order still left in this
+        # loop, with a bare `except Exception:` and no real savepoint to
+        # roll back to.
         for order in stuck_orders:
             try:
-                order._meli_ensure_delivery('MLF' in (order.origin or ''))
+                with self.env.cr.savepoint():
+                    order._meli_ensure_delivery('MLF' in (order.origin or ''))
             except Exception:
                 _logger.exception(
                     "Mercado Libre order %s: automatic retry of the "
@@ -3852,6 +3905,32 @@ class SaleOrder(models.Model):
         broke" chatter message in this module now routes through here.
         """
         self.ensure_one()
+        # Fix 2026-10-07 (user-caught, real production incident: queue.job
+        # 172492, traceback confirmed live): this is called from inside
+        # dozens of `except Exception:` blocks throughout this file,
+        # right after a `with self.env.cr.savepoint():` failed — but a
+        # psycopg2.errors.SerializationFailure can occur DURING THE
+        # IMPLICIT FLUSH AT SAVEPOINT ENTRY ITSELF (cr.savepoint()'s own
+        # __init__ flushes pending changes before the SQL SAVEPOINT
+        # exists), meaning the savepoint was never actually established
+        # — there is nothing to roll back to, and the surrounding
+        # transaction is left permanently aborted. Calling self.env.ref()
+        # right below used to then crash a SECOND time with
+        # InFailedSqlTransaction, masking the original error and
+        # preventing even the plain chatter message from ever being
+        # posted. get_transaction_status() is a local, in-memory
+        # psycopg2 flag — checking it never itself touches the network
+        # or the database, so it's always safe to call even here.
+        if self.env.cr._cnx.get_transaction_status() == TRANSACTION_STATUS_INERROR:
+            _logger.error(
+                "Mercado Libre order %s: could not notify queue job "
+                "managers — this job's own transaction is already "
+                "aborted (a concurrent-update conflict during an inner "
+                "savepoint's own flush, most likely). Message that "
+                "would have been posted: %s",
+                self.client_order_ref, body,
+            )
+            return
         group = self.env.ref('queue_job.group_queue_job_manager', raise_if_not_found=False)
         manager_partner_ids = set()
         if group:
@@ -3929,13 +4008,25 @@ class SaleOrder(models.Model):
                 to_flag |= order
         if to_flag:
             to_flag.meli_cancelled_without_document = True
+            # Fix 2026-10-08 (same defensive pattern as this file's other
+            # cron loops, applied here too for consistency — low
+            # cardinality daily case, but still worth isolating one
+            # order's own notify failure from the rest of this batch).
             for order in to_flag:
-                order._meli_notify_queue_job_managers(_(
-                    "This order has been cancelled for over a day, but "
-                    "Mercado Libre never generated any credit-note "
-                    "document for it — verify whether one is genuinely "
-                    "owed and needs to be requested/reviewed manually."
-                ))
+                try:
+                    with self.env.cr.savepoint():
+                        order._meli_notify_queue_job_managers(_(
+                            "This order has been cancelled for over a day, but "
+                            "Mercado Libre never generated any credit-note "
+                            "document for it — verify whether one is genuinely "
+                            "owed and needs to be requested/reviewed manually."
+                        ))
+                except Exception:
+                    _logger.exception(
+                        "Mercado Libre order %s: could not notify about "
+                        "a missing credit-note document.",
+                        order.client_order_ref,
+                    )
         if to_clear:
             to_clear.meli_cancelled_without_document = False
 
@@ -3984,47 +4075,65 @@ class SaleOrder(models.Model):
             ('meli_missing_invoice_document', '=', False),
         ])
         Document = self.env['meli.invoice.document'].sudo()
+        # Fix 2026-10-08 (same real incident/mechanism as meli.invoice.
+        # document._cron_retry_unapplied_documents's own identical fix —
+        # see that method's own comment for the full explanation): this
+        # loop used to have no outer try/except AND no real savepoint at
+        # all — a single order's own _meli_reconcile_invoicing() call
+        # raising (whether a genuine bug or a transient
+        # SerializationFailure) used to crash this ENTIRE daily cron run
+        # outright, silently abandoning every other candidate order
+        # still left in `candidates`, with no chatter/log trace of that
+        # happening at all.
         for order in candidates:
-            order_ids = (
-                [order.meli_pack_id, order.meli_order_id] if order.meli_pack_id
-                else [order.meli_order_id]
-            )
-            has_invoice_document = bool(Document.search_count([
-                ('meli_order_id', 'in', order_ids),
-                ('transaction_type', 'in', ('sale', 'resale')),
-            ]))
-            if has_invoice_document:
-                continue
-            recovered = self.env['meli.invoice.document']
-            for transaction_type in ('resale', 'sale'):
-                try:
-                    recovered = Document._meli_import_invoice_document_for_order(
-                        order.company_id.id, order.meli_order_id, transaction_type,
+            try:
+                with self.env.cr.savepoint():
+                    order_ids = (
+                        [order.meli_pack_id, order.meli_order_id] if order.meli_pack_id
+                        else [order.meli_order_id]
                     )
-                except requests.exceptions.RequestException:
-                    continue
-                if recovered:
-                    break
-            if recovered:
-                order._meli_reconcile_invoicing()
-                order.message_post(body=_(
-                    "Recovered a '%(transaction_type)s' document "
-                    "(%(document)s) directly by order id — Mercado "
-                    "Libre's own 'invoices' notification for it was "
-                    "never received."
-                ) % {
-                    'transaction_type': recovered.transaction_type,
-                    'document': recovered.meli_invoice_id or recovered.id,
-                })
-            else:
-                order.meli_missing_invoice_document = True
-                order._meli_notify_queue_job_managers(_(
-                    "This order has had no 'sale'/'resale' document for "
-                    "over a day, and a direct recovery attempt (by "
-                    "order id, bypassing the usual webhook) also found "
-                    "nothing — verify manually whether Mercado Libre "
-                    "genuinely never invoiced this order."
-                ))
+                    has_invoice_document = bool(Document.search_count([
+                        ('meli_order_id', 'in', order_ids),
+                        ('transaction_type', 'in', ('sale', 'resale')),
+                    ]))
+                    if has_invoice_document:
+                        continue
+                    recovered = self.env['meli.invoice.document']
+                    for transaction_type in ('resale', 'sale'):
+                        try:
+                            recovered = Document._meli_import_invoice_document_for_order(
+                                order.company_id.id, order.meli_order_id, transaction_type,
+                            )
+                        except requests.exceptions.RequestException:
+                            continue
+                        if recovered:
+                            break
+                    if recovered:
+                        order._meli_reconcile_invoicing()
+                        order.message_post(body=_(
+                            "Recovered a '%(transaction_type)s' document "
+                            "(%(document)s) directly by order id — Mercado "
+                            "Libre's own 'invoices' notification for it was "
+                            "never received."
+                        ) % {
+                            'transaction_type': recovered.transaction_type,
+                            'document': recovered.meli_invoice_id or recovered.id,
+                        })
+                    else:
+                        order.meli_missing_invoice_document = True
+                        order._meli_notify_queue_job_managers(_(
+                            "This order has had no 'sale'/'resale' document for "
+                            "over a day, and a direct recovery attempt (by "
+                            "order id, bypassing the usual webhook) also found "
+                            "nothing — verify manually whether Mercado Libre "
+                            "genuinely never invoiced this order."
+                        ))
+            except Exception:
+                _logger.exception(
+                    "Mercado Libre order %s: daily missing-invoice "
+                    "recovery failed — needs manual review.",
+                    order.client_order_ref,
+                )
 
     def _cron_meli_cancel_stale_undelivered_cancelled_orders(self):
         """Daily safety net (2026-10-02, user-caught, real production
@@ -4082,12 +4191,22 @@ class SaleOrder(models.Model):
             ('meli_order_id', '!=', False),
             ('create_date', '<=', cutoff),
         ])
+        # Perf (2026-10-07, Odoo best practice — same caching pattern
+        # meli.invoice.document._compute_meli_warehouse_kind already
+        # uses): every candidate here shares the one connected company
+        # (confirmed live — Mercado Libre only ever exists for XE
+        # Brands), so re-searching meli.config once per order inside
+        # the loop below was a pure N+1 query, never a different result.
+        configs_by_company = {}
         for order in candidates:
             if order.order_line.filtered(lambda l: l.qty_invoiced):
                 continue
-            config = self.env['meli.config'].sudo().search([
-                ('company_id', '=', order.company_id.id), ('state', '=', 'connected'),
-            ], limit=1)
+            config = configs_by_company.get(order.company_id.id)
+            if config is None:
+                config = self.env['meli.config'].sudo().search([
+                    ('company_id', '=', order.company_id.id), ('state', '=', 'connected'),
+                ], limit=1)
+                configs_by_company[order.company_id.id] = config
             if not config:
                 continue
             live_order_id = order.meli_order_id or order.reference

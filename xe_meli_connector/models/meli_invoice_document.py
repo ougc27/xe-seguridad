@@ -1,6 +1,6 @@
 import base64
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from odoo import _, api, fields, models
 
@@ -365,24 +365,24 @@ class MeliInvoiceDocument(models.Model):
     meli_document_superseded = fields.Boolean(
         string='Superseded by Refacturación', compute='_compute_meli_document_superseded',
         search='_search_meli_document_superseded',
-        help="True when a NEWER document for this exact same Mercado "
-             "Libre order (meli_order_id) and the same transaction_type "
-             "already exists and is already Applied in Odoo — Mercado "
-             "Libre replaced this one with that one (a refacturación), "
-             "so this older copy will never need to be acted on again. "
-             "Most commonly seen on a 'factura' stuck in "
-             "'pending_authorization'/'interrupted' forever: it isn't "
-             "stuck because of a bug — Mercado Libre simply moved on and "
-             "issued a replacement before this one ever finished, and "
-             "the real, current one is the newer document already "
-             "applied. Not stored (always computed fresh, never a flag "
-             "that could go stale) — use this filter to tell 'genuinely "
-             "needs attention' apart from 'already irrelevant, safely "
-             "ignore' among documents that never reached a final "
-             "status. Excluded from the pending-authorization refresh "
-             "cron for the same reason — there's no point spending an "
-             "API call re-checking a document Mercado Libre itself has "
-             "already moved past.",
+        help="Yes when Mercado Libre has already replaced this document "
+             "with a newer one for the same order, and that newer "
+             "document is the one actually applied in Odoo. This usually "
+             "happens with an invoice stuck forever in 'Pending "
+             "Authorization' — it isn't stuck due to an error, Mercado "
+             "Libre simply issued a corrected one before this one ever "
+             "finished. No action is needed on this document; the "
+             "current, valid one is the other, newer document for this "
+             "same order.",
+    )
+
+    meli_order_import_error = fields.Char(
+        string='Order Import Error', copy=False,
+        help="Why this order could never be created as a sale in Odoo, "
+             "according to Mercado Libre itself — for example, the order "
+             "belongs to a different seller account, or it simply no "
+             "longer exists. This is a final, permanent answer: Odoo will "
+             "not keep trying to import it, and no action is needed.",
     )
 
     meli_sale_delivered = fields.Boolean(
@@ -843,12 +843,53 @@ class MeliInvoiceDocument(models.Model):
             # being retried.
             '|',
                 ('is_applied', '=', False),
-                '&', ('meli_pack_id', '!=', False),
+                # Fix 2026-10-08 (user-caught, real production data: of
+                # 3,654 documents this search found, 3,035 were already
+                # is_applied=True here — only ever swept in for the
+                # stock-return re-check this branch exists for — and
+                # 2,788 of THOSE (92%) belonged to a sale already
+                # state='cancel': a cancelled pack is fully closed by
+                # definition (see sale.order._meli_close_pack_if_every_
+                # sibling_cancelled, the one thing that ever sets
+                # state='cancel' for a pack order), so there is nothing
+                # left for a stock-return check to ever find there —
+                # re-sweeping it forever, every 30 minutes, was pure
+                # dead weight with no excluding condition at all. Scoped
+                # to exactly the case Fix 2026-09-16 above was written
+                # for: a STILL-OPEN pack order whose stock return might
+                # still be pending gets swept in as before; one already
+                # fully closed never does again.
+                '&', '&', ('meli_pack_id', '!=', False),
                      ('transaction_type', 'in', list(MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES)),
+                     ('sale_order_id.state', '!=', 'cancel'),
         ]).mapped('sale_order_id')
+        # Fix 2026-10-08 (user-caught, real production incident: a
+        # reported Odoo.sh degradation traced to this exact cron — "4,806
+        # failures in a day", backlog never shrinking): this loop used to
+        # catch Exception with NO with self.env.cr.savepoint() around
+        # it. A psycopg2.errors.SerializationFailure can occur DURING
+        # THE IMPLICIT FLUSH a DIFFERENT, nested `with self.env.cr.
+        # savepoint():` performs at ITS OWN entry (inside action_meli_
+        # retry_invoicing_reconciliation's own call chain) — when that
+        # happens, no savepoint was ever actually established there, so
+        # nothing rolls back, and this method's own bare `except
+        # Exception:` catches the error at the Python level while the
+        # underlying PostgreSQL connection stays permanently aborted.
+        # Every order processed AFTER that point in this same loop then
+        # also fails (InFailedSqlTransaction, since any query at all now
+        # errors) — one bad order near the front of a 3,000+ document
+        # backlog cascades into thousands of failures in a single run,
+        # with nothing from that run ever actually committed, so the
+        # exact same backlog comes back unchanged next cycle. Wrapping
+        # each order in its OWN real savepoint here guarantees a clean
+        # rollback-to-savepoint on any failure, isolating it from every
+        # other order in the loop — the same pattern already used
+        # correctly elsewhere in this same file (_meli_recompute_and_
+        # reconcile, _meli_refresh_status_now).
         for order in stuck_orders:
             try:
-                order.action_meli_retry_invoicing_reconciliation()
+                with self.env.cr.savepoint():
+                    order.action_meli_retry_invoicing_reconciliation()
             except Exception:
                 _logger.exception(
                     "Mercado Libre order %s: automatic retry of invoicing "
@@ -887,28 +928,76 @@ class MeliInvoiceDocument(models.Model):
         _meli_import_order for it, which 404s against the real API
         forever — this order_id alone had retried every 30 minutes for
         over a week straight before being noticed.
+
+        Fix 2026-10-07 (user-directed, real production data: 212 of 249
+        stuck documents confirmed 'not_owned_order' live against
+        Mercado Libre's own API — the exact same class of permanently-
+        unrecoverable gap as 'service_test' above, just never given its
+        own general exclusion). meli_order_import_error (set by
+        _meli_import_order itself the moment it gets a 403/404 for this
+        order_id) now covers every such case generically, not just the
+        one hardcoded id.
         """
         config = self.env['meli.config'].sudo().search([
             ('state', '=', 'connected'),
         ], limit=1)
         if not config:
             return
+        # Fix 2026-10-08 (user-directed): only a document that's been
+        # orphaned for over an hour is worth acting on here — same
+        # "give the order's own normal path every realistic chance to
+        # land first" reasoning Trigger B itself used to apply (and the
+        # same cutoff-by-create_date convention already used by this
+        # file's own _cron_meli_cancel_stale_undelivered_cancelled_
+        # orders), just checked directly in the search instead of
+        # delaying the job's own execution with an eta — by the time
+        # this cron (itself hourly) ever finds a document here, the
+        # wait has already happened, so the recovery job below runs
+        # immediately once enqueued, nothing more to wait for.
+        cutoff = fields.Datetime.now() - timedelta(hours=1)
         orphaned_order_ids = set(self.sudo().search([
             ('sale_order_id', '=', False), ('meli_order_id', '!=', False),
             ('transaction_type', '!=', 'service_test'),
+            ('meli_order_import_error', '=', False),
+            ('create_date', '<=', cutoff),
         ]).mapped('meli_order_id'))
-        for order_id in orphaned_order_ids:
+        if not orphaned_order_ids:
+            return
+        # Fix 2026-10-07 (user-directed): queue_job's own identity_key
+        # dedup (Job.job_record_with_same_identity_key) only ever checks
+        # pending/enqueued/wait_dependencies — a job that already ran to
+        # completion ('done') for this exact order_id is invisible to
+        # it, so without this check this cron would happily enqueue a
+        # near-duplicate for an order whose own recovery attempt just
+        # finished (succeeded without yet being relinked, or hit some
+        # non-403/404 transient issue) moments before this same cycle.
+        # Scoped to this cron's own interval (1h, see ir_cron.xml) —
+        # a 'done' job older than that is stale enough to retry again.
+        recently_done_order_ids = set()
+        for job in self.env['queue.job'].sudo().search([
+            ('identity_key', 'in', [
+                f"meli_recover_order_{order_id}" for order_id in orphaned_order_ids
+            ]),
+            ('state', 'in', ('pending', 'enqueued', 'wait_dependencies', 'done')),
+            '|', ('date_done', '=', False),
+                 ('date_done', '>=', fields.Datetime.now() - timedelta(hours=1)),
+        ]):
+            recently_done_order_ids.add(job.identity_key[len('meli_recover_order_'):])
+        for order_id in orphaned_order_ids - recently_done_order_ids:
             # priority=0 (was 8, 2026-09-24 user-directed): same
-            # reasoning as Trigger B's own identical call above — this
-            # connector is the only real consumer of this queue. No
-            # extra eta needed here on top of it, unlike Trigger B: this
-            # cron itself already only runs every 30 minutes, so a
-            # document only reaches this loop after already having had
-            # a full cycle for the order's own normal import to land
-            # first.
+            # reasoning as Trigger B's own identical call used to have —
+            # this connector is the only real consumer of this queue.
+            # No eta needed here (removed 2026-10-08, user-directed):
+            # the search above already only selects documents orphaned
+            # for over an hour, so the wait already happened — this job
+            # is meant to run right away once enqueued.
             self.env['sale.order'].sudo().with_delay(
                 priority=0, channel='root.meli_sales', max_retries=8,
                 identity_key=f"meli_recover_order_{order_id}",
+                description=(
+                    f"Recover order {order_id} for an orphaned invoice "
+                    f"document"
+                ),
             )._meli_import_order(config.company_id.id, order_id)
 
     @staticmethod
@@ -1032,65 +1121,19 @@ class MeliInvoiceDocument(models.Model):
         else:
             document = self.sudo().create(vals)
 
-        if not document.sale_order_id and order_id and company_id:
-            # Trigger B (2026-09-09, cancelled-order-recovery plan): this
-            # document arrived with no resolvable sale order at all —
-            # most commonly because Mercado Libre reported this order as
-            # 'cancelled' before this connector ever created it (see
-            # sale.order._meli_create_from_order_data's own recovery
-            # logic, which this call re-enters with the order's current,
-            # real data). _meli_import_order is idempotent and safe to
-            # call even when it turns out there's nothing to recover
-            # (e.g. a genuinely different, still-unresolvable status).
-            #
-            # Fix 2026-09-14 (real production incident: order
-            # 2000018458354168, a permanent 404 on its shipments lookup
-            # exhausted all 8 retries): this used to be called inline,
-            # synchronously, wrapped in a try/except that deliberately
-            # let RetryableJobError propagate so queue_job's own retry
-            # machinery could see it. But this whole method runs inside
-            # ONE job/transaction — when that exception propagated all
-            # the way out (whether retried 8 times or failing
-            # permanently), the enclosing savepoint in
-            # queue_job_cron_jobrunner's _process() rolled back
-            # EVERYTHING done during this job's run, including the
-            # document create/write just above. A permanently-failing
-            # recovery meant losing the invoice/credit-note document
-            # entirely, not just failing to link it — confirmed exactly
-            # this way in production.
-            #
-            # Enqueuing as its OWN job fixes this at the root: this job
-            # now finishes (and commits the document) regardless of what
-            # happens to the recovery attempt, which gets its own
-            # separate transaction and its own 8 retries.
-            # sale.order._meli_import_order already calls
-            # meli.invoice.document._meli_relink_orphaned_documents right
-            # after creating the order, so this document gets linked
-            # automatically once (if) the recovery job succeeds.
-            # identity_key dedupes: several documents for the same order
-            # arriving close together must not enqueue redundant recovery
-            # jobs.
-            #
-            # Fix 2026-09-24 (user-directed, real production noise: order
-            # 2000000005969244 and several others in the same failed-job
-            # review): an invoice can arrive via webhook mere seconds
-            # before the order itself does through its own, entirely
-            # separate pipeline — attempting the recovery immediately
-            # just wastes an API call on a 404 that resolves itself
-            # moments later anyway (every order is always imported
-            # through its own path regardless of this one). eta=900 (15
-            # minutes) gives that normal path every reasonable chance to
-            # land first; identity_key still dedupes against it if the
-            # order shows up before this job ever runs. priority=0 (was
-            # 8): this connector is the only real consumer of this queue
-            # ("invoicing-only build" — nothing else competes for it),
-            # so once the delay elapses this should run immediately, not
-            # queue behind other, truly lower-priority sweeps.
-            self.env['sale.order'].sudo().with_delay(
-                priority=0, channel='root.meli_sales', max_retries=8,
-                identity_key=f"meli_recover_order_{order_id}",
-                eta=900,
-            )._meli_import_order(company_id, order_id)
+        # Trigger B (2026-09-09, cancelled-order-recovery plan) — REMOVED
+        # 2026-10-07 (user-directed, real production incident: this
+        # enqueue, compounding with the equally-frequent (then 30-minute)
+        # _cron_recover_orphaned_document_orders, generated a request/
+        # concurrency burst on Odoo.sh every time either one fired —
+        # confirmed via Odoo.sh's own dashboard). This document arriving
+        # with no resolvable sale order is now left for the hourly
+        # _cron_recover_orphaned_document_orders alone to pick up — same
+        # eventual outcome (recovered within about an hour), but through
+        # exactly ONE mechanism instead of two independent ones racing
+        # and duplicating each other's work. VentiApp (the "normal path"
+        # this used to wait for) is permanently off now, so there is no
+        # longer any real benefit to also reacting immediately here.
 
         if document.sale_order_id:
             # savepoint + broad except, same convention used in
@@ -1626,26 +1669,41 @@ class MeliInvoiceDocument(models.Model):
         Document = self.env['meli.invoice.document'].sudo()
         rescued = 0
         still_missing = 0
+        # Perf (2026-10-07, same pattern as _cron_meli_cancel_stale_
+        # undelivered_cancelled_orders): every document here shares the
+        # one connected company, so caching this by company_id avoids
+        # repeating the exact same search on every iteration.
+        configs_by_company = {}
         for document in self:
-            config = self.env['meli.config'].sudo().search([
-                ('company_id', '=', document.company_id.id), ('state', '=', 'connected'),
-            ], limit=1)
+            config = configs_by_company.get(document.company_id.id)
+            if config is None:
+                config = self.env['meli.config'].sudo().search([
+                    ('company_id', '=', document.company_id.id), ('state', '=', 'connected'),
+                ], limit=1)
+                configs_by_company[document.company_id.id] = config
             if not config:
                 still_missing += 1
                 continue
             try:
-                if document.meli_invoice_id:
-                    Document._meli_import_invoice_document(
-                        config.company_id.id, document.meli_invoice_id,
-                    )
-                elif document.meli_order_id and document.transaction_type:
-                    Document._meli_import_invoice_document_for_order(
-                        config.company_id.id, document.meli_order_id,
-                        document.transaction_type,
-                    )
-                else:
-                    still_missing += 1
-                    continue
+                # Fix 2026-10-08 (same real incident as _cron_retry_
+                # unapplied_documents's own identical fix — see that
+                # method's own comment for the full mechanism): without
+                # a real savepoint here, a SerializationFailure from one
+                # document's own import can leave the connection aborted
+                # for every document still left in this loop.
+                with self.env.cr.savepoint():
+                    if document.meli_invoice_id:
+                        Document._meli_import_invoice_document(
+                            config.company_id.id, document.meli_invoice_id,
+                        )
+                    elif document.meli_order_id and document.transaction_type:
+                        Document._meli_import_invoice_document_for_order(
+                            config.company_id.id, document.meli_order_id,
+                            document.transaction_type,
+                        )
+                    else:
+                        still_missing += 1
+                        continue
             except Exception:
                 _logger.exception(
                     "Mercado Libre invoice document %s: XML rescue failed.",

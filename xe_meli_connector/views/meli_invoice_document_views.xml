@@ -31,6 +31,7 @@
                 <field name="meli_has_refacturacion" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="meli_has_credit_note" widget="boolean_toggle" readonly="1" optional="hide"/>
                 <field name="meli_document_superseded" widget="boolean_toggle" readonly="1" optional="hide"/>
+                <field name="meli_order_import_error" readonly="1" optional="hide"/>
                 <field name="issue_date"/>
                 <field name="last_synced_at"/>
                 <button name="action_meli_rescue_xml" type="object"
@@ -82,6 +83,7 @@
                             <field name="meli_has_refacturacion"/>
                             <field name="meli_has_credit_note"/>
                             <field name="meli_document_superseded"/>
+                            <field name="meli_order_import_error"/>
                             <field name="issue_date"/>
                             <field name="last_synced_at"/>
                         </group>
@@ -152,6 +154,8 @@
                 <filter name="stuck_not_superseded" string="Stuck Pending Authorization (Needs Attention)"
                         domain="[('status', 'in', ('pending_authorization', 'interrupted')),
                                  ('meli_document_superseded', '=', False)]"/>
+                <filter name="meli_order_import_error" string="Order Import Permanently Failed"
+                        domain="[('meli_order_import_error', '!=', False)]"/>
                 <separator/>
                 <filter name="warehouse_full" string="Full Warehouse"
                         domain="[('meli_warehouse_kind', '=', 'full')]"/>
