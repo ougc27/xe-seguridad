@@ -3070,6 +3070,35 @@ class SaleOrder(models.Model):
             return False
         return document.meli_xml_total < (source_invoice.amount_total - 0.05)
 
+    def _meli_sibling_cancel_requested_by_meli(self, config, cancelled_order_id):
+        """True only when this sibling's own live cancellation is
+        Mercado Libre's own mediations/seller-protection program
+        resolving in the seller's favor (cancel_detail.group ==
+        'mediations') — never for an ordinary buyer-initiated
+        cancellation (cancel_detail.group == 'buyer', e.g. "se
+        arrepintió de comprarlo"), even though Mercado Libre's own API
+        can still carry a non-empty 'mediations' array for that
+        ordinary case too.
+
+        Fix 2026-10-08 (user-caught, real production case S1007776/
+        order 2000018775848726): confirmed live — this order's own
+        cancel_detail read {'group': 'buyer', 'requested_by': 'buyer',
+        ...} (a genuine buyer-regret cancellation Mercado Libre expects
+        the product back for) while its own 'mediations' array still
+        had one entry. The single-sibling-pack fallback this method
+        gates (see its own caller) must never apply here — only for a
+        genuine 'mediations'-group resolution, where
+        _meli_no_physical_return_from_order_data's own subset-based
+        fallback is known to be structurally unable to prove anything
+        (see _meli_pack_known_sibling_count's own docstring).
+        """
+        self.ensure_one()
+        try:
+            live_data = self._meli_fetch_order_cached(config, cancelled_order_id) or {}
+        except requests.exceptions.RequestException:
+            return False
+        return (live_data.get('cancel_detail') or {}).get('group') == 'mediations'
+
     def _meli_pack_all_siblings_cancelled_live(self, config):
         """Fix 2026-10-02 (user-directed, real case S992811 — "si lo
         haces por la API y hay varios siblings cancelados esperar que
@@ -3249,28 +3278,51 @@ class SaleOrder(models.Model):
             # the weaker, locally-cached XML-total comparison only if
             # that live check itself couldn't run at all.
             if not no_physical_return:
-                if not self._meli_pack_all_siblings_cancelled_live(config):
-                    no_physical_return = True
-                elif self._meli_pack_known_sibling_count() <= 1:
-                    # Fix 2026-10-05 (user-caught, real production cases
-                    # S971295/S975976/S976045/S964139 — all single-item
-                    # "packs" resolved via mediation, every one wrongly
-                    # physically returned + fully cancelled): the subset
-                    # check below can only ever prove "not a whole-pack
-                    # return" by finding ANOTHER sibling's own concept
-                    # left uncredited on the same document — with a
-                    # single known sibling there is nothing else to find,
-                    # so it always falls through to "covers the whole
-                    # invoice" and wrongly confirms a physical return,
-                    # 100% of the time, for every single-item mediation
-                    # case. See _meli_pack_known_sibling_count's own
-                    # docstring for why this is never guessed into being
-                    # for a genuine multi-sibling pack.
-                    no_physical_return = True
-                else:
-                    no_physical_return = self._meli_pack_credit_note_covers_subset_only(
-                        cancelled_order_id,
-                    )
+                # Fix 2026-10-08 (user-caught, real production case
+                # S1007776/order 2000018775848726): this whole fallback
+                # chain is ONLY for a mediation genuinely resolved by
+                # Mercado Libre itself in the seller's favor
+                # (cancel_detail.group == 'mediations') — never for an
+                # ordinary buyer-initiated cancellation (cancel_detail.
+                # group == 'buyer', e.g. "se arrepintió de comprarlo"),
+                # which already got its own confident, correct answer
+                # above (delivered + cancelled = physical return IS
+                # expected, per _meli_no_physical_return_from_order_
+                # data's own override). Confirmed live: S1007776 has
+                # cancel_detail.group='buyer' AND a non-empty mediations
+                # array — proving the mediations array alone is NOT a
+                # reliable signal that this ever was a real seller-
+                # protection resolution; only cancel_detail.group is.
+                # Without this guard, the single-sibling-pack fallback
+                # below wrongly re-flipped that already-correct "needs a
+                # physical return" answer back to "no physical return",
+                # silently skipping the real stock return and leaving the
+                # sale open when it should have been cancelled.
+                if self._meli_sibling_cancel_requested_by_meli(config, cancelled_order_id):
+                    if not self._meli_pack_all_siblings_cancelled_live(config):
+                        no_physical_return = True
+                    elif self._meli_pack_known_sibling_count() <= 1:
+                        # Fix 2026-10-05 (user-caught, real production
+                        # cases S971295/S975976/S976045/S964139 — all
+                        # single-item "packs" resolved via mediation,
+                        # every one wrongly physically returned + fully
+                        # cancelled): the subset check below can only
+                        # ever prove "not a whole-pack return" by finding
+                        # ANOTHER sibling's own concept left uncredited
+                        # on the same document — with a single known
+                        # sibling there is nothing else to find, so it
+                        # always falls through to "covers the whole
+                        # invoice" and wrongly confirms a physical
+                        # return, 100% of the time, for every single-item
+                        # mediation case. See _meli_pack_known_sibling_
+                        # count's own docstring for why this is never
+                        # guessed into being for a genuine multi-sibling
+                        # pack.
+                        no_physical_return = True
+                    else:
+                        no_physical_return = self._meli_pack_credit_note_covers_subset_only(
+                            cancelled_order_id,
+                        )
             if no_physical_return:
                 credit_note = self._meli_relate_confirmed_partial_refund_credit_note(
                     cancelled_order_id,
@@ -6180,7 +6232,24 @@ class SaleOrder(models.Model):
                     __, no_physical_return = self._meli_no_physical_return_from_order_data(
                         config, live_sibling_data or {}, order_id=cancelled_order_id,
                     )
-                    if not no_physical_return:
+                    # Fix 2026-10-08 (user-caught, real production case
+                    # S1007776/order 2000018775848726 — see
+                    # _meli_apply_partial_cancellation's own matching fix
+                    # for the full rationale): this whole fallback chain
+                    # is ONLY for a mediation genuinely resolved by
+                    # Mercado Libre itself in the seller's favor
+                    # (cancel_detail.group == 'mediations') — never for
+                    # an ordinary buyer-initiated cancellation
+                    # (cancel_detail.group == 'buyer'), which already got
+                    # its own confident, correct answer above. The
+                    # mediations array can carry an entry even for an
+                    # ordinary buyer cancellation (confirmed live on
+                    # S1007776) — cancel_detail.group, not whether
+                    # mediations is empty, is the real signal.
+                    if (
+                        not no_physical_return
+                        and (live_sibling_data or {}).get('cancel_detail', {}).get('group') == 'mediations'
+                    ):
                         if not self._meli_pack_all_siblings_cancelled_live(config):
                             no_physical_return = True
                         # Fix 2026-10-05 (user-caught, real production
@@ -6286,8 +6355,21 @@ class SaleOrder(models.Model):
                 # yet. The cancelled case doesn't need this here: it's
                 # already covered once _meli_close_pack_if_every_
                 # sibling_cancelled below actually cancels the sale.
+                #
+                # Fix 2026-10-08 (user-directed, real production case
+                # S1007776 — "eso lo tiene que dictar la API, no nuestro
+                # código"): this used to hardcode 'partially_refunded'
+                # here regardless of what Mercado Libre's own live status
+                # actually was — for a mediation genuinely resolved in
+                # the seller's favor while the order itself reads
+                # 'cancelled' (not 'partially_refunded'), that silently
+                # wrote a status this field never actually reported,
+                # masking a real misclassification instead of surfacing
+                # it. meli_last_status must always mirror Mercado Libre's
+                # own live answer, verbatim — never a label this
+                # connector's own business logic invents on its behalf.
                 if sibling_is_confirmed_partial_refund and sibling_credit_note:
-                    self.meli_last_status = 'partially_refunded'
+                    self.meli_last_status = (live_sibling_data or {}).get('status')
                 # Fix 2026-09-25 (see this branch's own comment above):
                 # only for a genuinely CANCELLED sibling, and only once
                 # its credit note actually got related (sibling_credit_
@@ -8784,17 +8866,36 @@ class SaleOrder(models.Model):
                 ))
             buyer_id = str((order_data.get('buyer') or {}).get('id') or '')
             meli_buyer_id = buyer_id or False
-            destination = self._meli_fetch_custom_shipping_destination(
-                config, shipping_id,
-            )
-            delivery_contact = self.env['res.partner']._meli_find_or_create_delivery_contact(
-                buyer_id, destination,
-            )
-            if delivery_contact:
-                shipping_partner_id = delivery_contact.id
-                delivery_contact_status = 'resolved'
-            else:
-                delivery_contact_status = 'failed'
+            # Fix 2026-10-08 (user-directed, real production feedback from
+            # the actual warehouse/shipping team: the real delivery
+            # contact this used to create here was itself unreliable
+            # anyway — the customer routinely gives updated/corrected
+            # delivery info and postal codes straight to the shipping
+            # team via Mercado Libre's own chat, never through this
+            # record — and showing the real customer's name on the
+            # transfer, identical to an ordinary non-marketplace sale,
+            # made it hard for that team to tell which transfers were
+            # Mercado Libre's own (needing a manually-generated shipment)
+            # at a glance. shipping_partner_id intentionally stays the
+            # generic config.partner_id set above for every order now,
+            # custom-shipping included — never overridden with a real,
+            # per-order contact. delivery_contact_status stays
+            # 'not_applicable' (its default above), so the 30-minute
+            # retry cron (_retry_failed_delivery_contacts) naturally never
+            # finds anything to retry anymore. Left commented (not
+            # deleted, user-directed) in case this ever needs reverting:
+            #
+            # destination = self._meli_fetch_custom_shipping_destination(
+            #     config, shipping_id,
+            # )
+            # delivery_contact = self.env['res.partner']._meli_find_or_create_delivery_contact(
+            #     buyer_id, destination,
+            # )
+            # if delivery_contact:
+            #     shipping_partner_id = delivery_contact.id
+            #     delivery_contact_status = 'resolved'
+            # else:
+            #     delivery_contact_status = 'failed'
         else:
             # Fix 2026-09-19/20 (user-directed, real production case
             # order 856288/S844547): the common, non-custom shipment
@@ -9020,24 +9121,28 @@ class SaleOrder(models.Model):
             order._meli_ensure_delivery(is_fulfillment)
             if new_status == 'cancelled' and is_fulfillment and order.state == 'sale':
                 order._meli_recover_cancelled_on_arrival_full(config)
-        if delivery_contact_status == 'failed':
-            # Posted last, deliberately: action_confirm() above writes
-            # sale.order.state (tracking=3), which posts its own
-            # automatic tracking message — if this went earlier, that
-            # write would bury it under a message with no @-mention.
-            # mail.message is ordered 'id desc', so whatever posts last
-            # is message_ids[0].
-            manager_partner = (
-                config.delivery_contact_manager_id.partner_id
-                if config.delivery_contact_manager_id else None
-            )
-            order._meli_post_with_mention(_(
-                "Could not resolve a real delivery contact for this "
-                "custom-shipping order — using the generic Mercado "
-                "Libre contact for now. This is retried automatically "
-                "every 30 minutes; no further action needed unless it "
-                "keeps failing."
-            ), mention_partner=manager_partner)
+        # Fix 2026-10-08 (user-directed): no longer reachable —
+        # delivery_contact_status is never 'failed' anymore (see this
+        # method's own comment above). Left commented, not deleted:
+        #
+        # if delivery_contact_status == 'failed':
+        #     # Posted last, deliberately: action_confirm() above writes
+        #     # sale.order.state (tracking=3), which posts its own
+        #     # automatic tracking message — if this went earlier, that
+        #     # write would bury it under a message with no @-mention.
+        #     # mail.message is ordered 'id desc', so whatever posts last
+        #     # is message_ids[0].
+        #     manager_partner = (
+        #         config.delivery_contact_manager_id.partner_id
+        #         if config.delivery_contact_manager_id else None
+        #     )
+        #     order._meli_post_with_mention(_(
+        #         "Could not resolve a real delivery contact for this "
+        #         "custom-shipping order — using the generic Mercado "
+        #         "Libre contact for now. This is retried automatically "
+        #         "every 30 minutes; no further action needed unless it "
+        #         "keeps failing."
+        #     ), mention_partner=manager_partner)
         return order
 
     def _meli_add_pack_sibling_lines(self, order_data, order_id):

@@ -745,6 +745,29 @@ msgstr "NO SE ACEPTAN CAMBIOS NI DEVOLUCIONES"
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
+#: code:addons/pos_restrict_product_stock/static/src/xml/ReceiptHeader.xml:0
+#, python-format
+msgid "LA GARANTÍA DE LOS PRODUCTOS TIENE UNA VIGENCIA DE 6 MESES"
+msgstr "LA GARANTÍA DE LOS PRODUCTOS TIENE UNA VIGENCIA DE 6 MESES"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_config__show_warranty_notice
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_res_config_settings__pos_show_warranty_notice
+msgid "Show Warranty Notice on Receipt"
+msgstr "Mostrar leyenda de garantía en el ticket"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_pos_config__show_warranty_notice
+msgid "Print the 6-month product warranty notice on the POS receipt"
+msgstr "Imprime en el ticket del PdV la leyenda de garantía de 6 meses de los productos"
+
+#. module: pos_restrict_product_stock
+#: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.res_config_settings_view_form
+msgid "Print the 6-month product warranty notice on the receipt."
+msgstr "Imprime en el ticket la leyenda de garantía de 6 meses de los productos."
+
+#. module: pos_restrict_product_stock
+#. odoo-javascript
 #: code:addons/pos_restrict_product_stock/static/src/xml/ClosingPopup.xml:0
 #, python-format
 msgid "Opening"

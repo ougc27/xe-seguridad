@@ -114,6 +114,18 @@
                                 </div>
                             </div>
                         </div>
+                        <br/>
+                        <div>
+                            <div class="o_setting_left_pane">
+                                <field name="pos_show_warranty_notice" readonly="False"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="pos_show_warranty_notice"/>
+                                <div class="text-muted">
+                                    Print the 6-month product warranty notice on the receipt.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>                
             </xpath>

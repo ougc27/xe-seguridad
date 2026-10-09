@@ -49,6 +49,10 @@ class PosConfig(models.Model):
 
     res_user_ids = fields.Many2many('res.users', string="Users")
 
+    show_warranty_notice = fields.Boolean(
+        string="Show Warranty Notice on Receipt",
+        help="Print the 6-month product warranty notice on the POS receipt")
+
     sequence_id = fields.Many2one('ir.sequence', string='Order IDs Sequence',
         help="This sequence is automatically created by Odoo but you can change it "
         "to customize the reference numbers of your orders.", copy=False, ondelete='restrict')

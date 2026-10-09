@@ -29,6 +29,11 @@ patch(PosStore.prototype, {
             });
         }
     },
+    getReceiptHeaderData() {
+        const result = super.getReceiptHeaderData(...arguments);
+        result.show_warranty_notice = this.config.show_warranty_notice;
+        return result;
+    },
     async getProductQuantity(product_id) {
         const picking_type_id = this.env.services.pos.picking_type.id;
         return await this.orm.call("product.product", "get_product_quantity", [], {

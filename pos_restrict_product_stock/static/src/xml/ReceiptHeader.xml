@@ -24,6 +24,10 @@
                     <br/>
                     NO SE ACEPTAN CAMBIOS NI DEVOLUCIONES
                 </div>
+                <div class="bold-text" t-if="props.data.show_warranty_notice">
+                    <br/>
+                    LA GARANTÍA DE LOS PRODUCTOS TIENE UNA VIGENCIA DE 6 MESES
+                </div>
             </div>
         </xpath>
     </t>
