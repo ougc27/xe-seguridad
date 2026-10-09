@@ -8862,7 +8862,7 @@ class SaleOrder(models.Model):
         meli_shipping_id = str(shipping_id) if shipping_id else False
         meli_buyer_id = False
         if custom_shipping_cost is not None:
-            if not is_known_resale:
+            if not is_known_resale and custom_shipping_cost:
                 if not config.shipping_item_id:
                     raise UserError(_(
                         "Configure 'Shipping Item' on the Mercado Libre "
