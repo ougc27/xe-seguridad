@@ -1,6 +1,7 @@
 import base64
 import logging
 import re
+import time
 from datetime import timedelta, timezone
 
 from odoo import _, api, fields, models
@@ -2250,6 +2251,19 @@ class SaleOrder(models.Model):
         happens, just a few seconds later in the background.
         """
         self.ensure_one()
+        # Fix 2026-10-09 (user-directed, real production case: this
+        # exact job — sale.order(1026245,)._meli_reconcile_after_
+        # picking_validated('MTYX2/OUT/158513') — took 15 real minutes
+        # with no error, backing up the whole job queue behind it, and
+        # the server itself wasn't under load at the time). Timed here,
+        # at the outermost entry point, and compared against
+        # meli_config._api_response's own per-call timing (see that
+        # method's identical fix): if the total below is high but no
+        # individual API call logged as slow, the time went into
+        # something else entirely — most likely a Postgres row lock
+        # wait on this same sale.order from another concurrent
+        # transaction — not a slow Mercado Libre response.
+        started = time.monotonic()
         try:
             with self.env.cr.savepoint():
                 self._meli_reconcile_invoicing()
@@ -2259,6 +2273,14 @@ class SaleOrder(models.Model):
                 "after transfer %s was validated — left pending for "
                 "manual review.", self.client_order_ref, picking_name,
             )
+        finally:
+            elapsed = time.monotonic() - started
+            if elapsed >= 5:
+                _logger.warning(
+                    "Mercado Libre order %s: reconciling invoicing after "
+                    "transfer %s took %.1fs.",
+                    self.client_order_ref, picking_name, elapsed,
+                )
         if self.state != 'cancel' and self.meli_pack_id:
             try:
                 with self.env.cr.savepoint():

@@ -2,6 +2,7 @@ import base64
 import hashlib
 import logging
 import secrets
+import time
 
 from urllib.parse import urlencode
 
@@ -18,6 +19,18 @@ TOKEN_URL = 'https://api.mercadolibre.com/oauth/token'
 AUTHORIZE_URL = 'https://auth.mercadolibre.com.mx/authorization'
 API_BASE_URL = 'https://api.mercadolibre.com'
 DEFAULT_TIMEOUT = 30
+
+# Fix 2026-10-09 (user-directed, real production case: a queued
+# reconciliation job — sale.order(1026245,)._meli_reconcile_after_
+# picking_validated — took 15 real minutes to finish with no error at
+# all, backing up the whole job queue behind it). There was no logging
+# anywhere of how long an individual Mercado Libre API call actually
+# takes, so there was no way to tell whether a slow call, not a DB lock
+# or server contention (both ruled out — server wasn't saturated),
+# was the real cause. Every live call funnels through _api_response
+# below, so timing it there catches every call site in this whole
+# connector at once, instead of instrumenting each caller separately.
+SLOW_API_CALL_THRESHOLD_SECONDS = 3
 
 # Confirmed with the user (2026-08-31, after a real 39h outage caused
 # by a single transient DNS failure during a proactive refresh): the
@@ -486,6 +499,7 @@ class MeliConfig(models.Model):
         self.ensure_one()
         request_headers = {'Authorization': f'Bearer {self.access_token}'}
         request_headers.update(headers or {})
+        call_started = time.monotonic()
         try:
             response = requests.request(
                 method, f'{API_BASE_URL}{path}', headers=request_headers,
@@ -496,11 +510,23 @@ class MeliConfig(models.Model):
             requests.exceptions.ConnectionError,
             requests.exceptions.Timeout,
         ) as err:
+            elapsed = time.monotonic() - call_started
+            if elapsed >= SLOW_API_CALL_THRESHOLD_SECONDS:
+                _logger.warning(
+                    "Mercado Libre call %s %s took %.1fs before failing "
+                    "(%s) — will retry.", method, path, elapsed, err,
+                )
             raise RetryableJobError(
                 f"Transient network error calling Mercado Libre "
                 f"({method} {path}): {err}",
                 seconds=30,
             ) from err
+        elapsed = time.monotonic() - call_started
+        if elapsed >= SLOW_API_CALL_THRESHOLD_SECONDS:
+            _logger.warning(
+                "Mercado Libre call %s %s took %.1fs (status %s).",
+                method, path, elapsed, response.status_code,
+            )
         if response.status_code == 401 and retry_on_401:
             self._refresh_token()
             if self.state == 'connected':
