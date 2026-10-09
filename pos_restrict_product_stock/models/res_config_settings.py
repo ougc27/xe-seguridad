@@ -47,6 +47,9 @@ class ResConfigSettings(models.TransientModel):
 
     user_ids =  fields.Many2many(related='pos_config_id.res_user_ids', readonly=False)
 
+    pos_show_warranty_notice = fields.Boolean(
+        related='pos_config_id.show_warranty_notice', readonly=False)
+
     pos_tax_id = fields.Many2one(
         'account.tax',
         related='pos_config_id.tax_id',
