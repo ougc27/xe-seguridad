@@ -9788,13 +9788,31 @@ class SaleOrder(models.Model):
             ml_unit_price = order_item.get('unit_price')
             used_payments_fallback = False
             used_minimum_price_fallback = False
-            if ml_unit_price is None:
-                # Only a genuinely missing (null) unit_price gets a
-                # fallback — an explicit, real 0 from Mercado Libre is
-                # left exactly as before (still ends up $0 and still
-                # blocked by xe_pacific's own restrict_unit_price_zero()
-                # below): that's a different, separate scenario this
-                # fix was never meant to change.
+            if not ml_unit_price:
+                # Fix 2026-10-09 (user-directed, real production orders
+                # 2000018673919014/2000018874513600): a null unit_price
+                # was already covered by this fallback, but Mercado
+                # Libre can also report a literal, explicit 0 for
+                # order_items[].unit_price even once the order is fully
+                # paid and already invoiced on their own side — both
+                # real orders share the same unusual payment history
+                # (first card rejected, buyer paid again with a
+                # different card up to 11 days later), so this is most
+                # likely a transient desync between Mercado Libre's own
+                # order resource and its billing/invoicing system
+                # around that kind of delayed payment retry, not a
+                # timing issue that resolves itself quickly — both
+                # stayed at 0 across three retries an hour apart the
+                # next day. There is no legitimate business case for a
+                # genuine $0 unit price (xe_pacific's own
+                # restrict_unit_price_zero() already forbids it
+                # outright), so an explicit 0 is now treated exactly
+                # like null — same payments-total/$0.01 fallback —
+                # instead of being let through to block the whole
+                # order's creation. The payments-total fallback still
+                # recovers the real, exact amount Mercado Libre itself
+                # confirmed was charged (the approved payment's own
+                # transaction_amount), not a guess.
                 if payments_unit_price:
                     ml_unit_price = payments_unit_price
                     used_payments_fallback = True
