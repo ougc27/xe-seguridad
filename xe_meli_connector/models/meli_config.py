@@ -458,9 +458,11 @@ class MeliConfig(models.Model):
             'domain': [('partner_id', 'in', partner_ids)],
         }
 
-    def _api_get(self, path, params=None, headers=None):
+    def _api_get(self, path, params=None, headers=None, timeout=None):
         self.ensure_one()
-        return self._api_request('GET', path, params=params, headers=headers)
+        return self._api_request(
+            'GET', path, params=params, headers=headers, timeout=timeout,
+        )
 
     def _api_get_raw(self, path, params=None, headers=None):
         """Like _api_get, but returns the raw response bytes instead of
@@ -472,16 +474,21 @@ class MeliConfig(models.Model):
         response = self._api_response('GET', path, params=params, headers=headers)
         return response.content
 
-    def _api_request(self, method, path, params=None, headers=None, retry_on_401=True):
+    def _api_request(
+        self, method, path, params=None, headers=None, retry_on_401=True, timeout=None,
+    ):
         self.ensure_one()
         response = self._api_response(
-            method, path, params=params, headers=headers, retry_on_401=retry_on_401,
+            method, path, params=params, headers=headers,
+            retry_on_401=retry_on_401, timeout=timeout,
         )
         if response.status_code == 204 or not response.content:
             return None
         return response.json()
 
-    def _api_response(self, method, path, params=None, headers=None, retry_on_401=True):
+    def _api_response(
+        self, method, path, params=None, headers=None, retry_on_401=True, timeout=None,
+    ):
         """Shared by _api_request (JSON) and _api_get_raw (binary/XML
         streams) — does the actual HTTP call, the 401-refresh-and-retry
         dance, and raise_for_status, returning the raw requests.Response.
@@ -495,6 +502,14 @@ class MeliConfig(models.Model):
         today. A genuine 4xx (other than 429) or any other exception
         keeps failing immediately, unretried — retrying those would
         never help.
+
+        `timeout` defaults to DEFAULT_TIMEOUT (30s, tolerant of a
+        genuinely degraded Mercado Libre) — pass a shorter one for a
+        best-effort, frequently-repeated call where failing fast and
+        retrying later beats holding up this connector's single worker
+        (see _meli_sibling_no_physical_return's own use of this, fix
+        2026-10-09: real empirical latency against this exact endpoint
+        measured ~200ms, so even 5s is a generous multiple of normal).
         """
         self.ensure_one()
         request_headers = {'Authorization': f'Bearer {self.access_token}'}
@@ -503,7 +518,7 @@ class MeliConfig(models.Model):
         try:
             response = requests.request(
                 method, f'{API_BASE_URL}{path}', headers=request_headers,
-                params=params, timeout=DEFAULT_TIMEOUT,
+                params=params, timeout=timeout or DEFAULT_TIMEOUT,
             )
         except (
             requests.exceptions.SSLError,

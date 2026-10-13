@@ -20,7 +20,7 @@
 #############################################################################
 from odoo import models, fields, tools, _
 from odoo.exceptions import UserError, AccessError
-from odoo.tools import float_is_zero
+from odoo.tools import float_compare, float_is_zero
 from collections import defaultdict
 import logging
 _logger = logging.getLogger(__name__)
@@ -702,6 +702,41 @@ class PosSession(models.Model):
             'counterpart_account_id': accounting_partner.property_account_receivable_id.id,
             'partner_id': accounting_partner.id,
         }
+
+    def _create_split_account_payment(self, payment, amounts):
+        """Same as core, but bank methods with deferred deposit (e.g. Aplazo) get
+        the PBINMX dated on the deposit day of the weekly cutoff that contains
+        the sale, instead of the session closing date.
+        """
+        payment_method = payment.payment_method_id
+        if not payment_method.deferred_deposit or not payment_method.journal_id:
+            return super()._create_split_account_payment(payment, amounts)
+
+        session = self.with_context(tz=self.user_id.tz or self.env.context.get('tz'))
+        sale_date = fields.Date.context_today(session, timestamp=payment.payment_date)
+        deposit_date = payment_method._get_deferred_deposit_date(sale_date)
+
+        outstanding_account = payment_method.outstanding_account_id or self.company_id.account_journal_payment_debit_account_id
+        accounting_partner = self.env["res.partner"]._find_accounting_partner(payment.partner_id)
+        destination_account = accounting_partner.property_account_receivable_id
+
+        if float_compare(amounts['amount'], 0, precision_rounding=self.currency_id.rounding) < 0:
+            # revert the accounts because account.payment doesn't accept negative amount.
+            outstanding_account, destination_account = destination_account, outstanding_account
+
+        account_payment = self.env['account.payment'].create({
+            'amount': abs(amounts['amount']),
+            'date': deposit_date,
+            'partner_id': accounting_partner.id,
+            'journal_id': payment_method.journal_id.id,
+            'force_outstanding_account_id': outstanding_account.id,
+            'destination_account_id': destination_account.id,
+            'ref': _('%s POS payment of %s in %s', payment_method.name, payment.partner_id.display_name, self.name),
+            'pos_payment_method_id': payment_method.id,
+            'pos_session_id': self.id,
+        })
+        account_payment.action_post()
+        return account_payment.move_id.line_ids.filtered(lambda line: line.account_id == account_payment.destination_account_id)
 
     def _get_combine_statement_line_vals(self, journal_id, amount, payment_method):
         return {

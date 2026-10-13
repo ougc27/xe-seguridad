@@ -428,7 +428,9 @@ class MeliInvoiceDocument(models.Model):
         # Python over the small set of documents that could possibly
         # qualify, same convention as _search_meli_stock_return_pending.
         want = bool(value) if operator == '=' else not bool(value)
-        candidates = self.search([('sale_order_id', '!=', False)])
+        candidates = self.with_context(prefetch_fields=False).search([
+            ('sale_order_id', '!=', False), ('is_applied', '=', False),
+        ])
         matching_ids = candidates.filtered(
             lambda d: d.meli_sale_delivered
         ).ids
@@ -459,12 +461,22 @@ class MeliInvoiceDocument(models.Model):
             document.meli_document_superseded = document._meli_is_superseded()
 
     def _search_meli_document_superseded(self, operator, value):
-        # Non-stored (see the field's own help text) — evaluated in
-        # Python over the small set of documents that could possibly
-        # qualify, same convention as _search_meli_sale_delivered.
+        # Fix 2026-10-12 (same real production perf issue as _search_
+        # meli_sale_delivered's own identical fix — see that one's
+        # comment for the full explanation): candidate domain here was
+        # just as unbounded (43,871 live). This field's own help text
+        # describes its real-world case as a document "stuck forever in
+        # Pending Authorization" — which by definition never got
+        # applied (is_applied=False) — so the same is_applied=False
+        # narrowing applies here too (confirmed live: 269, same 99.4%
+        # reduction) without changing what this filter can return in
+        # practice.
         want = bool(value) if operator == '=' else not bool(value)
-        candidates = self.search([
+        # prefetch_fields=False: same reasoning as _search_meli_sale_
+        # delivered's own identical fix just above.
+        candidates = self.with_context(prefetch_fields=False).search([
             ('meli_order_id', '!=', False), ('transaction_type', '!=', False),
+            ('is_applied', '=', False),
         ])
         matching_ids = candidates.filtered(
             lambda d: d.meli_document_superseded
@@ -515,7 +527,7 @@ class MeliInvoiceDocument(models.Model):
         # qualify (applied pack credit notes only), same convention as
         # any other non-stored searchable field in Odoo.
         want = bool(value) if operator == '=' else not bool(value)
-        candidates = self.search([
+        candidates = self.with_context(prefetch_fields=False).search([
             ('is_applied', '=', True),
             ('meli_pack_id', '!=', False),
             ('transaction_type', 'in', list(MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES)),
@@ -774,13 +786,28 @@ class MeliInvoiceDocument(models.Model):
         for whatever _meli_relink_orphaned_documents's own immediate
         call site doesn't catch — same "primary path + backup cron"
         pattern already used everywhere else in this module for
-        orders/claims/invoices polling. Cheap: no Mercado Libre API
-        calls at all, pure ORM, so a short interval costs nothing.
+        orders/claims/invoices polling.
+
+        Fix 2026-10-12 (real production incident: this run took 12
+        minutes, blowing past its own 10-minute interval): the comment
+        this replaces claimed "no Mercado Libre API calls at all, pure
+        ORM, so a short interval costs nothing" — true only for
+        _compute_sale_order_id() itself. _meli_recompute_and_reconcile()
+        goes on to call sale_order_id._meli_reconcile_invoicing() for
+        every document that newly resolves, which creates/posts real
+        account.move records — exactly the kind of operation that's
+        been colliding with the account_move sequential-folio lock all
+        day (see today's incidents). That is NOT cheap, and whoever
+        wrote the old comment never anticipated more than a couple of
+        orphaned documents resolving in the same 10-minute window.
+        BATCH_LIMIT bounds how many can trigger that expensive path in
+        a single run; the rest just wait for the next one.
         """
+        BATCH_LIMIT = 100
         orphaned_documents = self.sudo().search([
             ('sale_order_id', '=', False),
             ('meli_order_id', '!=', False),
-        ])
+        ], order='create_date asc', limit=BATCH_LIMIT)
         orphaned_documents._meli_recompute_and_reconcile()
 
     @api.model
@@ -817,6 +844,18 @@ class MeliInvoiceDocument(models.Model):
         that's already fully done, so re-checking an already-resolved
         pack order here costs a few no-op queries, not a repeat action.
         """
+        # Fix 2026-10-12 (real production incident: this cron was caught
+        # live still running, blocking its own record from being edited
+        # — "esta tarea de cron se está ejecutando y no se puede
+        # modificar"): no limit at all, confirmed 354 matching documents
+        # right now (3,654 historically, per the 2026-10-08 fix comment
+        # below) — every one of those calls action_meli_retry_invoicing_
+        # reconciliation(), which can itself hit the same account_move
+        # folio lock contention seen elsewhere today. BATCH_LIMIT + the
+        # per-order commit() below bound a single run's duration; a
+        # 30-minute interval clears a few hundred in under a day without
+        # ever holding one giant open transaction for the whole run.
+        BATCH_LIMIT = 50
         stuck_orders = self.sudo().search([
             ('sale_order_id', '!=', False),
             # Fix 2026-09-16: a document flagged meli_needs_manual_credit_
@@ -862,7 +901,7 @@ class MeliInvoiceDocument(models.Model):
                 '&', '&', ('meli_pack_id', '!=', False),
                      ('transaction_type', 'in', list(MELI_INVOICE_CREDIT_NOTE_TRANSACTION_TYPES)),
                      ('sale_order_id.state', '!=', 'cancel'),
-        ]).mapped('sale_order_id')
+        ], order='create_date asc', limit=BATCH_LIMIT).mapped('sale_order_id')
         # Fix 2026-10-08 (user-caught, real production incident: a
         # reported Odoo.sh degradation traced to this exact cron — "4,806
         # failures in a day", backlog never shrinking): this loop used to
@@ -896,6 +935,12 @@ class MeliInvoiceDocument(models.Model):
                     "reconciliation failed — needs manual review.",
                     order.client_order_ref,
                 )
+            # Per-order commit (2026-10-12, same fix as BATCH_LIMIT
+            # above): releases this order's locks immediately instead of
+            # holding one open transaction for the whole run, and means
+            # a run that gets cut off never has to redo work already
+            # finished.
+            self.env.cr.commit()
 
     @api.model
     def _cron_recover_orphaned_document_orders(self):
@@ -1323,6 +1368,23 @@ class MeliInvoiceDocument(models.Model):
         used when metadata didn't yield an order_id at all.
         """
         invoice_id = str(invoice_id)
+        # Fix 2026-10-09 (user-directed, real production incident: 4
+        # separate transactions stuck 7-10 minutes trying to UPDATE the
+        # exact same account.move's own name/sequence, confirmed live
+        # via pg_stat_activity — a genuine concurrent-processing race
+        # for the same invoice_id, surfaced once real worker
+        # parallelism existed). pg_advisory_xact_lock(hashtext(...)) —
+        # same proven technique sale.order._meli_import_order already
+        # uses for its own order_id — serializes any two concurrent
+        # calls for the SAME invoice_id regardless of which path
+        # (webhook, missed-feeds recovery, Excel batch import)
+        # triggered them: the second one blocks here until the first's
+        # entire transaction commits, instead of both racing to
+        # upsert/relate the same account.move at once.
+        self.env.cr.execute(
+            "SELECT pg_advisory_xact_lock(hashtext(%s))",
+            (f'meli_import_invoice_{invoice_id}',),
+        )
         config = self.env['meli.config'].sudo().search([
             ('company_id', '=', company_id), ('state', '=', 'connected'),
         ], limit=1)

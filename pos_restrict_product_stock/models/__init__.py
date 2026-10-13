@@ -31,6 +31,7 @@ from . import account_tax
 from . import product_pricelist_pos
 from . import product_pricelist_item
 from . import pos_payment
+from . import pos_payment_method
 from . import loyalty_program
 from . import loyalty_reward
 from . import loyalty_card
