@@ -41,6 +41,20 @@ MELI_REFACTURA_CANCEL_REASON = '01'
 
 MELI_ORDER_RECOVERY_GRACE_MINUTES = 10
 
+# Fix 2026-10-09 (user-directed, real production incident: this whole
+# Odoo.sh project shares only 5 workers between queue_job and every
+# user's own HTTP request, across every company — XE Brands is the
+# only one with any Mercado Libre traffic, which is why a slow job
+# here disproportionately delays XE Brands' own unrelated work, like
+# a warehouse transfer validation, even though other companies keep
+# working fine). Real empirical latency against Mercado Libre's own
+# /orders/{id} measured ~200ms — this is a generous ~25x multiple of
+# that, used only for the frequently-repeated, best-effort sibling
+# status check (_meli_fetch_order_cached) where failing fast and
+# retrying later beats holding one of those 5 workers for the default
+# 30s whenever Mercado Libre is genuinely degraded.
+MELI_SIBLING_CHECK_TIMEOUT = 5
+
 # Fix 2026-09-22 (user decision, re-enabling the sale.order injector):
 # a sale.order created by user id 8 (Horacio González Montfort) for
 # partner_id 87659 (MERCADO LIBRE) is a manual/internal record, never a
@@ -370,6 +384,21 @@ class SaleOrder(models.Model):
              "generated it yet, or it may need to be requested from "
              "their support. Use the 'Retry Invoicing' button to try "
              "again once you've looked into it.",
+    )
+    meli_invoice_document_recovery_checked = fields.Boolean(
+        string='Invoice/Resale Document Recovery Checked', copy=False,
+        help="Fix 2026-10-12 (real production incident: _cron_meli_"
+             "recover_missing_invoice_documents's own candidate search "
+             "had no exclusion at all for an order that already HAS its "
+             "invoice/resale document — confirmed live at 31,851 "
+             "candidates and growing every day, re-scanned in full on "
+             "every single daily run forever, which is what pushed that "
+             "cron past 20 minutes). Set True the first time this order "
+             "is confirmed to already have its document (or once a "
+             "recovery attempt concludes, successful or not) so it's "
+             "permanently excluded from future scans — mirrors meli_"
+             "missing_invoice_document's own already-permanent gate for "
+             "the 'genuinely missing' case.",
     )
     meli_is_full_warehouse = fields.Boolean(
         string='Is Full Warehouse Order',
@@ -1643,11 +1672,26 @@ class SaleOrder(models.Model):
         unexpected error must not block every other stuck order in this
         run.
         """
+        # Fix 2026-10-12 (user-directed, real production case S996173):
+        # the original filter only checked for "no LIVE picking" — true
+        # both for an order whose delivery creation genuinely never
+        # happened (the real bug this cron exists for) AND for an order
+        # whose own outgoing picking was deliberately cancelled as part
+        # of this connector's own cancellation pipeline, which can sit
+        # in 'sale' state for a while before the sale itself finishes
+        # cancelling. The cron couldn't tell those two apart and kept
+        # regenerating a fresh, pointless delivery for the second case
+        # every 30 minutes. Now scoped to an order with NO outgoing
+        # picking AT ALL (never created one, cancelled or not) — once a
+        # delivery ever existed for an order, this cron leaves it alone
+        # for good, regardless of why it's no longer live.
         stuck_orders = self.sudo().search([
             ('state', '=', 'sale'),
             ('meli_sync_source', '!=', False),
         ]).filtered(
-            lambda order: not order.picking_ids.filtered(lambda p: p.state != 'cancel')
+            lambda order: not order.picking_ids.filtered(
+                lambda p: p.picking_type_id.code == 'outgoing'
+            )
         )
         # Fix 2026-10-08 (same real incident/mechanism as meli.invoice.
         # document._cron_retry_unapplied_documents's own identical fix —
@@ -2267,6 +2311,27 @@ class SaleOrder(models.Model):
         try:
             with self.env.cr.savepoint():
                 self._meli_reconcile_invoicing()
+        except OperationalError as err:
+            # Fix 2026-10-12 (user-directed, real production incident: a
+            # whole day of account_move sequence-numbering collisions
+            # across the whole database, not just this connector) — a
+            # transient concurrency error here is exactly what queue_
+            # job's own retry machinery (queue_job_cron_jobrunner_
+            # retry_pattern_fix) is built to catch and automatically
+            # reschedule with backoff — but only if it propagates
+            # uncaught up to that handler. The old bare `except
+            # Exception:` below swallowed this one too, marking the job
+            # 'done' with nothing actually reconciled — a genuinely
+            # recoverable, one-off lock collision silently never got
+            # retried at all, left looking like a permanent failure
+            # needing manual review when it wasn't.
+            if err.pgcode in PG_CONCURRENCY_ERRORS_TO_RETRY:
+                raise
+            _logger.exception(
+                "Mercado Libre order %s: invoicing reconciliation failed "
+                "after transfer %s was validated — left pending for "
+                "manual review.", self.client_order_ref, picking_name,
+            )
         except Exception:
             _logger.exception(
                 "Mercado Libre order %s: invoicing reconciliation failed "
@@ -2903,7 +2968,28 @@ class SaleOrder(models.Model):
         ships/delivers) degrades to the ordinary, cautious physical-
         return handling — this method never guesses in the direction
         that would skip a return Mercado Libre actually expects.
+
+        Fix 2026-10-09 (user-directed, real production incident: this
+        call was eating one of only 5 workers this whole Odoo.sh
+        project shares between queue_job and every user's own HTTP
+        request, for up to 15 minutes, blocking unrelated warehouse
+        work company-wide): checks meli_sibling_cached_status first —
+        see that field's own help text for exactly what is and isn't
+        safe to cache. A cache hit skips the live call(s) entirely; a
+        miss falls through to the exact same live path as before,
+        which populates the cache for next time (see
+        _meli_no_physical_return_from_order_data).
         """
+        cached_line = self._meli_sibling_lines(cancelled_order_id).filtered(
+            lambda l: l.meli_sibling_cached_status
+        )[:1]
+        if cached_line:
+            no_physical_return = self._meli_apply_delivered_return_override(
+                cached_line.meli_sibling_cached_no_physical_return,
+                cached_line.meli_sibling_cached_unreliable_signal,
+                cancelled_order_id,
+            )
+            return cached_line.meli_sibling_cached_status, no_physical_return
         try:
             live_data = self._meli_fetch_order_cached(config, cancelled_order_id) or {}
         except requests.exceptions.RequestException:
@@ -2911,6 +2997,48 @@ class SaleOrder(models.Model):
         return self._meli_no_physical_return_from_order_data(
             config, live_data, order_id=cancelled_order_id,
         )
+
+    def _meli_cache_sibling_ml_resolution(
+        self, sibling_id, live_status, no_physical_return, unreliable_signal,
+    ):
+        """Writes meli_sibling_cached_status/_no_physical_return/
+        _unreliable_signal onto every one of this sibling's own lines —
+        see those fields' own help text for why this is safe (Mercado-
+        Libre-side facts only, never the local stock state). A no-op
+        for a sibling with no resolvable line(s) of its own (every SKU
+        unmapped) — nothing to cache onto.
+        """
+        lines = self._meli_sibling_lines(sibling_id)
+        if not lines:
+            return
+        lines.write({
+            'meli_sibling_cached_status': live_status,
+            'meli_sibling_cached_no_physical_return': no_physical_return,
+            'meli_sibling_cached_unreliable_signal': unreliable_signal,
+        })
+
+    def _meli_apply_delivered_return_override(
+        self, no_physical_return, unreliable_signal, order_id,
+    ):
+        """The one part of this whole decision that is NEVER cached —
+        see meli_sibling_cached_status's own help text for why. Reads
+        this sibling's own real stock moves fresh, every single call
+        (a local DB read, no network cost at all), because delivered-
+        vs-returned quantity is the one fact that genuinely changes
+        over time as the warehouse processes a physical return — see
+        _meli_no_physical_return_from_order_data's own 2026-09-30/
+        2026-10-02 fixes for the full rationale this overrides on.
+        """
+        if no_physical_return and order_id:
+            lines = self._meli_sibling_lines(order_id)
+            delivered_qty, returned_qty = (
+                self._meli_sibling_delivered_and_returned_qty(lines) if lines else (0, 0)
+            )
+            if delivered_qty <= 0:
+                no_physical_return = False
+            elif unreliable_signal and delivered_qty > returned_qty:
+                no_physical_return = False
+        return no_physical_return
 
     def _meli_fetch_order_cached(self, config, order_id):
         """Fix 2026-10-06 (user-directed, real production data: queue.job
@@ -2947,7 +3075,16 @@ class SaleOrder(models.Model):
         key = (config.id, str(order_id))
         if key not in cache:
             try:
-                cache[key] = ('ok', config._api_get(f'/orders/{order_id}'))
+                # Fix 2026-10-09 (user-directed): real empirical latency
+                # against this exact endpoint measured ~200ms — a 5s
+                # timeout is a generous 25x multiple of normal, and
+                # failing fast here (via RetryableJobError, see
+                # _meli_sibling_no_physical_return's own caller) beats
+                # holding one of only 5 shared workers for a full 30s
+                # when Mercado Libre is genuinely degraded.
+                cache[key] = ('ok', config._api_get(
+                    f'/orders/{order_id}', timeout=MELI_SIBLING_CHECK_TIMEOUT,
+                ))
             except requests.exceptions.RequestException as exc:
                 cache[key] = ('error', exc)
         outcome, value = cache[key]
@@ -3044,15 +3181,22 @@ class SaleOrder(models.Model):
                     resolution_reason = (claim_data.get('resolution') or {}).get('reason')
                     no_physical_return = resolution_reason == 'payment_refunded'
 
-        if no_physical_return and order_id:
-            lines = self._meli_sibling_lines(order_id)
-            delivered_qty, returned_qty = (
-                self._meli_sibling_delivered_and_returned_qty(lines) if lines else (0, 0)
+        # Fix 2026-10-09 (user-directed, see meli_sibling_cached_status's
+        # own help text): live_status is terminal here (either branch
+        # above already returned early for anything else) — Mercado
+        # Libre's own facts behind no_physical_return/unreliable_signal
+        # never change once reached, so cache them now for next time.
+        # The one part that genuinely changes over time (delivered vs.
+        # returned stock) is deliberately NEVER cached — applied fresh
+        # below, every single call, via _meli_apply_delivered_return_
+        # override.
+        if order_id:
+            self._meli_cache_sibling_ml_resolution(
+                order_id, live_status, no_physical_return, unreliable_signal,
             )
-            if delivered_qty <= 0:
-                no_physical_return = False
-            elif unreliable_signal and delivered_qty > returned_qty:
-                no_physical_return = False
+        no_physical_return = self._meli_apply_delivered_return_override(
+            no_physical_return, unreliable_signal, order_id,
+        )
         return live_status, no_physical_return
 
     def _meli_pack_credit_note_covers_subset_only(self, cancelled_order_id):
@@ -3113,13 +3257,41 @@ class SaleOrder(models.Model):
         _meli_no_physical_return_from_order_data's own subset-based
         fallback is known to be structurally unable to prove anything
         (see _meli_pack_known_sibling_count's own docstring).
+
+        Fix 2026-10-12 (user-caught, real production case S996079/
+        order 2000018729388086): cancel_detail.group == 'mediations'
+        alone is NOT enough either — confirmed live: this mediation's
+        own claim resolution reads reason 'item_returned' (a genuine
+        physical return under review, with the seller holding a real
+        pending action/deadline to confirm it), not 'payment_refunded'
+        (the only resolution _meli_no_physical_return_from_order_data
+        itself ever treats as "no physical return expected" — see that
+        method's own docstring). Checking only the group let THIS
+        single-sibling pack's fallback force no_physical_return=True
+        anyway, skipping a real, still-pending return review entirely.
+        Now re-fetches the SAME claim and requires its own resolution
+        reason to match too, mirroring the authoritative check
+        _meli_no_physical_return_from_order_data already uses — this
+        fallback may only ever agree with that method's own real
+        verdict, never override it in the "no return needed" direction
+        on group alone.
         """
         self.ensure_one()
         try:
             live_data = self._meli_fetch_order_cached(config, cancelled_order_id) or {}
         except requests.exceptions.RequestException:
             return False
-        return (live_data.get('cancel_detail') or {}).get('group') == 'mediations'
+        cancel_detail = live_data.get('cancel_detail') or {}
+        if cancel_detail.get('group') != 'mediations':
+            return False
+        mediation_id = next(iter(live_data.get('mediations') or []), {}).get('id')
+        if not mediation_id:
+            return False
+        try:
+            claim_data = config._api_get(f'/post-purchase/v1/claims/{mediation_id}') or {}
+        except requests.exceptions.RequestException:
+            return False
+        return (claim_data.get('resolution') or {}).get('reason') == 'payment_refunded'
 
     def _meli_pack_all_siblings_cancelled_live(self, config):
         """Fix 2026-10-02 (user-directed, real case S992811 — "si lo
@@ -4130,13 +4302,31 @@ class SaleOrder(models.Model):
         _meli_reconcile_invoicing() call by hand once someone's looked
         into why it's still missing.
         """
+        # Fix 2026-10-12 (real production incident, same day as the fix
+        # below): this search had no exclusion at all for an order that
+        # already HAS its invoice/resale document — confirmed live at
+        # 31,851 matching candidates, re-scanned in FULL every single
+        # daily run forever (nothing ever permanently removed one once
+        # it turned out to already have a document), which alone is what
+        # pushed this cron past 20 minutes — one cheap-but-not-free
+        # count query per candidate, times 31,851, before even getting
+        # to the genuinely-missing ones. meli_invoice_document_recovery_
+        # checked is set below the first time a candidate resolves
+        # either way (has a document, got recovered, or confirmed
+        # missing) so it drops out of this scan permanently, same
+        # pattern meli_missing_invoice_document already used for its own
+        # terminal case. BATCH_LIMIT + the per-record commit() further
+        # down bound a single run's duration during the one-time
+        # backlog drain while that flag is still being backfilled.
+        BATCH_LIMIT = 500
         cutoff = fields.Datetime.now() - timedelta(days=1)
         candidates = self.search([
             ('meli_sync_source', '!=', False),
             ('meli_order_id', '!=', False),
             ('create_date', '<=', cutoff),
             ('meli_missing_invoice_document', '=', False),
-        ])
+            ('meli_invoice_document_recovery_checked', '=', False),
+        ], order='create_date asc', limit=BATCH_LIMIT)
         Document = self.env['meli.invoice.document'].sudo()
         # Fix 2026-10-08 (same real incident/mechanism as meli.invoice.
         # document._cron_retry_unapplied_documents's own identical fix —
@@ -4160,6 +4350,8 @@ class SaleOrder(models.Model):
                         ('transaction_type', 'in', ('sale', 'resale')),
                     ]))
                     if has_invoice_document:
+                        order.meli_invoice_document_recovery_checked = True
+                        self.env.cr.commit()
                         continue
                     recovered = self.env['meli.invoice.document']
                     for transaction_type in ('resale', 'sale'):
@@ -4191,12 +4383,22 @@ class SaleOrder(models.Model):
                             "nothing — verify manually whether Mercado Libre "
                             "genuinely never invoiced this order."
                         ))
+                    order.meli_invoice_document_recovery_checked = True
             except Exception:
                 _logger.exception(
                     "Mercado Libre order %s: daily missing-invoice "
                     "recovery failed — needs manual review.",
                     order.client_order_ref,
                 )
+            # Per-record commit (real production incident, same cron):
+            # the whole run used to be ONE open transaction for its
+            # entire duration (20+ minutes) — a single record's own
+            # savepoint above only protects against that one record's
+            # failure corrupting the others, it was never a commit.
+            # Committing here lets each record release its locks as
+            # soon as it's done, and means a cut-off run never has to
+            # redo work already finished.
+            self.env.cr.commit()
 
     def _cron_meli_cancel_stale_undelivered_cancelled_orders(self):
         """Daily safety net (2026-10-02, user-caught, real production
@@ -10030,6 +10232,51 @@ class SaleOrderLine(models.Model):
              "0 whenever XE funds the whole discount itself (the "
              "ordinary case so far — every real order checked to date, "
              "2026-09-21, has amounts.seller == amounts.full).",
+    )
+    # Fix 2026-10-09 (user-directed, real production incident: a single
+    # pack-sibling live status check — _meli_sibling_no_physical_return —
+    # was eating one of only 5 workers this whole Odoo.sh project shares
+    # between queue_job and every user's own HTTP request, for up to 15
+    # minutes, blocking unrelated warehouse work company-wide). These 3
+    # fields cache ONLY the Mercado-Libre-side facts behind a sibling's
+    # no_physical_return decision — never the local delivered/returned
+    # stock quantities, which keep being recomputed fresh every time
+    # (no network cost at all, and that's the part that genuinely
+    # changes as the warehouse processes a return — see
+    # _meli_apply_delivered_return_override's own docstring for why
+    # caching THAT part would be wrong). Mercado Libre's own status/
+    # cancel_detail/claim resolution never change once this order
+    # reaches a terminal state (cancelled/partially_refunded), so
+    # caching just this part is safe and eliminates the live API calls
+    # for an already-resolved sibling without ever risking a stale
+    # answer. Left blank/False whenever the sibling is still active —
+    # that case is deliberately never cached, so it's always queried
+    # live (user-directed: "quiero que las ordenes de venta y facturas
+    # tengan todas las actualizaciones").
+    meli_sibling_cached_status = fields.Char(
+        string='Mercado Libre Sibling Cached Status', copy=False,
+        help="This line's own individual Mercado Libre order's last "
+             "known FINAL status ('cancelled' or 'partially_refunded') "
+             "— only ever set once that status is reached, since Mercado "
+             "Libre never reverts one of those. Blank means still "
+             "active/unresolved, and every check keeps consulting "
+             "Mercado Libre live for it.",
+    )
+    meli_sibling_cached_no_physical_return = fields.Boolean(
+        string='Mercado Libre Sibling Cached No-Return (ML side)', copy=False,
+        help="Whether Mercado Libre's own data alone (never this "
+             "warehouse's own delivered/returned quantities) points to "
+             "no physical return being expected for this line's own "
+             "sibling order. Only meaningful once "
+             "meli_sibling_cached_status is set.",
+    )
+    meli_sibling_cached_unreliable_signal = fields.Boolean(
+        string='Mercado Libre Sibling Cached Unreliable Signal', copy=False,
+        help="Whether the cached no-return conclusion above came from "
+             "an ordinary cancellation/unresolved mediation (Mercado "
+             "Libre's own signal, known not fully reliable by itself) "
+             "rather than a genuinely resolved claim — only meaningful "
+             "once meli_sibling_cached_status is set.",
     )
 
     # Fix 2026-09-22 round 6 (user-directed, real regression round 5's
