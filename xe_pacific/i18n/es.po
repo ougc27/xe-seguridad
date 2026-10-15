@@ -2009,6 +2009,11 @@ msgid "No"
 msgstr "No"
 
 #. module: xe_pacific
+#: model:ir.model.fields.selection,name:xe_pacific.selection__helpdesk_ticket__remission_incident__delivery_only
+msgid "Delivery only"
+msgstr "Solo entrega"
+
+#. module: xe_pacific
 #: model:ir.ui.menu,name:xe_pacific.crm_menu_tags
 msgid "CRM Tags"
 msgstr "Etiquetas"
