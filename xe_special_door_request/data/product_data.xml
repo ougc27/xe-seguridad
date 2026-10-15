@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Placeholders: Sistemas completa impuestos de venta y compra, categoría y clave SAT.
+         Se instalan sin impuestos para no heredar los de la empresa que instala -->
+    <data noupdate="1">
+        <record id="product_placeholder_right" model="product.template">
+            <field name="name">PUERTA DE MEDIDA ESPECIAL DERECHA</field>
+            <field name="default_code">PTAESPDE</field>
+            <field name="detailed_type">service</field>
+            <field name="invoice_policy">delivery</field>
+            <field name="service_type">manual</field>
+            <field name="service_tracking">no</field>
+            <field name="sale_ok" eval="True"/>
+            <field name="purchase_ok" eval="False"/>
+            <field name="list_price">0.0</field>
+            <field name="company_id" eval="False"/>
+            <field name="taxes_id" eval="[(5, 0, 0)]"/>
+            <field name="supplier_taxes_id" eval="[(5, 0, 0)]"/>
+            <field name="is_special_door" eval="True"/>
+        </record>
+        <record id="product_placeholder_left" model="product.template">
+            <field name="name">PUERTA DE MEDIDA ESPECIAL IZQUIERDA</field>
+            <field name="default_code">PTAESPIZ</field>
+            <field name="detailed_type">service</field>
+            <field name="invoice_policy">delivery</field>
+            <field name="service_type">manual</field>
+            <field name="service_tracking">no</field>
+            <field name="sale_ok" eval="True"/>
+            <field name="purchase_ok" eval="False"/>
+            <field name="list_price">0.0</field>
+            <field name="company_id" eval="False"/>
+            <field name="taxes_id" eval="[(5, 0, 0)]"/>
+            <field name="supplier_taxes_id" eval="[(5, 0, 0)]"/>
+            <field name="is_special_door" eval="True"/>
+        </record>
+    </data>
+</odoo>
