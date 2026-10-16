@@ -6,11 +6,14 @@
         <field name="arch" type="xml">
             <form string="Solicitud de puerta de medida especial">
                 <field name="step" invisible="1"/>
-                <group>
-                    <field name="sale_order_id"/>
-                </group>
+                <field name="sale_order_id" invisible="1"/>
                 <!-- Paso 1: captura -->
                 <div invisible="step != 'edit'">
+                    <div class="alert alert-info mb-2" role="alert">
+                        En las filas de puerta especial captura modelo, ancho y alto en centímetros enteros, y color.
+                        En las de SKU existente solo se ajusta la cantidad.
+                        Desactiva “Incluir” en las filas que no quieras pedir.
+                    </div>
                     <!-- En una lista editable los campos de solo lectura no se envían en el onchange:
                          force_save para que el SKU se calcule en pantalla -->
                     <field name="line_ids" nolabel="1">
@@ -18,18 +21,19 @@
                             <field name="sale_line_id" column_invisible="1" force_save="1"/>
                             <field name="is_placeholder" column_invisible="1" force_save="1"/>
                             <field name="existing_product_id" column_invisible="1"/>
-                            <field name="include" widget="boolean_toggle"/>
-                            <field name="product_id" force_save="1"/>
+                            <field name="include" widget="boolean_toggle" width="73px"/>
+                            <field name="product_id" string="Producto en OV" readonly="1" force_save="1"
+                                   options="{'no_open': True}"/>
                             <field name="model_id" width="115px" readonly="not is_placeholder"
                                    options="{'no_create': True, 'no_open': True}"/>
                             <field name="width" readonly="not is_placeholder"/>
                             <field name="height" readonly="not is_placeholder"/>
                             <field name="color_id" width="115px" readonly="not is_placeholder"
                                    options="{'no_create': True, 'no_open': True}"/>
-                            <field name="opening" readonly="not is_placeholder" force_save="1"/>
-                            <field name="quantity"/>
+                            <field name="opening" readonly="1" force_save="1"/>
+                            <field name="quantity" string="Cantidad"/>
                             <field name="sku" width="130px"/>
-                            <field name="existing_status" widget="badge"
+                            <field name="existing_status" string="¿Ya existe?" widget="badge"
                                    decoration-success="existing_status == 'active'"
                                    decoration-warning="existing_status in ('pending', 'archived')"
                                    decoration-info="existing_status == 'new'"/>
@@ -41,7 +45,7 @@
                 </div>
                 <!-- Paso 2: advertencias -->
                 <div invisible="step != 'confirm'">
-                    <field name="warning_message" nolabel="1"/>
+                    <field name="warning_message" nolabel="1" readonly="1"/>
                 </div>
                 <footer>
                     <button name="action_submit" string="Crear solicitud" type="object" class="btn-primary"

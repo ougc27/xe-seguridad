@@ -2,7 +2,7 @@
 
 {
     "name": "Solicitud de puertas de medida especial",
-    "version": "17.0.1.0.0",
+    "version": "17.0.1.0.1",
     "license": "LGPL-3",
     "author": "XE Brands",
     "category": "Sales/Sales",
