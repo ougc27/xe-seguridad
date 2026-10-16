@@ -11,6 +11,14 @@ class TestSpecialDoorRequest(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # En la copia de producción la empresa por defecto del usuario técnico puede no tener
+        # almacén para la OV: se trabaja en la empresa de un almacén existente
+        Warehouse = cls.env['stock.warehouse']
+        cls.warehouse = Warehouse.search([('company_id', '=', cls.env.company.id)], limit=1) \
+            or Warehouse.search([], limit=1)
+        cls.company = cls.warehouse.company_id
+        cls.env = cls.env(context=dict(cls.env.context, allowed_company_ids=cls.company.ids))
+
         cls.Task = cls.env['project.task']
         cls.project = cls.env.ref('%s.project_special_door' % MODULE)
         cls.placeholder_right = cls.env.ref('%s.product_placeholder_right' % MODULE).product_variant_id
@@ -19,9 +27,10 @@ class TestSpecialDoorRequest(TransactionCase):
         # Las pruebas también corren sobre la copia de producción (staging): se usan impuestos
         # existentes y solo se crean si la base no tiene (base limpia de desarrollo)
         Tax = cls.env['account.tax']
-        sale_tax = Tax.search([('type_tax_use', '=', 'sale')], limit=1) or Tax.create({
+        company_domain = [('company_id', '=', cls.company.id)]
+        sale_tax = Tax.search(company_domain + [('type_tax_use', '=', 'sale')], limit=1) or Tax.create({
             'name': 'IVA venta prueba', 'amount': 16, 'type_tax_use': 'sale'})
-        purchase_tax = Tax.search([('type_tax_use', '=', 'purchase')], limit=1) or Tax.create({
+        purchase_tax = Tax.search(company_domain + [('type_tax_use', '=', 'purchase')], limit=1) or Tax.create({
             'name': 'IVA compra prueba', 'amount': 16, 'type_tax_use': 'purchase'})
         (cls.placeholder_right | cls.placeholder_left).product_tmpl_id.write({
             'taxes_id': [Command.set(sale_tax.ids)],
@@ -60,6 +69,8 @@ class TestSpecialDoorRequest(TransactionCase):
         products = products or self.placeholder_right
         return self.env['sale.order'].create({
             'partner_id': self.partner.id,
+            'company_id': self.company.id,
+            'warehouse_id': self.warehouse.id,
             'order_line': [Command.create({'product_id': product.id, 'product_uom_qty': 1, 'price_unit': 100.0})
                            for product in products],
         })
@@ -191,7 +202,8 @@ class TestSpecialDoorRequest(TransactionCase):
 
     def test_salesman_can_request(self):
         salesman = new_test_user(
-            self.env, login='special_door_salesman', groups='sales_team.group_sale_salesman')
+            self.env, login='special_door_salesman', groups='sales_team.group_sale_salesman',
+            company_id=self.company.id, company_ids=[Command.set(self.company.ids)])
         order = self._create_order()
         order.user_id = salesman
         order = order.with_user(salesman)
