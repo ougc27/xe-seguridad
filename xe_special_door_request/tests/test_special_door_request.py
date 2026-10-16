@@ -16,9 +16,12 @@ class TestSpecialDoorRequest(TransactionCase):
         cls.placeholder_right = cls.env.ref('%s.product_placeholder_right' % MODULE).product_variant_id
         cls.placeholder_left = cls.env.ref('%s.product_placeholder_left' % MODULE).product_variant_id
 
-        sale_tax = cls.env['account.tax'].create({
+        # Las pruebas también corren sobre la copia de producción (staging): se usan impuestos
+        # existentes y solo se crean si la base no tiene (base limpia de desarrollo)
+        Tax = cls.env['account.tax']
+        sale_tax = Tax.search([('type_tax_use', '=', 'sale')], limit=1) or Tax.create({
             'name': 'IVA venta prueba', 'amount': 16, 'type_tax_use': 'sale'})
-        purchase_tax = cls.env['account.tax'].create({
+        purchase_tax = Tax.search([('type_tax_use', '=', 'purchase')], limit=1) or Tax.create({
             'name': 'IVA compra prueba', 'amount': 16, 'type_tax_use': 'purchase'})
         (cls.placeholder_right | cls.placeholder_left).product_tmpl_id.write({
             'taxes_id': [Command.set(sale_tax.ids)],
@@ -34,19 +37,23 @@ class TestSpecialDoorRequest(TransactionCase):
         cls.sale_tag = cls.env['crm.tag'].create({'name': 'PuertaEspecial prueba'})
         cls.validator = new_test_user(cls.env, login='special_door_validator', groups='base.group_user')
 
-        cls.env['res.config.settings'].create({
-            'special_door_sku_validator_id': cls.validator.id,
-            'special_door_tag_single_id': cls.tag_single.id,
-            'special_door_tag_fixed_id': cls.tag_fixed.id,
-            'special_door_tag_double_id': cls.tag_double.id,
-            'special_door_sale_tag_id': cls.sale_tag.id,
-        }).execute()
+        # Parámetros escritos directo: execute() de Ajustes corre los ajustes de todos los módulos
+        ICP = cls.env['ir.config_parameter'].sudo()
+        for param, record in (
+            ('sku_validator_user_id', cls.validator),
+            ('tag_single_id', cls.tag_single),
+            ('tag_fixed_id', cls.tag_fixed),
+            ('tag_double_id', cls.tag_double),
+            ('sale_tag_id', cls.sale_tag),
+        ):
+            ICP.set_param('%s.%s' % (MODULE, param), record.id)
 
+        # Códigos que no existen en los catálogos reales (son únicos)
         cls.door_model = cls.env['special.door.model'].create({
-            'name': 'Blak', 'code': 'zt', 'categ_id': cls.category.id,
+            'name': 'Modelo prueba', 'code': 'qzt', 'categ_id': cls.category.id,
             'product_tag_ids': [Command.set(cls.tag_series.ids)], 'single_max_width': 120,
         })
-        cls.color = cls.env['special.door.color'].create({'name': 'Blanco', 'code': 'wh'})
+        cls.color = cls.env['special.door.color'].create({'name': 'Color prueba', 'code': 'qz'})
         cls.partner = cls.env['res.partner'].create({'name': 'Cliente puertas'})
 
     def _create_order(self, products=None):
@@ -74,8 +81,8 @@ class TestSpecialDoorRequest(TransactionCase):
         self.assertEqual((right.opening, left.opening), ('DE', 'IZ'))
         self.assertFalse(right.sku, "Sin modelo, medidas ni color no hay SKU")
         self._fill_row(right)
-        self.assertEqual(right.sku, 'ZT90210WHDE')
-        self.assertEqual(right.sku_name, 'PTA MEDIDA ESPECIAL BLAK 90-210 BLANCO DER')
+        self.assertEqual(right.sku, 'QZT90210QZDE')
+        self.assertEqual(right.sku_name, 'PTA MEDIDA ESPECIAL MODELO PRUEBA 90-210 COLOR PRUEBA DER')
         self.assertEqual(right.existing_status, 'new')
 
     def test_existing_status(self):
@@ -83,7 +90,7 @@ class TestSpecialDoorRequest(TransactionCase):
         order = self._create_order()
         row = self._open_wizard(order).line_ids
         self._fill_row(row)
-        product = Product.create({'name': 'Existente', 'default_code': 'ZT90210WHDE', 'type': 'product'})
+        product = Product.create({'name': 'Existente', 'default_code': 'QZT90210QZDE', 'type': 'product'})
         row.invalidate_recordset()
         self.assertEqual(row.existing_status, 'active')
         product.write({'is_special_door': True, 'sale_ok': False, 'purchase_ok': False})
@@ -127,13 +134,13 @@ class TestSpecialDoorRequest(TransactionCase):
         self.assertEqual(task.stage_id, self.env.ref('%s.stage_special_door_validate_measures' % MODULE))
         self.assertEqual(task.state, '01_in_progress')
         self.assertNotIn('»', task.name)
-        self.assertIn('ZT90210WHDE', task.description)
+        self.assertIn('QZT90210QZDE', task.description)
         self.assertIn('Urgente &lt;b&gt;', task.description)
         self.assertIn(self.sale_tag, order.tag_ids)
         order.invalidate_recordset(['show_special_door_button'])
         self.assertFalse(order.show_special_door_button)
 
-        product = self.env['product.product'].search([('default_code', '=', 'ZT90210WHDE')])
+        product = self.env['product.product'].search([('default_code', '=', 'QZT90210QZDE')])
         self.assertEqual(len(product), 1)
         self.assertEqual(product.type, 'product')
         self.assertFalse(product.sale_ok or product.purchase_ok)
@@ -155,7 +162,7 @@ class TestSpecialDoorRequest(TransactionCase):
         self._fill_row(second.line_ids)
         self.assertEqual(second.line_ids.existing_status, 'pending')
         second.action_submit()
-        self.assertEqual(self.env['product.product'].search_count([('default_code', '=', 'ZT90210WHDE')]), 1)
+        self.assertEqual(self.env['product.product'].search_count([('default_code', '=', 'QZT90210QZDE')]), 1)
 
     def test_warnings_step(self):
         wizard = self._open_wizard(self._create_order())
