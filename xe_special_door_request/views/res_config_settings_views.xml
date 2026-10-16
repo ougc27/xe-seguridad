@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.xe.special.door.request</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='pricing_setting_container']" position="after">
+                <block title="Puertas de medida especial" id="special_door_setting_container"
+                       groups="base.group_system">
+                    <setting id="special_door_sku_validator" string="Validador de SKUs"
+                             help="Recibe la actividad para validar cada SKU nuevo creado por una solicitud.">
+                        <field name="special_door_sku_validator_id" options="{'no_create': True}"/>
+                    </setting>
+                    <setting id="special_door_sale_tag" string="Etiqueta de la orden de venta"
+                             help="Se agrega a la orden de venta al crear la solicitud.">
+                        <field name="special_door_sale_tag_id" options="{'no_create': True}"/>
+                    </setting>
+                    <setting id="special_door_configuration_tags" string="Etiquetas de configuración"
+                             help="Se asignan a los SKUs nuevos según el ancho de la puerta.">
+                        <div class="content-group">
+                            <div class="row mt8">
+                                <label for="special_door_tag_single_id" class="col-lg-4 o_light_label"/>
+                                <field name="special_door_tag_single_id" options="{'no_create': True}"/>
+                            </div>
+                            <div class="row">
+                                <label for="special_door_tag_fixed_id" class="col-lg-4 o_light_label"/>
+                                <field name="special_door_tag_fixed_id" options="{'no_create': True}"/>
+                            </div>
+                            <div class="row">
+                                <label for="special_door_tag_double_id" class="col-lg-4 o_light_label"/>
+                                <field name="special_door_tag_double_id" options="{'no_create': True}"/>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>
