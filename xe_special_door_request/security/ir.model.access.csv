@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_special_door_model_user,access.special.door.model.user,model_special_door_model,base.group_user,1,0,0,0
+access_special_door_model_system,access.special.door.model.system,model_special_door_model,base.group_system,1,1,1,1
+access_special_door_color_user,access.special.door.color.user,model_special_door_color,base.group_user,1,0,0,0
+access_special_door_color_system,access.special.door.color.system,model_special_door_color,base.group_system,1,1,1,1
+access_special_door_request_wizard,access.special.door.request.wizard,model_special_door_request_wizard,base.group_user,1,1,1,1
+access_special_door_request_wizard_line,access.special.door.request.wizard.line,model_special_door_request_wizard_line,base.group_user,1,1,1,1

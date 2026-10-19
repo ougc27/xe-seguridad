@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Proyecto de seguimiento: visible para sus seguidores (áreas) y el vendedor de cada tarea -->
+        <record id="project_special_door" model="project.project">
+            <field name="name">Puertas de medida especial</field>
+            <field name="company_id" eval="False"/>
+            <field name="privacy_visibility">followers</field>
+            <field name="allow_billable" eval="False"/>
+        </record>
+
+        <record id="stage_special_door_validate_measures" model="project.task.type">
+            <field name="name">Validar medidas y factibilidad</field>
+            <field name="sequence">1</field>
+            <field name="project_ids" eval="[(4, ref('project_special_door'))]"/>
+        </record>
+        <record id="stage_special_door_validate_skus" model="project.task.type">
+            <field name="name">Validar SKUs</field>
+            <field name="sequence">2</field>
+            <field name="project_ids" eval="[(4, ref('project_special_door'))]"/>
+        </record>
+        <record id="stage_special_door_replace_skus" model="project.task.type">
+            <field name="name">Sustituir SKUs en OV</field>
+            <field name="sequence">3</field>
+            <field name="project_ids" eval="[(4, ref('project_special_door'))]"/>
+        </record>
+        <record id="stage_special_door_authorize_purchase" model="project.task.type">
+            <field name="name">Autorizar compra (Comercial)</field>
+            <field name="sequence">4</field>
+            <field name="project_ids" eval="[(4, ref('project_special_door'))]"/>
+        </record>
+        <record id="stage_special_door_confirm_po" model="project.task.type">
+            <field name="name">Confirmar OC</field>
+            <field name="sequence">5</field>
+            <field name="project_ids" eval="[(4, ref('project_special_door'))]"/>
+        </record>
+        <record id="stage_special_door_validate_reception" model="project.task.type">
+            <field name="name">Validar recepción de OC</field>
+            <field name="sequence">6</field>
+            <field name="project_ids" eval="[(4, ref('project_special_door'))]"/>
+        </record>
+        <record id="stage_special_door_authorize_delivery" model="project.task.type">
+            <field name="name">Autorizar entrega (Comercial)</field>
+            <field name="sequence">7</field>
+            <field name="project_ids" eval="[(4, ref('project_special_door'))]"/>
+        </record>
+        <record id="stage_special_door_deliver" model="project.task.type">
+            <field name="name">Entregar al cliente</field>
+            <field name="sequence">8</field>
+            <field name="project_ids" eval="[(4, ref('project_special_door'))]"/>
+        </record>
+        <record id="stage_special_door_delivered" model="project.task.type">
+            <field name="name">Entregada al cliente</field>
+            <field name="sequence">9</field>
+            <field name="fold" eval="True"/>
+            <field name="project_ids" eval="[(4, ref('project_special_door'))]"/>
+        </record>
+        <record id="stage_special_door_cancelled_no_po" model="project.task.type">
+            <field name="name">Cancelada sin OC</field>
+            <field name="sequence">10</field>
+            <field name="fold" eval="True"/>
+            <field name="project_ids" eval="[(4, ref('project_special_door'))]"/>
+        </record>
+        <record id="stage_special_door_cancelled_with_po" model="project.task.type">
+            <field name="name">Cancelada con OC confirmada</field>
+            <field name="sequence">11</field>
+            <field name="fold" eval="True"/>
+            <field name="project_ids" eval="[(4, ref('project_special_door'))]"/>
+        </record>
+    </data>
+</odoo>

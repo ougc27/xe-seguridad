@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Catálogos editables solo por Sistemas; se muestran también los inactivos -->
+    <record id="special_door_model_view_tree" model="ir.ui.view">
+        <field name="name">special.door.model.view.tree</field>
+        <field name="model">special.door.model</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" decoration-muted="not active">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="categ_id" options="{'no_create': True}"/>
+                <field name="product_tag_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                <field name="single_max_width"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="special_door_model_view_search" model="ir.ui.view">
+        <field name="name">special.door.model.view.search</field>
+        <field name="model">special.door.model</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="Activos" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inactivos" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="special_door_model_action" model="ir.actions.act_window">
+        <field name="name">Modelos de puerta especial</field>
+        <field name="res_model">special.door.model</field>
+        <field name="view_mode">tree</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+
+    <record id="special_door_color_view_tree" model="ir.ui.view">
+        <field name="name">special.door.color.view.tree</field>
+        <field name="model">special.door.color</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" decoration-muted="not active">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="special_door_color_view_search" model="ir.ui.view">
+        <field name="name">special.door.color.view.search</field>
+        <field name="model">special.door.color</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="Activos" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inactivos" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="special_door_color_action" model="ir.actions.act_window">
+        <field name="name">Colores de puerta especial</field>
+        <field name="res_model">special.door.color</field>
+        <field name="view_mode">tree</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+
+    <menuitem id="menu_special_door_config"
+              name="Puertas de medida especial"
+              parent="sale.menu_sale_config"
+              sequence="60"
+              groups="base.group_system"/>
+    <menuitem id="menu_special_door_model"
+              name="Modelos"
+              parent="menu_special_door_config"
+              action="special_door_model_action"
+              sequence="10"
+              groups="base.group_system"/>
+    <menuitem id="menu_special_door_color"
+              name="Colores"
+              parent="menu_special_door_config"
+              action="special_door_color_action"
+              sequence="20"
+              groups="base.group_system"/>
+</odoo>
