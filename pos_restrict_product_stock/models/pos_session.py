@@ -23,6 +23,7 @@ from odoo.exceptions import UserError, AccessError
 from odoo.tools import float_compare, float_is_zero
 from collections import defaultdict
 import logging
+import traceback
 _logger = logging.getLogger(__name__)
 
 
@@ -612,28 +613,63 @@ class PosSession(models.Model):
         return moves | reversal_moves | cash_origin_moves
 
     def cron_close_open_pos_sessions(self):
-        sessions = self.sudo().search([('state', '=', 'opened')])
+        # Sessions left in 'closing_control' by a previous failed attempt are
+        # retried too; otherwise they would stay stuck forever.
+        # Sessions in 'opening_control' (opening cash never confirmed) have no
+        # sales and no opening cash: closing them would store a 0 closing cash
+        # and block the next day's opening check, so they are left to be reused.
+        sessions = self.sudo().search([('state', 'in', ('opened', 'closing_control'))])
 
         for session in sessions:
+            session_name = session.name
+            config_name = session.config_id.name
             try:
                 if session.config_id.cash_control:
-                    session.post_closing_cash_details(
+                    cash_result = session.post_closing_cash_details(
                         counted_cash=session.cash_register_balance_end
                     )
+                    if isinstance(cash_result, dict) and not cash_result.get('successful', True):
+                        raise UserError(cash_result.get('message') or _("Cash closing details could not be posted."))
+
                 bank_payment_method_diff_pairs = [
                     (pm.id, 0)
                     for pm in session.payment_method_ids
                     if pm.type == 'bank'
                 ]
-                session.close_session_from_ui(
+                close_result = session.close_session_from_ui(
                     bank_payment_method_diff_pairs=bank_payment_method_diff_pairs
                 )
-                session.sudo().write({'closed_automatically': True})
+                session.invalidate_recordset(['state'])
+                if not (isinstance(close_result, dict) and close_result.get('successful')) \
+                        or session.state != 'closed':
+                    raise UserError(
+                        (close_result or {}).get('message')
+                        or _("Session did not reach the 'closed' state.")
+                    )
+
+                session.write({'closed_automatically': True})
+                # Commit each session on its own so a later failure (or the
+                # cr.rollback() done by _validate_session on an unbalanced
+                # entry) cannot undo the sessions already closed.
+                self.env.cr.commit()  # pylint: disable=invalid-commit
 
             except Exception as e:
-                _logger.info(
-                    f'Error cerrando sesión {session.name}: {str(e)}'
-                )
+                error_trace = traceback.format_exc()
+                # Undo only this session's partial changes; the log record is
+                # created afterwards so it is not rolled back with them.
+                self.env.cr.rollback()
+                self.env.invalidate_all()
+                self.env['ir.logging'].sudo().create({
+                    'name': 'POS auto-close',
+                    'type': 'server',
+                    'dbname': self.env.cr.dbname,
+                    'level': 'ERROR',
+                    'message': f"{session_name} ({config_name}): {e}\n\n{error_trace}",
+                    'path': 'pos_restrict_product_stock/models/pos_session.py',
+                    'func': 'cron_close_open_pos_sessions',
+                    'line': '0',
+                })
+                self.env.cr.commit()  # pylint: disable=invalid-commit
 
     #def _get_closed_orders(self):
         #return super()._get_closed_orders().filtered(lambda o: o.state != 'cancel')

@@ -11,6 +11,11 @@ class PosOrder(models.Model):
 
     reference = fields.Char(string='Physical Order', copy=False, readonly=True)
 
+    tag_ids = fields.Many2many(
+        comodel_name='crm.tag',
+        relation='pos_order_tag_rel', column1='order_id', column2='tag_id',
+        string="Tags")
+
     payment_proof_attachments = fields.Many2many(
         'ir.attachment',
         'pos_order_payment_proof_attachment_rel',

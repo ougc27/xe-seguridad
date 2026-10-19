@@ -1546,6 +1546,32 @@ msgstr "Cantidad máxima permitida: %(qty)s"
 
 #. module: pos_restrict_product_stock
 #. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_session.py:0
+#, python-format
+msgid "Cash closing details could not be posted."
+msgstr "No se pudieron registrar los detalles del cierre de efectivo."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/pos_session.py:0
+#, python-format
+msgid "Session did not reach the 'closed' state."
+msgstr "La sesión no llegó al estado 'cerrado'."
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,help:pos_restrict_product_stock.field_loyalty_rule__maximum_qty
+msgid "Maximum quantity of the order line the coupon can be applied to. Set 0 for no limit."
+msgstr "Cantidad máxima de la línea de la orden a la que se puede aplicar el cupón. Use 0 para no tener límite."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
+#: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
+#, python-format
+msgid "The coupon manual price (%(manual)s) is higher than the current product price (%(current)s)."
+msgstr "El precio manual del cupón (%(manual)s) es mayor que el precio actual del producto (%(current)s)."
+
+#. module: pos_restrict_product_stock
+#. odoo-python
 #: code:addons/pos_restrict_product_stock/models/loyalty_program.py:0
 #, python-format
 msgid ""
@@ -2063,13 +2089,13 @@ msgstr "Precio manual"
 
 #. module: pos_restrict_product_stock
 #: model:ir.model.fields,help:pos_restrict_product_stock.field_loyalty_card__manual_price
-msgid "Tax-included unit price set manually for a specific use case. Only visible/editable by users with the Loyalty Manager access rights. When both a pricelist price and a manual price are set, the lowest of the two is applied."
-msgstr "Precio unitario con impuestos incluidos, establecido manualmente para un caso de uso específico. Solo visible/editable por usuarios con permisos de Administrador de Programas de Cupones y Lealtad. Cuando se configuran una lista de precios y un precio manual a la vez, se aplica el menor de los dos."
+msgid "Tax-included unit price set manually for a specific use case. Only visible/editable by users with the Loyalty Manager access rights. When set, it always takes priority over the pricelist price and the program's reward discount. It cannot be higher than the current product price."
+msgstr "Precio unitario con impuestos incluidos, establecido manualmente para un caso de uso específico. Solo visible/editable por usuarios con permisos de Administrador de Programas de Cupones y Lealtad. Si se captura, siempre tiene prioridad sobre el precio de la lista de precios y sobre el descuento del programa. No puede ser mayor que el precio actual del producto."
 
 #. module: pos_restrict_product_stock
 #: model:ir.model.fields,help:pos_restrict_product_stock.field_loyalty_generate_wizard__manual_price
-msgid "Tax-included unit price set manually. See loyalty.card.manual_price."
-msgstr "Precio unitario con impuestos incluidos, establecido manualmente. Ver loyalty.card.manual_price."
+msgid "Tax-included unit price set manually on the generated coupons. When set, it always takes priority over the pricelist price and the program's reward discount."
+msgstr "Precio unitario con impuestos incluidos, establecido manualmente en los cupones generados. Si se captura, siempre tiene prioridad sobre el precio de la lista de precios y sobre el descuento del programa."
 
 #. module: pos_restrict_product_stock
 #. odoo-javascript
@@ -2185,3 +2211,8 @@ msgstr "Esta semana"
 #: model_terms:ir.ui.view,arch_db:pos_restrict_product_stock.view_pos_order_line_search_coupon_analysis
 msgid "Search POS Order Lines"
 msgstr "Buscar líneas de pedido de TPV"
+
+#. module: pos_restrict_product_stock
+#: model:ir.model.fields,field_description:pos_restrict_product_stock.field_pos_order__tag_ids
+msgid "Tags"
+msgstr "Etiquetas"
