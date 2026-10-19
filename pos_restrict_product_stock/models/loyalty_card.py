@@ -91,8 +91,9 @@ class LoyaltyCard(models.Model):
         groups="pos_restrict_product_stock.group_loyalty_manager",
         help="Tax-included unit price set manually for a specific use case. "
             "Only visible/editable by users with the Loyalty Manager "
-            "access rights. When both a pricelist price and a manual price "
-            "are set, the lowest of the two is applied.",
+            "access rights. When set, it always takes priority over the "
+            "pricelist price and the program's reward discount. It cannot be "
+            "higher than the current product price.",
     )
 
     @api.depends('program_id.name', 'damage_type')

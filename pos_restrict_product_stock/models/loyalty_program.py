@@ -1,5 +1,6 @@
 from odoo import api, models, fields, _
 from odoo.osv import expression
+from odoo.tools import float_compare
 from odoo.tools.safe_eval import safe_eval
 
 
@@ -222,7 +223,7 @@ class LoyaltyProgram(models.Model):
                 return False
             if r.discount_product_domain:
                 domain = expression.normalize_domain(
-                    eval(r.discount_product_domain)
+                    safe_eval(r.discount_product_domain)
                 )
                 if not product.filtered_domain(domain):
                     return False
@@ -257,6 +258,17 @@ class LoyaltyProgram(models.Model):
             # manual_price is captured tax-included (final price). Convert it to
             # a net unit price using the line's own tax ratio, so it works for
             # any POS tax rate (8% border or 16% inland) without hardcoding it.
+            current_unit_price_tax = price_with_tax / qty
+            if float_compare(card.manual_price, current_unit_price_tax, precision_digits=2) > 0:
+                return {
+                    "valid": False,
+                    "message": _(
+                        "The coupon manual price (%(manual)s) is higher than "
+                        "the current product price (%(current)s).",
+                        manual=round(card.manual_price, 2),
+                        current=round(current_unit_price_tax, 2),
+                    ),
+                }
             gross_to_net = (line_subtotal / price_with_tax) if price_with_tax else 1.0
             price_with_discount = card.manual_price * gross_to_net
             new_line_subtotal = qty * price_with_discount

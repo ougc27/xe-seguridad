@@ -11,9 +11,12 @@
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="original_partner_id"/>
             </xpath>
+            <xpath expr="//field[@name='fiscal_position_id']" position="after">
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True, 'no_create': True}"/>
+            </xpath>
             <xpath expr="//page[@name='payments']" position="after">
                 <page string="Payment Proof" name="payment_proof">
-                    <field name="payment_proof_attachments" widget="many2many_binary_preview"/>
+                    <field name="payment_proof_attachments" widget="pos_payment_proof"/>
                 </page>
             </xpath>
             <xpath expr="//button[@name='action_view_invoice']" position="replace">
@@ -57,6 +60,20 @@
                 <field name="reference" optional="show"/>
                 <field name="paid_commission" optional="hide"/>
                 <field name="amount_untaxed" optional="hide"/>
+            </xpath>
+            <xpath expr="//field[@name='state']" position="before">
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="pos_order_search_inherit_pos_restrict_product_stock" model="ir.ui.view">
+        <field name="name">pos.order.search</field>
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='config_id']" position="after">
+                <field name="tag_ids"/>
             </xpath>
         </field>
     </record>

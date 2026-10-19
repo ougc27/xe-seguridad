@@ -62,7 +62,9 @@ class LoyaltyGenerateWizard(models.TransientModel):
     manual_price = fields.Float(
         string="Manual Price",
         groups="pos_restrict_product_stock.group_loyalty_manager",
-        help="Tax-included unit price set manually. See loyalty.card.manual_price.",
+        help="Tax-included unit price set manually on the generated coupons. "
+            "When set, it always takes priority over the pricelist price and "
+            "the program's reward discount.",
     )
 
     def _get_coupon_values(self, partner):
